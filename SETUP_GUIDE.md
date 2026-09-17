@@ -59,7 +59,7 @@ pnpm exec wrangler d1 execute recovery-inventory --remote --file cloudflare-d1-s
 | Project/root directory | `/` or leave blank |
 | Production branch | `main` |
 | Build command | `pnpm build` |
-| Deploy command | `pnpm exec wrangler deploy --config dist/server/wrangler.json` |
+| Deploy command | `pnpm run deploy:cloudflare` |
 | Non-production deploy | `pnpm exec wrangler versions upload --config dist/server/wrangler.json` |
 
 7. Add these **build variables** before retrying the build:
@@ -69,6 +69,8 @@ pnpm exec wrangler d1 execute recovery-inventory --remote --file cloudflare-d1-s
 | `CLOUDFLARE_D1_DATABASE_ID` | The Database ID copied in Step 2 |
 | `CLOUDFLARE_D1_DATABASE_NAME` | `recovery-inventory` |
 | `NODE_VERSION` | `22.16.0` |
+
+The custom deployment command also transfers selected encrypted build secrets into the live Worker without writing their values to GitHub or build logs.
 
 If Cloudflare starts the first build before it lets you add variables, let that build finish, open **Settings → Build**, add the variables, and select **Retry deployment**.
 
@@ -91,14 +93,14 @@ This key is extremely important:
 
 ## 5. Add the first Cloudflare runtime values
 
-Open the deployed Worker, then **Settings → Variables and Secrets**. Add:
+Open the Worker’s **Settings → Variables and Secrets** build section. Add:
 
 | Name | Type | Value |
 |---|---|---|
 | `DATA_ENCRYPTION_KEY` | Secret/encrypted | The key created in Step 4 |
-| `APP_ORIGIN` | Secret/encrypted | `https://recoveryinventory.com` |
+| `APP_ORIGIN` | Variable | `https://recoveryinventory.com` |
 
-Save and deploy the changes. At this point anonymous account creation and encrypted database storage are configured, but paid activation still needs Stripe.
+Save the changes, then retry the build. The `pnpm run deploy:cloudflare` command securely uploads both values as Worker runtime secrets. At this point anonymous account creation and encrypted database storage are configured, but paid activation still needs Stripe.
 
 ## 6. Configure Stripe in test mode first
 
@@ -137,7 +139,7 @@ In Stripe’s Customer Portal settings:
 
 ### Add the Stripe secrets to Cloudflare
 
-In the Worker’s **Settings → Variables and Secrets**, add each as an encrypted secret:
+In the Worker’s **Settings → Variables and Secrets** build section, add each as an encrypted secret:
 
 | Name | Value |
 |---|---|
@@ -145,7 +147,7 @@ In the Worker’s **Settings → Variables and Secrets**, add each as an encrypt
 | `STRIPE_PRICE_ID` | Your yearly `price_...` ID |
 | `STRIPE_WEBHOOK_SECRET` | Your endpoint’s `whsec_...` secret |
 
-Save and deploy the change.
+Save the changes and retry the build. The deployment command transfers the values to the live Worker.
 
 ## 7. Connect recoveryinventory.com
 
