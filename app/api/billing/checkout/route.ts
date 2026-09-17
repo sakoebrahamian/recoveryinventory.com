@@ -12,6 +12,7 @@ export async function POST(request: Request) {
     const origin = appOrigin(request);
     const values: Record<string, string> = {
       mode: "subscription",
+      allow_promotion_codes: "true",
       "line_items[0][price]": stripePriceId(),
       "line_items[0][quantity]": "1",
       client_reference_id: account.id,
