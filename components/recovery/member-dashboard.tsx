@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, LogOut, RefreshCw, ShieldCheck } from "lucide-react";
 import { BrandMark } from "./brand-mark";
 import { LanguageToggle, useLanguage } from "./language-provider";
@@ -32,7 +31,6 @@ function dateForYear(year: number): string {
 
 export function MemberDashboard() {
   const { language, t } = useLanguage();
-  const router = useRouter();
   const currentYear = Number(todayIso().slice(0, 4));
   const [account, setAccount] = React.useState<AccountView | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -141,7 +139,9 @@ export function MemberDashboard() {
 
   async function logout() {
     await fetch("/api/account/logout", { method: "POST" });
-    router.push("/recover");
+    // Native navigation avoids the production Vinext client-router interception error.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign("/recover");
   }
 
   if (loading) return <div className="loading-panel"><div><div className="spinner" /><p>{t("Opening your private space…", "در حال باز کردن فضای خصوصی شما…")}</p></div></div>;

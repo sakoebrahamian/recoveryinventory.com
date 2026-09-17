@@ -1,13 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { KeyRound } from "lucide-react";
 import { useLanguage } from "./language-provider";
 
 export function RecoverForm() {
   const { t } = useLanguage();
-  const router = useRouter();
   const [code, setCode] = React.useState("");
   const [error, setError] = React.useState("");
   const [busy, setBusy] = React.useState(false);
@@ -24,7 +22,9 @@ export function RecoverForm() {
       });
       const result = await response.json() as { error?: string };
       if (!response.ok) throw new Error(result.error || t("That code was not recognized.", "این کد شناخته نشد."));
-      router.push("/app");
+      // Native navigation avoids the production Vinext client-router interception error.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign("/app");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
       setBusy(false);
