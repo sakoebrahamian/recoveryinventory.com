@@ -3014,19 +3014,18 @@ html[dir="rtl"] .inventory-export-fieldset legend {
     background: white !important;
   }
 
-  html.inventory-export-page body * {
-    visibility: hidden !important;
+  html.inventory-export-page body {
+    min-height: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
   }
 
-  html.inventory-export-page .inventory-print-root,
-  html.inventory-export-page .inventory-print-root * {
-    visibility: visible !important;
+  html.inventory-export-page body > :not(.inventory-print-root) {
+    display: none !important;
   }
 
-  html.inventory-export-page .inventory-print-root {
-    position: absolute;
-    top: 0;
-    left: 0;
+  html.inventory-export-page body > .inventory-print-root {
+    position: static;
     display: block !important;
     width: 100%;
     margin: 0;

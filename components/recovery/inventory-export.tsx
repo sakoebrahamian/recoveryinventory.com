@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { CalendarRange, FileDown, X } from "lucide-react";
 import { formatDisplayDate, principleCategories, principles, step4Types } from "@/lib/inventory";
 import { useLanguage } from "./language-provider";
@@ -26,6 +27,10 @@ type InventoryExportProps = {
   selectedDate: string;
   year: number;
 };
+
+const subscribeToDom = () => () => undefined;
+const getClientDomSnapshot = () => true;
+const getServerDomSnapshot = () => false;
 
 function firstDayOfYear(year: number) {
   return `${String(year).padStart(4, "0")}-01-01`;
@@ -220,6 +225,11 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
   const [includeStep10, setIncludeStep10] = React.useState(true);
   const [includeStep4, setIncludeStep4] = React.useState(true);
   const panelRef = React.useRef<HTMLElement>(null);
+  const canUseDom = React.useSyncExternalStore(
+    subscribeToDom,
+    getClientDomSnapshot,
+    getServerDomSnapshot,
+  );
 
   React.useEffect(() => {
     document.documentElement.classList.add("inventory-export-page");
@@ -339,7 +349,12 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
         </section>
       )}
 
-      <PrintDocument records={filteredRecords} scopeLabel={scopeLabel} />
+      {canUseDom
+        ? createPortal(
+          <PrintDocument records={filteredRecords} scopeLabel={scopeLabel} />,
+          document.body,
+        )
+        : null}
     </>
   );
 });
