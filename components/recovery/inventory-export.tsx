@@ -97,7 +97,7 @@ function Step10Print({ data }: { data: Step10Data }) {
                   ? t("Practiced", "تمرین کردم")
                   : state === "attention"
                     ? t("Needs attention", "نیازمند توجه")
-                    : t("Not applicable", "مربوط نیست");
+                    : t("Not applicable", "کاربرد ندارد");
                 return (
                   <div className="inventory-print-principle" key={principle.id}>
                     <span className={`inventory-print-state is-${state}`}>{stateLabel}</span>

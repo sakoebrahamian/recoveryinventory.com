@@ -1506,7 +1506,7 @@ html[dir="rtl"] .page-hero h1 {
 
 .state-picker {
   display: grid;
-  grid-template-columns: 1fr 1fr 34px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;
   gap: 0.35rem;
 }
 
@@ -1538,6 +1538,11 @@ html[dir="rtl"] .page-hero h1 {
   border-color: var(--slate);
   background: var(--slate);
   color: white;
+}
+
+.state-picker button.na {
+  min-width: 3.25rem;
+  white-space: nowrap;
 }
 
 .reflection-prompts {
@@ -2684,7 +2689,7 @@ html[dir="rtl"] .auth-copy h1 {
   }
 
   .state-picker {
-    grid-template-columns: 1fr 1fr 34px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;
   }
 
   .demo-banner {
@@ -6095,7 +6100,7 @@ html[dir="rtl"] .member-locked h1 {
 
   .inner-page .state-picker,
   .member-page .state-picker {
-    grid-template-columns: 1fr 1fr 34px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;
   }
 
   .member-page .member-header-actions .button {

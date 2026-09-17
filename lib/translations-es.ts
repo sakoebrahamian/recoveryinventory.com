@@ -169,7 +169,7 @@ export const spanishTranslations: Record<string, string> = {
   "No public profile. No email required to sign in. Your inventories are stored privately and are not shared unless you decide to share them.": "No hay perfil público. No necesitas correo electrónico para entrar. Tus inventarios se guardan de forma privada y no se comparten a menos que tú lo decidas.",
   "No saved inventories in this selection": "No hay inventarios guardados en esta selección",
   "No saved inventories match this selection.": "No hay inventarios guardados que coincidan con esta selección.",
-  "Not applicable": "No corresponde",
+  "Not applicable": "No aplica",
   "Nothing is public.": "Nada es público.",
   "Nothing leaves this page unless you choose an action.": "Nada sale de esta página a menos que elijas una acción.",
   "Notice. Own it. Choose the next right action.": "Observa. Asume tu parte. Elige la siguiente acción correcta.",

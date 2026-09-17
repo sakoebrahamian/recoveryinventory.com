@@ -209,8 +209,8 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport }:
                         <button className="attention" type="button" aria-pressed={state === "attention"} onClick={() => setPrinciple(principle.id, "attention")}>
                           {t("Needs attention", "نیاز به توجه")}
                         </button>
-                        <button className="na" type="button" aria-pressed={state === "na"} onClick={() => setPrinciple(principle.id, "na")} aria-label={t("Not applicable", "مربوط نیست")}>
-                          —
+                        <button className="na" type="button" aria-pressed={state === "na"} onClick={() => setPrinciple(principle.id, "na")} aria-label={t("Not applicable", "کاربرد ندارد")}>
+                          {language === "en" ? "N/A" : t("Not applicable", "کاربرد ندارد")}
                         </button>
                       </div>
                     </article>
