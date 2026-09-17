@@ -5921,6 +5921,34 @@ html[dir="rtl"] .member-locked h1 {
   color: var(--slate);
 }
 
+.member-payment-gate > div {
+  max-width: 560px;
+}
+
+.member-locked-eyebrow {
+  display: block;
+  margin-bottom: 0.7rem;
+  color: #c96649;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.member-payment-gate .membership-price,
+.member-payment-gate .hero-actions {
+  justify-content: center;
+}
+
+.member-payment-gate .dashboard-message {
+  margin: 1.25rem 0 0;
+}
+
+.member-payment-gate .fine-print {
+  max-width: 460px;
+  margin: 1rem auto 0;
+}
+
 .loading-panel {
   min-height: 100vh;
   background: #f6f2ea;

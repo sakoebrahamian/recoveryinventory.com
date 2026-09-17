@@ -63,7 +63,7 @@ export function MemberDashboard() {
     async function start() {
       try {
         const result = await loadAccount();
-        if (!stopped && result) await loadInventories(year);
+        if (!stopped && result?.membershipActive) await loadInventories(year);
       } catch (error) {
         if (!stopped) {
           setMessage(error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
@@ -83,7 +83,12 @@ export function MemberDashboard() {
       const timer = window.setInterval(async () => {
         attempts += 1;
         const refreshed = await loadAccount().catch(() => null);
-        if (refreshed?.membershipActive || attempts >= 6) window.clearInterval(timer);
+        if (refreshed?.membershipActive) {
+          await loadInventories(year).catch(() => null);
+          window.clearInterval(timer);
+        } else if (attempts >= 6) {
+          window.clearInterval(timer);
+        }
       }, 2500);
       window.history.replaceState({}, "", "/app");
       return () => { window.clearInterval(timer); window.clearTimeout(noticeTimer); };
@@ -93,7 +98,7 @@ export function MemberDashboard() {
       window.history.replaceState({}, "", "/app");
       return () => window.clearTimeout(noticeTimer);
     }
-  }, [loadAccount, t]);
+  }, [loadAccount, loadInventories, t, year]);
 
   function chooseYear(next: number) {
     if (!Number.isInteger(next) || next < 1 || next > 9999) return;
@@ -188,6 +193,38 @@ export function MemberDashboard() {
     );
   }
 
+  if (!account.membershipActive) {
+    return (
+      <main className="member-page">
+        <header className="member-header">
+          <div className="member-topbar">
+            <BrandMark />
+            <div className="member-header-actions">
+              <LanguageToggle compact />
+              <button className="button button-small button-outline" type="button" onClick={logout}><LogOut size={15} />{t("Sign out", "خروج")}</button>
+            </div>
+          </div>
+        </header>
+        <section className="member-locked member-payment-gate">
+          <div>
+            <div className="member-locked-icon"><CircleDollarSign /></div>
+            <span className="member-locked-eyebrow">{t("Membership required", "عضویت لازم است")}</span>
+            <h1>{t("Complete payment to activate your membership", "برای فعال‌سازی عضویت، پرداخت را تکمیل کنید")}</h1>
+            <p>{t("Your private account is ready, but the member workspace stays locked until payment is complete.", "حساب خصوصی شما آماده است، اما فضای اعضا تا تکمیل پرداخت قفل می‌ماند.")}</p>
+            <p>{t("Membership unlocks Step 10, Step 4, calendar history, sharing, copying, and exports.", "عضویت، گام ۱۰، گام ۴، سابقه تقویم، اشتراک‌گذاری، کپی و خروجی را فعال می‌کند.")}</p>
+            {message && <p className="dashboard-message" role="status">{message}</p>}
+            <div className="membership-price"><strong>$25</strong><span>{t("per year", "در سال")}</span></div>
+            <div className="hero-actions">
+              <button className="button button-primary" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={16} />{t("Continue to secure payment", "ادامه به پرداخت امن")}</button>
+              <a className="button button-outline" href="/demo">{t("Open the free demo", "باز کردن نسخه آزمایشی رایگان")}</a>
+            </div>
+            <p className="fine-print">{t("Auto-renews yearly until canceled. Stripe may retain the billing details required to process payment.", "تا زمان لغو، سالانه به‌طور خودکار تمدید می‌شود. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را نگه دارد.")}</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   const selectedStep10 = records.find((record) => record.type === "step10" && record.date === selectedDate);
   const selectedStep4 = records.find((record) => record.type === "step4" && record.date === selectedDate);
   const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
@@ -256,7 +293,6 @@ export function MemberDashboard() {
             </div>
           </div>
           <InventoryExport ref={exportRef} records={records} selectedDate={selectedDate} year={year} />
-          {!account.membershipActive && <div className="setup-notice">{t("Review, print, or share saved work at any time. An active membership is needed only to save changes.", "هر زمان می‌توانید مطالب ذخیره‌شده را مرور، چاپ یا اشتراک‌گذاری کنید. عضویت فعال فقط برای ذخیره تغییرات لازم است.")}</div>}
           {activeType === "step10" ? (
             <Step10Inventory
               key={`step10-${selectedDate}-${selectedStep10?.updatedAt ?? 0}-${language}`}

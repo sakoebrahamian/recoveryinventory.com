@@ -17,6 +17,9 @@ function validType(value: unknown): value is "step10" | "step4" {
 export async function GET(request: Request) {
   try {
     const account = await requireAccount(request);
+    if (!hasActiveMembership(account)) {
+      return Response.json({ error: "An active membership is required to access inventories." }, { status: 403 });
+    }
     const url = new URL(request.url);
     const type = url.searchParams.get("type");
     const year = url.searchParams.get("year");
