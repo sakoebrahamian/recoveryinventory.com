@@ -4937,13 +4937,24 @@ html[dir="rtl"] .inner-page .auth-shell::before {
   grid-template-columns: 46px 1fr;
 }
 
-.inner-page .auth-step strong:first-child {
+.inner-page .auth-step > strong:first-child {
   width: 46px;
   height: 46px;
   border: 1px solid rgba(23, 63, 58, 0.08);
   border-radius: 50%;
   background: rgba(255, 253, 249, 0.7);
   color: var(--ocean);
+}
+
+.inner-page .auth-step div > strong {
+  display: block;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 0.88rem;
 }
 
 .inner-page .account-card {
