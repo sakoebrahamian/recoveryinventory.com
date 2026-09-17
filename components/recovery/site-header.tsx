@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+/* eslint-disable @next/next/no-html-link-for-pages -- Native navigation avoids a production client-router interception issue. */
+
 import { BrandMark } from "./brand-mark";
 import { LanguageToggle, useLanguage } from "./language-provider";
 
@@ -12,15 +13,16 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
       <div className="site-header-inner">
         <BrandMark />
         <nav className="desktop-nav" aria-label={t("Primary navigation", "ناوبری اصلی")}>
-          <Link href="/demo">{t("Try the demo", "مشاهده نسخه آزمایشی")}</Link>
-          <Link href="/#membership">{t("Membership", "عضویت")}</Link>
-          <Link href="/privacy">{t("Privacy", "حریم خصوصی")}</Link>
+          <a href="/demo">{t("Try the demo", "مشاهده نسخه آزمایشی")}</a>
+          <a href="/#inventories">{t("Inventories", "ترازنامه‌ها")}</a>
+          <a href="/#membership">{t("Membership", "عضویت")}</a>
+          <a href="/privacy">{t("Privacy", "حریم خصوصی")}</a>
         </nav>
         <div className="header-actions">
           <LanguageToggle compact />
-          <Link href="/join" className="button button-small button-primary">
+          <a href="/join" className="button button-small button-primary">
             {t("Join anonymously", "عضویت ناشناس")}
-          </Link>
+          </a>
         </div>
       </div>
     </header>

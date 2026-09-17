@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { KeyRound } from "lucide-react";
 import { useLanguage } from "./language-provider";
@@ -60,7 +59,7 @@ export function RecoverForm() {
         </button>
       </form>
       <p className="fine-print">{t("For your privacy, there is no email reset. If the code is lost, the account cannot be recovered.", "برای حفظ حریم خصوصی، بازیابی با ایمیل وجود ندارد. اگر کد گم شود، حساب قابل بازیابی نیست.")}</p>
-      <p className="auth-switch">{t("Need a new account?", "به حساب جدید نیاز دارید؟")} <Link href="/join">{t("Join anonymously", "عضویت ناشناس")}</Link></p>
+      <p className="auth-switch">{t("Need a new account?", "به حساب جدید نیاز دارید؟")} <a href="/join">{t("Join anonymously", "عضویت ناشناس")}</a></p>
     </div>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { Copy, CreditCard, Download, KeyRound, ShieldCheck } from "lucide-react";
 import { useLanguage } from "./language-provider";
 
@@ -95,7 +94,7 @@ export function JoinForm() {
           <p className="fine-print">
             {t("Next, you will receive a one-time recovery code. Payment is handled securely by Stripe, which may request billing information.", "سپس یک کد بازیابی یک‌بار نمایش داده می‌شود. پرداخت به‌صورت امن توسط Stripe انجام می‌شود و ممکن است اطلاعات صورتحساب را درخواست کند.")}
           </p>
-          <p className="auth-switch">{t("Already have a recovery code?", "از قبل کد بازیابی دارید؟")} <Link href="/recover">{t("Open my account", "ورود به حساب")}</Link></p>
+          <p className="auth-switch">{t("Already have a recovery code?", "از قبل کد بازیابی دارید؟")} <a href="/recover">{t("Open my account", "ورود به حساب")}</a></p>
         </>
       ) : (
         <>

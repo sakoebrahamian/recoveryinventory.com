@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowRight, Eye, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/recovery/site-header";
 import { SiteFooter } from "@/components/recovery/site-footer";
@@ -19,7 +18,7 @@ export default function DemoPage() {
       </section>
       <div className="demo-banner">
         <div><ShieldCheck size={18} /><span>{t("Demo mode: your changes stay on this page and disappear when it closes.", "حالت آزمایشی: تغییرات فقط در همین صفحه می‌مانند و پس از بستن آن حذف می‌شوند.")}</span></div>
-        <Link className="text-link" href="/join">{t("Save privately with membership", "ذخیره خصوصی با عضویت")}<ArrowRight className={language === "fa" ? "rotate-180" : ""} size={16} /></Link>
+        <a className="text-link" href="/join">{t("Save privately with membership", "ذخیره خصوصی با عضویت")}<ArrowRight className={language === "fa" ? "rotate-180" : ""} size={16} /></a>
       </div>
       <DemoWorkspace />
       <SiteFooter />

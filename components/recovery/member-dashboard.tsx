@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, LogOut, RefreshCw, ShieldCheck } from "lucide-react";
 import { BrandMark } from "./brand-mark";
@@ -151,7 +150,7 @@ export function MemberDashboard() {
     return (
       <main className="inner-page">
         <div className="member-topbar"><BrandMark /><LanguageToggle compact /></div>
-        <section className="member-locked"><div><div className="member-locked-icon"><ShieldCheck /></div><h1>{t("Your account is private", "حساب شما خصوصی است")}</h1><p>{t("Use your recovery code to open it, or create a new anonymous account.", "برای ورود از کد بازیابی استفاده کنید یا یک حساب ناشناس جدید بسازید.")}</p><div className="hero-actions"><Link className="button button-primary" href="/recover">{t("Use recovery code", "استفاده از کد بازیابی")}</Link><Link className="button button-outline" href="/join">{t("Create account", "ایجاد حساب")}</Link></div></div></section>
+        <section className="member-locked"><div><div className="member-locked-icon"><ShieldCheck /></div><h1>{t("Your account is private", "حساب شما خصوصی است")}</h1><p>{t("Use your recovery code to open it, or create a new anonymous account.", "برای ورود از کد بازیابی استفاده کنید یا یک حساب ناشناس جدید بسازید.")}</p><div className="hero-actions"><a className="button button-primary" href="/recover">{t("Use recovery code", "استفاده از کد بازیابی")}</a><a className="button button-outline" href="/join">{t("Create account", "ایجاد حساب")}</a></div></div></section>
       </main>
     );
   }

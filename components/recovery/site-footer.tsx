@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { BrandMark } from "./brand-mark";
 import { useLanguage } from "./language-provider";
 
@@ -19,10 +18,10 @@ export function SiteFooter() {
           </p>
         </div>
         <div className="footer-links">
-          <Link href="/demo">{t("Demo", "نسخه آزمایشی")}</Link>
-          <Link href="/join">{t("Membership", "عضویت")}</Link>
-          <Link href="/privacy">{t("Privacy", "حریم خصوصی")}</Link>
-          <Link href="/terms">{t("Terms", "شرایط استفاده")}</Link>
+          <a href="/demo">{t("Demo", "نسخه آزمایشی")}</a>
+          <a href="/join">{t("Membership", "عضویت")}</a>
+          <a href="/privacy">{t("Privacy", "حریم خصوصی")}</a>
+          <a href="/terms">{t("Terms", "شرایط استفاده")}</a>
         </div>
       </div>
       <div className="footer-legal">

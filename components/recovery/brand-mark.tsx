@@ -1,4 +1,4 @@
-import Link from "next/link";
+/* eslint-disable @next/next/no-html-link-for-pages -- Native navigation avoids a production client-router interception issue. */
 
 export function BrandMark({ linked = true }: { linked?: boolean }) {
   const mark = (
@@ -15,5 +15,5 @@ export function BrandMark({ linked = true }: { linked?: boolean }) {
     </span>
   );
 
-  return linked ? <Link href="/">{mark}</Link> : mark;
+  return linked ? <a href="/">{mark}</a> : mark;
 }
