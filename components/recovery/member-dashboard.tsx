@@ -118,16 +118,41 @@ export function MemberDashboard() {
 
   async function saveInventory(type: "step10" | "step4", date: string, payload: Step10Data | Step4Data) {
     if (!account?.membershipActive) throw new Error(t("Renew your membership to save changes.", "برای ذخیره تغییرات، عضویت خود را تمدید کنید."));
-    const response = await fetch("/api/inventories", {
+    const request = () => fetch("/api/inventories", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ type, date, payload }),
     });
-    const result = await response.json() as { error?: string };
+    let response: Response;
+    try {
+      response = await request();
+    } catch {
+      await new Promise((resolve) => window.setTimeout(resolve, 500));
+      try {
+        response = await request();
+      } catch {
+        throw new Error(t("The connection was interrupted. Please try saving again.", "ارتباط قطع شد. لطفاً دوباره برای ذخیره تلاش کنید."));
+      }
+    }
+    const result = await response.json().catch(() => ({})) as { error?: string };
     if (!response.ok) throw new Error(result.error || t("Could not save this inventory.", "این ترازنامه ذخیره نشد."));
     const savedYear = Number(date.slice(0, 4));
-    if (savedYear !== year) chooseYear(savedYear);
-    else await loadInventories(year);
+    if (savedYear !== year) {
+      chooseYear(savedYear);
+    } else {
+      setRecords((current) => {
+        const existing = current.find((record) => record.type === type && record.date === date);
+        const saved: InventoryRecord = {
+          id: existing?.id ?? `saved-${type}-${date}`,
+          type,
+          date,
+          payload,
+          updatedAt: Math.floor(Date.now() / 1000),
+        };
+        return [...current.filter((record) => record.type !== type || record.date !== date), saved]
+          .sort((left, right) => left.date.localeCompare(right.date) || left.type.localeCompare(right.type));
+      });
+    }
     setSelectedDate(date);
   }
 

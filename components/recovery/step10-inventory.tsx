@@ -250,7 +250,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport }:
 
       <aside className="inventory-sidebar">
         <section className="inventory-sidebar-card">
-          <h3>{t("Today at a glance", "نگاهی به امروز")}</h3>
+          <h3>{t("Selected day at a glance", "نگاهی به روز انتخاب‌شده")}</h3>
           <p>{formatDisplayDate(data.date, language)}</p>
           <div className="summary-stats">
             <div className="summary-stat"><strong>{counts.practiced}</strong><span>{t("Practiced", "تمرین‌شده")}</span></div>
