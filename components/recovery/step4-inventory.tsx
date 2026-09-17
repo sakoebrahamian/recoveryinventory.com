@@ -120,7 +120,7 @@ export function Step4Inventory({ demo = false, initialData, onSave, onExport }: 
     for (const type of step4Types) {
       const matching = entries.filter((entry) => entry.type === type.id);
       if (!matching.length) continue;
-      lines.push(language === "fa" ? type.fa : type.en);
+      lines.push(language === "fa" ? type.fa : language === "es" ? type.es : type.en);
       matching.forEach((entry, index) => {
         const entryLabels = labelsForType(entry.type);
         lines.push(`${index + 1}. ${entry.subject}`);
@@ -183,12 +183,12 @@ export function Step4Inventory({ demo = false, initialData, onSave, onExport }: 
           <div className="step4-type-tabs" role="tablist" aria-label={t("Inventory sections", "بخش‌های ترازنامه")}>
             {step4Types.map((type) => (
               <button key={type.id} type="button" className={activeType === type.id ? "is-active" : ""} onClick={() => { setActiveType(type.id); setMessage(""); }}>
-                {language === "fa" ? type.fa : type.en}
+                {language === "fa" ? type.fa : language === "es" ? type.es : type.en}
                 <span> ({entries.filter((entry) => entry.type === type.id).length})</span>
               </button>
             ))}
           </div>
-          <p className="step4-description">{language === "fa" ? selectedType.descriptionFa : selectedType.descriptionEn}</p>
+          <p className="step4-description">{language === "fa" ? selectedType.descriptionFa : language === "es" ? selectedType.descriptionEs : selectedType.descriptionEn}</p>
           <section className="step4-form">
             <h3>{t("Add an entry", "افزودن مورد")}</h3>
             <div className="prompt-grid">

@@ -83,11 +83,11 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport }:
   function summaryText() {
     const practiced = principles
       .filter((principle) => data.states[principle.id] === "practiced")
-      .map((principle) => language === "fa" ? principle.fa : principle.en)
+      .map((principle) => language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en)
       .join(", ");
     const attention = principles
       .filter((principle) => data.states[principle.id] === "attention")
-      .map((principle) => language === "fa" ? principle.fa : principle.en)
+      .map((principle) => language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en)
       .join(", ");
 
     return [
@@ -191,7 +191,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport }:
           {principleCategories.map((category) => (
             <section className="principle-category" key={category.id}>
               <div className="principle-category-heading">
-                {language === "fa" ? category.fa : category.en}
+                {language === "fa" ? category.fa : language === "es" ? category.es : category.en}
               </div>
               <div className="principle-grid">
                 {principles.filter((principle) => principle.category === category.id).map((principle) => {
@@ -199,10 +199,10 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport }:
                   return (
                     <article className={`principle-card${state ? ` is-${state}` : ""}`} key={principle.id}>
                       <div className="principle-name">
-                        <strong>{language === "fa" ? principle.fa : principle.en}</strong>
-                        <span>{language === "fa" ? principle.promptFa : principle.promptEn}</span>
+                        <strong>{language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en}</strong>
+                        <span>{language === "fa" ? principle.promptFa : language === "es" ? principle.promptEs : principle.promptEn}</span>
                       </div>
-                      <div className="state-picker" role="group" aria-label={language === "fa" ? principle.fa : principle.en}>
+                      <div className="state-picker" role="group" aria-label={language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en}>
                         <button className="practiced" type="button" aria-pressed={state === "practiced"} onClick={() => setPrinciple(principle.id, "practiced")}>
                           {t("Practiced", "تمرین کردم")}
                         </button>

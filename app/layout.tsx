@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: "%s | Recovery Inventory",
   },
   description:
-    "Private, guided Step 10 and Step 4 recovery inventories in English and Farsi.",
+    "Private, guided Step 10 and Step 4 recovery inventories in English, Farsi, and Spanish.",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",

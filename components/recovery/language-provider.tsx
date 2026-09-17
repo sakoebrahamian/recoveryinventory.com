@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import type { Language } from "@/lib/inventory";
+import { spanishTranslations } from "@/lib/translations-es";
 
 type LanguageContextValue = {
   language: Language;
@@ -23,13 +24,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }, []),
     React.useCallback(() => {
       const saved = window.localStorage.getItem("ri-language");
-      return saved === "fa" ? "fa" : "en";
+      return saved === "fa" || saved === "es" ? saved : "en";
     }, []),
     React.useCallback(() => "en" as Language, []),
   );
 
   React.useEffect(() => {
-    document.documentElement.lang = language === "fa" ? "fa" : "en";
+    document.documentElement.lang = language;
     document.documentElement.dir = language === "fa" ? "rtl" : "ltr";
     window.localStorage.setItem("ri-language", language);
   }, [language]);
@@ -44,7 +45,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       language,
       setLanguage,
       t: (english: string, farsi: string) =>
-        language === "fa" ? farsi : english,
+        language === "fa"
+          ? farsi
+          : language === "es"
+            ? spanishTranslations[english] ?? english
+            : english,
     }),
     [language, setLanguage]
   );
@@ -66,19 +71,18 @@ export function useLanguage() {
 
 export function LanguageToggle({ compact = false }: { compact?: boolean }) {
   const { language, setLanguage } = useLanguage();
-  const next = language === "en" ? "fa" : "en";
 
   return (
-    <button
-      type="button"
-      onClick={() => setLanguage(next)}
-      className="language-toggle"
-      aria-label={language === "en" ? "Switch to Farsi" : "تغییر زبان به انگلیسی"}
-    >
-      <span aria-hidden="true">{language === "en" ? "فا" : "EN"}</span>
-      {!compact && (
-        <span>{language === "en" ? "فارسی" : "English"}</span>
-      )}
-    </button>
+    <label className={`language-toggle${compact ? " is-compact" : ""}`}>
+      <select
+        value={language}
+        onChange={(event) => setLanguage(event.target.value as Language)}
+        aria-label={language === "fa" ? "انتخاب زبان" : language === "es" ? "Seleccionar idioma" : "Choose language"}
+      >
+        <option value="en">English</option>
+        <option value="fa">فارسی</option>
+        <option value="es">Español</option>
+      </select>
+    </label>
   );
 }

@@ -128,7 +128,7 @@ a {
 }
 
 .button:focus-visible,
-.language-toggle:focus-visible,
+.language-toggle:focus-within,
 .text-button:focus-visible {
   outline: 3px solid rgba(33, 189, 168, 0.3);
   outline-offset: 3px;
@@ -333,7 +333,7 @@ a {
 
 .language-toggle {
   display: inline-flex;
-  min-width: 42px;
+  min-width: 104px;
   height: 40px;
   align-items: center;
   justify-content: center;
@@ -346,6 +346,26 @@ a {
   font-size: 0.84rem;
   font-weight: 760;
   cursor: pointer;
+}
+
+.language-toggle select {
+  min-width: 78px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  cursor: pointer;
+}
+
+.language-toggle select option {
+  background: white;
+  color: var(--ink);
+}
+
+.language-toggle.is-compact {
+  min-width: 98px;
 }
 
 .hero-section {
@@ -4800,7 +4820,7 @@ html[dir="rtl"] .ri-floating-secure {
   }
 
   .landing-v2 .language-toggle {
-    min-width: 38px;
+    min-width: 98px;
     height: 38px;
     padding-inline: 0.65rem;
   }

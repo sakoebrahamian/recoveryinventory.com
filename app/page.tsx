@@ -96,7 +96,7 @@ export default function Home() {
           </div>
           <div className="ri-hero-trust" aria-label={t("Membership highlights", "ویژگی‌های عضویت")}>
             <span><ShieldCheck size={17} />{t("No email required", "بدون نیاز به ایمیل")}</span>
-            <span><Globe2 size={17} />{t("English + Farsi", "انگلیسی و فارسی")}</span>
+            <span><Globe2 size={17} />{t("English + Farsi + Spanish", "انگلیسی، فارسی و اسپانیایی")}</span>
             <span><CalendarDays size={17} />{t("Your history, year by year", "سابقه شما، سال‌به‌سال")}</span>
           </div>
         </div>

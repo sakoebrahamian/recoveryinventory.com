@@ -190,7 +190,7 @@ export function MemberDashboard() {
 
   const selectedStep10 = records.find((record) => record.type === "step10" && record.date === selectedDate);
   const selectedStep4 = records.find((record) => record.type === "step4" && record.date === selectedDate);
-  const locale = language === "fa" ? "fa-IR" : "en-US";
+  const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
 
   return (
     <main className="member-page">

@@ -6,7 +6,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json() as { alias?: unknown; language?: unknown };
     const alias = typeof body.alias === "string" ? body.alias.trim().replace(/[\u0000-\u001f]/g, "") : "";
-    const language = body.language === "fa" ? "fa" : "en";
+    const language = body.language === "fa" || body.language === "es" ? body.language : "en";
     if (alias.length < 2 || alias.length > 40) {
       return Response.json({ error: "Choose an alias between 2 and 40 characters." }, { status: 400 });
     }

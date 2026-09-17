@@ -89,7 +89,7 @@ function Step10Print({ data }: { data: Step10Data }) {
         if (!matching.length) return null;
         return (
           <section className="inventory-print-section" key={category.id}>
-            <h3>{language === "fa" ? category.fa : category.en}</h3>
+            <h3>{language === "fa" ? category.fa : language === "es" ? category.es : category.en}</h3>
             <div className="inventory-print-principles">
               {matching.map((principle) => {
                 const state = data.states[principle.id];
@@ -101,8 +101,8 @@ function Step10Print({ data }: { data: Step10Data }) {
                 return (
                   <div className="inventory-print-principle" key={principle.id}>
                     <span className={`inventory-print-state is-${state}`}>{stateLabel}</span>
-                    <strong>{language === "fa" ? principle.fa : principle.en}</strong>
-                    <p>{language === "fa" ? principle.promptFa : principle.promptEn}</p>
+                    <strong>{language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en}</strong>
+                    <p>{language === "fa" ? principle.promptFa : language === "es" ? principle.promptEs : principle.promptEn}</p>
                   </div>
                 );
               })}
@@ -161,8 +161,8 @@ function Step4Print({ data }: { data: Step4Data }) {
         if (!matching.length) return null;
         return (
           <section className="inventory-print-section" key={type.id}>
-            <h3>{language === "fa" ? type.fa : type.en}</h3>
-            <p className="inventory-print-description">{language === "fa" ? type.descriptionFa : type.descriptionEn}</p>
+            <h3>{language === "fa" ? type.fa : language === "es" ? type.es : type.en}</h3>
+            <p className="inventory-print-description">{language === "fa" ? type.descriptionFa : language === "es" ? type.descriptionEs : type.descriptionEn}</p>
             <div className="inventory-print-step4-list">
               {matching.map((entry, index) => <Step4EntryPrint entry={entry} index={index} key={entry.id} />)}
             </div>
@@ -186,7 +186,7 @@ function PrintDocument({ records, scopeLabel }: { records: InventoryRecord[]; sc
       <header className="inventory-print-cover">
         <p>{t("PRIVATE INVENTORY EXPORT", "خروجی خصوصی ترازنامه")}</p>
         <h1>{t("Recovery Inventory", "ترازنامه بهبودی")}</h1>
-        <div><span>{scopeLabel}</span><span>{t(`${sorted.length} saved ${sorted.length === 1 ? "inventory" : "inventories"}`, `${sorted.length} ترازنامه ذخیره‌شده`)}</span></div>
+        <div><span>{scopeLabel}</span><span>{language === "es" ? `${sorted.length} ${sorted.length === 1 ? "inventario guardado" : "inventarios guardados"}` : t(`${sorted.length} saved ${sorted.length === 1 ? "inventory" : "inventories"}`, `${sorted.length} ترازنامه ذخیره‌شده`)}</span></div>
       </header>
 
       {sorted.length === 0 ? (
@@ -275,9 +275,9 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
     if (scope === "month") {
       if (!/^\d{4}-\d{2}$/.test(month)) return t("Choose a month", "یک ماه انتخاب کنید");
       const [monthYear, monthNumber] = month.split("-").map(Number);
-      return new Intl.DateTimeFormat(language === "fa" ? "fa-IR" : "en-US", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(monthYear, monthNumber - 1, 1)));
+      return new Intl.DateTimeFormat(language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(monthYear, monthNumber - 1, 1)));
     }
-    return new Intl.NumberFormat(language === "fa" ? "fa-IR" : "en-US", { useGrouping: false }).format(year);
+    return new Intl.NumberFormat(language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US", { useGrouping: false }).format(year);
   }, [day, language, month, rangeEnd, rangeStart, scope, t, year]);
 
   const dateCount = new Set(filteredRecords.map((record) => record.date)).size;
@@ -328,7 +328,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
               {scope === "day" && <label><span>{t("Day", "روز")}</span><input type="date" min={firstDayOfYear(year)} max={lastDayOfYear(year)} value={day} onChange={(event) => setDay(event.target.value)} /></label>}
               {scope === "range" && <><label><span>{t("From", "از")}</span><input type="date" min={firstDayOfYear(year)} max={lastDayOfYear(year)} value={rangeStart} onChange={(event) => setRangeStart(event.target.value)} /></label><label><span>{t("Through", "تا")}</span><input type="date" min={firstDayOfYear(year)} max={lastDayOfYear(year)} value={rangeEnd} onChange={(event) => setRangeEnd(event.target.value)} /></label></>}
               {scope === "month" && <label><span>{t("Month", "ماه")}</span><input type="month" min={`${year}-01`} max={`${year}-12`} value={month} onChange={(event) => setMonth(event.target.value)} /></label>}
-              {scope === "year" && <div className="inventory-export-year"><span>{t("Calendar year", "سال تقویم")}</span><strong>{new Intl.NumberFormat(language === "fa" ? "fa-IR" : "en-US", { useGrouping: false }).format(year)}</strong></div>}
+              {scope === "year" && <div className="inventory-export-year"><span>{t("Calendar year", "سال تقویم")}</span><strong>{new Intl.NumberFormat(language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US", { useGrouping: false }).format(year)}</strong></div>}
             </div>
           </fieldset>
 
