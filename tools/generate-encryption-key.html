@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Recovery Inventory Key Generator</title>
+    <style>
+      body { margin: 0; background: #f5faf9; color: #071c2b; font: 16px/1.6 system-ui, sans-serif; }
+      main { width: min(680px, calc(100% - 40px)); margin: 10vh auto; border: 1px solid #d7e3e3; border-radius: 22px; background: white; padding: 2rem; box-shadow: 0 20px 60px #071c2b14; }
+      h1 { margin-top: 0; font-family: Georgia, serif; font-weight: 500; }
+      output { display: block; margin: 1rem 0; border-radius: 12px; background: #e9f7f5; padding: 1rem; font: 700 0.9rem/1.5 monospace; overflow-wrap: anywhere; }
+      button { margin: 0 0.35rem 0.35rem 0; border: 0; border-radius: 999px; background: #071c2b; color: white; padding: 0.8rem 1.2rem; font-weight: 700; cursor: pointer; }
+      .warning { color: #8b3540; font-weight: 650; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Data-encryption key generator</h1>
+      <p>This page works entirely inside your browser. It does not send the key anywhere.</p>
+      <output id="key">Select “Generate a new key.”</output>
+      <button id="generate" type="button">Generate a new key</button>
+      <button id="copy" type="button">Copy key</button>
+      <p class="warning">Save the final key in your password manager. If it is lost, saved inventories cannot be decrypted. Never add it to GitHub.</p>
+    </main>
+    <script>
+      const output = document.querySelector("#key");
+      document.querySelector("#generate").addEventListener("click", () => {
+        const bytes = crypto.getRandomValues(new Uint8Array(32));
+        let binary = "";
+        bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+        output.textContent = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+      });
+      document.querySelector("#copy").addEventListener("click", async () => {
+        if (!output.textContent.startsWith("Select")) await navigator.clipboard.writeText(output.textContent);
+      });
+    </script>
+  </body>
+</html>
