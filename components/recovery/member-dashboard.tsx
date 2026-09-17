@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, LogOut, RefreshCw, ShieldCheck } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LogOut, RefreshCw, ShieldCheck } from "lucide-react";
 import { BrandMark } from "./brand-mark";
+import { InventoryExport, type InventoryExportHandle, type InventoryRecord } from "./inventory-export";
 import { LanguageToggle, useLanguage } from "./language-provider";
 import { Step10Inventory, type Step10Data } from "./step10-inventory";
 import { Step4Inventory, type Step4Data } from "./step4-inventory";
@@ -14,14 +15,6 @@ type AccountView = {
   currentPeriodEnd: number | null;
   membershipActive: boolean;
   hasBillingProfile: boolean;
-};
-
-type InventoryRecord = {
-  id: string;
-  type: "step10" | "step4";
-  date: string;
-  payload: Step10Data | Step4Data;
-  updatedAt: number;
 };
 
 function dateForYear(year: number): string {
@@ -41,6 +34,7 @@ export function MemberDashboard() {
   const [activeType, setActiveType] = React.useState<"step10" | "step4">("step10");
   const [message, setMessage] = React.useState("");
   const [billingBusy, setBillingBusy] = React.useState(false);
+  const exportRef = React.useRef<InventoryExportHandle>(null);
 
   const loadAccount = React.useCallback(async () => {
     const response = await fetch("/api/account/me", { cache: "no-store" });
@@ -106,6 +100,20 @@ export function MemberDashboard() {
     setYear(next);
     setYearDraft(String(next));
     setSelectedDate(dateForYear(next));
+  }
+
+  function moveMonth(offset: number) {
+    const [selectedYear, selectedMonth, selectedDay] = selectedDate.split("-").map(Number);
+    const targetFirst = new Date(Date.UTC(selectedYear, selectedMonth - 1 + offset, 1));
+    const targetYear = targetFirst.getUTCFullYear();
+    const targetMonth = targetFirst.getUTCMonth();
+    const targetLastDay = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+    const targetDate = `${String(targetYear).padStart(4, "0")}-${String(targetMonth + 1).padStart(2, "0")}-${String(Math.min(selectedDay, targetLastDay)).padStart(2, "0")}`;
+    if (targetYear !== year) {
+      setYear(targetYear);
+      setYearDraft(String(targetYear));
+    }
+    setSelectedDate(targetDate);
   }
 
   async function saveInventory(type: "step10" | "step4", date: string, payload: Step10Data | Step4Data) {
@@ -180,73 +188,85 @@ export function MemberDashboard() {
         </div>
         {message && <p className="dashboard-message" role="status">{message}</p>}
 
-        <div className="dashboard-grid">
-          <section className="dashboard-card calendar-card">
-            <div className="year-control">
-              <button type="button" onClick={() => chooseYear(year - 1)} aria-label={t("Previous year", "سال قبل")}><ChevronLeft size={18} /></button>
-              <label className="year-input-label"><CalendarDays size={17} /><input type="number" value={yearDraft} onChange={(event) => setYearDraft(event.target.value)} onBlur={() => chooseYear(Number(yearDraft))} onKeyDown={(event) => { if (event.key === "Enter") chooseYear(Number(yearDraft)); }} aria-label={t("Calendar year", "سال تقویم")} /></label>
-              <button type="button" onClick={() => chooseYear(year + 1)} aria-label={t("Next year", "سال بعد")}><ChevronRight size={18} /></button>
-            </div>
-            <p>{t("Choose any day. Move through years for as long as you use the journal.", "هر روزی را انتخاب کنید. تا هر زمان که از دفتر استفاده می‌کنید میان سال‌ها حرکت کنید.")}</p>
-            <YearCalendar year={year} locale={locale} selectedDate={selectedDate} records={records} onSelect={setSelectedDate} />
-            <div className="calendar-legend"><span><i className="dot-ten" />{t("Step 10", "گام ۱۰")}</span><span><i className="dot-four" />{t("Step 4", "گام ۴")}</span></div>
-          </section>
+        <div className="dashboard-workspace">
+          <aside className="dashboard-sidebar">
+            <section className="dashboard-card compact-calendar-card">
+              <div className="compact-calendar-header">
+                <button type="button" onClick={() => moveMonth(-1)} aria-label={t("Previous month", "ماه قبل")}><ChevronLeft size={18} /></button>
+                <div>
+                  <strong>{new Intl.DateTimeFormat(locale, { month: "long", timeZone: "UTC" }).format(new Date(`${selectedDate}T12:00:00Z`))}</strong>
+                  <label className="compact-year-input"><CalendarDays size={14} /><input type="number" value={yearDraft} onChange={(event) => setYearDraft(event.target.value)} onBlur={() => chooseYear(Number(yearDraft))} onKeyDown={(event) => { if (event.key === "Enter") chooseYear(Number(yearDraft)); }} aria-label={t("Calendar year", "سال تقویم")} /></label>
+                </div>
+                <button type="button" onClick={() => moveMonth(1)} aria-label={t("Next month", "ماه بعد")}><ChevronRight size={18} /></button>
+              </div>
+              <CompactCalendar locale={locale} selectedDate={selectedDate} records={records} onSelect={setSelectedDate} />
+              <div className="compact-calendar-footer">
+                <button type="button" onClick={() => { const today = todayIso(); const todayYear = Number(today.slice(0, 4)); setYear(todayYear); setYearDraft(String(todayYear)); setSelectedDate(today); }}>{t("Today", "امروز")}</button>
+                <div className="calendar-legend"><span><i className="dot-ten" />{t("Step 10", "گام ۱۰")}</span><span><i className="dot-four" />{t("Step 4", "گام ۴")}</span></div>
+              </div>
+            </section>
 
-          <aside className="dashboard-card membership-card">
-            <h3>{t("Membership", "عضویت")}</h3>
-            <p>{account.membershipActive ? t("Your inventories can be saved privately.", "ترازنامه‌های شما به‌صورت خصوصی ذخیره می‌شوند.") : t("Saved inventories remain available to review. Renew to save new changes.", "ترازنامه‌های ذخیره‌شده برای مرور در دسترس می‌مانند. برای ذخیره تغییرات جدید، تمدید کنید.")}</p>
-            <div className="membership-price"><strong>$25</strong><span>{t("per year", "در سال")}</span></div>
-            {account.membershipActive || account.hasBillingProfile ? (
-              <button className="button button-outline button-full" type="button" onClick={() => openBilling("portal")} disabled={billingBusy}><RefreshCw size={16} />{t("Manage or cancel", "مدیریت یا لغو")}</button>
-            ) : (
-              <button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={16} />{t("Activate membership", "فعال‌سازی عضویت")}</button>
-            )}
-            <p className="fine-print">{t("Auto-renews yearly until canceled. Stripe may retain the billing details required to process payment.", "تا زمان لغو، سالانه به‌طور خودکار تمدید می‌شود. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را نگه دارد.")}</p>
+            <section className="dashboard-card membership-card">
+              <h3>{t("Membership", "عضویت")}</h3>
+              <p>{account.membershipActive ? t("Your inventories can be saved privately.", "ترازنامه‌های شما به‌صورت خصوصی ذخیره می‌شوند.") : t("Saved inventories remain available to review. Renew to save new changes.", "ترازنامه‌های ذخیره‌شده برای مرور در دسترس می‌مانند. برای ذخیره تغییرات جدید، تمدید کنید.")}</p>
+              <div className="membership-price"><strong>$25</strong><span>{t("per year", "در سال")}</span></div>
+              {account.membershipActive || account.hasBillingProfile ? (
+                <button className="button button-outline button-full" type="button" onClick={() => openBilling("portal")} disabled={billingBusy}><RefreshCw size={16} />{t("Manage or cancel", "مدیریت یا لغو")}</button>
+              ) : (
+                <button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={16} />{t("Activate membership", "فعال‌سازی عضویت")}</button>
+              )}
+              <p className="fine-print">{t("Auto-renews yearly until canceled. Stripe may retain the billing details required to process payment.", "تا زمان لغو، سالانه به‌طور خودکار تمدید می‌شود. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را نگه دارد.")}</p>
+            </section>
           </aside>
-        </div>
 
-        <section className="member-inventory-section">
+          <section className="member-inventory-section dashboard-inventory-column">
           <div className="member-inventory-heading">
             <div><span>{t("Selected date", "تاریخ انتخاب‌شده")}</span><h2>{formatDisplayDate(selectedDate, language)}</h2></div>
-            <div className="workspace-tabs" role="tablist">
-              <button className={`workspace-tab${activeType === "step10" ? " is-active" : ""}`} type="button" onClick={() => setActiveType("step10")}>10 <span>{t("Daily", "روزانه")}</span></button>
-              <button className={`workspace-tab${activeType === "step4" ? " is-active" : ""}`} type="button" onClick={() => setActiveType("step4")}>4 <span>{t("Personal", "شخصی")}</span></button>
+            <div className="member-inventory-tools">
+              <button className="button button-outline inventory-export-trigger" type="button" onClick={() => exportRef.current?.open()}><FileDown size={17} />{t("Export inventories", "خروجی ترازنامه‌ها")}</button>
+              <div className="workspace-tabs" role="tablist">
+                <button className={`workspace-tab${activeType === "step10" ? " is-active" : ""}`} type="button" onClick={() => setActiveType("step10")}>10 <span>{t("Daily", "روزانه")}</span></button>
+                <button className={`workspace-tab${activeType === "step4" ? " is-active" : ""}`} type="button" onClick={() => setActiveType("step4")}>4 <span>{t("Personal", "شخصی")}</span></button>
+              </div>
             </div>
           </div>
+          <InventoryExport ref={exportRef} records={records} selectedDate={selectedDate} year={year} />
           {!account.membershipActive && <div className="setup-notice">{t("Review, print, or share saved work at any time. An active membership is needed only to save changes.", "هر زمان می‌توانید مطالب ذخیره‌شده را مرور، چاپ یا اشتراک‌گذاری کنید. عضویت فعال فقط برای ذخیره تغییرات لازم است.")}</div>}
           {activeType === "step10" ? (
             <Step10Inventory
               key={`step10-${selectedDate}-${selectedStep10?.updatedAt ?? 0}-${language}`}
               initialData={(selectedStep10?.payload as Step10Data | undefined) ?? { date: selectedDate }}
               onSave={(data) => saveInventory("step10", data.date, data)}
+              onExport={() => exportRef.current?.open({ type: "step10" })}
             />
           ) : (
             <Step4Inventory
               key={`step4-${selectedDate}-${selectedStep4?.updatedAt ?? 0}-${language}`}
               initialData={(selectedStep4?.payload as Step4Data | undefined) ?? { date: selectedDate }}
               onSave={(data) => saveInventory("step4", data.date, data)}
+              onExport={() => exportRef.current?.open({ type: "step4" })}
             />
           )}
-        </section>
+          </section>
+        </div>
       </div>
     </main>
   );
 }
 
-function YearCalendar({
-  year,
+function CompactCalendar({
   locale,
   selectedDate,
   records,
   onSelect,
 }: {
-  year: number;
   locale: string;
   selectedDate: string;
   records: InventoryRecord[];
   onSelect: (date: string) => void;
 }) {
-  const months = Array.from({ length: 12 }, (_, month) => month);
+  const [year, monthNumber] = selectedDate.split("-").map(Number);
+  const month = monthNumber - 1;
   const weekdays = Array.from({ length: 7 }, (_, day) => new Intl.DateTimeFormat(locale, { weekday: "narrow", timeZone: "UTC" }).format(new Date(Date.UTC(2024, 0, 7 + day))));
   const recordMap = React.useMemo(() => {
     const map = new Map<string, Set<string>>();
@@ -258,32 +278,26 @@ function YearCalendar({
     return map;
   }, [records]);
 
+  const firstDay = new Date(Date.UTC(year, month, 1)).getUTCDay();
+  const days = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+
   return (
-    <div className="calendar-year-grid">
-      {months.map((month) => {
-        const firstDay = new Date(year, month, 1).getDay();
-        const days = new Date(year, month + 1, 0).getDate();
-        return (
-          <section className="calendar-month" key={month}>
-            <h3>{new Intl.DateTimeFormat(locale, { month: "long" }).format(new Date(year, month, 1))}</h3>
-            <div className="calendar-weekdays">{weekdays.map((weekday, index) => <span key={`${weekday}-${index}`}>{weekday}</span>)}</div>
-            <div className="calendar-days">
-              {Array.from({ length: firstDay }, (_, index) => <span className="calendar-blank" key={`blank-${index}`} />)}
-              {Array.from({ length: days }, (_, index) => {
-                const day = index + 1;
-                const date = `${String(year).padStart(4, "0")}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-                const types = recordMap.get(date);
-                return (
-                  <button className={`calendar-day${selectedDate === date ? " is-selected" : ""}${date === todayIso() ? " is-today" : ""}`} type="button" key={date} onClick={() => onSelect(date)} aria-label={date}>
-                    <span>{new Intl.NumberFormat(locale, { useGrouping: false }).format(day)}</span>
-                    <i className="day-markers">{types?.has("step10") && <b className="dot-ten" />}{types?.has("step4") && <b className="dot-four" />}</i>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        );
-      })}
+    <div className="compact-calendar-grid">
+      <div className="calendar-weekdays">{weekdays.map((weekday, index) => <span key={`${weekday}-${index}`}>{weekday}</span>)}</div>
+      <div className="calendar-days">
+        {Array.from({ length: firstDay }, (_, index) => <span className="calendar-blank" key={`blank-${index}`} />)}
+        {Array.from({ length: days }, (_, index) => {
+          const day = index + 1;
+          const date = `${String(year).padStart(4, "0")}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const types = recordMap.get(date);
+          return (
+            <button className={`calendar-day${selectedDate === date ? " is-selected" : ""}${date === todayIso() ? " is-today" : ""}`} type="button" key={date} onClick={() => onSelect(date)} aria-label={date}>
+              <span>{new Intl.NumberFormat(locale, { useGrouping: false }).format(day)}</span>
+              <i className="day-markers">{types?.has("step10") && <b className="dot-ten" />}{types?.has("step4") && <b className="dot-four" />}</i>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

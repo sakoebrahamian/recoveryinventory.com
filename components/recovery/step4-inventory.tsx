@@ -24,11 +24,12 @@ type Step4InventoryProps = {
   demo?: boolean;
   initialData?: Partial<Step4Data>;
   onSave?: (data: Step4Data) => Promise<void> | void;
+  onExport?: () => void;
 };
 
 const emptyDraft = () => ({ subject: "", event: "", effect: "", myPart: "", nextAction: "" });
 
-export function Step4Inventory({ demo = false, initialData, onSave }: Step4InventoryProps) {
+export function Step4Inventory({ demo = false, initialData, onSave, onExport }: Step4InventoryProps) {
   const { language, t } = useLanguage();
   const [date, setDate] = React.useState(initialData?.date ?? todayIso());
   const [activeType, setActiveType] = React.useState("resentment");
@@ -238,7 +239,7 @@ export function Step4Inventory({ demo = false, initialData, onSave }: Step4Inven
             <button className="button button-primary" type="button" onClick={saveInventory} disabled={saving}><Save size={17} />{saving ? t("Saving…", "در حال ذخیره…") : t("Save inventory", "ذخیره ترازنامه")}</button>
             <button className="button button-outline" type="button" onClick={shareInventory}><Share2 size={17} />{t("Share with sponsor", "اشتراک با حامی")}</button>
             <button className="button button-outline" type="button" onClick={async () => { await navigator.clipboard.writeText(summaryText()); setMessage(t("Private summary copied.", "خلاصه خصوصی کپی شد.")); }}><Copy size={17} />{t("Copy private summary", "کپی خلاصه خصوصی")}</button>
-            <button className="button button-outline" type="button" onClick={() => window.print()}><FileDown size={17} />{t("Print / Save PDF", "چاپ / ذخیره PDF")}</button>
+            <button className="button button-outline" type="button" onClick={onExport ?? (() => window.print())}><FileDown size={17} />{t(onExport ? "Export saved inventory" : "Print / Save PDF", onExport ? "خروجی از ترازنامه ذخیره‌شده" : "چاپ / ذخیره PDF")}</button>
             <button className="button button-danger" type="button" onClick={() => { setEntries([]); setDraft(emptyDraft()); setMessage(""); }}><RotateCcw size={17} />{t("Clear this inventory", "پاک کردن ترازنامه")}</button>
           </div>
           {message && <p className="toast-note" role="status"><Check size={14} /> {message}</p>}

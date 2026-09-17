@@ -26,6 +26,7 @@ type Step10InventoryProps = {
   demo?: boolean;
   initialData?: Partial<Step10Data>;
   onSave?: (data: Step10Data) => Promise<void> | void;
+  onExport?: () => void;
 };
 
 const demoStates: Record<string, PrincipleState> = {
@@ -44,7 +45,7 @@ const demoStates: Record<string, PrincipleState> = {
   mindfulness: "practiced",
 };
 
-export function Step10Inventory({ demo = false, initialData, onSave }: Step10InventoryProps) {
+export function Step10Inventory({ demo = false, initialData, onSave, onExport }: Step10InventoryProps) {
   const { language, t } = useLanguage();
   const [data, setData] = React.useState<Step10Data>({
     date: initialData?.date ?? todayIso(),
@@ -265,7 +266,7 @@ export function Step10Inventory({ demo = false, initialData, onSave }: Step10Inv
             </button>
             <button className="button button-outline" type="button" onClick={shareInventory}><Share2 size={17} />{t("Share with sponsor", "اشتراک با حامی")}</button>
             <button className="button button-outline" type="button" onClick={copyInventory}><Copy size={17} />{t("Copy private summary", "کپی خلاصه خصوصی")}</button>
-            <button className="button button-outline" type="button" onClick={() => window.print()}><FileDown size={17} />{t("Print / Save PDF", "چاپ / ذخیره PDF")}</button>
+            <button className="button button-outline" type="button" onClick={onExport ?? (() => window.print())}><FileDown size={17} />{t(onExport ? "Export saved inventory" : "Print / Save PDF", onExport ? "خروجی از ترازنامه ذخیره‌شده" : "چاپ / ذخیره PDF")}</button>
             <button className="button button-danger" type="button" onClick={resetInventory}><RotateCcw size={17} />{t("Clear this page", "پاک کردن صفحه")}</button>
           </div>
           {message && <p className="toast-note" role="status"><Check size={14} /> {message}</p>}
