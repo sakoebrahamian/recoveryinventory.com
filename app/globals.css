@@ -2657,12 +2657,6 @@ html[dir="rtl"] .auth-copy h1 {
   }
 }
 
-@media (max-width: 520px) {
-  .site-header .header-join {
-    display: none;
-  }
-}
-
 @media (max-width: 480px) {
   .site-header .button-small {
     max-width: 132px;
@@ -6348,5 +6342,39 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
 
   .member-page .dashboard-inventory-column .member-inventory-heading {
     align-items: stretch;
+  }
+}
+
+@media (max-width: 520px) {
+  .site-header-inner,
+  .landing-v2 .site-header-inner,
+  .inner-page .site-header-inner {
+    grid-template-columns: 44px minmax(0, 1fr);
+    min-height: 0;
+    gap: 0.75rem;
+    padding-block: 0.65rem;
+  }
+
+  .site-header .header-actions {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+
+  .site-header .language-toggle {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+
+  .site-header .header-actions .button-small {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    min-height: 38px;
+    padding: 0.58rem 0.45rem;
+    font-size: 0.7rem;
+    line-height: 1.2;
+    text-align: center;
   }
 }
