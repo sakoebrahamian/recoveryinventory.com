@@ -1,11 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LogOut, RefreshCw, ShieldCheck } from "lucide-react";
+import { BarChart3, CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LogOut, RefreshCw, ShieldCheck } from "lucide-react";
 import { BrandMark } from "./brand-mark";
 import { InventoryExport, type InventoryExportHandle, type InventoryRecord } from "./inventory-export";
 import { LanguageToggle, useLanguage } from "./language-provider";
 import { Step10Inventory, type Step10Data } from "./step10-inventory";
+import { Step10Analytics } from "./step10-analytics";
 import { Step4Inventory, type Step4Data } from "./step4-inventory";
 import { formatDisplayDate, todayIso } from "@/lib/inventory";
 
@@ -31,7 +32,8 @@ export function MemberDashboard() {
   const [yearDraft, setYearDraft] = React.useState(String(currentYear));
   const [selectedDate, setSelectedDate] = React.useState(todayIso());
   const [records, setRecords] = React.useState<InventoryRecord[]>([]);
-  const [activeType, setActiveType] = React.useState<"step10" | "step4">("step10");
+  const [activeType, setActiveType] = React.useState<"step10" | "step4" | "analytics">("step10");
+  const [analyticsVersion, setAnalyticsVersion] = React.useState(0);
   const [message, setMessage] = React.useState("");
   const [billingBusy, setBillingBusy] = React.useState(false);
   const exportRef = React.useRef<InventoryExportHandle>(null);
@@ -159,6 +161,7 @@ export function MemberDashboard() {
       });
     }
     setSelectedDate(date);
+    if (type === "step10") setAnalyticsVersion((value) => value + 1);
   }
 
   async function openBilling(path: "checkout" | "portal") {
@@ -211,7 +214,7 @@ export function MemberDashboard() {
             <span className="member-locked-eyebrow">{t("Membership required", "عضویت لازم است")}</span>
             <h1>{t("Complete payment to activate your membership", "برای فعال‌سازی عضویت، پرداخت را تکمیل کنید")}</h1>
             <p>{t("Your private account is ready, but the member workspace stays locked until payment is complete.", "حساب خصوصی شما آماده است، اما فضای اعضا تا تکمیل پرداخت قفل می‌ماند.")}</p>
-            <p>{t("Membership unlocks Step 10, Step 4, calendar history, sharing, copying, and exports.", "عضویت، گام ۱۰، گام ۴، سابقه تقویم، اشتراک‌گذاری، کپی و خروجی را فعال می‌کند.")}</p>
+            <p>{t("Membership unlocks Step 10, Step 4, private Step 10 analytics, calendar history, sharing, copying, and exports.", "عضویت، گام ۱۰، گام ۴، تحلیل خصوصی گام ۱۰، سابقه تقویم، اشتراک‌گذاری، کپی و خروجی را فعال می‌کند.")}</p>
             {message && <p className="dashboard-message" role="status">{message}</p>}
             <div className="membership-price"><strong>$25</strong><span>{t("per year", "در سال")}</span></div>
             <div className="hero-actions">
@@ -283,16 +286,20 @@ export function MemberDashboard() {
 
           <section className="member-inventory-section dashboard-inventory-column">
           <div className="member-inventory-heading">
-            <div><span>{t("Selected date", "تاریخ انتخاب‌شده")}</span><h2>{formatDisplayDate(selectedDate, language)}</h2></div>
+            <div>
+              <span>{activeType === "analytics" ? t("Step 10 only", "فقط گام ۱۰") : t("Selected date", "تاریخ انتخاب‌شده")}</span>
+              <h2>{activeType === "analytics" ? t("Your patterns through today", "الگوهای شما تا امروز") : formatDisplayDate(selectedDate, language)}</h2>
+            </div>
             <div className="member-inventory-tools">
-              <button className="button button-outline inventory-export-trigger" type="button" onClick={() => exportRef.current?.open()}><FileDown size={17} />{t("Export inventories", "خروجی ترازنامه‌ها")}</button>
-              <div className="workspace-tabs" role="tablist">
-                <button className={`workspace-tab${activeType === "step10" ? " is-active" : ""}`} type="button" onClick={() => setActiveType("step10")}>10 <span>{t("Daily", "روزانه")}</span></button>
-                <button className={`workspace-tab${activeType === "step4" ? " is-active" : ""}`} type="button" onClick={() => setActiveType("step4")}>4 <span>{t("Personal", "شخصی")}</span></button>
+              {activeType !== "analytics" && <button className="button button-outline inventory-export-trigger" type="button" onClick={() => exportRef.current?.open()}><FileDown size={17} />{t("Export inventories", "خروجی ترازنامه‌ها")}</button>}
+              <div className="workspace-tabs member-workspace-tabs" role="tablist" aria-label={t("Choose a member tool", "انتخاب ابزار اعضا")}>
+                <button className={`workspace-tab${activeType === "step10" ? " is-active" : ""}`} type="button" onClick={() => setActiveType("step10")} role="tab" aria-selected={activeType === "step10"}>10 <span>{t("Daily", "روزانه")}</span></button>
+                <button className={`workspace-tab${activeType === "step4" ? " is-active" : ""}`} type="button" onClick={() => setActiveType("step4")} role="tab" aria-selected={activeType === "step4"}>4 <span>{t("Personal", "شخصی")}</span></button>
+                <button className={`workspace-tab${activeType === "analytics" ? " is-active" : ""}`} type="button" onClick={() => setActiveType("analytics")} role="tab" aria-selected={activeType === "analytics"}><BarChart3 size={16} /><span>{t("Analytics", "تحلیل")}</span></button>
               </div>
             </div>
           </div>
-          <InventoryExport ref={exportRef} records={records} selectedDate={selectedDate} year={year} />
+          {activeType !== "analytics" && <InventoryExport ref={exportRef} records={records} selectedDate={selectedDate} year={year} />}
           {activeType === "step10" ? (
             <Step10Inventory
               key={`step10-${selectedDate}-${selectedStep10?.updatedAt ?? 0}-${language}`}
@@ -300,12 +307,17 @@ export function MemberDashboard() {
               onSave={(data) => saveInventory("step10", data.date, data)}
               onExport={() => exportRef.current?.open({ type: "step10" })}
             />
-          ) : (
+          ) : activeType === "step4" ? (
             <Step4Inventory
               key={`step4-${selectedDate}-${selectedStep4?.updatedAt ?? 0}-${language}`}
               initialData={(selectedStep4?.payload as Step4Data | undefined) ?? { date: selectedDate }}
               onSave={(data) => saveInventory("step4", data.date, data)}
               onExport={() => exportRef.current?.open({ type: "step4" })}
+            />
+          ) : (
+            <Step10Analytics
+              refreshKey={analyticsVersion}
+              onOpenStep10={() => setActiveType("step10")}
             />
           )}
           </section>

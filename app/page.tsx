@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   ArrowRight,
+  BarChart3,
   CalendarDays,
   Check,
   ChevronDown,
@@ -16,6 +17,7 @@ import {
   NotebookPen,
   ShieldCheck,
   Sparkles,
+  TrendingUp,
   Users,
 } from "lucide-react";
 import { SiteHeader } from "@/components/recovery/site-header";
@@ -232,6 +234,7 @@ export default function Home() {
             <ul>
               <li><Check size={16} />{t("Principles, gratitude, and notes", "اصول، قدردانی و یادداشت‌ها")}</li>
               <li><Check size={16} />{t("A calendar that continues every year", "تقویمی که هر سال ادامه دارد")}</li>
+              <li><Check size={16} />{t("Private analytics across your Step 10 history", "تحلیل خصوصی در سراسر سابقه گام ۱۰ شما")}</li>
             </ul>
             <a href="/demo?step=10">{t("Try Step 10", "آزمایش گام دهم")}<ArrowRight className={arrowClass} size={17} /></a>
           </article>
@@ -250,6 +253,47 @@ export default function Home() {
             </ul>
             <a href="/demo?step=4">{t("Try Step 4", "آزمایش گام چهارم")}<ArrowRight className={arrowClass} size={17} /></a>
           </article>
+        </div>
+      </section>
+
+      <section className="ri-section ri-analytics-showcase" id="analytics">
+        <div className="ri-analytics-copy">
+          <span className="ri-section-label"><BarChart3 size={16} />{t("Step 10 analytics", "تحلیل گام ۱۰")}</span>
+          <h2>{t("See the patterns behind your daily practice.", "الگوهای پشت تمرین روزانه خود را ببینید.")}</h2>
+          <p>{t("Analytics brings every saved Step 10 inventory through today into one calm view—so you can notice practiced strengths, recurring focus areas, recent direction, and your rhythm over time.", "تحلیل، همه ترازنامه‌های ذخیره‌شده گام ۱۰ تا امروز را در یک نمای آرام جمع می‌کند تا نقاط قوت تمرین‌شده، موارد تکرارشونده نیازمند توجه، روند اخیر و ریتم خود را در طول زمان ببینید.")}</p>
+          <div className="ri-analytics-points">
+            <span><Check size={16} />{t("Step 10 only—Step 4 is never included", "فقط گام ۱۰؛ گام ۴ هرگز وارد تحلیل نمی‌شود")}</span>
+            <span><Check size={16} />{t("Built from your principle selections, not your private notes", "ساخته‌شده از انتخاب‌های اصول شما، نه یادداشت‌های خصوصی")}</span>
+            <span><Check size={16} />{t("A private pattern summary, not a clinical assessment", "خلاصه خصوصی الگوها، نه ارزیابی بالینی")}</span>
+          </div>
+          <a href="/demo?step=analytics" className="button button-primary">
+            {t("Explore sample analytics", "مشاهده تحلیل نمونه")}
+            <ArrowRight className={arrowClass} size={17} />
+          </a>
+        </div>
+
+        <div className="ri-analytics-preview" aria-label={t("Sample Step 10 analytics", "نمونه تحلیل گام ۱۰")}>
+          <div className="ri-analytics-preview-head">
+            <div><span>{t("Your current pattern", "الگوی فعلی شما")}</span><strong>{t("Step 10 at a glance", "گام ۱۰ در یک نگاه")}</strong></div>
+            <span>{t("Sample", "نمونه")}</span>
+          </div>
+          <div className="ri-analytics-score-row">
+            <div className="ri-analytics-score"><strong>72%</strong><span>{t("Practiced share", "سهم تمرین‌شده")}</span></div>
+            <div className="ri-analytics-direction"><TrendingUp size={19} /><strong>+8</strong><span>{t("recent direction", "روند اخیر")}</span></div>
+          </div>
+          <div className="ri-analytics-preview-bars">
+            {[
+              [t("Inner practice", "تمرین درونی"), 78],
+              [t("Relationships", "روابط"), 61],
+              [t("Recovery practice", "تمرین بهبودی"), 74],
+            ].map(([label, value]) => (
+              <div key={String(label)}><span><strong>{label}</strong><b>{value}%</b></span><i><em style={{ width: `${value}%` }} /></i></div>
+            ))}
+          </div>
+          <div className="ri-analytics-preview-insights">
+            <div><span>{t("Practiced most often", "بیشترین تمرین")}</span><strong>{t("Honesty", "صداقت")}</strong></div>
+            <div><span>{t("Recurring focus", "تمرکز تکرارشونده")}</span><strong>{t("Patience", "صبر")}</strong></div>
+          </div>
         </div>
       </section>
 
@@ -303,6 +347,7 @@ export default function Home() {
           <div className="ri-included">
             <span><NotebookPen size={18} />{t("Unlimited Step 10 and Step 4 entries", "ترازنامه نامحدود گام ۱۰ و ۴")}</span>
             <span><CalendarDays size={18} />{t("Continuous year-by-year calendar", "تقویم پیوسته سال‌به‌سال")}</span>
+            <span><BarChart3 size={18} />{t("Private Step 10 analytics through today", "تحلیل خصوصی گام ۱۰ تا امروز")}</span>
             <span><FileDown size={18} />{t("Share, print, and PDF export", "اشتراک، چاپ و خروجی PDF")}</span>
           </div>
         </div>
