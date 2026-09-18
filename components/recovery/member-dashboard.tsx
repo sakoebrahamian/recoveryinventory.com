@@ -39,6 +39,7 @@ export function MemberDashboard() {
   const [analyticsVersion, setAnalyticsVersion] = React.useState(0);
   const [message, setMessage] = React.useState("");
   const [billingBusy, setBillingBusy] = React.useState(false);
+  const [promotionCode, setPromotionCode] = React.useState("");
   const exportRef = React.useRef<InventoryExportHandle>(null);
 
   const loadAccount = React.useCallback(async () => {
@@ -172,9 +173,24 @@ export function MemberDashboard() {
     setBillingBusy(true);
     setMessage("");
     try {
-      const response = await fetch(`/api/billing/${path}`, { method: "POST" });
-      const result = await response.json() as { url?: string; error?: string };
-      if (!response.ok || !result.url) throw new Error(result.error || t("Billing is not available yet.", "پرداخت هنوز در دسترس نیست."));
+      const response = await fetch(`/api/billing/${path}`, {
+        method: "POST",
+        ...(path === "checkout" ? {
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ promotionCode: promotionCode.trim() || undefined }),
+        } : {}),
+      });
+      const result = await response.json() as { url?: string; activated?: boolean; error?: string };
+      if (!response.ok) throw new Error(result.error || t("Billing is not available yet.", "پرداخت هنوز در دسترس نیست."));
+      if (result.activated) {
+        const refreshed = await loadAccount();
+        if (refreshed?.membershipActive) await loadInventories(year);
+        setPromotionCode("");
+        setMessage(t("Code accepted. Your membership is active.", "کد پذیرفته شد. عضویت شما فعال است."));
+        setBillingBusy(false);
+        return;
+      }
+      if (!result.url) throw new Error(t("Billing is not available yet.", "پرداخت هنوز در دسترس نیست."));
       window.location.assign(result.url);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
@@ -233,7 +249,12 @@ export function MemberDashboard() {
               <h2>{t("Activate your membership to open the private inventory tools.", "برای باز کردن ابزارهای خصوصی ترازنامه، عضویت خود را فعال کنید.")}</h2>
               <p>{t("Step 10, Step 4, analytics, saving, sharing, copying, and exporting are available after payment. If checkout is closed without payment, the account remains securely reserved but the tools stay locked.", "گام ۱۰، گام ۴، تحلیل‌ها، ذخیره، اشتراک‌گذاری، کپی و خروجی پس از پرداخت در دسترس هستند. اگر پرداخت را بدون تکمیل ببندید، حساب شما محفوظ می‌ماند اما ابزارها قفل می‌مانند.")}</p>
               <div className="membership-price"><strong>$25</strong><span>{t("per year", "در سال")}</span></div>
-              <button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={17} />{billingBusy ? t("Opening secure checkout…", "در حال باز کردن پرداخت امن…") : t("Activate membership", "فعال‌سازی عضویت")}</button>
+              <div className="promotion-code-field">
+                <label htmlFor="membership-promotion-code">{t("Promotion code (optional)", "کد تخفیف (اختیاری)")}</label>
+                <input id="membership-promotion-code" className="form-input" value={promotionCode} onChange={(event) => setPromotionCode(event.target.value)} autoComplete="off" placeholder={t("Enter code", "کد را وارد کنید")} />
+                <p>{t("Enter a 100%-off forever code here to activate without payment or billing details. Other discounts open secure Stripe checkout for the remaining balance.", "برای فعال‌سازی بدون پرداخت یا اطلاعات صورتحساب، کد تخفیف دائمی ۱۰۰٪ را اینجا وارد کنید. تخفیف‌های دیگر برای پرداخت مبلغ باقی‌مانده، پرداخت امن Stripe را باز می‌کنند.")}</p>
+              </div>
+              <button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={17} />{billingBusy ? (promotionCode.trim() ? t("Applying code…", "در حال اعمال کد…") : t("Opening secure checkout…", "در حال باز کردن پرداخت امن…")) : t("Activate membership", "فعال‌سازی عضویت")}</button>
               {account.hasBillingProfile && <button className="button button-outline button-full" type="button" onClick={() => openBilling("portal")} disabled={billingBusy}><RefreshCw size={16} />{t("Manage existing billing", "مدیریت پرداخت موجود")}</button>}
               <p className="fine-print">{t("Renews yearly until canceled. Cancel any time through Stripe.", "تا زمان لغو، سالانه تمدید می‌شود. هر زمان از طریق Stripe لغو کنید.")}</p>
             </section>

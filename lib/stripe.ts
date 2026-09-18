@@ -9,13 +9,19 @@ function secret(name: "STRIPE_SECRET_KEY" | "STRIPE_PRICE_ID" | "STRIPE_WEBHOOK_
   return value;
 }
 
-export async function stripeRequest<T>(path: string, values?: Record<string, string>): Promise<T> {
+export async function stripeRequest<T>(
+  path: string,
+  values?: Record<string, string>,
+  options?: { idempotencyKey?: string },
+): Promise<T> {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${secret("STRIPE_SECRET_KEY")}`,
+  };
+  if (values) headers["content-type"] = "application/x-www-form-urlencoded";
+  if (options?.idempotencyKey) headers["Idempotency-Key"] = options.idempotencyKey;
   const response = await fetch(`${STRIPE_API}${path}`, {
     method: values ? "POST" : "GET",
-    headers: {
-      Authorization: `Bearer ${secret("STRIPE_SECRET_KEY")}`,
-      ...(values ? { "content-type": "application/x-www-form-urlencoded" } : {}),
-    },
+    headers,
     body: values ? new URLSearchParams(values) : undefined,
   });
   const body = await response.json() as T & { error?: { message?: string } };

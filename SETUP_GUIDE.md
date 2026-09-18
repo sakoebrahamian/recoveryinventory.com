@@ -189,8 +189,8 @@ Use an incognito/private browser window and complete these checks:
 - An anonymous member can add a verified email from the member page and keep the same inventories, subscription, and history.
 - Closing Stripe Checkout without payment leaves all Step 10, Step 4, analytics, share, copy, and export tools locked.
 - Stripe Checkout opens with the $25 yearly test subscription.
-- A partial-discount promotion code still requires payment for the remaining balance.
-- A 100%-off promotion code completes checkout without requiring a payment method.
+- A partial-discount promotion code entered on the member page opens Stripe Checkout and requires payment for the remaining balance.
+- A 100%-off **forever** promotion code entered on the member page activates membership without opening Checkout or requesting payment and billing details.
 - Stripe test card `4242 4242 4242 4242`, any future expiration, and any CVC completes checkout.
 - The account changes to **Membership active** after the webhook arrives.
 - A Step 10 inventory saves, appears on the yearly calendar, and still appears after signing out and recovering the account.
