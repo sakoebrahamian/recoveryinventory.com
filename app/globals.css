@@ -2657,6 +2657,12 @@ html[dir="rtl"] .auth-copy h1 {
   }
 }
 
+@media (max-width: 520px) {
+  .site-header .header-join {
+    display: none;
+  }
+}
+
 @media (max-width: 480px) {
   .site-header .button-small {
     max-width: 132px;

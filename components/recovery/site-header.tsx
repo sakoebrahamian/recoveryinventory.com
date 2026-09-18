@@ -20,7 +20,10 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
         </nav>
         <div className="header-actions">
           <LanguageToggle compact />
-          <a href="/join" className="button button-small button-primary">
+          <a href="/recover" className="button button-small button-outline header-login">
+            {t("Member login", "ورود اعضا")}
+          </a>
+          <a href="/join" className="button button-small button-primary header-join">
             {t("Join anonymously", "عضویت ناشناس")}
           </a>
         </div>

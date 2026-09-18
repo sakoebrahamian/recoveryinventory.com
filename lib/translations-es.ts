@@ -143,6 +143,7 @@ export const spanishTranslations: Record<string, string> = {
   "Made for sponsor conversations": "Creado para conversar con tu padrino o madrina",
   "Make space for an ": "Haz espacio para una ",
   "Manage or cancel": "Administrar o cancelar",
+  "Member login": "Iniciar sesión",
   "Membership": "Membresía",
   "Membership active": "Membresía activa",
   "Membership and renewal": "Membresía y renovación",
