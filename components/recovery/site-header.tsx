@@ -19,12 +19,12 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
           <a href="/privacy">{t("Privacy", "حریم خصوصی")}</a>
         </nav>
         <div className="header-actions">
-          <LanguageToggle compact />
+          <LanguageToggle />
           <a href="/recover" className="button button-small button-outline header-login">
-            {t("Member login", "ورود اعضا")}
+            {t("Log in", "ورود")}
           </a>
           <a href="/join" className="button button-small button-primary header-join">
-            {t("Join anonymously", "عضویت ناشناس")}
+            {t("Create account", "ایجاد حساب")}
           </a>
         </div>
       </div>

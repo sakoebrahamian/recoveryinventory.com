@@ -7,6 +7,8 @@ const SESSION_SECONDS = 60 * 60 * 24 * 365;
 export type Account = {
   id: string;
   alias: string;
+  email: string | null;
+  emailVerifiedAt: number | null;
   stripeCustomerId: string | null;
   subscriptionStatus: string;
   currentPeriodEnd: number | null;
@@ -16,6 +18,8 @@ export type Account = {
 type UserRow = {
   id: string;
   alias: string;
+  email: string | null;
+  email_verified_at: number | null;
   stripe_customer_id: string | null;
   subscription_status: string;
   current_period_end: number | null;
@@ -60,14 +64,19 @@ export async function getAccount(request: Request): Promise<Account | null> {
   const now = Math.floor(Date.now() / 1000);
   const row = await env.DB.prepare(
     `SELECT u.id, u.alias, u.stripe_customer_id, u.subscription_status,
-      u.current_period_end, u.preferred_language
-     FROM sessions s JOIN users u ON u.id = s.user_id
+      u.current_period_end, u.preferred_language, ea.email,
+      ea.verified_at AS email_verified_at
+     FROM sessions s
+     JOIN users u ON u.id = s.user_id
+     LEFT JOIN email_accounts ea ON ea.user_id = u.id
      WHERE s.id = ? AND s.expires_at > ? LIMIT 1`,
   ).bind(id, now).first<UserRow>();
   if (!row) return null;
   return {
     id: row.id,
     alias: row.alias,
+    email: row.email,
+    emailVerifiedAt: row.email_verified_at,
     stripeCustomerId: row.stripe_customer_id,
     subscriptionStatus: row.subscription_status,
     currentPeriodEnd: row.current_period_end,
@@ -77,7 +86,7 @@ export async function getAccount(request: Request): Promise<Account | null> {
 
 export async function requireAccount(request: Request): Promise<Account> {
   const account = await getAccount(request);
-  if (!account) throw new Response(JSON.stringify({ error: "Please sign in with your recovery code." }), {
+  if (!account) throw new Response(JSON.stringify({ error: "Please sign in to continue." }), {
     status: 401,
     headers: { "content-type": "application/json" },
   });

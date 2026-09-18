@@ -9,6 +9,8 @@ const optionalNames = [
   "STRIPE_SECRET_KEY",
   "STRIPE_PRICE_ID",
   "STRIPE_WEBHOOK_SECRET",
+  "EMAIL_FROM_ADDRESS",
+  "EMAIL_REPLY_TO",
 ];
 
 const missingNames = requiredNames.filter((name) => !process.env[name]?.trim());
@@ -25,6 +27,8 @@ const secrets = Object.fromEntries(
   secretNames.map((name) => [name, process.env[name]]),
 );
 
+const databaseName = process.env.CLOUDFLARE_D1_DATABASE_NAME?.trim() || "recovery-inventory";
+
 if (process.argv.includes("--dry-run")) {
   console.log(`Cloudflare runtime secrets ready: ${secretNames.join(", ")}`);
   process.exit(0);
@@ -34,6 +38,27 @@ const temporaryDirectory = await mkdtemp(join(tmpdir(), "recovery-inventory-depl
 const secretsPath = join(temporaryDirectory, "runtime-secrets.json");
 
 try {
+  const schemaResult = spawnSync(
+    "pnpm",
+    [
+      "exec",
+      "wrangler",
+      "d1",
+      "execute",
+      databaseName,
+      "--remote",
+      "--config",
+      configPath,
+      "--file",
+      "cloudflare-d1-email-setup.sql",
+    ],
+    { stdio: "inherit" },
+  );
+  if (schemaResult.error) throw schemaResult.error;
+  if (schemaResult.status !== 0) {
+    throw new Error("Could not prepare the email account database tables.");
+  }
+
   await writeFile(secretsPath, JSON.stringify(secrets), { mode: 0o600 });
   const result = spawnSync(
     "pnpm",

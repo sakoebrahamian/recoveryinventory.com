@@ -22,6 +22,7 @@ export async function POST(request: Request) {
       cancel_url: `${origin}/app?checkout=cancelled`,
     };
     if (account.stripeCustomerId) values.customer = account.stripeCustomerId;
+    else if (account.email) values.customer_email = account.email;
     const session = await stripeRequest<CheckoutSession>("/checkout/sessions", values);
     if (!session.url) throw new Error("Stripe did not return a checkout URL.");
     return Response.json({ url: session.url });

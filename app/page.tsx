@@ -33,17 +33,24 @@ export default function Home() {
 
   const faqs = [
     {
-      question: t("Can I stay anonymous?", "آیا می‌توانم ناشناس بمانم؟"),
+      question: t("Can I choose between an anonymous account and an email account?", "آیا می‌توانم بین حساب ناشناس و حساب ایمیلی انتخاب کنم؟"),
       answer: t(
-        "Yes. You can use an alias and sign in with a private recovery code instead of an email address. Stripe may collect the billing details it needs to process payment.",
-        "بله. می‌توانید از نام مستعار استفاده کنید و به جای ایمیل با کد بازیابی خصوصی وارد شوید. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را دریافت کند."
+        "Yes. Choose an anonymous account with an alias and private recovery code, or an email account that uses one-time sign-in codes. Both include the same membership features. Stripe may collect the billing details it needs to process payment.",
+        "بله. یک حساب ناشناس با نام مستعار و کد بازیابی خصوصی انتخاب کنید، یا حساب ایمیلی با کدهای ورود یک‌بارمصرف بسازید. هر دو همان امکانات عضویت را دارند. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را دریافت کند."
       ),
     },
     {
       question: t("What if I lose my recovery code?", "اگر کد بازیابی‌ام را گم کنم چه می‌شود؟"),
       answer: t(
-        "Because no email is attached to your account, the code cannot be emailed back to you. Save or print it when your account is created and keep it somewhere private.",
-        "چون ایمیلی به حساب شما متصل نیست، کد را نمی‌توان برایتان ایمیل کرد. هنگام ایجاد حساب آن را ذخیره یا چاپ کنید و در جایی امن نگه دارید."
+        "A fully anonymous account cannot be recovered without its code. You can add a verified email while you still have access, and then use email sign-in without losing any inventory or membership progress.",
+        "حساب کاملاً ناشناس بدون کد قابل بازیابی نیست. تا زمانی که دسترسی دارید می‌توانید ایمیل تأییدشده اضافه کنید و سپس بدون از دست دادن ترازنامه یا پیشرفت عضویت، با ایمیل وارد شوید."
+      ),
+    },
+    {
+      question: t("Will I lose my progress if I add email later?", "اگر بعداً ایمیل اضافه کنم، پیشرفتم از بین می‌رود؟"),
+      answer: t(
+        "No. Email is added to the same account. Your Step 10 and Step 4 inventories, analytics, membership, and billing connection remain in place.",
+        "خیر. ایمیل به همان حساب اضافه می‌شود. ترازنامه‌های گام ۱۰ و ۴، تحلیل‌ها، عضویت و اتصال پرداخت شما حفظ می‌شوند."
       ),
     },
     {
@@ -92,12 +99,12 @@ export default function Home() {
               <ArrowRight className={arrowClass} size={18} />
             </a>
             <a href="/join" className="ri-text-cta">
-              {t("Join anonymously", "عضویت ناشناس")}
-              <span aria-hidden="true">$25/{t("year", "سال")}</span>
+              {t("Choose my account", "انتخاب حساب من")}
+              <span aria-hidden="true">{t("Anonymous or email", "ناشناس یا ایمیلی")}</span>
             </a>
           </div>
           <div className="ri-hero-trust" aria-label={t("Membership highlights", "ویژگی‌های عضویت")}>
-            <span><ShieldCheck size={17} />{t("No email required", "بدون نیاز به ایمیل")}</span>
+            <span><ShieldCheck size={17} />{t("Anonymous or email account", "حساب ناشناس یا ایمیلی")}</span>
             <span><Globe2 size={17} />{t("English + Farsi + Spanish", "انگلیسی، فارسی و اسپانیایی")}</span>
             <span><CalendarDays size={17} />{t("Your history, year by year", "سابقه شما، سال‌به‌سال")}</span>
           </div>
@@ -197,7 +204,7 @@ export default function Home() {
           </div>
           <div className="ri-floating-card ri-floating-secure">
             <Fingerprint size={18} />
-            <div><strong>{t("Anonymous", "ناشناس")}</strong><span>{t("Recovery-code access", "ورود با کد بازیابی")}</span></div>
+            <div><strong>{t("Your choice", "انتخاب شما")}</strong><span>{t("Email or recovery-code access", "ورود با ایمیل یا کد بازیابی")}</span></div>
           </div>
         </div>
       </section>
@@ -304,7 +311,7 @@ export default function Home() {
         </div>
         <div className="ri-how-grid">
           {[
-            [KeyRound, "01", t("Create without email", "ایجاد حساب بدون ایمیل"), t("Choose an alias and receive a private recovery code.", "یک نام مستعار انتخاب کنید و کد بازیابی خصوصی بگیرید.")],
+            [KeyRound, "01", t("Choose how to join", "روش عضویت را انتخاب کنید"), t("Stay anonymous with a recovery code, or use email for easier account recovery.", "با کد بازیابی ناشناس بمانید، یا برای بازیابی آسان‌تر حساب از ایمیل استفاده کنید.")],
             [NotebookPen, "02", t("Reflect at your pace", "با سرعت خودتان تأمل کنید"), t("Use Step 10 nightly or open Step 4 whenever you are ready.", "گام دهم را شبانه انجام دهید یا هر زمان آماده بودید گام چهارم را باز کنید.")],
             [Users, "03", t("Share only by choice", "فقط با انتخاب خود به اشتراک بگذارید"), t("Keep it private, or prepare a summary for your sponsor.", "آن را خصوصی نگه دارید یا خلاصه‌ای برای حامی خود آماده کنید.")],
           ].map(([Icon, number, title, copy]) => {
@@ -324,10 +331,10 @@ export default function Home() {
         <div className="ri-privacy-copy">
           <span className="ri-section-label"><ShieldCheck size={16} />{t("Privacy without friction", "حریم خصوصی بدون پیچیدگی")}</span>
           <h2>{t("Personal reflection should stay personal.", "تأمل شخصی باید شخصی بماند.")}</h2>
-          <p>{t("No public profile. No email required to sign in. Your inventories are stored privately and are not shared unless you decide to share them.", "بدون پروفایل عمومی. بدون نیاز به ایمیل برای ورود. ترازنامه‌های شما خصوصی نگهداری می‌شوند و فقط با تصمیم شما به اشتراک گذاشته می‌شوند.")}</p>
+          <p>{t("No public profile. Email is optional. Your inventories are stored privately and are not shared unless you decide to share them.", "بدون پروفایل عمومی. ایمیل اختیاری است. ترازنامه‌های شما خصوصی نگهداری می‌شوند و فقط با تصمیم شما به اشتراک گذاشته می‌شوند.")}</p>
           <div className="ri-privacy-points">
-            <span><Check size={16} />{t("Use an alias", "استفاده از نام مستعار")}</span>
-            <span><Check size={16} />{t("Access with a recovery code", "ورود با کد بازیابی")}</span>
+            <span><Check size={16} />{t("Choose anonymous or email access", "انتخاب ورود ناشناس یا ایمیلی")}</span>
+            <span><Check size={16} />{t("Add email later without losing progress", "افزودن ایمیل در آینده بدون از دست دادن پیشرفت")}</span>
             <span><Check size={16} />{t("You control every export", "کنترل کامل هر خروجی")}</span>
           </div>
         </div>
@@ -349,6 +356,7 @@ export default function Home() {
             <span><CalendarDays size={18} />{t("Continuous year-by-year calendar", "تقویم پیوسته سال‌به‌سال")}</span>
             <span><BarChart3 size={18} />{t("Private Step 10 analytics through today", "تحلیل خصوصی گام ۱۰ تا امروز")}</span>
             <span><FileDown size={18} />{t("Share, print, and PDF export", "اشتراک، چاپ و خروجی PDF")}</span>
+            <span><ShieldCheck size={18} />{t("Your choice of anonymous or email account", "انتخاب حساب ناشناس یا ایمیلی")}</span>
           </div>
         </div>
         <div className="ri-price-card">
@@ -356,7 +364,7 @@ export default function Home() {
           <div className="ri-price"><strong>$25</strong><span>/{t("year", "سال")}</span></div>
           <p>{t("Renews annually until canceled.", "تا زمان لغو، سالانه تمدید می‌شود.")}</p>
           <a href="/join" className="button button-primary button-large button-full">
-            {t("Create my private account", "ایجاد حساب خصوصی من")}
+            {t("Choose my account type", "انتخاب نوع حساب من")}
             <ArrowRight className={arrowClass} size={18} />
           </a>
           <small><LockKeyhole size={13} />{t("Secure payment · Cancel anytime", "پرداخت امن · لغو در هر زمان")}</small>

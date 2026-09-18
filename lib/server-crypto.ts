@@ -3,6 +3,10 @@ import { env } from "cloudflare:workers";
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
+function arrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  return bytes.slice().buffer as ArrayBuffer;
+}
+
 function bytesToBase64Url(bytes: Uint8Array): string {
   let binary = "";
   for (const byte of bytes) binary += String.fromCharCode(byte);
@@ -45,7 +49,7 @@ function encryptionKeyBytes(): Uint8Array {
 }
 
 export async function encryptJson(payload: unknown): Promise<string> {
-  const key = await crypto.subtle.importKey("raw", encryptionKeyBytes(), "AES-GCM", false, ["encrypt"]);
+  const key = await crypto.subtle.importKey("raw", arrayBuffer(encryptionKeyBytes()), "AES-GCM", false, ["encrypt"]);
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, encoder.encode(JSON.stringify(payload)));
   const combined = new Uint8Array(iv.length + ciphertext.byteLength);
@@ -57,7 +61,7 @@ export async function encryptJson(payload: unknown): Promise<string> {
 export async function decryptJson<T>(encrypted: string): Promise<T> {
   const combined = base64UrlToBytes(encrypted);
   if (combined.length < 29) throw new Error("Encrypted inventory is invalid.");
-  const key = await crypto.subtle.importKey("raw", encryptionKeyBytes(), "AES-GCM", false, ["decrypt"]);
+  const key = await crypto.subtle.importKey("raw", arrayBuffer(encryptionKeyBytes()), "AES-GCM", false, ["decrypt"]);
   const plaintext = await crypto.subtle.decrypt(
     { name: "AES-GCM", iv: combined.slice(0, 12) },
     key,
@@ -66,10 +70,10 @@ export async function decryptJson<T>(encrypted: string): Promise<T> {
   return JSON.parse(decoder.decode(plaintext)) as T;
 }
 
-export function utf8(value: string): Uint8Array {
-  return encoder.encode(value);
+export function utf8(value: string): ArrayBuffer {
+  return arrayBuffer(encoder.encode(value));
 }
 
-export function signatureBytes(value: string): Uint8Array {
-  return Uint8Array.from(value.match(/.{1,2}/g) ?? [], (pair) => Number.parseInt(pair, 16));
+export function signatureBytes(value: string): ArrayBuffer {
+  return arrayBuffer(Uint8Array.from(value.match(/.{1,2}/g) ?? [], (pair) => Number.parseInt(pair, 16)));
 }

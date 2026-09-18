@@ -6,6 +6,8 @@ export async function GET(request: Request) {
     if (!account) return Response.json({ error: "Not signed in." }, { status: 401 });
     return Response.json({
       alias: account.alias,
+      email: account.email,
+      hasEmailLogin: Boolean(account.email && account.emailVerifiedAt),
       subscriptionStatus: account.subscriptionStatus,
       currentPeriodEnd: account.currentPeriodEnd,
       membershipActive: hasActiveMembership(account),

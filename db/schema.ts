@@ -31,6 +31,40 @@ export const sessions = sqliteTable(
   (table) => [index("sessions_user_idx").on(table.userId), index("sessions_expiry_idx").on(table.expiresAt)],
 );
 
+export const emailAccounts = sqliteTable(
+  "email_accounts",
+  {
+    userId: text("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    verifiedAt: integer("verified_at").notNull(),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+  },
+  (table) => [uniqueIndex("email_accounts_email_idx").on(table.email)],
+);
+
+export const emailChallenges = sqliteTable(
+  "email_challenges",
+  {
+    id: text("id").primaryKey(),
+    email: text("email").notNull(),
+    codeHash: text("code_hash").notNull(),
+    purpose: text("purpose").notNull(),
+    userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
+    alias: text("alias"),
+    preferredLanguage: text("preferred_language").notNull().default("en"),
+    attempts: integer("attempts").notNull().default(0),
+    expiresAt: integer("expires_at").notNull(),
+    consumedAt: integer("consumed_at"),
+    createdAt: integer("created_at").notNull(),
+  },
+  (table) => [
+    index("email_challenges_email_created_idx").on(table.email, table.createdAt),
+    index("email_challenges_expiry_idx").on(table.expiresAt),
+    index("email_challenges_user_idx").on(table.userId),
+  ],
+);
+
 export const inventories = sqliteTable(
   "inventories",
   {

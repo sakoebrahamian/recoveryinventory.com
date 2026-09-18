@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { BarChart3, CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LogOut, RefreshCw, ShieldCheck } from "lucide-react";
+import { BarChart3, CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LockKeyhole, LogOut, RefreshCw, ShieldCheck } from "lucide-react";
+import { AddEmailAccess } from "./add-email-access";
 import { BrandMark } from "./brand-mark";
 import { InventoryExport, type InventoryExportHandle, type InventoryRecord } from "./inventory-export";
 import { LanguageToggle, useLanguage } from "./language-provider";
@@ -12,6 +13,8 @@ import { formatDisplayDate, todayIso } from "@/lib/inventory";
 
 type AccountView = {
   alias: string;
+  email: string | null;
+  hasEmailLogin: boolean;
   subscriptionStatus: string;
   currentPeriodEnd: number | null;
   membershipActive: boolean;
@@ -66,6 +69,7 @@ export function MemberDashboard() {
       try {
         const result = await loadAccount();
         if (!stopped && result?.membershipActive) await loadInventories(year);
+        else if (!stopped) setRecords([]);
       } catch (error) {
         if (!stopped) {
           setMessage(error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
@@ -190,40 +194,8 @@ export function MemberDashboard() {
   if (!account) {
     return (
       <main className="inner-page">
-        <div className="member-topbar"><BrandMark /><LanguageToggle compact /></div>
-        <section className="member-locked"><div><div className="member-locked-icon"><ShieldCheck /></div><h1>{t("Your account is private", "حساب شما خصوصی است")}</h1><p>{t("Use your recovery code to open it, or create a new anonymous account.", "برای ورود از کد بازیابی استفاده کنید یا یک حساب ناشناس جدید بسازید.")}</p><div className="hero-actions"><a className="button button-primary" href="/recover">{t("Use recovery code", "استفاده از کد بازیابی")}</a><a className="button button-outline" href="/join">{t("Create account", "ایجاد حساب")}</a></div></div></section>
-      </main>
-    );
-  }
-
-  if (!account.membershipActive) {
-    return (
-      <main className="member-page">
-        <header className="member-header">
-          <div className="member-topbar">
-            <BrandMark />
-            <div className="member-header-actions">
-              <LanguageToggle compact />
-              <button className="button button-small button-outline" type="button" onClick={logout}><LogOut size={15} />{t("Sign out", "خروج")}</button>
-            </div>
-          </div>
-        </header>
-        <section className="member-locked member-payment-gate">
-          <div>
-            <div className="member-locked-icon"><CircleDollarSign /></div>
-            <span className="member-locked-eyebrow">{t("Membership required", "عضویت لازم است")}</span>
-            <h1>{t("Complete payment to activate your membership", "برای فعال‌سازی عضویت، پرداخت را تکمیل کنید")}</h1>
-            <p>{t("Your private account is ready, but the member workspace stays locked until payment is complete.", "حساب خصوصی شما آماده است، اما فضای اعضا تا تکمیل پرداخت قفل می‌ماند.")}</p>
-            <p>{t("Membership unlocks Step 10, Step 4, private Step 10 analytics, calendar history, sharing, copying, and exports.", "عضویت، گام ۱۰، گام ۴، تحلیل خصوصی گام ۱۰، سابقه تقویم، اشتراک‌گذاری، کپی و خروجی را فعال می‌کند.")}</p>
-            {message && <p className="dashboard-message" role="status">{message}</p>}
-            <div className="membership-price"><strong>$25</strong><span>{t("per year", "در سال")}</span></div>
-            <div className="hero-actions">
-              <button className="button button-primary" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={16} />{t("Continue to secure payment", "ادامه به پرداخت امن")}</button>
-              <a className="button button-outline" href="/demo">{t("Open the free demo", "باز کردن نسخه آزمایشی رایگان")}</a>
-            </div>
-            <p className="fine-print">{t("Auto-renews yearly until canceled. Stripe may retain the billing details required to process payment.", "تا زمان لغو، سالانه به‌طور خودکار تمدید می‌شود. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را نگه دارد.")}</p>
-          </div>
-        </section>
+        <div className="member-topbar"><BrandMark /><LanguageToggle /></div>
+        <section className="member-locked"><div><div className="member-locked-icon"><ShieldCheck /></div><h1>{t("Your account is private", "حساب شما خصوصی است")}</h1><p>{t("Log in with an emailed code or a private recovery code. New members can choose either account type.", "با کد ایمیلی یا کد بازیابی خصوصی وارد شوید. اعضای جدید می‌توانند یکی از این دو نوع حساب را انتخاب کنند.")}</p><div className="hero-actions"><a className="button button-primary" href="/recover">{t("Log in", "ورود")}</a><a className="button button-outline" href="/join">{t("Create account", "ایجاد حساب")}</a></div></div></section>
       </main>
     );
   }
@@ -238,7 +210,7 @@ export function MemberDashboard() {
         <div className="member-topbar">
           <BrandMark />
           <div className="member-header-actions">
-            <LanguageToggle compact />
+            <LanguageToggle />
             <button className="button button-small button-outline" type="button" onClick={logout}><LogOut size={15} />{t("Sign out", "خروج")}</button>
           </div>
         </div>
@@ -253,6 +225,21 @@ export function MemberDashboard() {
         </div>
         {message && <p className="dashboard-message" role="status">{message}</p>}
 
+        {!account.membershipActive ? (
+          <div className="membership-gate-grid">
+            <section className="dashboard-card membership-gate-card">
+              <div className="membership-gate-icon"><LockKeyhole size={26} /></div>
+              <span>{t("Membership required", "عضویت لازم است")}</span>
+              <h2>{t("Activate your membership to open the private inventory tools.", "برای باز کردن ابزارهای خصوصی ترازنامه، عضویت خود را فعال کنید.")}</h2>
+              <p>{t("Step 10, Step 4, analytics, saving, sharing, copying, and exporting are available after payment. If checkout is closed without payment, the account remains securely reserved but the tools stay locked.", "گام ۱۰، گام ۴، تحلیل‌ها، ذخیره، اشتراک‌گذاری، کپی و خروجی پس از پرداخت در دسترس هستند. اگر پرداخت را بدون تکمیل ببندید، حساب شما محفوظ می‌ماند اما ابزارها قفل می‌مانند.")}</p>
+              <div className="membership-price"><strong>$25</strong><span>{t("per year", "در سال")}</span></div>
+              <button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={17} />{billingBusy ? t("Opening secure checkout…", "در حال باز کردن پرداخت امن…") : t("Activate membership", "فعال‌سازی عضویت")}</button>
+              {account.hasBillingProfile && <button className="button button-outline button-full" type="button" onClick={() => openBilling("portal")} disabled={billingBusy}><RefreshCw size={16} />{t("Manage existing billing", "مدیریت پرداخت موجود")}</button>}
+              <p className="fine-print">{t("Renews yearly until canceled. Cancel any time through Stripe.", "تا زمان لغو، سالانه تمدید می‌شود. هر زمان از طریق Stripe لغو کنید.")}</p>
+            </section>
+            <AddEmailAccess email={account.email} onConnected={(email) => setAccount((current) => current ? { ...current, email, hasEmailLogin: true } : current)} />
+          </div>
+        ) : (
         <div className="dashboard-workspace">
           <aside className="dashboard-sidebar">
             <section className="dashboard-card compact-calendar-card">
@@ -282,6 +269,7 @@ export function MemberDashboard() {
               )}
               <p className="fine-print">{t("Auto-renews yearly until canceled. Stripe may retain the billing details required to process payment.", "تا زمان لغو، سالانه به‌طور خودکار تمدید می‌شود. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را نگه دارد.")}</p>
             </section>
+            <AddEmailAccess email={account.email} onConnected={(email) => setAccount((current) => current ? { ...current, email, hasEmailLogin: true } : current)} />
           </aside>
 
           <section className="member-inventory-section dashboard-inventory-column">
@@ -322,6 +310,7 @@ export function MemberDashboard() {
           )}
           </section>
         </div>
+        )}
       </div>
     </main>
   );

@@ -8,6 +8,13 @@
       "when": 1789604122522,
       "tag": "0000_cynical_bastion",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789768722070,
+      "tag": "0001_perfect_wiccan",
+      "breakpoints": true
     }
   ]
 }

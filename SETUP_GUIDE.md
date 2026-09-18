@@ -11,6 +11,7 @@ The website code is complete, but payments and private saved inventories cannot 
 - Your GitHub account
 - Your Cloudflare account and the `recoveryinventory.com` domain
 - A Stripe account
+- Cloudflare Email Sending enabled for `recoveryinventory.com`
 - A password manager or another secure place for one encryption key
 - A working address such as `support@recoveryinventory.com`
 
@@ -72,6 +73,8 @@ pnpm exec wrangler d1 execute recovery-inventory --remote --file cloudflare-d1-s
 
 The custom deployment command also transfers selected encrypted build secrets into the live Worker without writing their values to GitHub or build logs.
 
+It also applies the idempotent email-account table setup before deploying the Worker. This preserves all existing anonymous accounts and inventories.
+
 If Cloudflare starts the first build before it lets you add variables, let that build finish, open **Settings → Build**, add the variables, and select **Retry deployment**.
 
 After a successful deployment, open the Worker’s **Settings → Bindings** and confirm there is a D1 binding named exactly `DB` connected to `recovery-inventory`.
@@ -102,7 +105,18 @@ Open the Worker’s **Settings → Variables and Secrets** build section. Add:
 
 Save the changes, then retry the build. The `pnpm run deploy:cloudflare` command securely uploads both values as Worker runtime secrets. At this point anonymous account creation and encrypted database storage are configured, but paid activation still needs Stripe.
 
-## 6. Configure Stripe in test mode first
+## 6. Configure Cloudflare Email Sending
+
+1. In Cloudflare, open **Compute → Email Service → Email Sending**.
+2. Select **Onboard Domain** and choose `recoveryinventory.com`.
+3. Allow Cloudflare to add and verify the required DNS records.
+4. Confirm that the domain shows as active.
+
+The project deploys a native Worker binding named `EMAIL`. It sends requested verification and login codes from `login@recoveryinventory.com`, with replies directed to `support@recoveryinventory.com`. The binding does not require an API key in the repository or browser.
+
+The email service is used only for transactional account messages. Existing incoming forwarding to Gmail remains separate and can continue working.
+
+## 7. Configure Stripe in test mode first
 
 Keep Stripe in **test mode** until the entire checklist at the end works.
 
@@ -149,7 +163,7 @@ In the Worker’s **Settings → Variables and Secrets** build section, add each
 
 Save the changes and retry the build. The deployment command transfers the values to the live Worker.
 
-## 7. Connect recoveryinventory.com
+## 8. Connect recoveryinventory.com
 
 1. Open your Worker in **Workers & Pages**.
 2. Go to **Settings → Domains & Routes**.
@@ -161,15 +175,19 @@ Cloudflare creates the DNS record and certificate. You do not need to install a 
 
 If the hostname already has an A, AAAA, or CNAME record from an earlier attempt, remove the conflicting record before adding the Worker custom domain.
 
-## 8. Test the complete experience
+## 9. Test the complete experience
 
 Use an incognito/private browser window and complete these checks:
 
 - The landing page opens on desktop and phone.
-- The language button switches the full interface between English and Farsi.
+- The language button switches the full interface among English, Farsi, and Spanish.
 - Both Step 10 and Step 4 demos work without an account.
-- Joining asks only for an alias and displays a recovery code.
-- The recovery code downloads or copies successfully.
+- The create-account page clearly offers anonymous and verified-email account choices.
+- Anonymous signup asks only for an alias, and its recovery code downloads or copies successfully.
+- Email signup sends a six-digit verification code and creates the account after verification.
+- Email login sends a new one-time code and opens the correct member account.
+- An anonymous member can add a verified email from the member page and keep the same inventories, subscription, and history.
+- Closing Stripe Checkout without payment leaves all Step 10, Step 4, analytics, share, copy, and export tools locked.
 - Stripe Checkout opens with the $25 yearly test subscription.
 - Stripe test card `4242 4242 4242 4242`, any future expiration, and any CVC completes checkout.
 - The account changes to **Membership active** after the webhook arrives.
@@ -181,7 +199,7 @@ Use an incognito/private browser window and complete these checks:
 
 In Stripe, review **Developers → Webhooks → Recent deliveries**. Every delivery should return an HTTP `200` response.
 
-## 9. Switch from test payments to live payments
+## 10. Switch from test payments to live payments
 
 Only after testing:
 
@@ -193,7 +211,7 @@ Only after testing:
 
 Test-mode and live-mode IDs are different. Do not mix them.
 
-## 10. Before announcing the site
+## 11. Before announcing the site
 
 - Set up forwarding for `support@recoveryinventory.com`; the privacy and terms pages use that address.
 - Have the privacy policy, terms, cancellation language, and tax obligations reviewed for your business and location.
@@ -239,6 +257,7 @@ Do not generate a replacement encryption key. Restore the original `DATA_ENCRYPT
 - Cloudflare Git integration: https://developers.cloudflare.com/workers/ci-cd/builds/git-integration/
 - Cloudflare Workers Builds configuration: https://developers.cloudflare.com/workers/ci-cd/builds/configuration/
 - Cloudflare D1: https://developers.cloudflare.com/d1/get-started/
+- Cloudflare Email Service: https://developers.cloudflare.com/email-service/get-started/send-emails/
 - Cloudflare Worker secrets: https://developers.cloudflare.com/workers/configuration/secrets/
 - Cloudflare Custom Domains: https://developers.cloudflare.com/workers/configuration/routing/custom-domains/
 - Stripe Checkout subscriptions: https://docs.stripe.com/payments/checkout/build-subscriptions
