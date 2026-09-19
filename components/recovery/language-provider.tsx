@@ -10,6 +10,16 @@ type LanguageContextValue = {
   t: (english: string, farsi: string) => string;
 };
 
+export type LanguageRouteMap = Partial<Record<Language, string>>;
+
+export function translateForLanguage(language: Language, english: string, farsi: string) {
+  return language === "fa"
+    ? farsi
+    : language === "es"
+      ? spanishTranslations[english] ?? english
+      : english;
+}
+
 const LanguageContext = React.createContext<LanguageContextValue | null>(null);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
@@ -43,12 +53,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     () => ({
       language,
       setLanguage,
-      t: (english: string, farsi: string) =>
-        language === "fa"
-          ? farsi
-          : language === "es"
-            ? spanishTranslations[english] ?? english
-            : english,
+      t: (english: string, farsi: string) => translateForLanguage(language, english, farsi),
     }),
     [language, setLanguage]
   );
@@ -68,14 +73,29 @@ export function useLanguage() {
   return context;
 }
 
-export function LanguageToggle({ compact = false }: { compact?: boolean }) {
-  const { language, setLanguage } = useLanguage();
+export function LanguageToggle({
+  compact = false,
+  languageOverride,
+  languageRoutes,
+}: {
+  compact?: boolean;
+  languageOverride?: Language;
+  languageRoutes?: LanguageRouteMap;
+}) {
+  const { language: contextLanguage, setLanguage } = useLanguage();
+  const language = languageOverride ?? contextLanguage;
+
+  const chooseLanguage = (next: Language) => {
+    setLanguage(next);
+    const nextRoute = languageRoutes?.[next];
+    if (nextRoute) window.location.assign(nextRoute);
+  };
 
   return (
     <label className={`language-toggle${compact ? " is-compact" : ""}`}>
       <select
         value={language}
-        onChange={(event) => setLanguage(event.target.value as Language)}
+        onChange={(event) => chooseLanguage(event.target.value as Language)}
         aria-label={language === "fa" ? "انتخاب زبان" : language === "es" ? "Seleccionar idioma" : "Choose language"}
       >
         <option value="en">English</option>

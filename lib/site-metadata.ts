@@ -9,18 +9,21 @@ type PageMetadataOptions = {
   title: string;
   description: string;
   path: `/${string}` | "/";
+  languages?: Record<string, string>;
 };
 
 export function createPublicPageMetadata({
   title,
   description,
   path,
+  languages,
 }: PageMetadataOptions): Metadata {
   return {
     title,
     description,
     alternates: {
       canonical: path,
+      ...(languages ? { languages } : {}),
     },
   };
 }
@@ -71,4 +74,3 @@ export const SITE_STRUCTURED_DATA = [
     },
   },
 ] as const;
-

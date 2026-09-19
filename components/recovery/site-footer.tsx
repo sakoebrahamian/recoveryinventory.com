@@ -1,10 +1,16 @@
 "use client";
 
+import type { Language } from "@/lib/inventory";
 import { BrandMark } from "./brand-mark";
-import { useLanguage } from "./language-provider";
+import { translateForLanguage, useLanguage } from "./language-provider";
 
-export function SiteFooter() {
-  const { t } = useLanguage();
+export function SiteFooter({ language: languageOverride }: { language?: Language }) {
+  const { language: contextLanguage, t: contextTranslate } = useLanguage();
+  const language = languageOverride ?? contextLanguage;
+  const t = languageOverride
+    ? (english: string, farsi: string) => translateForLanguage(language, english, farsi)
+    : contextTranslate;
+  const learnHref = language === "es" ? "/es/learn" : language === "fa" ? "/fa/learn" : "/learn";
   return (
     <footer className="site-footer">
       <div className="footer-grid">
@@ -19,6 +25,7 @@ export function SiteFooter() {
         </div>
         <div className="footer-links">
           <a href="/demo">{t("Demo", "نسخه آزمایشی")}</a>
+          <a href={learnHref}>{t("Learn", "یادگیری")}</a>
           <a href="/join">{t("Membership", "عضویت")}</a>
           <a href="/privacy">{t("Privacy", "حریم خصوصی")}</a>
           <a href="/terms">{t("Terms", "شرایط استفاده")}</a>
