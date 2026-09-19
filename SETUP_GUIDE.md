@@ -181,22 +181,24 @@ Use an incognito/private browser window and complete these checks:
 
 - The landing page opens on desktop and phone.
 - The language button switches the full interface among English, Farsi, and Spanish.
-- Both Step 10 and Step 4 demos work without an account.
+- The Step 10, reusable Step 4 workbook, analytics, and recovery learning demos work without an account.
 - The create-account page clearly offers anonymous and verified-email account choices.
 - Anonymous signup asks only for an alias, and its recovery code downloads or copies successfully.
 - Email signup sends a six-digit verification code and creates the account after verification.
 - After either account type is created, the promotion-code field appears before the membership activation button; users never need to enter Checkout and return to find it.
 - Email login sends a new one-time code and opens the correct member account.
 - An anonymous member can add a verified email from the member page and keep the same inventories, subscription, and history.
-- Closing Stripe Checkout without payment leaves all Step 10, Step 4, analytics, share, copy, and export tools locked.
+- Closing Stripe Checkout without payment leaves all Step 10, Step 4, analytics, learning, share, copy, and export tools locked.
 - Stripe Checkout opens with the $25 yearly test subscription.
 - A partial-discount promotion code entered on the member page opens Stripe Checkout and requires payment for the remaining balance.
 - A 100%-off **forever** promotion code entered on the member page activates membership without opening Checkout or requesting payment and billing details.
 - Stripe test card `4242 4242 4242 4242`, any future expiration, and any CVC completes checkout.
 - The account changes to **Membership active** after the webhook arrives.
 - A Step 10 inventory saves, appears on the yearly calendar, and still appears after signing out and recovering the account.
-- A Step 4 inventory saves and appears on the same calendar.
-- Step 10 and Step 4 show a reminder to save before changing dates, leaving the page, or opening another tool.
+- A Step 4 workbook saves independently from the daily calendar, can be reopened and edited, and can be marked complete.
+- A second Step 4 workbook can be created without replacing the first, and previously saved date-based Step 4 data appears as workbooks after deployment.
+- Step 4 warns before leaving or switching workbooks with unsaved changes; Step 10 reminds the member to save before changing dates.
+- The learning center explains character defects, related shortcomings, corrective principles, and recovery actions in English, Farsi, and Spanish.
 - Share/copy, print, and Save as PDF work.
 - **Manage or cancel** opens the Stripe billing portal.
 - A canceled subscription remains active through the paid test period and later becomes inactive through Stripe’s webhook.

@@ -38,25 +38,27 @@ const temporaryDirectory = await mkdtemp(join(tmpdir(), "recovery-inventory-depl
 const secretsPath = join(temporaryDirectory, "runtime-secrets.json");
 
 try {
-  const schemaResult = spawnSync(
-    "pnpm",
-    [
-      "exec",
-      "wrangler",
-      "d1",
-      "execute",
-      databaseName,
-      "--remote",
-      "--config",
-      configPath,
-      "--file",
-      "cloudflare-d1-email-setup.sql",
-    ],
-    { stdio: "inherit" },
-  );
-  if (schemaResult.error) throw schemaResult.error;
-  if (schemaResult.status !== 0) {
-    throw new Error("Could not prepare the email account database tables.");
+  for (const schemaFile of ["cloudflare-d1-email-setup.sql", "cloudflare-d1-step4-setup.sql"]) {
+    const schemaResult = spawnSync(
+      "pnpm",
+      [
+        "exec",
+        "wrangler",
+        "d1",
+        "execute",
+        databaseName,
+        "--remote",
+        "--config",
+        configPath,
+        "--file",
+        schemaFile,
+      ],
+      { stdio: "inherit" },
+    );
+    if (schemaResult.error) throw schemaResult.error;
+    if (schemaResult.status !== 0) {
+      throw new Error(`Could not prepare the database schema from ${schemaFile}.`);
+    }
   }
 
   await writeFile(secretsPath, JSON.stringify(secrets), { mode: 0o600 });

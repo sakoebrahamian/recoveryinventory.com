@@ -15,6 +15,13 @@
       "when": 1789768722070,
       "tag": "0001_perfect_wiccan",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789838480929,
+      "tag": "0002_colorful_micromax",
+      "breakpoints": true
     }
   ]
 }

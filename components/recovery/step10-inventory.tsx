@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Copy, FileDown, RotateCcw, Save, Share2 } from "lucide-react";
+import { BookOpenText, Check, Copy, FileDown, RotateCcw, Save, Share2 } from "lucide-react";
 import {
   formatDisplayDate,
   principleCategories,
@@ -27,6 +27,7 @@ type Step10InventoryProps = {
   initialData?: Partial<Step10Data>;
   onSave?: (data: Step10Data) => Promise<void> | void;
   onExport?: () => void;
+  onOpenLearning?: () => void;
 };
 
 const demoStates: Record<string, PrincipleState> = {
@@ -45,7 +46,7 @@ const demoStates: Record<string, PrincipleState> = {
   mindfulness: "practiced",
 };
 
-export function Step10Inventory({ demo = false, initialData, onSave, onExport }: Step10InventoryProps) {
+export function Step10Inventory({ demo = false, initialData, onSave, onExport, onOpenLearning }: Step10InventoryProps) {
   const { language, t } = useLanguage();
   const [data, setData] = React.useState<Step10Data>({
     date: initialData?.date ?? todayIso(),
@@ -183,8 +184,11 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport }:
               <h3>{t("How did you practice these principles today?", "امروز چگونه این اصول را تمرین کردید؟")}</h3>
               <p>{t("Choose what fits. There is no score to earn.", "گزینه مناسب را انتخاب کنید. اینجا نمره‌ای در کار نیست.")}</p>
             </div>
-            <div className="progress-ring" aria-label={`${counts.answered} of 24 answered`}>
-              {counts.answered}/24
+            <div className="inventory-intro-actions">
+              {onOpenLearning && <button className="button button-outline button-small" type="button" onClick={onOpenLearning}><BookOpenText size={16} />{t("Learn these principles", "یادگیری این اصول")}</button>}
+              <div className="progress-ring" aria-label={`${counts.answered} of 24 answered`}>
+                {counts.answered}/24
+              </div>
             </div>
           </div>
 

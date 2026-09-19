@@ -1,14 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { BarChart3, CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LockKeyhole, LogOut, RefreshCw, Save, ShieldCheck } from "lucide-react";
+import { BarChart3, BookOpenText, CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LockKeyhole, LogOut, RefreshCw, Save, ShieldCheck } from "lucide-react";
 import { AddEmailAccess } from "./add-email-access";
 import { BrandMark } from "./brand-mark";
 import { InventoryExport, type InventoryExportHandle, type InventoryRecord } from "./inventory-export";
 import { LanguageToggle, useLanguage } from "./language-provider";
 import { Step10Inventory, type Step10Data } from "./step10-inventory";
 import { Step10Analytics } from "./step10-analytics";
-import { Step4Inventory, type Step4Data } from "./step4-inventory";
+import { Step4Workspace } from "./step4-workspace";
+import { RecoveryLearningCenter } from "./recovery-learning-center";
 import { formatDisplayDate, todayIso } from "@/lib/inventory";
 
 type AccountView = {
@@ -20,6 +21,8 @@ type AccountView = {
   membershipActive: boolean;
   hasBillingProfile: boolean;
 };
+
+type MemberTool = "step10" | "step4" | "analytics" | "learning";
 
 function dateForYear(year: number): string {
   const today = todayIso();
@@ -35,7 +38,8 @@ export function MemberDashboard() {
   const [yearDraft, setYearDraft] = React.useState(String(currentYear));
   const [selectedDate, setSelectedDate] = React.useState(todayIso());
   const [records, setRecords] = React.useState<InventoryRecord[]>([]);
-  const [activeType, setActiveType] = React.useState<"step10" | "step4" | "analytics">("step10");
+  const [activeType, setActiveType] = React.useState<MemberTool>("step10");
+  const [step4Dirty, setStep4Dirty] = React.useState(false);
   const [analyticsVersion, setAnalyticsVersion] = React.useState(0);
   const [message, setMessage] = React.useState("");
   const [billingBusy, setBillingBusy] = React.useState(false);
@@ -57,7 +61,7 @@ export function MemberDashboard() {
   }, [t]);
 
   const loadInventories = React.useCallback(async (requestedYear: number) => {
-    const response = await fetch(`/api/inventories?year=${requestedYear}`, { cache: "no-store" });
+    const response = await fetch(`/api/inventories?year=${requestedYear}&type=step10`, { cache: "no-store" });
     const result = await response.json() as { inventories?: InventoryRecord[]; error?: string };
     if (response.status === 401) return;
     if (!response.ok) throw new Error(result.error || t("Could not load this year.", "این سال بارگذاری نشد."));
@@ -128,12 +132,12 @@ export function MemberDashboard() {
     setSelectedDate(targetDate);
   }
 
-  async function saveInventory(type: "step10" | "step4", date: string, payload: Step10Data | Step4Data) {
+  async function saveInventory(date: string, payload: Step10Data) {
     if (!account?.membershipActive) throw new Error(t("Renew your membership to save changes.", "برای ذخیره تغییرات، عضویت خود را تمدید کنید."));
     const request = () => fetch("/api/inventories", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ type, date, payload }),
+      body: JSON.stringify({ type: "step10", date, payload }),
     });
     let response: Response;
     try {
@@ -153,20 +157,20 @@ export function MemberDashboard() {
       chooseYear(savedYear);
     } else {
       setRecords((current) => {
-        const existing = current.find((record) => record.type === type && record.date === date);
+        const existing = current.find((record) => record.type === "step10" && record.date === date);
         const saved: InventoryRecord = {
-          id: existing?.id ?? `saved-${type}-${date}`,
-          type,
+          id: existing?.id ?? `saved-step10-${date}`,
+          type: "step10",
           date,
           payload,
           updatedAt: Math.floor(Date.now() / 1000),
         };
-        return [...current.filter((record) => record.type !== type || record.date !== date), saved]
+        return [...current.filter((record) => record.type !== "step10" || record.date !== date), saved]
           .sort((left, right) => left.date.localeCompare(right.date) || left.type.localeCompare(right.type));
       });
     }
     setSelectedDate(date);
-    if (type === "step10") setAnalyticsVersion((value) => value + 1);
+    setAnalyticsVersion((value) => value + 1);
   }
 
   async function openBilling(path: "checkout" | "portal") {
@@ -205,6 +209,13 @@ export function MemberDashboard() {
     window.location.assign("/recover");
   }
 
+  function switchTool(next: MemberTool) {
+    if (next === activeType) return;
+    if (activeType === "step4" && step4Dirty && !window.confirm(t("You have unsaved Step 4 changes. Continue without saving them?", "تغییرات ذخیره‌نشده گام چهارم دارید. بدون ذخیره ادامه می‌دهید؟"))) return;
+    setStep4Dirty(false);
+    setActiveType(next);
+  }
+
   if (loading) return <div className="loading-panel"><div><div className="spinner" /><p>{t("Opening your private space…", "در حال باز کردن فضای خصوصی شما…")}</p></div></div>;
 
   if (!account) {
@@ -217,7 +228,6 @@ export function MemberDashboard() {
   }
 
   const selectedStep10 = records.find((record) => record.type === "step10" && record.date === selectedDate);
-  const selectedStep4 = records.find((record) => record.type === "step4" && record.date === selectedDate);
   const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
 
   return (
@@ -247,7 +257,7 @@ export function MemberDashboard() {
               <div className="membership-gate-icon"><LockKeyhole size={26} /></div>
               <span>{t("Membership required", "عضویت لازم است")}</span>
               <h2>{t("Activate your membership to open the private inventory tools.", "برای باز کردن ابزارهای خصوصی ترازنامه، عضویت خود را فعال کنید.")}</h2>
-              <p>{t("Step 10, Step 4, analytics, saving, sharing, copying, and exporting are available after payment. If checkout is closed without payment, the account remains securely reserved but the tools stay locked.", "گام ۱۰، گام ۴، تحلیل‌ها، ذخیره، اشتراک‌گذاری، کپی و خروجی پس از پرداخت در دسترس هستند. اگر پرداخت را بدون تکمیل ببندید، حساب شما محفوظ می‌ماند اما ابزارها قفل می‌مانند.")}</p>
+              <p>{t("Step 10, reusable Step 4 workbooks, analytics, the recovery learning center, saving, sharing, copying, and exporting are available after payment. If checkout is closed without payment, the account remains securely reserved but the tools stay locked.", "گام ۱۰، دفترهای قابل ویرایش گام ۴، تحلیل‌ها، مرکز آموزش بهبودی، ذخیره، اشتراک‌گذاری، کپی و خروجی پس از پرداخت در دسترس هستند. اگر پرداخت را بدون تکمیل ببندید، حساب شما محفوظ می‌ماند اما ابزارها قفل می‌مانند.")}</p>
               <div className="membership-price"><strong>$25</strong><span>{t("per year", "در سال")}</span></div>
               <div className="promotion-code-field">
                 <label htmlFor="membership-promotion-code">{t("Promotion code (optional)", "کد تخفیف (اختیاری)")}</label>
@@ -261,9 +271,9 @@ export function MemberDashboard() {
             <AddEmailAccess email={account.email} onConnected={(email) => setAccount((current) => current ? { ...current, email, hasEmailLogin: true } : current)} />
           </div>
         ) : (
-        <div className="dashboard-workspace">
+        <div className={`dashboard-workspace dashboard-workspace-${activeType}`}>
           <aside className="dashboard-sidebar">
-            <section className="dashboard-card compact-calendar-card">
+            {activeType === "step10" && <section className="dashboard-card compact-calendar-card">
               <div className="compact-calendar-header">
                 <button type="button" onClick={() => moveMonth(-1)} aria-label={t("Previous month", "ماه قبل")}><ChevronLeft size={18} /></button>
                 <div>
@@ -275,9 +285,9 @@ export function MemberDashboard() {
               <CompactCalendar locale={locale} selectedDate={selectedDate} records={records} onSelect={setSelectedDate} />
               <div className="compact-calendar-footer">
                 <button type="button" onClick={() => { const today = todayIso(); const todayYear = Number(today.slice(0, 4)); setYear(todayYear); setYearDraft(String(todayYear)); setSelectedDate(today); }}>{t("Today", "امروز")}</button>
-                <div className="calendar-legend"><span><i className="dot-ten" />{t("Step 10", "گام ۱۰")}</span><span><i className="dot-four" />{t("Step 4", "گام ۴")}</span></div>
+                <div className="calendar-legend"><span><i className="dot-ten" />{t("Saved Step 10", "گام ۱۰ ذخیره‌شده")}</span></div>
               </div>
-            </section>
+            </section>}
 
             <section className="dashboard-card membership-card">
               <h3>{t("Membership", "عضویت")}</h3>
@@ -296,19 +306,20 @@ export function MemberDashboard() {
           <section className="member-inventory-section dashboard-inventory-column">
           <div className="member-inventory-heading">
             <div>
-              <span>{activeType === "analytics" ? t("Step 10 only", "فقط گام ۱۰") : t("Selected date", "تاریخ انتخاب‌شده")}</span>
-              <h2>{activeType === "analytics" ? t("Your patterns through today", "الگوهای شما تا امروز") : formatDisplayDate(selectedDate, language)}</h2>
+              <span>{activeType === "analytics" ? t("Step 10 only", "فقط گام ۱۰") : activeType === "step4" ? t("Not tied to the daily calendar", "مستقل از تقویم روزانه") : activeType === "learning" ? t("Step 4 and Step 10", "گام ۴ و گام ۱۰") : t("Selected date", "تاریخ انتخاب‌شده")}</span>
+              <h2>{activeType === "analytics" ? t("Your patterns through today", "الگوهای شما تا امروز") : activeType === "step4" ? t("Your reusable Step 4 workbooks", "دفترهای قابل ویرایش گام چهارم شما") : activeType === "learning" ? t("Recovery learning center", "مرکز آموزش بهبودی") : formatDisplayDate(selectedDate, language)}</h2>
             </div>
             <div className="member-inventory-tools">
-              {activeType !== "analytics" && <button className="button button-outline inventory-export-trigger" type="button" onClick={() => exportRef.current?.open()}><FileDown size={17} />{t("Export inventories", "خروجی ترازنامه‌ها")}</button>}
+              {activeType === "step10" && <button className="button button-outline inventory-export-trigger" type="button" onClick={() => exportRef.current?.open()}><FileDown size={17} />{t("Export Step 10", "خروجی گام ۱۰")}</button>}
               <div className="workspace-tabs member-workspace-tabs" role="tablist" aria-label={t("Choose a member tool", "انتخاب ابزار اعضا")}>
-                <button className={`workspace-tab${activeType === "step10" ? " is-active" : ""}`} type="button" onClick={() => setActiveType("step10")} role="tab" aria-selected={activeType === "step10"}>10 <span>{t("Daily", "روزانه")}</span></button>
-                <button className={`workspace-tab${activeType === "step4" ? " is-active" : ""}`} type="button" onClick={() => setActiveType("step4")} role="tab" aria-selected={activeType === "step4"}>4 <span>{t("Personal", "شخصی")}</span></button>
-                <button className={`workspace-tab${activeType === "analytics" ? " is-active" : ""}`} type="button" onClick={() => setActiveType("analytics")} role="tab" aria-selected={activeType === "analytics"}><BarChart3 size={16} /><span>{t("Analytics", "تحلیل")}</span></button>
+                <button className={`workspace-tab${activeType === "step10" ? " is-active" : ""}`} type="button" onClick={() => switchTool("step10")} role="tab" aria-selected={activeType === "step10"}>10 <span>{t("Daily", "روزانه")}</span></button>
+                <button className={`workspace-tab${activeType === "step4" ? " is-active" : ""}`} type="button" onClick={() => switchTool("step4")} role="tab" aria-selected={activeType === "step4"}>4 <span>{t("Workbooks", "دفترها")}</span></button>
+                <button className={`workspace-tab${activeType === "analytics" ? " is-active" : ""}`} type="button" onClick={() => switchTool("analytics")} role="tab" aria-selected={activeType === "analytics"}><BarChart3 size={16} /><span>{t("Analytics", "تحلیل")}</span></button>
+                <button className={`workspace-tab${activeType === "learning" ? " is-active" : ""}`} type="button" onClick={() => switchTool("learning")} role="tab" aria-selected={activeType === "learning"}><BookOpenText size={16} /><span>{t("Learn", "یادگیری")}</span></button>
               </div>
             </div>
           </div>
-          {activeType !== "analytics" && (
+          {activeType === "step10" && (
             <p className="inventory-save-reminder" role="note">
               <Save size={17} aria-hidden="true" />
               {t(
@@ -317,26 +328,24 @@ export function MemberDashboard() {
               )}
             </p>
           )}
-          {activeType !== "analytics" && <InventoryExport ref={exportRef} records={records} selectedDate={selectedDate} year={year} />}
+          {activeType === "step10" && <InventoryExport ref={exportRef} records={records} selectedDate={selectedDate} year={year} />}
           {activeType === "step10" ? (
             <Step10Inventory
               key={`step10-${selectedDate}-${selectedStep10?.updatedAt ?? 0}-${language}`}
               initialData={(selectedStep10?.payload as Step10Data | undefined) ?? { date: selectedDate }}
-              onSave={(data) => saveInventory("step10", data.date, data)}
+              onSave={(data) => saveInventory(data.date, data)}
               onExport={() => exportRef.current?.open({ type: "step10" })}
+              onOpenLearning={() => switchTool("learning")}
             />
           ) : activeType === "step4" ? (
-            <Step4Inventory
-              key={`step4-${selectedDate}-${selectedStep4?.updatedAt ?? 0}-${language}`}
-              initialData={(selectedStep4?.payload as Step4Data | undefined) ?? { date: selectedDate }}
-              onSave={(data) => saveInventory("step4", data.date, data)}
-              onExport={() => exportRef.current?.open({ type: "step4" })}
-            />
-          ) : (
+            <Step4Workspace onOpenLearning={() => switchTool("learning")} onDirtyChange={setStep4Dirty} />
+          ) : activeType === "analytics" ? (
             <Step10Analytics
               refreshKey={analyticsVersion}
-              onOpenStep10={() => setActiveType("step10")}
+              onOpenStep10={() => switchTool("step10")}
             />
+          ) : (
+            <RecoveryLearningCenter />
           )}
           </section>
         </div>
@@ -385,7 +394,7 @@ function CompactCalendar({
           return (
             <button className={`calendar-day${selectedDate === date ? " is-selected" : ""}${date === todayIso() ? " is-today" : ""}`} type="button" key={date} onClick={() => onSelect(date)} aria-label={date}>
               <span>{new Intl.NumberFormat(locale, { useGrouping: false }).format(day)}</span>
-              <i className="day-markers">{types?.has("step10") && <b className="dot-ten" />}{types?.has("step4") && <b className="dot-four" />}</i>
+              <i className="day-markers">{types?.has("step10") && <b className="dot-ten" />}</i>
             </button>
           );
         })}

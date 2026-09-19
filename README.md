@@ -6,7 +6,8 @@ An English, Farsi, and Spanish recovery inventory website built for Cloudflare W
 
 - Public landing page
 - Interactive Step 10 demo with 24 major principles
-- Interactive Step 4 demo with four guided sections
+- Reusable Step 4 workbooks with six detailed, editable sections
+- Recovery learning center connecting defects, shortcomings, corrective principles, and practical actions
 - A choice of anonymous accounts or verified email accounts
 - One-time email sign-in codes with no stored passwords
 - In-place conversion from anonymous to email access without moving member data

@@ -79,3 +79,15 @@ CREATE UNIQUE INDEX IF NOT EXISTS inventories_user_type_date_idx
   ON inventories (user_id, type, entry_date);
 CREATE INDEX IF NOT EXISTS inventories_user_date_idx
   ON inventories (user_id, entry_date);
+
+CREATE TABLE IF NOT EXISTS step4_workbooks (
+  id TEXT PRIMARY KEY NOT NULL,
+  user_id TEXT NOT NULL,
+  encrypted_payload TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS step4_workbooks_user_updated_idx
+  ON step4_workbooks (user_id, updated_at);

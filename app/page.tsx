@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   ArrowRight,
   BarChart3,
+  BookOpenText,
   CalendarDays,
   Check,
   ChevronDown,
@@ -15,6 +16,7 @@ import {
   LockKeyhole,
   MoonStar,
   NotebookPen,
+  Route,
   ShieldCheck,
   Sparkles,
   TrendingUp,
@@ -51,6 +53,13 @@ export default function Home() {
       answer: t(
         "No. Email is added to the same account. Your Step 10 and Step 4 inventories, analytics, membership, and billing connection remain in place.",
         "خیر. ایمیل به همان حساب اضافه می‌شود. ترازنامه‌های گام ۱۰ و ۴، تحلیل‌ها، عضویت و اتصال پرداخت شما حفظ می‌شوند."
+      ),
+    },
+    {
+      question: t("Is Step 4 a daily inventory?", "آیا گام چهارم یک ترازنامه روزانه است؟"),
+      answer: t(
+        "No. Step 4 is a reusable workbook you can build over time, save, revisit, edit, and mark complete. You can start another separate Step 4 inventory whenever you choose.",
+        "خیر. گام چهارم یک دفتر قابل ویرایش است که می‌توانید به‌مرور تکمیل، ذخیره، مرور و ویرایش کنید و آن را کامل علامت بزنید. هر زمان خواستید می‌توانید ترازنامه جداگانه دیگری برای گام چهارم آغاز کنید."
       ),
     },
     {
@@ -253,13 +262,44 @@ export default function Home() {
               <span><NotebookPen size={25} /></span>
             </div>
             <h3>{t("Step 4 Personal Inventory", "ترازنامه شخصی گام چهارم")}</h3>
-            <p>{t("Organize resentments, fears, relationship patterns, harms, and strengths in a clear working guide.", "رنجش‌ها، ترس‌ها، الگوهای رابطه، آسیب‌ها و نقاط قوت را در یک راهنمای روشن مرتب کنید.")}</p>
+            <p>{t("Build one detailed inventory over time. Return to edit it, mark it complete, or begin a separate Step 4 inventory whenever you choose.", "یک ترازنامه کامل را به‌مرور بسازید. برای ویرایش بازگردید، آن را کامل علامت بزنید یا هر زمان خواستید ترازنامه جداگانه‌ای برای گام چهارم آغاز کنید.")}</p>
             <ul>
-              <li><Check size={16} />{t("Focused, editable sections", "بخش‌های متمرکز و قابل ویرایش")}</li>
+              <li><Check size={16} />{t("Six detailed, editable sections—not a daily entry", "شش بخش کامل و قابل ویرایش؛ نه یک نوشته روزانه")}</li>
+              <li><Check size={16} />{t("Multiple reusable Step 4 workbooks", "چندین دفتر قابل استفاده گام چهارم")}</li>
               <li><Check size={16} />{t("A sponsor-ready private summary", "خلاصه خصوصی آماده برای حامی")}</li>
             </ul>
             <a href="/demo?step=4">{t("Try Step 4", "آزمایش گام چهارم")}<ArrowRight className={arrowClass} size={17} /></a>
           </article>
+        </div>
+      </section>
+
+      <section className="ri-section ri-learning-showcase" id="learning">
+        <div className="ri-learning-copy">
+          <span className="ri-section-label"><BookOpenText size={16} />{t("Recovery learning center", "مرکز آموزش بهبودی")}</span>
+          <h2>{t("See the whole path from pattern to principle.", "تمام مسیر از الگو تا اصل را ببینید.")}</h2>
+          <p>{t(
+            "Learn what each Step 4 character defect means, the specific shortcomings it can produce, the Step 4 and Step 10 principles that counter it, and practical actions for living those principles.",
+            "بیاموزید هر نقص شخصیتی در گام چهارم چه معنایی دارد، چه کمبودهای رفتاری مشخصی می‌تواند ایجاد کند، کدام اصول گام چهارم و دهم با آن مقابله می‌کنند و چگونه آن اصول را در عمل زندگی کنید."
+          )}</p>
+          <div className="ri-learning-points">
+            <span><Check size={16} />{t("Detailed explanations of defects and related shortcomings", "توضیح کامل نقص‌ها و کمبودهای رفتاری مرتبط")}</span>
+            <span><Check size={16} />{t("All 24 Step 10 principles explained with practical examples", "توضیح هر ۲۴ اصل گام دهم همراه با مثال‌های عملی")}</span>
+            <span><Check size={16} />{t("Recovery paths you can apply to real situations", "مسیرهای بهبودی قابل اجرا در موقعیت‌های واقعی")}</span>
+          </div>
+          <a href="/demo?step=learning" className="button button-primary">
+            {t("Explore the learning demo", "مشاهده نسخه آزمایشی آموزش")}
+            <ArrowRight className={arrowClass} size={17} />
+          </a>
+        </div>
+        <div className="ri-learning-preview" aria-label={t("Example recovery learning path", "نمونه مسیر آموزش بهبودی")}>
+          <div className="ri-learning-preview-head"><span>{t("Example", "نمونه")}</span><strong>{t("Dishonesty", "عدم صداقت")}</strong></div>
+          <div className="ri-learning-preview-flow">
+            <article><span>1</span><div><small>{t("Character defect", "نقص شخصیتی")}</small><strong>{t("Dishonesty", "عدم صداقت")}</strong><p>{t("Hiding, changing, or avoiding the truth.", "پنهان کردن، تغییر دادن یا دوری از حقیقت.")}</p></div></article>
+            <Route size={18} aria-hidden="true" />
+            <article><span>2</span><div><small>{t("Shortcomings", "کمبودهای رفتاری")}</small><strong>{t("Lying · Omission · Denial", "دروغ · حذف حقیقت · انکار")}</strong><p>{t("The behaviors the underlying defect can produce.", "رفتارهایی که نقص زیربنایی می‌تواند ایجاد کند.")}</p></div></article>
+            <Route size={18} aria-hidden="true" />
+            <article><span>3</span><div><small>{t("Corrective principles", "اصول اصلاحی")}</small><strong>{t("Honesty · Integrity · Courage", "صداقت · درستکاری · شجاعت")}</strong><p>{t("A practical route toward a different response.", "مسیری عملی به سوی پاسخی متفاوت.")}</p></div></article>
+          </div>
         </div>
       </section>
 
@@ -350,11 +390,12 @@ export default function Home() {
         <div className="ri-membership-copy">
           <span>{t("One clear membership", "یک عضویت روشن")}</span>
           <h2>{t("A full year of reflection for less than 50¢ a week.", "یک سال کامل تأمل، کمتر از ۵۰ سنت در هفته.")}</h2>
-          <p>{t("Both inventories, your ongoing history, and every sharing option are included. No confusing plans or upgrades.", "هر دو ترازنامه، سابقه مداوم و همه گزینه‌های اشتراک‌گذاری شامل می‌شوند. بدون طرح‌ها یا ارتقاهای گیج‌کننده.")}</p>
+          <p>{t("Daily Step 10, reusable Step 4 workbooks, the learning center, your ongoing history, and every sharing option are included. No confusing plans or upgrades.", "گام دهم روزانه، دفترهای قابل استفاده گام چهارم، مرکز آموزش، سابقه مداوم و همه گزینه‌های اشتراک‌گذاری شامل می‌شوند. بدون طرح‌ها یا ارتقاهای گیج‌کننده.")}</p>
           <div className="ri-included">
-            <span><NotebookPen size={18} />{t("Unlimited Step 10 and Step 4 entries", "ترازنامه نامحدود گام ۱۰ و ۴")}</span>
+            <span><NotebookPen size={18} />{t("Daily Step 10 and multiple editable Step 4 workbooks", "گام دهم روزانه و چندین دفتر قابل ویرایش گام چهارم")}</span>
             <span><CalendarDays size={18} />{t("Continuous year-by-year calendar", "تقویم پیوسته سال‌به‌سال")}</span>
             <span><BarChart3 size={18} />{t("Private Step 10 analytics through today", "تحلیل خصوصی گام ۱۰ تا امروز")}</span>
+            <span><BookOpenText size={18} />{t("Defects, shortcomings, and principles learning center", "مرکز آموزش نقص‌ها، کمبودهای رفتاری و اصول")}</span>
             <span><FileDown size={18} />{t("Share, print, and PDF export", "اشتراک، چاپ و خروجی PDF")}</span>
             <span><ShieldCheck size={18} />{t("Your choice of anonymous or email account", "انتخاب حساب ناشناس یا ایمیلی")}</span>
           </div>

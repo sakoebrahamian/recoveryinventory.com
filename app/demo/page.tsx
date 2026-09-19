@@ -13,8 +13,8 @@ export default function DemoPage() {
       <SiteHeader />
       <section className="page-hero compact">
         <div className="eyebrow"><Eye size={16} />{t("Interactive preview", "پیش‌نمایش تعاملی")}</div>
-        <h1>{t("Try both inventories—and preview Step 10 analytics.", "هر دو ترازنامه را امتحان کنید و پیش‌نمایش تحلیل گام ۱۰ را ببینید.")}</h1>
-        <p>{t("Use the sample information, test the print and sharing tools, then open Analytics to see how saved Step 10 patterns are summarized. Demo entries are not saved to an account.", "از اطلاعات نمونه استفاده کنید، ابزار چاپ و اشتراک را امتحان کنید و سپس تحلیل را باز کنید تا ببینید الگوهای ذخیره‌شده گام ۱۰ چگونه خلاصه می‌شوند. موارد آزمایشی در حساب ذخیره نمی‌شوند.")}</p>
+        <h1>{t("Try daily Step 10, a reusable Step 4 workbook, analytics, and the learning center.", "گام دهم روزانه، دفتر قابل ویرایش گام چهارم، تحلیل‌ها و مرکز آموزش را امتحان کنید.")}</h1>
+        <p>{t("Explore a detailed Step 4 workbook you can build over time, see how Step 10 patterns are summarized, and follow the learning path from character defects to shortcomings, corrective principles, and recovery actions. Demo entries are not saved to an account.", "یک دفتر کامل گام چهارم را که می‌توان به‌مرور تکمیل کرد بررسی کنید، ببینید الگوهای گام دهم چگونه خلاصه می‌شوند و مسیر آموزش را از نقص‌های شخصیتی تا کمبودهای رفتاری، اصول اصلاحی و اقدام‌های بهبودی دنبال کنید. موارد آزمایشی در حساب ذخیره نمی‌شوند.")}</p>
       </section>
       <div className="demo-banner">
         <div><ShieldCheck size={18} /><span>{t("Demo mode: your changes stay on this page and disappear when it closes.", "حالت آزمایشی: تغییرات فقط در همین صفحه می‌مانند و پس از بستن آن حذف می‌شوند.")}</span></div>

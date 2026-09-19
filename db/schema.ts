@@ -82,6 +82,18 @@ export const inventories = sqliteTable(
   ],
 );
 
+export const step4Workbooks = sqliteTable(
+  "step4_workbooks",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    encryptedPayload: text("encrypted_payload").notNull(),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+  },
+  (table) => [index("step4_workbooks_user_updated_idx").on(table.userId, table.updatedAt)],
+);
+
 export const billingEvents = sqliteTable("billing_events", {
   id: text("id").primaryKey(),
   eventType: text("event_type").notNull(),
