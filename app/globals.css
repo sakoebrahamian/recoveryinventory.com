@@ -2191,6 +2191,13 @@ html[dir="rtl"] .membership-gate-card h2 {
   line-height: 1.5;
 }
 
+.join-promotion-code {
+  width: 100%;
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
 .membership-gate-icon {
   display: grid;
   width: 54px;
@@ -2546,6 +2553,27 @@ html[dir="rtl"] .membership-gate-card h2 {
   font-family: Georgia, serif;
   font-size: 1.65rem;
   font-weight: 500;
+}
+
+.inventory-save-reminder {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0 0 1rem;
+  border: 1px solid rgba(13, 101, 113, 0.22);
+  border-radius: 12px;
+  background: var(--mist);
+  color: var(--ink-soft);
+  padding: 0.75rem 0.9rem;
+  font-size: 0.88rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.inventory-save-reminder svg {
+  flex: 0 0 auto;
+  margin-top: 0.1rem;
+  color: var(--success);
 }
 
 .membership-status {

@@ -337,6 +337,7 @@ export const spanishTranslations: Record<string, string> = {
   "Recovery-code access": "Acceso mediante código de recuperación",
   "Reflect at your pace": "Reflexiona a tu ritmo",
   "Relationship patterns": "Patrones de relación",
+  "Save your inventory before changing dates, leaving this page, or opening another tool.": "Guarda tu inventario antes de cambiar de fecha, salir de esta página o abrir otra herramienta.",
   "Renew your membership to save changes.": "Renueva tu membresía para guardar los cambios.",
   "Renews annually until canceled.": "Se renueva anualmente hasta que se cancele.",
   "Repair, amends, or boundary": "Reparación, enmienda o límite",

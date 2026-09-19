@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BarChart3, CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LockKeyhole, LogOut, RefreshCw, ShieldCheck } from "lucide-react";
+import { BarChart3, CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LockKeyhole, LogOut, RefreshCw, Save, ShieldCheck } from "lucide-react";
 import { AddEmailAccess } from "./add-email-access";
 import { BrandMark } from "./brand-mark";
 import { InventoryExport, type InventoryExportHandle, type InventoryRecord } from "./inventory-export";
@@ -308,6 +308,15 @@ export function MemberDashboard() {
               </div>
             </div>
           </div>
+          {activeType !== "analytics" && (
+            <p className="inventory-save-reminder" role="note">
+              <Save size={17} aria-hidden="true" />
+              {t(
+                "Save your inventory before changing dates, leaving this page, or opening another tool.",
+                "پیش از تغییر تاریخ، ترک این صفحه یا باز کردن ابزار دیگری، حتماً ترازنامه خود را ذخیره کنید."
+              )}
+            </p>
+          )}
           {activeType !== "analytics" && <InventoryExport ref={exportRef} records={records} selectedDate={selectedDate} year={year} />}
           {activeType === "step10" ? (
             <Step10Inventory

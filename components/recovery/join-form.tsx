@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowLeft, CheckCircle2, Copy, CreditCard, Download, KeyRound, Mail, ShieldCheck, UserRound } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Copy, Download, KeyRound, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { useLanguage } from "./language-provider";
 
 type JoinMethod = "anonymous" | "email";
@@ -18,6 +18,8 @@ export function JoinForm() {
   const [emailCode, setEmailCode] = React.useState("");
   const [emailVerified, setEmailVerified] = React.useState(false);
   const [message, setMessage] = React.useState("");
+  const [promotionCode, setPromotionCode] = React.useState("");
+  const [billingError, setBillingError] = React.useState("");
   const [busy, setBusy] = React.useState(false);
 
   function chooseMethod(next: JoinMethod) {
@@ -108,16 +110,41 @@ export function JoinForm() {
 
   async function beginCheckout() {
     setBusy(true);
-    setMessage("");
+    setBillingError("");
     try {
-      const response = await fetch("/api/billing/checkout", { method: "POST" });
-      const result = await response.json() as { url?: string; error?: string };
-      if (!response.ok || !result.url) throw new Error(result.error || t("Checkout is not available yet.", "پرداخت هنوز در دسترس نیست."));
+      const response = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ promotionCode: promotionCode.trim() || undefined }),
+      });
+      const result = await response.json() as { url?: string; activated?: boolean; error?: string };
+      if (!response.ok) throw new Error(result.error || t("Checkout is not available yet.", "پرداخت هنوز در دسترس نیست."));
+      if (result.activated) {
+        // Native navigation avoids the production Vinext client-router interception error.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+        window.location.assign("/app");
+        return;
+      }
+      if (!result.url) throw new Error(t("Checkout is not available yet.", "پرداخت هنوز در دسترس نیست."));
       window.location.assign(result.url);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
+      setBillingError(error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
       setBusy(false);
     }
+  }
+
+  function activationControls(disabled = false) {
+    return (
+      <>
+        <div className="promotion-code-field join-promotion-code">
+          <label htmlFor="join-promotion-code">{t("Promotion code (optional)", "کد تخفیف (اختیاری)")}</label>
+          <input id="join-promotion-code" className="form-input" value={promotionCode} onChange={(event) => setPromotionCode(event.target.value)} autoComplete="off" placeholder={t("Enter code", "کد را وارد کنید")} />
+          <p>{t("Enter a 100%-off forever code here to activate without payment or billing details. Other discounts open secure Stripe checkout for the remaining balance.", "برای فعال‌سازی بدون پرداخت یا اطلاعات صورتحساب، کد تخفیف دائمی ۱۰۰٪ را اینجا وارد کنید. تخفیف‌های دیگر برای پرداخت مبلغ باقی‌مانده، پرداخت امن Stripe را باز می‌کنند.")}</p>
+        </div>
+        {billingError && <p className="form-error" role="alert">{billingError}</p>}
+        <button className="button button-primary button-full" type="button" onClick={beginCheckout} disabled={disabled || busy}><ShieldCheck size={18} />{busy ? (promotionCode.trim() ? t("Applying code…", "در حال اعمال کد…") : t("Opening secure checkout…", "در حال باز کردن پرداخت امن…")) : t("Activate membership", "فعال‌سازی عضویت")}</button>
+      </>
+    );
   }
 
   const accountCreated = Boolean(recoveryCode || emailVerified);
@@ -214,7 +241,7 @@ export function JoinForm() {
           </div>
           <label className="confirmation-check"><input type="checkbox" checked={saved} onChange={(event) => setSaved(event.target.checked)} /><span>{t("I saved my recovery code somewhere private.", "کد بازیابی را در جایی خصوصی ذخیره کردم.")}</span></label>
           {message && <p className={message.includes("copied") || message.includes("download") || message.includes("copiad") || message.includes("descargad") || message.includes("کپی") || message.includes("دانلود") ? "form-success" : "form-error"}>{message}</p>}
-          <button className="button button-primary button-full" type="button" onClick={beginCheckout} disabled={!saved || busy}><CreditCard size={18} />{busy ? t("Opening secure checkout…", "در حال باز کردن پرداخت امن…") : t("Continue to secure payment", "ادامه به پرداخت امن")}</button>
+          {activationControls(!saved)}
           <p className="fine-print"><ShieldCheck size={14} /> {t("You can add an email later without losing your inventories or membership.", "بعداً می‌توانید بدون از دست دادن ترازنامه‌ها یا عضویت، ایمیل اضافه کنید.")}</p>
         </>
       )}
@@ -227,7 +254,7 @@ export function JoinForm() {
             <p>{t("Your verified email will be used for secure sign-in codes and account recovery.", "ایمیل تأییدشده شما برای کدهای ورود امن و بازیابی حساب استفاده می‌شود.")}</p>
           </div>
           {message && <p className="form-success">{message}</p>}
-          <button className="button button-primary button-full" type="button" onClick={beginCheckout} disabled={busy}><CreditCard size={18} />{busy ? t("Opening secure checkout…", "در حال باز کردن پرداخت امن…") : t("Continue to secure payment", "ادامه به پرداخت امن")}</button>
+          {activationControls()}
         </>
       )}
 

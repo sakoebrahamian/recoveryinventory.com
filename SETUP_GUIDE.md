@@ -185,6 +185,7 @@ Use an incognito/private browser window and complete these checks:
 - The create-account page clearly offers anonymous and verified-email account choices.
 - Anonymous signup asks only for an alias, and its recovery code downloads or copies successfully.
 - Email signup sends a six-digit verification code and creates the account after verification.
+- After either account type is created, the promotion-code field appears before the membership activation button; users never need to enter Checkout and return to find it.
 - Email login sends a new one-time code and opens the correct member account.
 - An anonymous member can add a verified email from the member page and keep the same inventories, subscription, and history.
 - Closing Stripe Checkout without payment leaves all Step 10, Step 4, analytics, share, copy, and export tools locked.
@@ -195,6 +196,7 @@ Use an incognito/private browser window and complete these checks:
 - The account changes to **Membership active** after the webhook arrives.
 - A Step 10 inventory saves, appears on the yearly calendar, and still appears after signing out and recovering the account.
 - A Step 4 inventory saves and appears on the same calendar.
+- Step 10 and Step 4 show a reminder to save before changing dates, leaving the page, or opening another tool.
 - Share/copy, print, and Save as PDF work.
 - **Manage or cancel** opens the Stripe billing portal.
 - A canceled subscription remains active through the paid test period and later becomes inactive through Stripe’s webhook.
