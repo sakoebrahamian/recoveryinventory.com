@@ -32,7 +32,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     document.documentElement.lang = language;
     document.documentElement.dir = language === "fa" ? "rtl" : "ltr";
-    window.localStorage.setItem("ri-language", language);
   }, [language]);
 
   const setLanguage = React.useCallback((next: Language) => {
