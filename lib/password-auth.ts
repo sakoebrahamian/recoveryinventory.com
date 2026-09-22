@@ -1,7 +1,8 @@
 const encoder = new TextEncoder();
 
 const PASSWORD_SCHEME = "pbkdf2-sha256";
-const PASSWORD_ITERATIONS = 600_000;
+// Cloudflare Workers rejects PBKDF2 operations above 100,000 iterations.
+const PASSWORD_ITERATIONS = 100_000;
 const PASSWORD_BYTES = 32;
 const SALT_BYTES = 16;
 

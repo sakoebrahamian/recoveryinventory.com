@@ -198,6 +198,11 @@ try {
   ));
   assert.equal(response.status, 200);
   assert.equal(state.passwords.get("existing-anonymous").username, "quiet.river");
+  assert.equal(
+    Number(state.passwords.get("existing-anonymous").password_hash.split("$")[1]),
+    100_000,
+    "password hashing must stay within the Cloudflare Workers PBKDF2 limit",
+  );
 
   response = await passwordRoute.POST(postRequest(
     "http://test/api/account/password",
