@@ -9,6 +9,15 @@ type AnalyticsInventoryRow = {
   encrypted_payload: string;
 };
 
+function isIsoCalendarDate(value: string | null): value is string {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  return parsed.getUTCFullYear() === year
+    && parsed.getUTCMonth() === month - 1
+    && parsed.getUTCDate() === day;
+}
+
 export async function GET(request: Request) {
   try {
     const account = await requireAccount(request);
@@ -16,7 +25,8 @@ export async function GET(request: Request) {
       return Response.json({ error: "An active membership is required to view analytics." }, { status: 403 });
     }
 
-    const through = todayIso();
+    const requestedThrough = new URL(request.url).searchParams.get("through");
+    const through = isIsoCalendarDate(requestedThrough) ? requestedThrough : todayIso();
     const result = await env.DB.prepare(
       `SELECT entry_date, encrypted_payload FROM inventories
        WHERE user_id = ? AND type = 'step10' AND entry_date <= ? ORDER BY entry_date`,

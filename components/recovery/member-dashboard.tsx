@@ -288,7 +288,7 @@ export function MemberDashboard() {
                 </div>
                 <button type="button" onClick={() => moveMonth(1)} aria-label={t("Next month", "ماه بعد")}><ChevronRight size={18} /></button>
               </div>
-              <CompactCalendar locale={locale} selectedDate={selectedDate} records={records} onSelect={setSelectedDate} />
+              <CompactCalendar locale={locale} selectedDate={selectedDate} records={records} today={todayIso()} onSelect={setSelectedDate} />
               <div className="compact-calendar-footer">
                 <button type="button" onClick={() => { const today = todayIso(); const todayYear = Number(today.slice(0, 4)); setYear(todayYear); setYearDraft(String(todayYear)); setSelectedDate(today); }}>{t("Today", "امروز")}</button>
                 <div className="calendar-legend"><span><i className="dot-ten" />{t("Saved Step 10", "گام ۱۰ ذخیره‌شده")}</span></div>
@@ -366,11 +366,13 @@ function CompactCalendar({
   locale,
   selectedDate,
   records,
+  today,
   onSelect,
 }: {
   locale: string;
   selectedDate: string;
   records: InventoryRecord[];
+  today: string;
   onSelect: (date: string) => void;
 }) {
   const [year, monthNumber] = selectedDate.split("-").map(Number);
@@ -399,7 +401,7 @@ function CompactCalendar({
           const date = `${String(year).padStart(4, "0")}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
           const types = recordMap.get(date);
           return (
-            <button className={`calendar-day${selectedDate === date ? " is-selected" : ""}${date === todayIso() ? " is-today" : ""}`} type="button" key={date} onClick={() => onSelect(date)} aria-label={date}>
+            <button className={`calendar-day${selectedDate === date ? " is-selected" : ""}${date === today ? " is-today" : ""}`} type="button" key={date} onClick={() => onSelect(date)} aria-label={date}>
               <span>{new Intl.NumberFormat(locale, { useGrouping: false }).format(day)}</span>
               <i className="day-markers">{types?.has("step10") && <b className="dot-ten" />}</i>
             </button>

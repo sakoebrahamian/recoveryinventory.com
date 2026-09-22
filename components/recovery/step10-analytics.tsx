@@ -49,7 +49,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10 }: 
       setLoading(true);
       setError("");
       try {
-        const response = await fetch("/api/analytics/step10", { cache: "no-store", signal: controller.signal });
+        const response = await fetch(`/api/analytics/step10?through=${encodeURIComponent(todayIso())}`, { cache: "no-store", signal: controller.signal });
         const result = await response.json() as { analytics?: Step10AnalyticsData; error?: string };
         if (!response.ok || !result.analytics) {
           throw new Error(result.error || t("We could not load your analytics.", "نتوانستیم تحلیل شما را بارگذاری کنیم."));
