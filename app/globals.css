@@ -1545,6 +1545,28 @@ html[dir="rtl"] .page-hero h1 {
   white-space: nowrap;
 }
 
+.principle-attention-note {
+  display: grid;
+  gap: 0.42rem;
+  border-top: 1px solid rgba(200, 132, 53, 0.2);
+  padding-top: 0.7rem;
+}
+
+.principle-attention-note label {
+  color: #744d17;
+  font-size: 0.73rem;
+  font-weight: 760;
+  line-height: 1.4;
+}
+
+.principle-attention-note .form-textarea {
+  min-height: 88px;
+  border-color: rgba(200, 132, 53, 0.3);
+  background: rgba(255, 255, 255, 0.78);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
 .reflection-prompts {
   margin-top: 2rem;
   border-top: 1px solid var(--line);
@@ -3504,6 +3526,24 @@ html[dir="rtl"] .inventory-export-fieldset legend {
     margin: 0;
     color: #61736f;
     font-size: 7.5pt;
+  }
+
+  html.inventory-export-page .inventory-print-attention-note {
+    grid-column: 1 / -1;
+    border-inline-start: 2pt solid #c88435;
+    background: #fff8ea;
+    padding: 2mm 2.5mm;
+  }
+
+  html.inventory-export-page .inventory-print-attention-note strong {
+    color: #744d17;
+    font-size: 7.5pt;
+  }
+
+  html.inventory-export-page .inventory-print-attention-note p {
+    margin-top: 0.8mm;
+    color: #594a35;
+    white-space: pre-wrap;
   }
 
   html.inventory-export-page .inventory-print-state {

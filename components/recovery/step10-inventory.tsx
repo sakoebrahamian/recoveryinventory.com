@@ -15,6 +15,7 @@ type Step10Data = {
   date: string;
   mood: string;
   states: Record<string, PrincipleState | undefined>;
+  attentionNotes: Record<string, string | undefined>;
   highlights: string;
   attention: string;
   amends: string;
@@ -52,6 +53,9 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
     date: initialData?.date ?? todayIso(),
     mood: initialData?.mood ?? "steady",
     states: initialData?.states ?? (demo ? demoStates : {}),
+    attentionNotes: initialData?.attentionNotes ?? (demo ? {
+      patience: t("I became impatient when plans changed.", "وقتی برنامه‌ها تغییر کرد بی‌صبر شدم."),
+    } : {}),
     highlights: initialData?.highlights ?? (demo ? t("I paused before answering a difficult message and asked for help when I needed it.", "پیش از پاسخ به یک پیام دشوار مکث کردم و وقتی نیاز داشتم کمک خواستم.") : ""),
     attention: initialData?.attention ?? (demo ? t("I became impatient when plans changed.", "وقتی برنامه‌ها تغییر کرد بی‌صبر شدم.") : ""),
     amends: initialData?.amends ?? "",
@@ -71,9 +75,21 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
   }, [data.states]);
 
   function setPrinciple(id: string, state: PrincipleState) {
+    setData((current) => {
+      const attentionNotes = { ...current.attentionNotes };
+      if (state !== "attention") delete attentionNotes[id];
+      return {
+        ...current,
+        states: { ...current.states, [id]: state },
+        attentionNotes,
+      };
+    });
+  }
+
+  function setAttentionNote(id: string, value: string) {
     setData((current) => ({
       ...current,
-      states: { ...current.states, [id]: state },
+      attentionNotes: { ...current.attentionNotes, [id]: value },
     }));
   }
 
@@ -90,6 +106,13 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
       .filter((principle) => data.states[principle.id] === "attention")
       .map((principle) => language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en)
       .join(", ");
+    const attentionDetails = principles.flatMap((principle) => {
+      if (data.states[principle.id] !== "attention") return [];
+      const note = data.attentionNotes[principle.id]?.trim();
+      if (!note) return [];
+      const name = language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en;
+      return [`- ${name}: ${note}`];
+    });
 
     return [
       t("Step 10 Daily Inventory", "ترازنامه روزانه گام دهم"),
@@ -97,6 +120,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
       "",
       `${t("Principles practiced", "اصول تمرین‌شده")}: ${practiced || "—"}`,
       `${t("Needs attention", "نیازمند توجه")}: ${attention || "—"}`,
+      ...(attentionDetails.length > 0 ? [`${t("Attention details", "توضیحات موارد نیازمند توجه")}:`, ...attentionDetails] : []),
       `${t("What went well", "موارد خوب امروز")}: ${data.highlights || "—"}`,
       `${t("What needs attention", "موارد نیازمند توجه")}: ${data.attention || "—"}`,
       `${t("Amends or apology", "جبران یا عذرخواهی")}: ${data.amends || "—"}`,
@@ -149,6 +173,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
       date: todayIso(),
       mood: "steady",
       states: {},
+      attentionNotes: {},
       highlights: "",
       attention: "",
       amends: "",
@@ -217,6 +242,21 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
                           {language === "en" ? "N/A" : t("Not applicable", "کاربرد ندارد")}
                         </button>
                       </div>
+                      {state === "attention" && (
+                        <div className="principle-attention-note">
+                          <label htmlFor={`attention-note-${principle.id}`}>
+                            {t("What happened today that needs attention?", "امروز چه اتفاقی افتاد که نیاز به توجه دارد؟")}
+                          </label>
+                          <textarea
+                            id={`attention-note-${principle.id}`}
+                            className="form-textarea"
+                            value={data.attentionNotes[principle.id] ?? ""}
+                            onChange={(event) => setAttentionNote(principle.id, event.target.value)}
+                            placeholder={t("Briefly describe the issue for this principle.", "موضوع مربوط به این اصل را کوتاه توضیح دهید.")}
+                            rows={3}
+                          />
+                        </div>
+                      )}
                     </article>
                   );
                 })}

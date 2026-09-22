@@ -93,6 +93,7 @@ function Step10Print({ data }: { data: Step10Data }) {
             <div className="inventory-print-principles">
               {matching.map((principle) => {
                 const state = data.states[principle.id];
+                const attentionNote = state === "attention" ? data.attentionNotes?.[principle.id]?.trim() : "";
                 const stateLabel = state === "practiced"
                   ? t("Practiced", "تمرین کردم")
                   : state === "attention"
@@ -103,6 +104,12 @@ function Step10Print({ data }: { data: Step10Data }) {
                     <span className={`inventory-print-state is-${state}`}>{stateLabel}</span>
                     <strong>{language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en}</strong>
                     <p>{language === "fa" ? principle.promptFa : language === "es" ? principle.promptEs : principle.promptEn}</p>
+                    {attentionNote && (
+                      <div className="inventory-print-attention-note">
+                        <strong>{t("What happened today that needs attention?", "امروز چه اتفاقی افتاد که نیاز به توجه دارد؟")}</strong>
+                        <p>{attentionNote}</p>
+                      </div>
+                    )}
                   </div>
                 );
               })}
