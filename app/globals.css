@@ -1985,6 +1985,10 @@ html[dir="rtl"] .auth-copy h1 {
   margin: 0 0 1rem;
 }
 
+.login-method-picker {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .account-method-picker > button {
   display: flex;
   min-height: 84px;
@@ -2049,6 +2053,41 @@ html[dir="rtl"] .input-with-icon > svg {
   padding-inline-start: 2.55rem;
 }
 
+.password-input-wrap {
+  position: relative;
+}
+
+.password-input-wrap .form-input {
+  padding-inline-end: 3rem;
+}
+
+.password-input-wrap > button {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--slate);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+html[dir="rtl"] .password-input-wrap > button {
+  right: auto;
+  left: 0.75rem;
+}
+
+.field-help {
+  margin: 0.35rem 0 0;
+  color: var(--slate);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
 .email-code-input {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 1.35rem;
@@ -2109,6 +2148,12 @@ html[dir="rtl"] .input-with-icon > svg {
 .compact-email-form {
   display: grid;
   gap: 0.65rem;
+}
+
+.compact-password-form,
+.account-access-stack {
+  display: grid;
+  gap: 0.75rem;
 }
 
 .compact-email-form label {
@@ -2211,6 +2256,10 @@ html[dir="rtl"] .membership-gate-card h2 {
 @media (max-width: 760px) {
   .account-method-picker,
   .membership-gate-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .login-method-picker {
     grid-template-columns: 1fr;
   }
 

@@ -38,7 +38,11 @@ const temporaryDirectory = await mkdtemp(join(tmpdir(), "recovery-inventory-depl
 const secretsPath = join(temporaryDirectory, "runtime-secrets.json");
 
 try {
-  for (const schemaFile of ["cloudflare-d1-email-setup.sql", "cloudflare-d1-step4-setup.sql"]) {
+  for (const schemaFile of [
+    "cloudflare-d1-email-setup.sql",
+    "cloudflare-d1-step4-setup.sql",
+    "cloudflare-d1-password-setup.sql",
+  ]) {
     const schemaResult = spawnSync(
       "pnpm",
       [

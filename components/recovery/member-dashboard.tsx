@@ -3,6 +3,7 @@
 import * as React from "react";
 import { BarChart3, BookOpenText, CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LockKeyhole, LogOut, RefreshCw, Save, ShieldCheck } from "lucide-react";
 import { AddEmailAccess } from "./add-email-access";
+import { PasswordAccess } from "./password-access";
 import { BrandMark } from "./brand-mark";
 import { InventoryExport, type InventoryExportHandle, type InventoryRecord } from "./inventory-export";
 import { LanguageToggle, useLanguage } from "./language-provider";
@@ -16,6 +17,8 @@ type AccountView = {
   alias: string;
   email: string | null;
   hasEmailLogin: boolean;
+  username: string | null;
+  hasPasswordLogin: boolean;
   subscriptionStatus: string;
   currentPeriodEnd: number | null;
   membershipActive: boolean;
@@ -222,7 +225,7 @@ export function MemberDashboard() {
     return (
       <main className="inner-page">
         <div className="member-topbar"><BrandMark /><LanguageToggle /></div>
-        <section className="member-locked"><div><div className="member-locked-icon"><ShieldCheck /></div><h1>{t("Your account is private", "حساب شما خصوصی است")}</h1><p>{t("Log in with an emailed code or a private recovery code. New members can choose either account type.", "با کد ایمیلی یا کد بازیابی خصوصی وارد شوید. اعضای جدید می‌توانند یکی از این دو نوع حساب را انتخاب کنند.")}</p><div className="hero-actions"><a className="button button-primary" href="/recover">{t("Log in", "ورود")}</a><a className="button button-outline" href="/join">{t("Create account", "ایجاد حساب")}</a></div></div></section>
+        <section className="member-locked"><div><div className="member-locked-icon"><ShieldCheck /></div><h1>{t("Your account is private", "حساب شما خصوصی است")}</h1><p>{t("Log in with a username and password, an emailed code, or a private recovery code. Anonymous members can use a private username without providing a real name or email.", "با نام کاربری و رمز عبور، کد ایمیلی یا کد بازیابی خصوصی وارد شوید. اعضای ناشناس می‌توانند بدون ارائه نام واقعی یا ایمیل از نام کاربری خصوصی استفاده کنند.")}</p><div className="hero-actions"><a className="button button-primary" href="/recover">{t("Log in", "ورود")}</a><a className="button button-outline" href="/join">{t("Create account", "ایجاد حساب")}</a></div></div></section>
       </main>
     );
   }
@@ -268,7 +271,10 @@ export function MemberDashboard() {
               {account.hasBillingProfile && <button className="button button-outline button-full" type="button" onClick={() => openBilling("portal")} disabled={billingBusy}><RefreshCw size={16} />{t("Manage existing billing", "مدیریت پرداخت موجود")}</button>}
               <p className="fine-print">{t("Renews yearly until canceled. Cancel any time through Stripe.", "تا زمان لغو، سالانه تمدید می‌شود. هر زمان از طریق Stripe لغو کنید.")}</p>
             </section>
-            <AddEmailAccess email={account.email} onConnected={(email) => setAccount((current) => current ? { ...current, email, hasEmailLogin: true } : current)} />
+            <div className="account-access-stack">
+              <PasswordAccess username={account.username} onConfigured={(username) => setAccount((current) => current ? { ...current, username, hasPasswordLogin: true } : current)} />
+              <AddEmailAccess email={account.email} onConnected={(email) => setAccount((current) => current ? { ...current, email, hasEmailLogin: true } : current)} />
+            </div>
           </div>
         ) : (
         <div className={`dashboard-workspace dashboard-workspace-${activeType}`}>
@@ -301,6 +307,7 @@ export function MemberDashboard() {
               <p className="fine-print">{t("Auto-renews yearly until canceled. Stripe may retain the billing details required to process payment.", "تا زمان لغو، سالانه به‌طور خودکار تمدید می‌شود. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را نگه دارد.")}</p>
             </section>
             <AddEmailAccess email={account.email} onConnected={(email) => setAccount((current) => current ? { ...current, email, hasEmailLogin: true } : current)} />
+            <PasswordAccess username={account.username} onConfigured={(username) => setAccount((current) => current ? { ...current, username, hasPasswordLogin: true } : current)} />
           </aside>
 
           <section className="member-inventory-section dashboard-inventory-column">

@@ -18,7 +18,7 @@ export default function DemoPage() {
       </section>
       <div className="demo-banner">
         <div><ShieldCheck size={18} /><span>{t("Demo mode: your changes stay on this page and disappear when it closes.", "حالت آزمایشی: تغییرات فقط در همین صفحه می‌مانند و پس از بستن آن حذف می‌شوند.")}</span></div>
-        <a className="text-link" href="/join">{t("Choose anonymous or email account", "انتخاب حساب ناشناس یا ایمیلی")}<ArrowRight className={language === "fa" ? "rotate-180" : ""} size={16} /></a>
+        <a className="text-link" href="/join">{t("Create an anonymous username or email account", "ایجاد حساب ناشناس با نام کاربری یا حساب ایمیلی")}<ArrowRight className={language === "fa" ? "rotate-180" : ""} size={16} /></a>
       </div>
       <DemoWorkspace />
       <SiteFooter />

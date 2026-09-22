@@ -15,13 +15,13 @@ export default function JoinPage() {
         <div className="auth-copy">
           <span className="eyebrow dark-eyebrow"><LockKeyhole size={14} /> {t("Two private ways to join", "دو روش خصوصی برای عضویت")}</span>
           <h1>{t("Choose the account that feels right for you.", "حسابی را انتخاب کنید که برای شما مناسب‌تر است.")}</h1>
-          <p>{t("Use an anonymous alias and recovery code, or create an email account with easy account recovery. Both receive the same private membership features.", "از نام مستعار و کد بازیابی ناشناس استفاده کنید، یا یک حساب ایمیلی با بازیابی آسان بسازید. هر دو همان امکانات خصوصی عضویت را دریافت می‌کنند.")}</p>
+          <p>{t("Create an anonymous account with a private alias, username, and password, or choose verified email access. Anonymous members also receive a recovery code and must copy or download it before continuing.", "یک حساب ناشناس با نام مستعار، نام کاربری و رمز عبور خصوصی بسازید، یا ورود با ایمیل تأییدشده را انتخاب کنید. اعضای ناشناس همچنین یک کد بازیابی دریافت می‌کنند و باید پیش از ادامه آن را کپی یا دانلود کنند.")}</p>
           <div className="auth-steps">
-            <div className="auth-step"><strong><KeyRound size={18} /></strong><div><strong>{t("Anonymous account", "حساب ناشناس")}</strong><span>{t("No name or email required. Save your private recovery code.", "نام یا ایمیل لازم نیست. کد بازیابی خصوصی خود را ذخیره کنید.")}</span></div></div>
+            <div className="auth-step"><strong><KeyRound size={18} /></strong><div><strong>{t("Anonymous account", "حساب ناشناس")}</strong><span>{t("No real name or email required. Use a username and password, then copy or download your recovery code.", "نام واقعی یا ایمیل لازم نیست. از نام کاربری و رمز عبور استفاده کنید و سپس کد بازیابی خود را کپی یا دانلود کنید.")}</span></div></div>
             <div className="auth-step"><strong><Mail size={18} /></strong><div><strong>{t("Email account", "حساب ایمیلی")}</strong><span>{t("Sign in and recover access using one-time email codes.", "با کدهای یک‌بارمصرف ایمیلی وارد شوید و دسترسی را بازیابی کنید.")}</span></div></div>
             <div className="auth-step"><strong>03</strong><div><strong>{t("Subscribe securely", "اشتراک امن")}</strong><span><RefreshCw size={13} /> {t("$25 yearly; cancel any time.", "سالانه ۲۵ دلار؛ هر زمان لغو کنید.")}</span></div></div>
           </div>
-          <p className="privacy-inline"><Check size={15} /> {t("An anonymous member can add email later without losing inventories, analytics, or membership progress.", "عضو ناشناس می‌تواند بعداً بدون از دست دادن ترازنامه‌ها، تحلیل‌ها یا پیشرفت عضویت، ایمیل اضافه کند.")}</p>
+          <p className="privacy-inline"><Check size={15} /> {t("Existing anonymous and email members can add username-and-password access without losing inventories, analytics, or membership progress.", "اعضای ناشناس و ایمیلی موجود می‌توانند بدون از دست دادن ترازنامه‌ها، تحلیل‌ها یا پیشرفت عضویت، ورود با نام کاربری و رمز عبور را اضافه کنند.")}</p>
         </div>
         <JoinForm />
       </section>

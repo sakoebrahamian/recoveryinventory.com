@@ -8,6 +8,8 @@ export async function GET(request: Request) {
       alias: account.alias,
       email: account.email,
       hasEmailLogin: Boolean(account.email && account.emailVerifiedAt),
+      username: account.username,
+      hasPasswordLogin: Boolean(account.username),
       subscriptionStatus: account.subscriptionStatus,
       currentPeriodEnd: account.currentPeriodEnd,
       membershipActive: hasActiveMembership(account),

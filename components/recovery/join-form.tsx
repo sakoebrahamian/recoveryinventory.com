@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { ArrowLeft, CheckCircle2, Copy, Download, KeyRound, Mail, ShieldCheck, UserRound } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Copy, Download, Eye, EyeOff, KeyRound, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { useLanguage } from "./language-provider";
+import { translatePasswordError } from "./password-error";
 
 type JoinMethod = "anonymous" | "email";
 
@@ -10,6 +11,10 @@ export function JoinForm() {
   const { language, t } = useLanguage();
   const [method, setMethod] = React.useState<JoinMethod>("anonymous");
   const [alias, setAlias] = React.useState("");
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [email, setEmail] = React.useState("");
   const [recoveryCode, setRecoveryCode] = React.useState("");
   const [saved, setSaved] = React.useState(false);
@@ -31,16 +36,20 @@ export function JoinForm() {
 
   async function createAnonymousAccount(event: React.FormEvent) {
     event.preventDefault();
+    if (password !== passwordConfirmation) {
+      setMessage(t("The passwords do not match.", "رمزهای عبور یکسان نیستند."));
+      return;
+    }
     setBusy(true);
     setMessage("");
     try {
       const response = await fetch("/api/account/create", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ alias, language }),
+        body: JSON.stringify({ alias, username, password, language }),
       });
       const result = await response.json() as { recoveryCode?: string; error?: string };
-      if (!response.ok || !result.recoveryCode) throw new Error(result.error || t("Could not create the account.", "حساب ایجاد نشد."));
+      if (!response.ok || !result.recoveryCode) throw new Error(translatePasswordError(t, result.error, "Could not create the account.", "حساب ایجاد نشد."));
       setRecoveryCode(result.recoveryCode);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
@@ -159,7 +168,7 @@ export function JoinForm() {
           </div>
           <div className="account-method-picker" role="tablist" aria-label={t("Account type", "نوع حساب")}>
             <button type="button" role="tab" aria-selected={method === "anonymous"} className={method === "anonymous" ? "is-active" : ""} onClick={() => chooseMethod("anonymous")}>
-              <KeyRound size={20} /><span><strong>{t("Anonymous account", "حساب ناشناس")}</strong><small>{t("Alias + recovery code", "نام مستعار و کد بازیابی")}</small></span>
+              <KeyRound size={20} /><span><strong>{t("Anonymous account", "حساب ناشناس")}</strong><small>{t("Username + password + recovery code", "نام کاربری، رمز عبور و کد بازیابی")}</small></span>
             </button>
             <button type="button" role="tab" aria-selected={method === "email"} className={method === "email" ? "is-active" : ""} onClick={() => chooseMethod("email")}>
               <Mail size={20} /><span><strong>{t("Email account", "حساب ایمیلی")}</strong><small>{t("Email verification codes", "کدهای تأیید ایمیلی")}</small></span>
@@ -176,12 +185,29 @@ export function JoinForm() {
               <label htmlFor="anonymous-alias">{t("Choose a private alias", "یک نام مستعار خصوصی انتخاب کنید")}</label>
               <input id="anonymous-alias" className="form-input" value={alias} onChange={(event) => setAlias(event.target.value)} minLength={2} maxLength={40} autoComplete="off" placeholder={t("Example: Quiet River", "مثال: رود آرام")} required />
             </div>
+            <div className="form-field">
+              <label htmlFor="anonymous-username">{t("Choose a username", "یک نام کاربری انتخاب کنید")}</label>
+              <input id="anonymous-username" className="form-input" value={username} onChange={(event) => setUsername(event.target.value)} minLength={3} maxLength={32} autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder={t("Example: quiet.river", "مثال: quiet.river")} required dir="ltr" />
+              <p className="field-help">{t("This can be private and does not need to be your real name.", "این نام می‌تواند خصوصی باشد و لازم نیست نام واقعی شما باشد.")}</p>
+            </div>
+            <div className="form-field">
+              <label htmlFor="anonymous-password">{t("Create a password", "یک رمز عبور بسازید")}</label>
+              <div className="password-input-wrap">
+                <input id="anonymous-password" className="form-input" type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} minLength={15} maxLength={128} autoComplete="new-password" required />
+                <button type="button" onClick={() => setShowPassword((current) => !current)} aria-label={showPassword ? t("Hide password", "پنهان کردن رمز عبور") : t("Show password", "نمایش رمز عبور")}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button>
+              </div>
+              <p className="field-help">{t("Use at least 15 characters. Spaces are allowed.", "حداقل از ۱۵ نویسه استفاده کنید. فاصله مجاز است.")}</p>
+            </div>
+            <div className="form-field">
+              <label htmlFor="anonymous-password-confirmation">{t("Confirm password", "تکرار رمز عبور")}</label>
+              <input id="anonymous-password-confirmation" className="form-input" type={showPassword ? "text" : "password"} value={passwordConfirmation} onChange={(event) => setPasswordConfirmation(event.target.value)} minLength={15} maxLength={128} autoComplete="new-password" required />
+            </div>
             {message && <p className="form-error" role="alert">{message}</p>}
             <button className="button button-primary button-full" type="submit" disabled={busy}>
               <KeyRound size={18} />{busy ? t("Creating…", "در حال ایجاد…") : t("Create anonymous account", "ایجاد حساب ناشناس")}
             </button>
           </form>
-          <p className="fine-print">{t("No name or email is required. You must save the recovery code shown next.", "نام یا ایمیل لازم نیست. باید کد بازیابی مرحله بعد را ذخیره کنید.")}</p>
+          <p className="fine-print">{t("No real name or email is required. You will still receive a recovery code and must copy or download it as a private backup key.", "نام واقعی یا ایمیل لازم نیست. با این حال یک کد بازیابی دریافت می‌کنید و باید آن را به‌عنوان کلید پشتیبان خصوصی کپی یا دانلود کنید.")}</p>
         </>
       )}
 
@@ -229,7 +255,7 @@ export function JoinForm() {
         <>
           <div className="account-card-header">
             <h2>{t("Save this code now", "همین حالا این کد را ذخیره کنید")}</h2>
-            <p>{t("It is the only way back into a fully anonymous account on a new device.", "این تنها راه ورود دوباره به حساب کاملاً ناشناس در دستگاه جدید است.")}</p>
+            <p>{t("Your username and password are your everyday login. This recovery code is your independent backup key, so copy or download it before continuing.", "نام کاربری و رمز عبور برای ورود روزانه هستند. این کد بازیابی کلید پشتیبان مستقل شماست، پس پیش از ادامه آن را کپی یا دانلود کنید.")}</p>
           </div>
           <div className="recovery-code-box">
             <span>{t("Your private recovery code", "کد بازیابی خصوصی شما")}</span>
@@ -239,7 +265,7 @@ export function JoinForm() {
               <button className="button button-small button-outline" type="button" onClick={downloadCode}><Download size={15} />{t("Download", "دانلود")}</button>
             </div>
           </div>
-          <label className="confirmation-check"><input type="checkbox" checked={saved} onChange={(event) => setSaved(event.target.checked)} /><span>{t("I saved my recovery code somewhere private.", "کد بازیابی را در جایی خصوصی ذخیره کردم.")}</span></label>
+          <label className="confirmation-check"><input type="checkbox" checked={saved} onChange={(event) => setSaved(event.target.checked)} /><span>{t("I copied or downloaded my recovery code and stored it privately.", "کد بازیابی خود را کپی یا دانلود کردم و در جایی خصوصی نگه داشتم.")}</span></label>
           {message && <p className={message.includes("copied") || message.includes("download") || message.includes("copiad") || message.includes("descargad") || message.includes("کپی") || message.includes("دانلود") ? "form-success" : "form-error"}>{message}</p>}
           {activationControls(!saved)}
           <p className="fine-print"><ShieldCheck size={14} /> {t("You can add an email later without losing your inventories or membership.", "بعداً می‌توانید بدون از دست دادن ترازنامه‌ها یا عضویت، ایمیل اضافه کنید.")}</p>

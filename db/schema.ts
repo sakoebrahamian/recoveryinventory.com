@@ -43,6 +43,22 @@ export const emailAccounts = sqliteTable(
   (table) => [uniqueIndex("email_accounts_email_idx").on(table.email)],
 );
 
+export const passwordAccounts = sqliteTable(
+  "password_accounts",
+  {
+    userId: text("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+    username: text("username").notNull(),
+    usernameDisplay: text("username_display").notNull(),
+    passwordHash: text("password_hash").notNull(),
+    failedAttempts: integer("failed_attempts").notNull().default(0),
+    lastFailedAt: integer("last_failed_at"),
+    lockedUntil: integer("locked_until"),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+  },
+  (table) => [uniqueIndex("password_accounts_username_idx").on(table.username)],
+);
+
 export const emailChallenges = sqliteTable(
   "email_challenges",
   {

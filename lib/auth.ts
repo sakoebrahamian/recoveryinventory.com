@@ -9,6 +9,7 @@ export type Account = {
   alias: string;
   email: string | null;
   emailVerifiedAt: number | null;
+  username: string | null;
   stripeCustomerId: string | null;
   subscriptionStatus: string;
   currentPeriodEnd: number | null;
@@ -20,6 +21,7 @@ type UserRow = {
   alias: string;
   email: string | null;
   email_verified_at: number | null;
+  username_display: string | null;
   stripe_customer_id: string | null;
   subscription_status: string;
   current_period_end: number | null;
@@ -65,10 +67,11 @@ export async function getAccount(request: Request): Promise<Account | null> {
   const row = await env.DB.prepare(
     `SELECT u.id, u.alias, u.stripe_customer_id, u.subscription_status,
       u.current_period_end, u.preferred_language, ea.email,
-      ea.verified_at AS email_verified_at
+      ea.verified_at AS email_verified_at, pa.username_display
      FROM sessions s
      JOIN users u ON u.id = s.user_id
      LEFT JOIN email_accounts ea ON ea.user_id = u.id
+     LEFT JOIN password_accounts pa ON pa.user_id = u.id
      WHERE s.id = ? AND s.expires_at > ? LIMIT 1`,
   ).bind(id, now).first<UserRow>();
   if (!row) return null;
@@ -77,6 +80,7 @@ export async function getAccount(request: Request): Promise<Account | null> {
     alias: row.alias,
     email: row.email,
     emailVerifiedAt: row.email_verified_at,
+    username: row.username_display,
     stripeCustomerId: row.stripe_customer_id,
     subscriptionStatus: row.subscription_status,
     currentPeriodEnd: row.current_period_end,

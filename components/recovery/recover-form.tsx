@@ -1,14 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { ArrowLeft, KeyRound, Mail, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, KeyRound, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { useLanguage } from "./language-provider";
+import { translatePasswordError } from "./password-error";
 
-type LoginMethod = "email" | "recovery";
+type LoginMethod = "password" | "email" | "recovery";
 
 export function RecoverForm() {
   const { language, t } = useLanguage();
-  const [method, setMethod] = React.useState<LoginMethod>("email");
+  const [method, setMethod] = React.useState<LoginMethod>("password");
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
   const [code, setCode] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [challengeId, setChallengeId] = React.useState("");
@@ -37,6 +41,26 @@ export function RecoverForm() {
       const result = await response.json() as { error?: string };
       if (!response.ok) throw new Error(result.error || t("That code was not recognized.", "این کد شناخته نشد."));
       // Native navigation avoids the production Vinext client-router interception error.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign("/app");
+    } catch (caught) {
+      setMessage(caught instanceof Error ? caught.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
+      setBusy(false);
+    }
+  }
+
+  async function submitPassword(event: React.FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/account/password/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      const result = await response.json() as { error?: string };
+      if (!response.ok) throw new Error(translatePasswordError(t, result.error, "Username or password was not recognized.", "نام کاربری یا رمز عبور شناخته نشد."));
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.assign("/app");
     } catch (caught) {
@@ -92,12 +116,32 @@ export function RecoverForm() {
     <div className="account-card dashboard-card">
       <div className="account-card-header">
         <h2>{t("Log in to your account", "ورود به حساب")}</h2>
-        <p>{t("Choose the same method you used when creating your account.", "همان روشی را انتخاب کنید که هنگام ایجاد حساب استفاده کردید.")}</p>
+        <p>{t("Use your username and password, an emailed code, or your private recovery code.", "از نام کاربری و رمز عبور، کد ایمیلی یا کد بازیابی خصوصی خود استفاده کنید.")}</p>
       </div>
       <div className="account-method-picker login-method-picker" role="tablist" aria-label={t("Login method", "روش ورود")}>
+        <button type="button" role="tab" aria-selected={method === "password"} className={method === "password" ? "is-active" : ""} onClick={() => chooseMethod("password")}><UserRound size={19} /><span><strong>{t("Username", "نام کاربری")}</strong><small>{t("Username and password", "نام کاربری و رمز عبور")}</small></span></button>
         <button type="button" role="tab" aria-selected={method === "email"} className={method === "email" ? "is-active" : ""} onClick={() => chooseMethod("email")}><Mail size={19} /><span><strong>{t("Email", "ایمیل")}</strong><small>{t("Receive a code", "دریافت کد")}</small></span></button>
         <button type="button" role="tab" aria-selected={method === "recovery"} className={method === "recovery" ? "is-active" : ""} onClick={() => chooseMethod("recovery")}><KeyRound size={19} /><span><strong>{t("Recovery code", "کد بازیابی")}</strong><small>{t("Anonymous accounts", "حساب‌های ناشناس")}</small></span></button>
       </div>
+
+      {method === "password" && (
+        <form className="form-stack" onSubmit={submitPassword}>
+          <div className="form-field">
+            <label htmlFor="login-username">{t("Username", "نام کاربری")}</label>
+            <input id="login-username" className="form-input" value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} required dir="ltr" />
+          </div>
+          <div className="form-field">
+            <label htmlFor="login-password">{t("Password", "رمز عبور")}</label>
+            <div className="password-input-wrap">
+              <input id="login-password" className="form-input" type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" required />
+              <button type="button" onClick={() => setShowPassword((current) => !current)} aria-label={showPassword ? t("Hide password", "پنهان کردن رمز عبور") : t("Show password", "نمایش رمز عبور")}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button>
+            </div>
+          </div>
+          {message && <p className="form-error" role="alert">{message}</p>}
+          <button className="button button-primary button-full" type="submit" disabled={busy}><KeyRound size={18} />{busy ? t("Opening…", "در حال ورود…") : t("Log in", "ورود")}</button>
+          <p className="fine-print">{t("Anonymous accounts can use a private username and password without adding a name or email. Keep the downloaded recovery code as a separate backup login.", "حساب‌های ناشناس می‌توانند بدون افزودن نام یا ایمیل از نام کاربری و رمز عبور خصوصی استفاده کنند. کد بازیابی دانلودشده را به‌عنوان ورود پشتیبان جداگانه نگه دارید.")}</p>
+        </form>
+      )}
 
       {method === "email" && !challengeId && (
         <form className="form-stack" onSubmit={startEmailLogin}>
@@ -107,7 +151,7 @@ export function RecoverForm() {
           </div>
           {message && <p className="form-error" role="alert">{message}</p>}
           <button className="button button-primary button-full" type="submit" disabled={busy}><Mail size={18} />{busy ? t("Sending…", "در حال ارسال…") : t("Send sign-in code", "ارسال کد ورود")}</button>
-          <p className="fine-print">{t("We send a one-time code. No password is stored.", "یک کد یک‌بارمصرف می‌فرستیم. هیچ رمز عبوری ذخیره نمی‌شود.")}</p>
+          <p className="fine-print">{t("We send a one-time code. You can add username-and-password access to the same account after signing in.", "یک کد یک‌بارمصرف می‌فرستیم. پس از ورود می‌توانید دسترسی با نام کاربری و رمز عبور را به همین حساب اضافه کنید.")}</p>
         </form>
       )}
 
@@ -137,7 +181,7 @@ export function RecoverForm() {
             {message && <p className="form-error" role="alert">{message}</p>}
             <button className="button button-primary button-full" type="submit" disabled={busy}><KeyRound size={18} />{busy ? t("Opening…", "در حال ورود…") : t("Open my account", "ورود به حساب")}</button>
           </form>
-          <p className="fine-print">{t("A fully anonymous account cannot be recovered if its code is lost. You can add an email after logging in without losing any saved work.", "اگر کد یک حساب کاملاً ناشناس گم شود، بازیابی آن ممکن نیست. پس از ورود می‌توانید بدون از دست دادن مطالب ذخیره‌شده، ایمیل اضافه کنید.")}</p>
+          <p className="fine-print">{t("The recovery code is an independent backup login for an anonymous account. Even when you use a username and password, keep the code copied or downloaded in a private place.", "کد بازیابی یک ورود پشتیبان مستقل برای حساب ناشناس است. حتی هنگام استفاده از نام کاربری و رمز عبور، کد را کپی یا دانلود کرده و در جایی خصوصی نگه دارید.")}</p>
         </>
       )}
 
