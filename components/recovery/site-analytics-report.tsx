@@ -195,7 +195,7 @@ export function SiteAnalyticsReport() {
     fetch(`/api/site-analytics/report?days=${days}&through=${localDay()}`, { cache: "no-store" })
       .then(async (response) => {
         const result = await response.json() as Report & { error?: string };
-        if (!response.ok) throw new Error(response.status === 403 ? copy.denied : result.error || copy.failed);
+        if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? copy.denied : result.error || copy.failed);
         if (!stopped) setReport(result);
       })
       .catch((caught: unknown) => {
