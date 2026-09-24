@@ -101,6 +101,11 @@ export function hasActiveMembership(account: Account): boolean {
   return account.subscriptionStatus === "active" || account.subscriptionStatus === "trialing";
 }
 
+export function isAnalyticsOwner(account: Account): boolean {
+  const ownerEmail = env.ANALYTICS_ADMIN_EMAIL?.trim().toLowerCase() || "support@recoveryinventory.com";
+  return Boolean(account.emailVerifiedAt && account.email?.trim().toLowerCase() === ownerEmail);
+}
+
 export function jsonError(error: unknown): Response {
   if (error instanceof Response) return error;
   console.error("Request failed", error instanceof Error ? error.message : "Unknown error");

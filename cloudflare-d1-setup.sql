@@ -107,3 +107,11 @@ CREATE TABLE IF NOT EXISTS step4_workbooks (
 
 CREATE INDEX IF NOT EXISTS step4_workbooks_user_updated_idx
   ON step4_workbooks (user_id, updated_at);
+
+CREATE TABLE IF NOT EXISTS site_analytics_daily (
+  day TEXT NOT NULL,
+  metric TEXT NOT NULL,
+  label TEXT NOT NULL,
+  count INTEGER DEFAULT 0 NOT NULL,
+  PRIMARY KEY (day, metric, label)
+);

@@ -4,6 +4,7 @@ import * as React from "react";
 import { ArrowLeft, CheckCircle2, Copy, Download, Eye, EyeOff, KeyRound, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { useLanguage } from "./language-provider";
 import { translatePasswordError } from "./password-error";
+import { recordSiteAction } from "@/lib/site-analytics";
 
 type JoinMethod = "anonymous" | "email";
 
@@ -50,6 +51,7 @@ export function JoinForm() {
       });
       const result = await response.json() as { recoveryCode?: string; error?: string };
       if (!response.ok || !result.recoveryCode) throw new Error(translatePasswordError(t, result.error, "Could not create the account.", "حساب ایجاد نشد."));
+      recordSiteAction("account_created");
       setRecoveryCode(result.recoveryCode);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
@@ -92,6 +94,7 @@ export function JoinForm() {
       });
       const result = await response.json() as { error?: string };
       if (!response.ok) throw new Error(result.error || t("That code was not recognized.", "این کد شناخته نشد."));
+      recordSiteAction("account_created");
       setEmailVerified(true);
       setMessage(t("Your email account is ready.", "حساب ایمیلی شما آماده است."));
     } catch (error) {
@@ -129,12 +132,14 @@ export function JoinForm() {
       const result = await response.json() as { url?: string; activated?: boolean; error?: string };
       if (!response.ok) throw new Error(result.error || t("Checkout is not available yet.", "پرداخت هنوز در دسترس نیست."));
       if (result.activated) {
+        recordSiteAction("membership_activated");
         // Native navigation avoids the production Vinext client-router interception error.
         // eslint-disable-next-line @next/next/no-location-assign-relative-destination
         window.location.assign("/app");
         return;
       }
       if (!result.url) throw new Error(t("Checkout is not available yet.", "پرداخت هنوز در دسترس نیست."));
+      recordSiteAction("checkout_started");
       window.location.assign(result.url);
     } catch (error) {
       setBillingError(error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));

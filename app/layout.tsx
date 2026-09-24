@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/components/recovery/language-provider";
+import { SiteAnalytics } from "@/components/recovery/site-analytics";
 import {
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -51,7 +52,10 @@ export default function RootLayout({
             __html: JSON.stringify(SITE_STRUCTURED_DATA).replace(/</g, "\\u003c"),
           }}
         />
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>
+          {children}
+          <SiteAnalytics />
+        </LanguageProvider>
       </body>
     </html>
   );

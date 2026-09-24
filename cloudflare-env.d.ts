@@ -10,5 +10,6 @@ declare namespace Cloudflare {
     APP_ORIGIN?: string;
     EMAIL_FROM_ADDRESS?: string;
     EMAIL_REPLY_TO?: string;
+    ANALYTICS_ADMIN_EMAIL?: string;
   }
 }

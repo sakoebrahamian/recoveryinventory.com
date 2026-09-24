@@ -11,6 +11,7 @@ const optionalNames = [
   "STRIPE_WEBHOOK_SECRET",
   "EMAIL_FROM_ADDRESS",
   "EMAIL_REPLY_TO",
+  "ANALYTICS_ADMIN_EMAIL",
 ];
 
 const missingNames = requiredNames.filter((name) => !process.env[name]?.trim());
@@ -42,6 +43,7 @@ try {
     "cloudflare-d1-email-setup.sql",
     "cloudflare-d1-step4-setup.sql",
     "cloudflare-d1-password-setup.sql",
+    "cloudflare-d1-analytics-setup.sql",
   ]) {
     const schemaResult = spawnSync(
       "pnpm",

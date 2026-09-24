@@ -3,6 +3,7 @@
 import * as React from "react";
 import type { Language } from "@/lib/inventory";
 import { spanishTranslations } from "@/lib/translations-es";
+import { recordSiteAction } from "@/lib/site-analytics";
 
 type LanguageContextValue = {
   language: Language;
@@ -86,6 +87,7 @@ export function LanguageToggle({
   const language = languageOverride ?? contextLanguage;
 
   const chooseLanguage = (next: Language) => {
+    if (next !== language) recordSiteAction(`language_${next}`);
     setLanguage(next);
     const nextRoute = languageRoutes?.[next];
     if (nextRoute) window.location.assign(nextRoute);

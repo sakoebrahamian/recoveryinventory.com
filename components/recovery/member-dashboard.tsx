@@ -12,6 +12,7 @@ import { Step10Analytics } from "./step10-analytics";
 import { Step4Workspace } from "./step4-workspace";
 import { RecoveryLearningCenter } from "./recovery-learning-center";
 import { formatDisplayDate, todayIso } from "@/lib/inventory";
+import { recordSiteAction } from "@/lib/site-analytics";
 
 type AccountView = {
   alias: string;
@@ -23,6 +24,7 @@ type AccountView = {
   currentPeriodEnd: number | null;
   membershipActive: boolean;
   hasBillingProfile: boolean;
+  analyticsOwner: boolean;
 };
 
 type MemberTool = "step10" | "step4" | "analytics" | "learning";
@@ -48,6 +50,7 @@ export function MemberDashboard() {
   const [billingBusy, setBillingBusy] = React.useState(false);
   const [promotionCode, setPromotionCode] = React.useState("");
   const exportRef = React.useRef<InventoryExportHandle>(null);
+  const activationRecordedRef = React.useRef(false);
 
   const loadAccount = React.useCallback(async () => {
     const response = await fetch("/api/account/me", { cache: "no-store" });
@@ -98,6 +101,10 @@ export function MemberDashboard() {
         attempts += 1;
         const refreshed = await loadAccount().catch(() => null);
         if (refreshed?.membershipActive) {
+          if (!activationRecordedRef.current) {
+            activationRecordedRef.current = true;
+            recordSiteAction("membership_activated");
+          }
           await loadInventories(year).catch(() => null);
           window.clearInterval(timer);
         } else if (attempts >= 6) {
@@ -190,6 +197,7 @@ export function MemberDashboard() {
       const result = await response.json() as { url?: string; activated?: boolean; error?: string };
       if (!response.ok) throw new Error(result.error || t("Billing is not available yet.", "پرداخت هنوز در دسترس نیست."));
       if (result.activated) {
+        recordSiteAction("membership_activated");
         const refreshed = await loadAccount();
         if (refreshed?.membershipActive) await loadInventories(year);
         setPromotionCode("");
@@ -198,6 +206,7 @@ export function MemberDashboard() {
         return;
       }
       if (!result.url) throw new Error(t("Billing is not available yet.", "پرداخت هنوز در دسترس نیست."));
+      recordSiteAction("checkout_started");
       window.location.assign(result.url);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
@@ -247,9 +256,12 @@ export function MemberDashboard() {
       <div className="dashboard-shell">
         <div className="dashboard-heading">
           <div><span>{t("Private member space", "فضای خصوصی اعضا")}</span><h1>{t("Welcome", "خوش آمدید")}, {account.alias}</h1></div>
-          <div className={`membership-status${account.membershipActive ? "" : " inactive"}`}>
-            {account.membershipActive ? <ShieldCheck size={16} /> : <CircleDollarSign size={16} />}
-            {account.membershipActive ? t("Membership active", "عضویت فعال") : t("Membership inactive", "عضویت غیرفعال")}
+          <div className="dashboard-heading-actions">
+            {account.analyticsOwner && <a className="button button-small button-outline" href="/app/site-analytics"><BarChart3 size={15} />{t("Website audience report", "گزارش مخاطبان وب‌سایت")}</a>}
+            <div className={`membership-status${account.membershipActive ? "" : " inactive"}`}>
+              {account.membershipActive ? <ShieldCheck size={16} /> : <CircleDollarSign size={16} />}
+              {account.membershipActive ? t("Membership active", "عضویت فعال") : t("Membership inactive", "عضویت غیرفعال")}
+            </div>
           </div>
         </div>
         {message && <p className="dashboard-message" role="status">{message}</p>}

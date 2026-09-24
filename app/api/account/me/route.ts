@@ -1,4 +1,4 @@
-import { getAccount, hasActiveMembership, jsonError } from "@/lib/auth";
+import { getAccount, hasActiveMembership, isAnalyticsOwner, jsonError } from "@/lib/auth";
 
 export async function GET(request: Request) {
   try {
@@ -14,6 +14,7 @@ export async function GET(request: Request) {
       currentPeriodEnd: account.currentPeriodEnd,
       membershipActive: hasActiveMembership(account),
       hasBillingProfile: Boolean(account.stripeCustomerId),
+      analyticsOwner: isAnalyticsOwner(account),
     }, { headers: { "cache-control": "no-store" } });
   } catch (error) {
     return jsonError(error);

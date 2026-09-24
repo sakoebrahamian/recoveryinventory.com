@@ -394,11 +394,11 @@ export const publicLearningTopics: PublicLearningTopic[] = [
   },
 ];
 
-export function learningBasePath(language: Language) {
+export function learningBasePath(language: Language): `/${string}` {
   return language === "en" ? "/learn" : `/${language}/learn`;
 }
 
-export function learningTopicPath(language: Language, slug: string) {
+export function learningTopicPath(language: Language, slug: string): `/${string}` {
   return `${learningBasePath(language)}/${slug}`;
 }
 
