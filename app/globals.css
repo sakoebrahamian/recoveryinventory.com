@@ -1297,6 +1297,30 @@ html[dir="rtl"] .page-hero h1 {
   padding-bottom: 90px;
 }
 
+.demo-report-choices {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: 1rem;
+  margin: 1rem 0;
+  border: 1px solid rgba(23, 63, 58, 0.13);
+  border-radius: 18px;
+  background: #f8faf6;
+  padding: 1rem;
+}
+
+.demo-report-choices h2,
+.demo-report-choices h3 { margin: 0; color: var(--ink); }
+.demo-report-choices h2 { font-size: 1rem; }
+.demo-report-choices h3 { font-size: 0.86rem; }
+.demo-report-choices p { margin: 0.35rem 0 0; color: #536d64; font-size: 0.78rem; line-height: 1.55; }
+.demo-report-choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
+.demo-report-choice-grid article { min-width: 0; border: 1px solid rgba(23, 63, 58, 0.12); border-radius: 12px; background: white; padding: 0.75rem; }
+
+@media (max-width: 760px) {
+  .demo-report-choices,
+  .demo-report-choice-grid { grid-template-columns: 1fr; }
+}
+
 .workspace-tabs {
   display: inline-grid;
   grid-template-columns: 1fr 1fr;

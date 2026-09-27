@@ -368,7 +368,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
         <section className="inventory-sidebar-card">
           <h3>{t("Keep or share", "ذخیره یا اشتراک")}</h3>
           <p>{t("Nothing leaves this page unless you choose an action.", "هیچ‌چیز بدون انتخاب شما از این صفحه خارج نمی‌شود.")}</p>
-          <p>{t("Share with sponsor includes this full inventory and your Step 10 analytics.", "اشتراک با حامی شامل ترازنامه کامل و تحلیل گام دهم شماست.")}</p>
+          <p>{t("Share with sponsor includes this day's complete inventory, all-time Step 10 counts, and selected examples from up to four recent calendar weeks.", "اشتراک با حامی شامل ترازنامه کامل این روز، شمارش‌های تمام‌دوره گام ۱۰ و نمونه‌هایی از حداکثر چهار هفته تقویمی اخیر است.")}</p>
           {!demo && <p>{t("Save your latest changes before sharing so the written analytics include them.", "پیش از اشتراک‌گذاری، تغییرات جدید را ذخیره کنید تا در تحلیل نوشته‌ها هم دیده شوند.")}</p>}
           <p>{t("Ask your sponsor or someone with time in recovery to help you understand the patterns and choose the next step together.", "از حامی یا فردی باتجربه در بهبودی بخواهید در فهم الگوها و انتخاب گام بعدی همراه شما باشد.")}</p>
           {!demo && <p>{t("Analytics reflect saved inventories. Save this entry first if you want it counted.", "تحلیل‌ها بر اساس ترازنامه‌های ذخیره‌شده‌اند. اگر می‌خواهید این نوشته هم محاسبه شود، ابتدا آن را ذخیره کنید.")}</p>}

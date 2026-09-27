@@ -89,6 +89,16 @@ export function DemoWorkspace() {
           <BookOpenText size={17} />{t("Learning center", "مرکز آموزش")}
         </button>
       </div>
+      {activeStep === "analytics" && <section className="demo-report-choices" aria-labelledby="demo-report-choices-title">
+        <div>
+          <h2 id="demo-report-choices-title">{t("Member report choices", "گزینه‌های گزارش اعضا")}</h2>
+          <p>{t("Explore the sample weekly view below. In a member account, the export menu offers these two PDF formats:", "نمای هفتگی نمونه را در پایین ببینید. در حساب اعضا، منوی خروجی این دو قالب PDF را ارائه می‌کند:")}</p>
+        </div>
+        <div className="demo-report-choice-grid">
+          <article><h3>{t("Sponsor summary", "خلاصه برای حامی")}</h3><p>{t("All-time Step 10 counts and selected examples from up to four recent calendar weeks, without daily pages.", "شمارش‌های تمام‌دوره گام ۱۰ و نمونه‌هایی از حداکثر چهار هفته تقویمی اخیر، بدون صفحه‌های روزانه.")}</p></article>
+          <article><h3>{t("Full journal", "دفتر کامل")}</h3><p>{t("Complete daily entries for your selected dates, with an option to include detailed all-time Step 10 analytics.", "نوشته‌های کامل روزانه برای تاریخ‌های انتخاب‌شده، همراه با گزینه افزودن تحلیل تفصیلی تمام‌دوره گام ۱۰.")}</p></article>
+        </div>
+      </section>}
       {activeStep === "10" ? <Step10Inventory demo initialData={demoDraft} analytics={demoAnalytics} onChange={setDemoDraft} onOpenLearning={() => chooseStep("learning")} /> : activeStep === "4" ? <Step4Inventory demo onOpenLearning={() => chooseStep("learning")} /> : activeStep === "analytics" ? <Step10Analytics demo reportInventory={demoDraft} /> : <RecoveryLearningCenter demo />}
     </div>
   );

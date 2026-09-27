@@ -72,8 +72,8 @@ export default function Home() {
     {
       question: t("Can I share an inventory with my sponsor?", "آیا می‌توانم ترازنامه را با حامی خود به اشتراک بگذارم؟"),
       answer: t(
-        "Yes. Bring your Step 10 inventory and analytics to your sponsor or someone with time in recovery to discuss what is going well, where you need help, and the next step. You decide when to share using your device’s share menu, a copy, or a PDF.",
-        "بله. ترازنامه و تحلیل گام ۱۰ خود را با حامی یا فردی باتجربه در بهبودی در میان بگذارید تا درباره جاهایی که خوب پیش می‌روید، جاهایی که به کمک نیاز دارید و گام بعدی گفت‌وگو کنید. زمان اشتراک‌گذاری از طریق منوی دستگاه، کپی یا PDF با انتخاب شماست."
+        "Yes. Share or copy the selected day's complete Step 10 inventory together with all-time counts and up to four recent weekly reviews. For a PDF, choose a compact Sponsor summary or a Full journal with complete daily entries. Review it with your sponsor or someone with time in recovery for guidance. Sharing is always your choice.",
+        "بله. ترازنامه کامل روز انتخاب‌شده گام ۱۰ را همراه با شمارش‌های تمام‌دوره و حداکثر چهار مرور هفتگی اخیر به اشتراک بگذارید یا کپی کنید. برای PDF، «خلاصه برای حامی» کوتاه یا «دفتر کامل» با نوشته‌های کامل روزانه را انتخاب کنید. برای راهنمایی، آن را با حامی یا فردی باتجربه در بهبودی مرور کنید. اشتراک‌گذاری همیشه انتخاب شماست."
       ),
     },
   ];
@@ -312,6 +312,7 @@ export default function Home() {
           <div className="ri-analytics-points">
             <span><Check size={16} />{t("Step 10 only—Step 4 is never included", "فقط گام ۱۰؛ گام ۴ هرگز وارد تحلیل نمی‌شود")}</span>
             <span><Check size={16} />{t("Uses your saved selections and written reflections privately", "از انتخاب‌ها و بازتاب‌های نوشته‌شده ذخیره‌شده شما به‌صورت خصوصی استفاده می‌کند")}</span>
+            <span><Check size={16} />{t("All-time counts with selected writing from the last four calendar weeks", "شمارش‌های تمام‌دوره همراه با نمونه‌هایی از نوشته‌های چهار هفته تقویمی اخیر")}</span>
             <span><Check size={16} />{t("A private pattern summary, not a clinical assessment", "خلاصه خصوصی الگوها، نه ارزیابی بالینی")}</span>
           </div>
           <a href="/demo?step=analytics" className="button button-primary">
@@ -397,7 +398,7 @@ export default function Home() {
             <span><CalendarDays size={18} />{t("Continuous year-by-year calendar", "تقویم پیوسته سال‌به‌سال")}</span>
             <span><BarChart3 size={18} />{t("Private Step 10 analytics through today", "تحلیل خصوصی گام ۱۰ تا امروز")}</span>
             <span><BookOpenText size={18} />{t("Defects, shortcomings, and principles learning center", "مرکز آموزش نقص‌ها، کمبودهای رفتاری و اصول")}</span>
-            <span><FileDown size={18} />{t("Share, print, and PDF export", "اشتراک، چاپ و خروجی PDF")}</span>
+            <span><FileDown size={18} />{t("Share the selected day; export a Sponsor summary or Full journal PDF", "اشتراک روز انتخاب‌شده؛ خروجی PDF «خلاصه برای حامی» یا «دفتر کامل»")}</span>
             <span><ShieldCheck size={18} />{t("Anonymous username or verified email account", "حساب با نام کاربری ناشناس یا ایمیل تأییدشده")}</span>
           </div>
         </div>
