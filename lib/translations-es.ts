@@ -866,4 +866,5 @@ export const spanishTranslations: Record<string, string> = {
   "I can acknowledge that my tone was sharp.": "Puedo reconocer que mi tono fue brusco.",
   "Recent words about what went well": "Palabras recientes sobre lo que fue bien",
   "Recent words about what needs attention": "Palabras recientes sobre lo que necesita atención",
+  "Save your latest changes before sharing so the written analytics include them.": "Guarda los cambios recientes antes de compartir para que el análisis de tus textos los incluya.",
 };
