@@ -2933,10 +2933,6 @@ html[dir="rtl"] .membership-gate-card h2 {
     min-height: 68px;
   }
 
-  .brand-words {
-    display: none;
-  }
-
   .site-header .button-small {
     padding-inline: 0.85rem;
   }
@@ -7093,26 +7089,54 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 680px) {
   .site-header-inner,
   .landing-v2 .site-header-inner,
   .inner-page .site-header-inner {
-    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     min-height: 0;
-    gap: 0.75rem;
+    gap: 0.55rem;
     padding-block: 0.65rem;
   }
 
-  .site-header .header-actions {
-    display: grid;
-    width: 100%;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .site-header-inner > a {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+  }
+
+  .site-header .brand-lockup {
     gap: 0.45rem;
   }
 
+  .site-header .brand-words {
+    gap: 0.15rem;
+    font-size: 0.8rem;
+  }
+
+  .site-header .brand-words span {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+  }
+
+  .site-header .header-actions {
+    display: contents;
+  }
+
   .site-header .language-toggle {
-    grid-column: 1 / -1;
+    grid-column: 2;
+    grid-row: 1;
     justify-self: end;
+  }
+
+  .site-header .header-login {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .site-header .header-join {
+    grid-column: 2;
+    grid-row: 2;
   }
 
   .site-header .header-actions .button-small {
@@ -7124,6 +7148,15 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
     font-size: 0.7rem;
     line-height: 1.2;
     text-align: center;
+  }
+
+  .member-topbar {
+    flex-wrap: wrap;
+    padding-block: 0.65rem;
+  }
+
+  .member-header-actions {
+    margin-inline-start: auto;
   }
 }
 
