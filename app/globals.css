@@ -7461,7 +7461,6 @@ html[dir="rtl"] .analytics-written > h3 { font-family: Tahoma, "Segoe UI", Arial
 .analytics-written-excerpts li { border-top: 1px solid rgba(23, 63, 58, 0.1); padding-top: 0.55rem; }
 .analytics-written-excerpts time { color: #667a75; font-size: 0.71rem; }
 .analytics-written-excerpts blockquote { margin: 0.25rem 0; color: var(--ink); font-size: 0.79rem; line-height: 1.55; white-space: pre-wrap; }
-.analytics-written-excerpts small { display: block; color: #667a75; font-size: 0.69rem; }
 
 .analytics-sponsor-note {
   display: flex;

@@ -847,7 +847,6 @@ export const spanishTranslations: Record<string, string> = {
   "days with writing": "días con texto",
   "No written reflection saved yet.": "Aún no hay una reflexión escrita guardada.",
   "No written reflections have been saved yet. Add details to an inventory, save it, and return here.": "Todavía no se han guardado reflexiones escritas. Añade detalles a un inventario, guárdalo y vuelve aquí.",
-  "Marked Needs attention that day": "Principios marcados como Necesita atención ese día",
   "Principles to discuss and practice": "Principios para conversar y practicar",
   "The suggestions follow the principles you marked Needs attention. They are starting points to discuss with a sponsor, not interpretations of your words.": "Las sugerencias se basan en los principios que marcaste como Necesita atención. Son puntos de partida para hablar con tu padrino o madrina, no interpretaciones de tus palabras.",
   "times marked Needs attention": "veces marcadas como Necesita atención",

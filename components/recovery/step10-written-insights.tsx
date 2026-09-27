@@ -6,20 +6,16 @@ import { step10ReflectionLabel, writtenFocusPrinciples } from "@/lib/step10-repo
 import { practiceForPrinciple } from "@/lib/step10-practices";
 import { useLanguage } from "./language-provider";
 
-function Excerpts({ excerpts, language, t, showSelections = false }: {
+function Excerpts({ excerpts, language, t }: {
   excerpts: WrittenExcerpt[];
   language: Language;
   t: (english: string, farsi: string) => string;
-  showSelections?: boolean;
 }) {
   if (!excerpts.length) return <p className="analytics-written-empty">{t("No written reflection saved yet.", "هنوز بازتابی نوشته و ذخیره نشده است.")}</p>;
   return <ul className="analytics-written-excerpts">{excerpts.map((item, index) => (
     <li key={`${item.date}-${index}`}>
       <time>{formatDisplayDate(item.date, language)}</time>
       <blockquote dir="auto">{item.text}</blockquote>
-      {showSelections && item.attentionPrincipleIds.length > 0 && (
-        <small>{t("Marked Needs attention that day", "اصولی که آن روز نیازمند توجه ثبت شدند")}: {item.attentionPrincipleIds.map((id) => practiceForPrinciple(id, language)?.primary ?? id).join(", ")}</small>
-      )}
     </li>
   ))}</ul>;
 }
@@ -40,7 +36,7 @@ export function Step10WrittenInsights({ analytics, print = false }: { analytics:
           <article key={item.field} className="analytics-written-card">
             <h4>{step10ReflectionLabel(item.field, t)}</h4>
             <span>{item.count} {t("days with writing", "روز دارای نوشته")}</span>
-            <Excerpts excerpts={item.excerpts} language={language} t={t} showSelections={item.field === "attention" || item.field === "patternAction" || item.field === "familyContext" || item.field === "amends"} />
+            <Excerpts excerpts={item.excerpts} language={language} t={t} />
           </article>
         ))}
       </div>

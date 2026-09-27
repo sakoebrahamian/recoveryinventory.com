@@ -31,9 +31,8 @@ export function writtenFocusPrinciples(analytics: Step10AnalyticsData) {
   return ranked.filter((item) => ids.has(item.id));
 }
 
-function formatWrittenExcerpt(item: WrittenExcerpt, language: Language, t: Translate) {
-  const names = item.attentionPrincipleIds.map((id) => principles.find((principle) => principle.id === id)?.[language] ?? id);
-  return `  ${formatDisplayDate(item.date, language)}: “${item.text.replace(/\r?\n/g, " ")}”${names.length ? ` (${t("Marked Needs attention that day", "اصولی که آن روز نیازمند توجه ثبت شدند")}: ${names.join(", ")})` : ""}`;
+function formatWrittenExcerpt(item: WrittenExcerpt, language: Language) {
+  return `  ${formatDisplayDate(item.date, language)}: “${item.text.replace(/\r?\n/g, " ")}”`;
 }
 
 export function formatStep10Written(analytics: Step10AnalyticsData, language: Language, t: Translate) {
@@ -45,11 +44,7 @@ export function formatStep10Written(analytics: Step10AnalyticsData, language: La
     "",
     ...written.reflections.flatMap((item) => [
       `${step10ReflectionLabel(item.field, t)} — ${item.count} ${t("days with writing", "روز دارای نوشته")}`,
-      ...(item.excerpts.length ? item.excerpts.map((sample) => formatWrittenExcerpt(
-        item.field === "highlights" || item.field === "tomorrow" || item.field === "gratitude"
-          ? { ...sample, attentionPrincipleIds: [] }
-          : sample, language, t,
-      )) : [`  ${t("No written reflection saved yet.", "هنوز بازتابی نوشته و ذخیره نشده است.")}`]),
+      ...(item.excerpts.length ? item.excerpts.map((sample) => formatWrittenExcerpt(sample, language)) : [`  ${t("No written reflection saved yet.", "هنوز بازتابی نوشته و ذخیره نشده است.")}`]),
       "",
     ]),
     t("Principles to discuss and practice", "اصولی برای گفت‌وگو و تمرین").toLocaleUpperCase(language),
@@ -62,7 +57,7 @@ export function formatStep10Written(analytics: Step10AnalyticsData, language: La
         `${guide?.primary ?? item.id} — ${item.attention} ${t("times marked Needs attention", "بار نیازمند توجه ثبت شده")}; ${notes?.count ?? 0} ${t("written explanations", "توضیح نوشته‌شده")}`,
         `${t("Principles to discuss", "اصولی برای گفت‌وگو")}: ${guide?.primary ?? item.id}${guide ? ` + ${guide.companion}` : ""}`,
         ...(guide ? [`${t("Possible practice to discuss", "تمرین پیشنهادی برای گفت‌وگو")}: ${guide.action}`] : []),
-        ...(notes?.excerpts.length ? notes.excerpts.map((sample) => formatWrittenExcerpt({ ...sample, attentionPrincipleIds: [] }, language, t)) : [`  ${t("No written explanation saved for this principle yet.", "هنوز توضیحی برای این اصل ذخیره نشده است.")}`]),
+        ...(notes?.excerpts.length ? notes.excerpts.map((sample) => formatWrittenExcerpt(sample, language)) : [`  ${t("No written explanation saved for this principle yet.", "هنوز توضیحی برای این اصل ذخیره نشده است.")}`]),
       ];
     }) : [t("No principles marked Needs attention yet.", "هنوز هیچ اصلی نیازمند توجه ثبت نشده است.")]),
   ].join("\n");

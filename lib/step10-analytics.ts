@@ -15,7 +15,7 @@ type Step10AnalyticsPayload = {
 export const reflectionFields = ["highlights", "attention", "patternAction", "familyContext", "amends", "tomorrow", "gratitude"] as const;
 export type ReflectionField = typeof reflectionFields[number];
 
-export type WrittenExcerpt = { date: string; text: string; attentionPrincipleIds: string[] };
+export type WrittenExcerpt = { date: string; text: string };
 export type WrittenReflection = { field: ReflectionField; count: number; excerpts: WrittenExcerpt[] };
 export type WrittenPrinciple = { id: string; count: number; excerpts: WrittenExcerpt[] };
 export type WrittenAnalytics = { reflections: WrittenReflection[]; principles: WrittenPrinciple[] };
@@ -85,10 +85,10 @@ function payloadContent(payload: unknown): Step10AnalyticsPayload {
   return payload && typeof payload === "object" ? payload as Step10AnalyticsPayload : {};
 }
 
-function excerpt(date: string, value: unknown, attentionPrincipleIds: string[]): WrittenExcerpt | null {
+function excerpt(date: string, value: unknown): WrittenExcerpt | null {
   if (typeof value !== "string" || !value.trim()) return null;
   const trimmed = value.trim();
-  return { date, text: trimmed.length > 500 ? `${trimmed.slice(0, 499).trimEnd()}…` : trimmed, attentionPrincipleIds };
+  return { date, text: trimmed.length > 500 ? `${trimmed.slice(0, 499).trimEnd()}…` : trimmed };
 }
 
 function writtenAnalytics(records: Step10AnalyticsRecord[]): WrittenAnalytics {
@@ -100,9 +100,8 @@ function writtenAnalytics(records: Step10AnalyticsRecord[]): WrittenAnalytics {
   for (const record of records) {
     const content = payloadContent(record.payload);
     const states = payloadStates(record.payload);
-    const attentionPrincipleIds = principles.filter(({ id }) => states[id] === "attention").map(({ id }) => id);
     for (const summary of reflections) {
-      const sample = excerpt(record.date, content[summary.field], attentionPrincipleIds);
+      const sample = excerpt(record.date, content[summary.field]);
       if (sample) {
         summary.count += 1;
         summary.excerpts = [sample, ...summary.excerpts].slice(0, 2);
@@ -111,7 +110,7 @@ function writtenAnalytics(records: Step10AnalyticsRecord[]): WrittenAnalytics {
     const notes = content.attentionNotes;
     for (const summary of principleNotes) {
       if (states[summary.id] !== "attention") continue;
-      const sample = excerpt(record.date, notes && typeof notes === "object" ? notes[summary.id] : undefined, [summary.id]);
+      const sample = excerpt(record.date, notes && typeof notes === "object" ? notes[summary.id] : undefined);
       if (sample) {
         summary.count += 1;
         summary.excerpts = [sample, ...summary.excerpts].slice(0, 2);
