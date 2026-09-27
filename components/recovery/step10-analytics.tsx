@@ -9,7 +9,7 @@ import { summarizeStep10Insights } from "@/lib/step10-insights";
 import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
 import type { Step10Data } from "./step10-inventory";
-import { Step10WrittenInsights } from "./step10-written-insights";
+import { Step10WeeklyInsights } from "./step10-weekly-insights";
 
 type Step10AnalyticsProps = {
   demo?: boolean;
@@ -261,7 +261,10 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
         </div>
       </section>
 
-      <Step10WrittenInsights analytics={analytics} />
+      <details className="analytics-weekly-details">
+        <summary>{t("View recent weekly writing", "نمایش نوشته‌های هفتگی اخیر")} <span>({analytics.weekly.length})</span></summary>
+        <Step10WeeklyInsights analytics={analytics} />
+      </details>
 
       <aside className="analytics-sponsor-note">
         <UsersRound size={23} aria-hidden="true" />
@@ -330,7 +333,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
 
       <footer className="analytics-privacy-note">
         <ShieldCheck size={20} />
-        <div><strong>{t("Private and non-clinical", "خصوصی و غیرپزشکی")}</strong><p>{t("This private summary organizes saved Step 10 selections and written reflections by field and selected principle. It does not interpret every nuance of your words, analyze Step 4, or provide a diagnosis or clinical assessment.", "این خلاصه خصوصی، انتخاب‌ها و بازتاب‌های نوشته‌شده ذخیره‌شده گام ۱۰ را بر اساس بخش و اصل انتخابی مرتب می‌کند. همه ظرافت‌های نوشته‌های شما را تفسیر نمی‌کند، گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی ارائه نمی‌دهد.")} {t("Future-dated inventories are not included.", "ترازنامه‌های دارای تاریخ آینده محاسبه نمی‌شوند.")}</p></div>
+        <div><strong>{t("Private and non-clinical", "خصوصی و غیرپزشکی")}</strong><p>{t("This private summary counts all saved Step 10 selections and shows selected writing from recent weeks. It does not interpret every nuance of your words, analyze Step 4, or provide a diagnosis or clinical assessment.", "این خلاصه خصوصی، همه انتخاب‌های ذخیره‌شده گام ۱۰ را می‌شمارد و نمونه‌هایی از نوشته‌های هفته‌های اخیر را نشان می‌دهد. همه ظرافت‌های نوشته‌های شما را تفسیر نمی‌کند، گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی ارائه نمی‌دهد.")} {t("Future-dated inventories are not included.", "ترازنامه‌های دارای تاریخ آینده محاسبه نمی‌شوند.")}</p></div>
       </footer>
     </section>
   );

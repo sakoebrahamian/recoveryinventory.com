@@ -3253,6 +3253,17 @@ html[dir="rtl"] .inventory-export-fieldset legend {
   gap: 0.55rem;
 }
 
+.inventory-export-format {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.inventory-export-format-help {
+  margin: 0.65rem 0 0;
+  color: #536d64;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
 .inventory-export-scope label,
 .inventory-export-types label {
   position: relative;
@@ -3608,6 +3619,11 @@ html[dir="rtl"] .inventory-export-analytics-status {
     page-break-before: always;
   }
 
+  html.inventory-export-page .inventory-print-analytics.is-summary {
+    break-before: auto;
+    page-break-before: auto;
+  }
+
   html.inventory-export-page .inventory-print-analytics > header {
     margin-bottom: 5mm;
     border-bottom: 1.5pt solid #173f3a;
@@ -3741,6 +3757,23 @@ html[dir="rtl"] .inventory-export-analytics-status {
   }
 
   html.inventory-export-page .analytics-written-excerpts blockquote {
+    font-size: 8pt;
+  }
+
+  html.inventory-export-page .analytics-weekly-print {
+    margin: 0 0 5mm;
+    border: 0;
+    padding: 0;
+  }
+
+  html.inventory-export-page .analytics-weekly-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3mm;
+  }
+
+  html.inventory-export-page .analytics-weekly-card {
+    border-radius: 2mm;
+    padding: 3mm;
     font-size: 8pt;
   }
 
@@ -7462,6 +7495,41 @@ html[dir="rtl"] .analytics-written > h3 { font-family: Tahoma, "Segoe UI", Arial
 .analytics-written-excerpts time { color: #667a75; font-size: 0.71rem; }
 .analytics-written-excerpts blockquote { margin: 0.25rem 0; color: var(--ink); font-size: 0.79rem; line-height: 1.55; white-space: pre-wrap; }
 
+.analytics-weekly-details {
+  margin: 1rem clamp(1.2rem, 3vw, 2rem);
+  border: 1px solid rgba(23, 63, 58, 0.14);
+  border-radius: 16px;
+  background: #f8faf6;
+  padding: 0.85rem 1rem;
+}
+
+.analytics-weekly-details summary {
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.91rem;
+  font-weight: 750;
+}
+
+.analytics-weekly-details summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.analytics-weekly-details summary span { color: #637771; font-weight: 500; }
+
+.analytics-weekly {
+  margin: 0.8rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.analytics-weekly > h3 { margin: 0 0 0.3rem; color: var(--ink); font-size: 1.04rem; }
+.analytics-weekly > p { margin: 0 0 0.75rem; color: #536d64; font-size: 0.78rem; line-height: 1.6; }
+.analytics-weekly-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; }
+.analytics-weekly-card { min-width: 0; break-inside: avoid; border: 1px solid rgba(23, 63, 58, 0.13); border-radius: 12px; background: white; padding: 0.85rem; }
+.analytics-weekly-card h4 { margin: 0; color: var(--ink); font-size: 0.86rem; }
+.analytics-weekly-card > span, .analytics-weekly-sample time { color: #637771; font-size: 0.71rem; }
+.analytics-weekly-card > p { margin: 0.55rem 0; color: #536d64; font-size: 0.77rem; line-height: 1.5; }
+.analytics-weekly-card strong { color: var(--ink); }
+.analytics-weekly-sample { margin-top: 0.55rem; border-top: 1px solid rgba(23, 63, 58, 0.1); padding-top: 0.45rem; font-size: 0.75rem; }
+.analytics-weekly-sample strong, .analytics-weekly-sample time { display: block; }
+.analytics-weekly-sample blockquote { margin: 0.22rem 0 0; color: var(--ink); white-space: pre-wrap; line-height: 1.5; }
+
 .analytics-sponsor-note {
   display: flex;
   gap: 0.8rem;
@@ -8024,6 +8092,7 @@ html[dir="rtl"] .ri-analytics-preview {
 
   .analytics-written-reflections,
   .analytics-written-principles { grid-template-columns: 1fr; }
+  .analytics-weekly-list { grid-template-columns: 1fr; }
 
   .workspace-shell > .workspace-tabs {
     grid-template-columns: 1fr;

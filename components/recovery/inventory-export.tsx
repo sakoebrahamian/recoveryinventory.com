@@ -9,6 +9,7 @@ import { describeStep10Pattern } from "@/lib/step10-report";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
 import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { Step10WrittenInsights } from "./step10-written-insights";
+import { Step10WeeklyInsights } from "./step10-weekly-insights";
 import { useLanguage } from "./language-provider";
 import type { Step10Data } from "./step10-inventory";
 import type { Step4Data, Step4Entry } from "./step4-inventory";
@@ -26,6 +27,7 @@ export type InventoryExportHandle = {
 };
 
 type ExportScope = "day" | "range" | "month" | "year";
+type ExportFormat = "summary" | "archive";
 
 type InventoryExportProps = {
   records: InventoryRecord[];
@@ -191,7 +193,7 @@ function Step4Print({ data }: { data: Step4Data }) {
   );
 }
 
-function Step10AnalyticsPrint({ analytics, scopeLabel }: { analytics: Step10AnalyticsData; scopeLabel: string }) {
+function Step10AnalyticsPrint({ analytics, scopeLabel, brief = false }: { analytics: Step10AnalyticsData; scopeLabel: string; brief?: boolean }) {
   const { language, t } = useLanguage();
   const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
   const monthLocale = language === "fa" ? "fa-IR-u-ca-gregory" : locale;
@@ -204,12 +206,14 @@ function Step10AnalyticsPrint({ analytics, scopeLabel }: { analytics: Step10Anal
   const throughDate = formatDisplayDate(analytics.through, language);
 
   return (
-    <section className="inventory-print-analytics">
+    <section className={`inventory-print-analytics${brief ? " is-summary" : ""}`}>
       <header>
         <p>{t("PRIVATE PATTERN SUMMARY", "خلاصه خصوصی الگوها")}</p>
         <h2>{t("Step 10 analytics", "تحلیل گام ۱۰")}</h2>
         <span>{t("From the first saved inventory through today", "از نخستین ترازنامه ذخیره‌شده تا امروز")}: {firstDate} – {throughDate}</span>
-        <small>{t("Inventory pages selected", "صفحه‌های ترازنامه انتخاب‌شده")}: {scopeLabel}. {t("The analytics cover your full Step 10 history, including dates outside this export selection.", "این تحلیل تمام سابقه گام ۱۰ شما، از جمله تاریخ‌های خارج از این خروجی، را در بر می‌گیرد.")}</small>
+        <small>{brief
+          ? t("All-time totals and up to four recent calendar weeks with saved entries. No individual inventory pages are included.", "مجموع تمام‌دوره و حداکثر چهار هفته تقویمی اخیر دارای نوشته ذخیره‌شده. صفحه ترازنامه روزانه در این خلاصه نیست.")
+          : <>{t("Inventory pages selected", "صفحه‌های ترازنامه انتخاب‌شده")}: {scopeLabel}. {t("The analytics cover your full Step 10 history, including dates outside this export selection.", "این تحلیل تمام سابقه گام ۱۰ شما، از جمله تاریخ‌های خارج از این خروجی، را در بر می‌گیرد.")}</>}</small>
       </header>
 
       {analytics.totalEntries === 0 ? (
@@ -253,20 +257,20 @@ function Step10AnalyticsPrint({ analytics, scopeLabel }: { analytics: Step10Anal
                       ? t("recorded answers marked Practiced", "پاسخ ثبت‌شده با برچسب «تمرین کردم»")
                       : t("recorded answers marked Needs attention", "پاسخ ثبت‌شده با برچسب «نیازمند توجه»")}</li>
                   ))}</ul> : <p>{empty}</p>}
-                  {(countKey === "practiced" ? latestHighlight : latestConcern) && <p className="inventory-print-interpretation-quote"><strong>{countKey === "practiced" ? t("Recent words about what went well", "نوشته اخیر درباره آنچه خوب پیش رفت") : t("Recent words about what needs attention", "نوشته اخیر درباره آنچه نیازمند توجه است")}</strong> — {formatDisplayDate((countKey === "practiced" ? latestHighlight : latestConcern)!.date, language)}: “{(countKey === "practiced" ? latestHighlight : latestConcern)!.text}”</p>}
+                  {!brief && (countKey === "practiced" ? latestHighlight : latestConcern) && <p className="inventory-print-interpretation-quote"><strong>{countKey === "practiced" ? t("Recent words about what went well", "نوشته اخیر درباره آنچه خوب پیش رفت") : t("Recent words about what needs attention", "نوشته اخیر درباره آنچه نیازمند توجه است")}</strong> — {formatDisplayDate((countKey === "practiced" ? latestHighlight : latestConcern)!.date, language)}: “{(countKey === "practiced" ? latestHighlight : latestConcern)!.text}”</p>}
                 </div>
               ))}
             </div>
           </section>
 
-          <Step10WrittenInsights analytics={analytics} print />
+          {brief ? <Step10WeeklyInsights analytics={analytics} print /> : <Step10WrittenInsights analytics={analytics} print />}
 
           <aside className="inventory-print-sponsor-note">
             <h3>{t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}</h3>
             <p>{sponsorGuidance(t)}</p>
           </aside>
 
-          <div className="inventory-print-analytics-insights">
+          {!brief && <><div className="inventory-print-analytics-insights">
             {([
               [t("Practiced most often", "بیشترین تمرین"), analytics.topPracticed, "practiced", t("practiced", "تمرین‌شده")],
               [t("Recurring focus", "تمرکز تکرارشونده"), analytics.topAttention, "attention", t("needs attention", "نیازمند توجه")],
@@ -304,14 +308,15 @@ function Step10AnalyticsPrint({ analytics, scopeLabel }: { analytics: Step10Anal
               ))}</tbody>
             </table>
           </section>
+          </>}
         </>
       )}
-      <footer>{t("This private summary organizes saved Step 10 selections and written reflections by field and selected principle. It does not interpret every nuance of your words, analyze Step 4, or provide a diagnosis or clinical assessment.", "این خلاصه خصوصی، انتخاب‌ها و بازتاب‌های نوشته‌شده ذخیره‌شده گام ۱۰ را بر اساس بخش و اصل انتخابی مرتب می‌کند. همه ظرافت‌های نوشته‌های شما را تفسیر نمی‌کند، گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی ارائه نمی‌دهد.")} {t("Future-dated inventories are not included.", "ترازنامه‌های دارای تاریخ آینده محاسبه نمی‌شوند.")}</footer>
+      <footer>{brief ? t("This private summary counts all saved Step 10 selections and shows selected writing from recent weeks. It does not interpret every nuance of your words, analyze Step 4, or provide a diagnosis or clinical assessment.", "این خلاصه خصوصی، همه انتخاب‌های ذخیره‌شده گام ۱۰ را می‌شمارد و نمونه‌هایی از نوشته‌های هفته‌های اخیر را نشان می‌دهد. همه ظرافت‌های نوشته‌های شما را تفسیر نمی‌کند، گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی ارائه نمی‌دهد.") : t("This private summary organizes saved Step 10 selections and written reflections by field and selected principle. It does not interpret every nuance of your words, analyze Step 4, or provide a diagnosis or clinical assessment.", "این خلاصه خصوصی، انتخاب‌ها و بازتاب‌های نوشته‌شده ذخیره‌شده گام ۱۰ را بر اساس بخش و اصل انتخابی مرتب می‌کند. همه ظرافت‌های نوشته‌های شما را تفسیر نمی‌کند، گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی ارائه نمی‌دهد.")} {t("Future-dated inventories are not included.", "ترازنامه‌های دارای تاریخ آینده محاسبه نمی‌شوند.")}</footer>
     </section>
   );
 }
 
-function PrintDocument({ records, scopeLabel, analytics }: { records: InventoryRecord[]; scopeLabel: string; analytics: Step10AnalyticsData | null }) {
+function PrintDocument({ records, scopeLabel, analytics, format }: { records: InventoryRecord[]; scopeLabel: string; analytics: Step10AnalyticsData | null; format: ExportFormat }) {
   const { language, t } = useLanguage();
   const sorted = React.useMemo(() => [...records].sort((left, right) => {
     const dateOrder = left.date.localeCompare(right.date);
@@ -322,12 +327,12 @@ function PrintDocument({ records, scopeLabel, analytics }: { records: InventoryR
   return (
     <div className="inventory-print-root" aria-hidden="true" dir={language === "fa" ? "rtl" : "ltr"}>
       <header className="inventory-print-cover">
-        <p>{t("PRIVATE INVENTORY EXPORT", "خروجی خصوصی ترازنامه")}</p>
+        <p>{format === "summary" ? t("PRIVATE SPONSOR SUMMARY", "خلاصه خصوصی برای حامی") : t("PRIVATE INVENTORY EXPORT", "خروجی خصوصی ترازنامه")}</p>
         <h1>{t("Recovery Inventory", "ترازنامه بهبودی")}</h1>
-        <div><span>{scopeLabel}</span><span>{language === "es" ? `${sorted.length} ${sorted.length === 1 ? "inventario guardado" : "inventarios guardados"}` : t(`${sorted.length} saved ${sorted.length === 1 ? "inventory" : "inventories"}`, `${sorted.length} ترازنامه ذخیره‌شده`)}</span></div>
+        <div><span>{scopeLabel}</span><span>{format === "summary" ? `${analytics?.totalEntries ?? 0} ${t("saved Step 10 inventories", "ترازنامه ذخیره‌شده گام ۱۰")}` : language === "es" ? `${sorted.length} ${sorted.length === 1 ? "inventario guardado" : "inventarios guardados"}` : t(`${sorted.length} saved ${sorted.length === 1 ? "inventory" : "inventories"}`, `${sorted.length} ترازنامه ذخیره‌شده`)}</span></div>
       </header>
 
-      {sorted.length === 0 ? (
+      {format === "summary" ? null : sorted.length === 0 ? (
         <section className="inventory-print-no-records"><h2>{t("No saved inventories in this selection", "هیچ ترازنامه ذخیره‌شده‌ای در این انتخاب وجود ندارد")}</h2></section>
       ) : sorted.map((record, index) => (
         <article className="inventory-print-record" key={record.id}>
@@ -345,7 +350,7 @@ function PrintDocument({ records, scopeLabel, analytics }: { records: InventoryR
           <footer className="inventory-print-footer"><span>{t("Recovery Inventory", "ترازنامه بهبودی")}</span><span>{index + 1} / {sorted.length}</span></footer>
         </article>
       ))}
-      {analytics && <Step10AnalyticsPrint analytics={analytics} scopeLabel={scopeLabel} />}
+      {analytics && <Step10AnalyticsPrint analytics={analytics} scopeLabel={scopeLabel} brief={format === "summary"} />}
     </div>
   );
 }
@@ -356,6 +361,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
 ) {
   const { language, t } = useLanguage();
   const [open, setOpen] = React.useState(false);
+  const [format, setFormat] = React.useState<ExportFormat>("summary");
   const [scope, setScope] = React.useState<ExportScope>("day");
   const [day, setDay] = React.useState(selectedDate);
   const [rangeStart, setRangeStart] = React.useState(selectedDate);
@@ -378,6 +384,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
 
   React.useImperativeHandle(ref, () => ({
     open: (options) => {
+      setFormat(options?.type === "step4" ? "archive" : "summary");
       setScope("day");
       setDay(selectedDate);
       setRangeStart(selectedDate);
@@ -422,9 +429,14 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
   }, [day, language, month, rangeEnd, rangeStart, scope, t, year]);
 
   const dateCount = new Set(filteredRecords.map((record) => record.date)).size;
-  const wantsAnalytics = includeAnalytics && filteredRecords.some((record) => record.type === "step10");
+  const wantsAnalytics = format === "summary" || (includeAnalytics && filteredRecords.some((record) => record.type === "step10"));
   const currentAnalytics = analytics?.through === todayIso() ? analytics : null;
-  const canPrint = filteredRecords.length > 0 && (includeStep10 || includeStep4) && (!wantsAnalytics || Boolean(currentAnalytics && !analyticsLoading));
+  const canPrint = format === "summary"
+    ? Boolean(currentAnalytics && currentAnalytics.totalEntries > 0 && !analyticsLoading)
+    : filteredRecords.length > 0 && (includeStep10 || includeStep4) && (!wantsAnalytics || Boolean(currentAnalytics && !analyticsLoading));
+  const printLabel = format === "summary"
+    ? `${t("All saved Step 10 history through", "همه سوابق ذخیره‌شده گام ۱۰ تا")} ${formatDisplayDate(todayIso(), language)}`
+    : scopeLabel;
 
   function toggleType(type: "step10" | "step4", checked: boolean) {
     if (type === "step10") {
@@ -439,7 +451,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
   function printExport() {
     if (!canPrint) return;
     const originalTitle = document.title;
-    document.title = `${t("Recovery Inventory", "ترازنامه بهبودی")} - ${scopeLabel}`;
+    document.title = `${t("Recovery Inventory", "ترازنامه بهبودی")} - ${printLabel}`;
     const restoreTitle = () => { document.title = originalTitle; };
     window.addEventListener("afterprint", restoreTitle, { once: true });
     window.print();
@@ -456,6 +468,17 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
           </div>
 
           <fieldset className="inventory-export-fieldset">
+            <legend>{t("Report format", "قالب گزارش")}</legend>
+            <div className="inventory-export-scope inventory-export-format" role="radiogroup">
+              <label className={format === "summary" ? "is-selected" : ""}><input type="radio" name="export-format" checked={format === "summary"} onChange={() => setFormat("summary")} /><span>{t("Sponsor summary", "خلاصه برای حامی")}</span></label>
+              <label className={format === "archive" ? "is-selected" : ""}><input type="radio" name="export-format" checked={format === "archive"} onChange={() => setFormat("archive")} /><span>{t("Full journal", "دفتر کامل")}</span></label>
+            </div>
+            <p className="inventory-export-format-help">{format === "summary"
+              ? t("All-time Step 10 counts and up to four recent calendar weeks with saved entries. Includes selected short writing examples, without individual daily pages.", "شمارش‌های تمام‌دوره گام ۱۰ و حداکثر چهار هفته تقویمی اخیر دارای نوشته ذخیره‌شده، با نمونه‌های کوتاه از نوشته‌ها و بدون صفحه‌های روزانه.")
+              : t("Print every saved inventory in the selected dates, with complete daily writing. You can include the detailed all-time Step 10 analytics.", "همه ترازنامه‌های ذخیره‌شده در تاریخ‌های انتخابی را با نوشته‌های کامل روزانه چاپ کنید. می‌توانید تحلیل تفصیلی تمام‌دوره گام ۱۰ را نیز اضافه کنید.")}</p>
+          </fieldset>
+
+          {format === "archive" && <fieldset className="inventory-export-fieldset">
             <legend>{t("Date selection", "انتخاب تاریخ")}</legend>
             <div className="inventory-export-scope" role="radiogroup">
               {([
@@ -473,18 +496,18 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
               {scope === "month" && <label><span>{t("Month", "ماه")}</span><input type="month" min={`${year}-01`} max={`${year}-12`} value={month} onChange={(event) => setMonth(event.target.value)} /></label>}
               {scope === "year" && <div className="inventory-export-year"><span>{t("Calendar year", "سال تقویم")}</span><strong>{new Intl.NumberFormat(language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US", { useGrouping: false }).format(year)}</strong></div>}
             </div>
-          </fieldset>
+          </fieldset>}
 
-          <fieldset className="inventory-export-fieldset">
+          {format === "archive" && <fieldset className="inventory-export-fieldset">
             <legend>{t("Include", "شامل")}</legend>
             <div className="inventory-export-types">
               <label className={includeStep10 ? "is-selected" : ""}><input type="checkbox" checked={includeStep10} onChange={(event) => toggleType("step10", event.target.checked)} /><span><b>10</b>{t("Daily inventories", "ترازنامه‌های روزانه")}</span></label>
               <label className={includeStep4 ? "is-selected" : ""}><input type="checkbox" checked={includeStep4} onChange={(event) => toggleType("step4", event.target.checked)} /><span><b>4</b>{t("Personal inventories", "ترازنامه‌های شخصی")}</span></label>
             </div>
-          </fieldset>
+          </fieldset>}
 
-          {includeStep10 && <div className="inventory-export-analytics-option">
-            <label><input type="checkbox" checked={includeAnalytics} onChange={(event) => setIncludeAnalytics(event.target.checked)} /><span><strong>{t("Include all-time Step 10 analytics", "افزودن تحلیل تمام‌دوره گام ۱۰")}</strong><small>{t("From your first saved inventory through today, even if you export only one day.", "از نخستین ترازنامه ذخیره‌شده تا امروز، حتی اگر فقط از یک روز خروجی بگیرید.")}</small></span></label>
+          {(format === "summary" || includeStep10) && <div className="inventory-export-analytics-option">
+            {format === "archive" && <label><input type="checkbox" checked={includeAnalytics} onChange={(event) => setIncludeAnalytics(event.target.checked)} /><span><strong>{t("Include all-time Step 10 analytics", "افزودن تحلیل تمام‌دوره گام ۱۰")}</strong><small>{t("From your first saved inventory through today, even if you export only one day.", "از نخستین ترازنامه ذخیره‌شده تا امروز، حتی اگر فقط از یک روز خروجی بگیرید.")}</small></span></label>}
             {wantsAnalytics && (!currentAnalytics || analyticsLoading) && <div className="inventory-export-analytics-status" role="status">
               <span>{analyticsLoading ? t("Preparing your analytics…", "در حال آماده‌سازی تحلیل شما…") : t("Analytics are unavailable or need refreshing before this PDF can be printed.", "تحلیل در دسترس نیست یا پیش از چاپ PDF باید تازه‌سازی شود.")}</span>
               {!analyticsLoading && <button className="button button-outline button-small" type="button" onClick={onRetryAnalytics}><RefreshCw size={15} />{t("Try again", "تلاش دوباره")}</button>}
@@ -493,9 +516,9 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
           </div>}
 
           <div className="inventory-export-summary">
-            <div><strong>{filteredRecords.length}</strong><span>{t(filteredRecords.length === 1 ? "saved inventory" : "saved inventories", "ترازنامه ذخیره‌شده")}</span></div>
-            <div><strong>{dateCount}</strong><span>{t(dateCount === 1 ? "date" : "dates", "تاریخ")}</span></div>
-            <p>{canPrint ? scopeLabel : t("No saved inventories match this selection.", "هیچ ترازنامه ذخیره‌شده‌ای با این انتخاب مطابقت ندارد.")}</p>
+            <div><strong>{format === "summary" ? currentAnalytics?.totalEntries ?? 0 : filteredRecords.length}</strong><span>{t(format === "summary" ? "saved Step 10 inventories" : filteredRecords.length === 1 ? "saved inventory" : "saved inventories", format === "summary" ? "ترازنامه ذخیره‌شده گام ۱۰" : "ترازنامه ذخیره‌شده")}</span></div>
+            <div><strong>{format === "summary" ? currentAnalytics?.weekly.length ?? 0 : dateCount}</strong><span>{format === "summary" ? t("recent weeks", "هفته اخیر") : t(dateCount === 1 ? "date" : "dates", "تاریخ")}</span></div>
+            <p>{canPrint ? printLabel : format === "summary" ? t("Save a Step 10 inventory to create a sponsor summary.", "برای ساخت خلاصه حامی، ترازنامه گام ۱۰ را ذخیره کنید.") : t("No saved inventories match this selection.", "هیچ ترازنامه ذخیره‌شده‌ای با این انتخاب مطابقت ندارد.")}</p>
             <button className="button button-primary" type="button" onClick={printExport} disabled={!canPrint}><FileDown size={17} />{t("Print / Save PDF", "چاپ / ذخیره PDF")}</button>
           </div>
         </section>
@@ -503,7 +526,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
 
       {canUseDom
         ? createPortal(
-          <PrintDocument records={filteredRecords} scopeLabel={scopeLabel} analytics={open && wantsAnalytics && canPrint ? currentAnalytics : null} />,
+          <PrintDocument records={format === "summary" ? [] : filteredRecords} scopeLabel={printLabel} analytics={open && wantsAnalytics && canPrint ? currentAnalytics : null} format={format} />,
           document.body,
         )
         : null}

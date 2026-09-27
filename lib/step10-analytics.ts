@@ -19,6 +19,17 @@ export type WrittenExcerpt = { date: string; text: string };
 export type WrittenReflection = { field: ReflectionField; count: number; excerpts: WrittenExcerpt[] };
 export type WrittenPrinciple = { id: string; count: number; excerpts: WrittenExcerpt[] };
 export type WrittenAnalytics = { reflections: WrittenReflection[]; principles: WrittenPrinciple[] };
+export type WeeklyPrinciple = { id: string; count: number };
+export type WrittenWeek = {
+  start: string;
+  end: string;
+  entries: number;
+  strengths: WeeklyPrinciple[];
+  focus: WeeklyPrinciple[];
+  highlight: WrittenExcerpt | null;
+  concern: (WrittenExcerpt & { principleId?: string }) | null;
+  nextAction: WrittenExcerpt | null;
+};
 
 export type Step10AnalyticsRecord = {
   date: string;
@@ -66,6 +77,7 @@ export type Step10AnalyticsData = {
   months: MonthlyAnalytics[];
   allMonths: MonthlyAnalytics[];
   written: WrittenAnalytics;
+  weekly: WrittenWeek[];
 };
 
 const validDatePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -122,6 +134,61 @@ function writtenAnalytics(records: Step10AnalyticsRecord[]): WrittenAnalytics {
     principles: principleNotes.filter(({ count }) => count > 0)
       .sort((left, right) => right.count - left.count || left.id.localeCompare(right.id)),
   };
+}
+
+function isoDay(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function weeklyAnalytics(records: Step10AnalyticsRecord[], through: string): WrittenWeek[] {
+  const currentMonday = new Date(`${through}T00:00:00Z`);
+  if (Number.isNaN(currentMonday.getTime())) return [];
+  currentMonday.setUTCDate(currentMonday.getUTCDate() - (currentMonday.getUTCDay() + 6) % 7);
+
+  const weeks: WrittenWeek[] = [];
+  for (let offset = 0; offset < 4; offset += 1) {
+    const monday = new Date(currentMonday);
+    monday.setUTCDate(monday.getUTCDate() - offset * 7);
+    const sunday = new Date(monday);
+    sunday.setUTCDate(sunday.getUTCDate() + 6);
+    const start = isoDay(monday);
+    const end = isoDay(sunday);
+    const saved = records.filter((record) => record.date >= start && record.date <= end);
+    if (!saved.length) continue;
+
+    const practiced = new Map<string, number>();
+    const attention = new Map<string, number>();
+    let highlight: WrittenExcerpt | null = null;
+    let concern: WrittenWeek["concern"] = null;
+    let nextAction: WrittenExcerpt | null = null;
+    for (const record of saved) {
+      const content = payloadContent(record.payload);
+      const states = payloadStates(record.payload);
+      highlight = weeklyExcerpt(record.date, content.highlights) ?? highlight;
+      nextAction = weeklyExcerpt(record.date, content.tomorrow) ?? nextAction;
+      concern = weeklyExcerpt(record.date, content.attention) ?? concern;
+      for (const principle of principles) {
+        const state = states[principle.id];
+        if (state === "practiced") practiced.set(principle.id, (practiced.get(principle.id) ?? 0) + 1);
+        if (state === "attention") {
+          attention.set(principle.id, (attention.get(principle.id) ?? 0) + 1);
+          const note = weeklyExcerpt(record.date, content.attentionNotes?.[principle.id]);
+          if (note && (!concern || concern.date < record.date || !concern.principleId)) concern = { ...note, principleId: principle.id };
+        }
+      }
+    }
+    const leading = (counts: Map<string, number>) => [...counts.entries()]
+      .sort(([idA, countA], [idB, countB]) => countB - countA || idA.localeCompare(idB))
+      .slice(0, 2).map(([id, count]) => ({ id, count }));
+    weeks.push({ start, end, entries: saved.length, strengths: leading(practiced), focus: leading(attention), highlight, concern, nextAction });
+  }
+  return weeks;
+}
+
+function weeklyExcerpt(date: string, value: unknown): WrittenExcerpt | null {
+  if (typeof value !== "string" || !value.trim()) return null;
+  const trimmed = value.trim();
+  return { date, text: trimmed.length > 180 ? `${trimmed.slice(0, 179).trimEnd()}…` : trimmed };
 }
 
 function rateForRecords(records: Step10AnalyticsRecord[]): number | null {
@@ -281,5 +348,6 @@ export function calculateStep10Analytics(
     months: allMonths.slice(-8),
     allMonths,
     written: writtenAnalytics(records),
+    weekly: weeklyAnalytics(records, through),
   };
 }
