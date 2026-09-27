@@ -18,6 +18,8 @@ type Step10Data = {
   attentionNotes: Record<string, string | undefined>;
   highlights: string;
   attention: string;
+  patternAction: string;
+  familyContext: string;
   amends: string;
   tomorrow: string;
   gratitude: string;
@@ -58,6 +60,8 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
     } : {}),
     highlights: initialData?.highlights ?? (demo ? t("I paused before answering a difficult message and asked for help when I needed it.", "پیش از پاسخ به یک پیام دشوار مکث کردم و وقتی نیاز داشتم کمک خواستم.") : ""),
     attention: initialData?.attention ?? (demo ? t("I became impatient when plans changed.", "وقتی برنامه‌ها تغییر کرد بی‌صبر شدم.") : ""),
+    patternAction: initialData?.patternAction ?? "",
+    familyContext: initialData?.familyContext ?? "",
     amends: initialData?.amends ?? "",
     tomorrow: initialData?.tomorrow ?? (demo ? t("Pause, breathe, and listen before responding.", "پیش از پاسخ دادن مکث کنم، نفس بکشم و گوش بدهم.") : ""),
     gratitude: initialData?.gratitude ?? (demo ? t("A clear conversation and a quiet walk.", "یک گفت‌وگوی روشن و یک پیاده‌روی آرام.") : ""),
@@ -123,6 +127,8 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
       ...(attentionDetails.length > 0 ? [`${t("Attention details", "توضیحات موارد نیازمند توجه")}:`, ...attentionDetails] : []),
       `${t("What went well", "موارد خوب امروز")}: ${data.highlights || "—"}`,
       `${t("What needs attention", "موارد نیازمند توجه")}: ${data.attention || "—"}`,
+      ...(data.patternAction.trim() ? [`${t("Pattern and response", "الگو و واکنش")}: ${data.patternAction}`] : []),
+      ...(data.familyContext.trim() ? [`${t("Family impact and what I could control", "تأثیر بر خانواده و آنچه در اختیار من بود")}: ${data.familyContext}`] : []),
       `${t("Amends or apology", "جبران یا عذرخواهی")}: ${data.amends || "—"}`,
       `${t("Tomorrow's action", "اقدام فردا")}: ${data.tomorrow || "—"}`,
       `${t("Gratitude", "قدردانی")}: ${data.gratitude || "—"}`,
@@ -176,6 +182,8 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
       attentionNotes: {},
       highlights: "",
       attention: "",
+      patternAction: "",
+      familyContext: "",
       amends: "",
       tomorrow: "",
       gratitude: "",
@@ -274,6 +282,15 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
               <div className="form-field">
                 <label htmlFor="step10-attention">{t("Where do I still need to work?", "کجا هنوز نیاز به کار دارم؟")}</label>
                 <textarea id="step10-attention" className="form-textarea" value={data.attention} onChange={(event) => updateField("attention", event.target.value)} />
+              </div>
+              <div className="form-field">
+                <label htmlFor="step10-pattern-action">{t("What character pattern, including self-pity, did I notice, and how did I work on it?", "چه الگوی رفتاری، از جمله ترحم به خود، را دیدم و چگونه روی آن کار کردم؟")}</label>
+                <textarea id="step10-pattern-action" className="form-textarea" value={data.patternAction} onChange={(event) => updateField("patternAction", event.target.value)} />
+              </div>
+              <div className="form-field">
+                <label htmlFor="step10-family-context">{t("If another person's drinking or substance use affected me or my family today, what happened and what could I control?", "اگر مصرف الکل یا موادِ فرد دیگری امروز بر من یا خانواده‌ام اثر گذاشت، چه اتفاقی افتاد و چه چیزی در اختیار من بود؟")}</label>
+                <textarea id="step10-family-context" className="form-textarea" value={data.familyContext} onChange={(event) => updateField("familyContext", event.target.value)} />
+                <small>{t("Optional. If another person's behavior felt unpredictable, focus on your choices and what was outside your control.", "اختیاری است. اگر رفتار فرد دیگری پیش‌بینی‌ناپذیر بود، به انتخاب‌های خود و آنچه خارج از اختیار شما بود توجه کنید.")}</small>
               </div>
               <div className="form-field">
                 <label htmlFor="step10-amends">{t("Do I owe an apology or amends?", "آیا به کسی عذرخواهی یا جبران بدهکارم؟")}</label>

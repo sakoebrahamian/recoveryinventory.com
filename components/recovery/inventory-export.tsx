@@ -77,6 +77,8 @@ function Step10Print({ data }: { data: Step10Data }) {
   const reflectionFields = [
     [t("Where I lived my principles", "جایی که بر اساس اصولم زندگی کردم"), data.highlights],
     [t("Where I still need to work", "جایی که هنوز نیاز به کار دارم"), data.attention],
+    ...(data.patternAction?.trim() ? [[t("Pattern and response", "الگو و واکنش"), data.patternAction] as const] : []),
+    ...(data.familyContext?.trim() ? [[t("Family impact and what I could control", "تأثیر بر خانواده و آنچه در اختیار من بود"), data.familyContext] as const] : []),
     [t("Apology or amends", "عذرخواهی یا جبران"), data.amends],
     [t("One action for tomorrow", "یک اقدام برای فردا"), data.tomorrow],
     [t("Gratitude", "قدردانی"), data.gratitude],
