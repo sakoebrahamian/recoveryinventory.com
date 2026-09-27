@@ -8,6 +8,7 @@ import type { PrincipleAnalytics, Step10AnalyticsData } from "@/lib/step10-analy
 import { describeStep10Pattern } from "@/lib/step10-report";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
 import { sponsorGuidance } from "@/lib/recovery-guidance";
+import { Step10WrittenInsights } from "./step10-written-insights";
 import { useLanguage } from "./language-provider";
 import type { Step10Data } from "./step10-inventory";
 import type { Step4Data, Step4Entry } from "./step4-inventory";
@@ -197,6 +198,8 @@ function Step10AnalyticsPrint({ analytics, scopeLabel }: { analytics: Step10Anal
   const number = (value: number) => new Intl.NumberFormat(locale).format(value);
   const principleName = (item: PrincipleAnalytics) => principles.find((principle) => principle.id === item.id)?.[language] ?? item.id;
   const insights = summarizeStep10Insights(analytics);
+  const latestHighlight = analytics.written.reflections.find((item) => item.field === "highlights")?.excerpts[0];
+  const latestConcern = analytics.written.reflections.find((item) => item.field === "attention")?.excerpts[0];
   const firstDate = analytics.firstEntryDate ? formatDisplayDate(analytics.firstEntryDate, language) : "—";
   const throughDate = formatDisplayDate(analytics.through, language);
 
@@ -250,10 +253,13 @@ function Step10AnalyticsPrint({ analytics, scopeLabel }: { analytics: Step10Anal
                       ? t("recorded answers marked Practiced", "پاسخ ثبت‌شده با برچسب «تمرین کردم»")
                       : t("recorded answers marked Needs attention", "پاسخ ثبت‌شده با برچسب «نیازمند توجه»")}</li>
                   ))}</ul> : <p>{empty}</p>}
+                  {(countKey === "practiced" ? latestHighlight : latestConcern) && <p className="inventory-print-interpretation-quote"><strong>{countKey === "practiced" ? t("Recent words about what went well", "نوشته اخیر درباره آنچه خوب پیش رفت") : t("Recent words about what needs attention", "نوشته اخیر درباره آنچه نیازمند توجه است")}</strong> — {formatDisplayDate((countKey === "practiced" ? latestHighlight : latestConcern)!.date, language)}: “{(countKey === "practiced" ? latestHighlight : latestConcern)!.text}”</p>}
                 </div>
               ))}
             </div>
           </section>
+
+          <Step10WrittenInsights analytics={analytics} print />
 
           <aside className="inventory-print-sponsor-note">
             <h3>{t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}</h3>
@@ -300,7 +306,7 @@ function Step10AnalyticsPrint({ analytics, scopeLabel }: { analytics: Step10Anal
           </section>
         </>
       )}
-      <footer>{t("This summary uses only the principle selections in your saved Step 10 inventories. It does not analyze Step 4, and it is not a diagnosis or clinical assessment.", "این خلاصه فقط از انتخاب‌های اصول در ترازنامه‌های ذخیره‌شده گام ۱۰ شما استفاده می‌کند. گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی نیست.")} {t("Future-dated inventories are not included.", "ترازنامه‌های دارای تاریخ آینده محاسبه نمی‌شوند.")}</footer>
+      <footer>{t("This private summary organizes saved Step 10 selections and written reflections by field and selected principle. It does not interpret every nuance of your words, analyze Step 4, or provide a diagnosis or clinical assessment.", "این خلاصه خصوصی، انتخاب‌ها و بازتاب‌های نوشته‌شده ذخیره‌شده گام ۱۰ را بر اساس بخش و اصل انتخابی مرتب می‌کند. همه ظرافت‌های نوشته‌های شما را تفسیر نمی‌کند، گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی ارائه نمی‌دهد.")} {t("Future-dated inventories are not included.", "ترازنامه‌های دارای تاریخ آینده محاسبه نمی‌شوند.")}</footer>
     </section>
   );
 }

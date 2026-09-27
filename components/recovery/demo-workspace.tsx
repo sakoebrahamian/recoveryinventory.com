@@ -22,7 +22,7 @@ export function DemoWorkspace() {
   const { t } = useLanguage();
   const [activeStep, setActiveStep] = React.useState<"10" | "4" | "analytics" | "learning">("10");
   const [demoDraft, setDemoDraft] = React.useState<Step10Data>(() => createDemoStep10Data(t));
-  const [demoAnalytics] = React.useState(createDemoAnalytics);
+  const demoAnalytics = React.useMemo(() => createDemoAnalytics(demoDraft, t), [demoDraft, t]);
 
   const chooseStep = React.useCallback((next: "10" | "4" | "analytics" | "learning") => {
     const actions: Record<typeof next, SiteAnalyticsAction> = {

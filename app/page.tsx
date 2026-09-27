@@ -311,7 +311,7 @@ export default function Home() {
           <p className="ri-analytics-guidance">{t("See where you are practicing well and where you may need help, then review the report with a sponsor or someone with time in recovery for direction.", "ببینید کجا خوب تمرین می‌کنید و کجا شاید به کمک نیاز دارید؛ سپس گزارش را با حامی یا فردی باتجربه در بهبودی مرور کنید و از او راهنمایی بگیرید.")}</p>
           <div className="ri-analytics-points">
             <span><Check size={16} />{t("Step 10 only—Step 4 is never included", "فقط گام ۱۰؛ گام ۴ هرگز وارد تحلیل نمی‌شود")}</span>
-            <span><Check size={16} />{t("Built from your principle selections, not your private notes", "ساخته‌شده از انتخاب‌های اصول شما، نه یادداشت‌های خصوصی")}</span>
+            <span><Check size={16} />{t("Uses your saved selections and written reflections privately", "از انتخاب‌ها و بازتاب‌های نوشته‌شده ذخیره‌شده شما به‌صورت خصوصی استفاده می‌کند")}</span>
             <span><Check size={16} />{t("A private pattern summary, not a clinical assessment", "خلاصه خصوصی الگوها، نه ارزیابی بالینی")}</span>
           </div>
           <a href="/demo?step=analytics" className="button button-primary">

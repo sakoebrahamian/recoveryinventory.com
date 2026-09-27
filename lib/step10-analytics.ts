@@ -2,7 +2,23 @@ import { principles, type PrincipleState } from "@/lib/inventory";
 
 type Step10AnalyticsPayload = {
   states?: Record<string, PrincipleState | undefined>;
+  attentionNotes?: Record<string, string | undefined>;
+  highlights?: string;
+  attention?: string;
+  patternAction?: string;
+  familyContext?: string;
+  amends?: string;
+  tomorrow?: string;
+  gratitude?: string;
 };
+
+export const reflectionFields = ["highlights", "attention", "patternAction", "familyContext", "amends", "tomorrow", "gratitude"] as const;
+export type ReflectionField = typeof reflectionFields[number];
+
+export type WrittenExcerpt = { date: string; text: string; attentionPrincipleIds: string[] };
+export type WrittenReflection = { field: ReflectionField; count: number; excerpts: WrittenExcerpt[] };
+export type WrittenPrinciple = { id: string; count: number; excerpts: WrittenExcerpt[] };
+export type WrittenAnalytics = { reflections: WrittenReflection[]; principles: WrittenPrinciple[] };
 
 export type Step10AnalyticsRecord = {
   date: string;
@@ -49,6 +65,7 @@ export type Step10AnalyticsData = {
   categories: CategoryAnalytics[];
   months: MonthlyAnalytics[];
   allMonths: MonthlyAnalytics[];
+  written: WrittenAnalytics;
 };
 
 const validDatePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -62,6 +79,50 @@ function payloadStates(payload: unknown): Record<string, PrincipleState | undefi
   if (!payload || typeof payload !== "object") return {};
   const states = (payload as Step10AnalyticsPayload).states;
   return states && typeof states === "object" ? states : {};
+}
+
+function payloadContent(payload: unknown): Step10AnalyticsPayload {
+  return payload && typeof payload === "object" ? payload as Step10AnalyticsPayload : {};
+}
+
+function excerpt(date: string, value: unknown, attentionPrincipleIds: string[]): WrittenExcerpt | null {
+  if (typeof value !== "string" || !value.trim()) return null;
+  const trimmed = value.trim();
+  return { date, text: trimmed.length > 500 ? `${trimmed.slice(0, 499).trimEnd()}…` : trimmed, attentionPrincipleIds };
+}
+
+function writtenAnalytics(records: Step10AnalyticsRecord[]): WrittenAnalytics {
+  const reflections = reflectionFields.map((field) => ({ field, count: 0, excerpts: [] as WrittenExcerpt[] }));
+  const principleNotes = principles.map(({ id }) => ({ id, count: 0, excerpts: [] as WrittenExcerpt[] }));
+
+  // Counts span the complete saved history; only the two most recent excerpts per field are returned.
+  // Text is grouped by the member's own field and principle selection, without guessing its meaning.
+  for (const record of records) {
+    const content = payloadContent(record.payload);
+    const states = payloadStates(record.payload);
+    const attentionPrincipleIds = principles.filter(({ id }) => states[id] === "attention").map(({ id }) => id);
+    for (const summary of reflections) {
+      const sample = excerpt(record.date, content[summary.field], attentionPrincipleIds);
+      if (sample) {
+        summary.count += 1;
+        summary.excerpts = [sample, ...summary.excerpts].slice(0, 2);
+      }
+    }
+    const notes = content.attentionNotes;
+    for (const summary of principleNotes) {
+      if (states[summary.id] !== "attention") continue;
+      const sample = excerpt(record.date, notes && typeof notes === "object" ? notes[summary.id] : undefined, [summary.id]);
+      if (sample) {
+        summary.count += 1;
+        summary.excerpts = [sample, ...summary.excerpts].slice(0, 2);
+      }
+    }
+  }
+  return {
+    reflections,
+    principles: principleNotes.filter(({ count }) => count > 0)
+      .sort((left, right) => right.count - left.count || left.id.localeCompare(right.id)),
+  };
 }
 
 function rateForRecords(records: Step10AnalyticsRecord[]): number | null {
@@ -220,5 +281,6 @@ export function calculateStep10Analytics(
     }),
     months: allMonths.slice(-8),
     allMonths,
+    written: writtenAnalytics(records),
   };
 }

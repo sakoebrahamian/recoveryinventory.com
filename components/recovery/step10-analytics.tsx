@@ -9,6 +9,7 @@ import { summarizeStep10Insights } from "@/lib/step10-insights";
 import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
 import type { Step10Data } from "./step10-inventory";
+import { Step10WrittenInsights } from "./step10-written-insights";
 
 type Step10AnalyticsProps = {
   demo?: boolean;
@@ -23,7 +24,7 @@ function dateBefore(isoDate: string, days: number): string {
   return value.toISOString().slice(0, 10);
 }
 
-export function createDemoAnalytics(): Step10AnalyticsData {
+export function createDemoAnalytics(draft?: Step10Data, t: (english: string, farsi: string) => string = (english) => english): Step10AnalyticsData {
   const through = todayIso();
   const offsets = [20, 19, 18, 17, 15, 14, 13, 12, 11, 9, 8, 7, 5, 4, 3, 2, 1, 0];
   const records: Step10AnalyticsRecord[] = offsets.map((offset, entryIndex) => {
@@ -34,19 +35,39 @@ export function createDemoAnalytics(): Step10AnalyticsData {
       if (principleIndex >= 6 && principleIndex <= 9) return [principle.id, seed % 3 === 0 ? "practiced" : "attention"];
       return [principle.id, seed % 5 < 3 ? "practiced" : "attention"];
     }));
-    return { date: dateBefore(through, offset), payload: { states } };
+    const date = dateBefore(through, offset);
+    if (offset === 0 && draft) return { date, payload: { ...draft, date } };
+    const reflection = entryIndex === 10 || entryIndex === 14;
+    return { date, payload: {
+      states,
+      ...(reflection ? {
+        attentionNotes: {
+          ...(states.patience === "attention" ? { patience: t("I became impatient when plans changed.", "وقتی برنامه‌ها تغییر کرد بی‌صبر شدم.") } : {}),
+          ...(states.acceptance === "attention" ? { acceptance: t("I worried about an outcome I could not control.", "نگران نتیجه‌ای بودم که در اختیارم نبود.") } : {}),
+        },
+        highlights: t("I paused before answering a difficult message and asked for help when I needed it.", "پیش از پاسخ به یک پیام دشوار مکث کردم و وقتی نیاز داشتم کمک خواستم."),
+        attention: t("I became impatient when plans changed.", "وقتی برنامه‌ها تغییر کرد بی‌صبر شدم."),
+        patternAction: t("I noticed I was trying to control the outcome and took a pause.", "متوجه شدم می‌خواهم نتیجه را کنترل کنم و مکث کردم."),
+        familyContext: t("I listened to a family member and focused on my own response.", "به یکی از اعضای خانواده گوش دادم و بر پاسخ خودم تمرکز کردم."),
+        amends: t("I can acknowledge that my tone was sharp.", "می‌توانم بپذیرم که لحنم تند بود."),
+        tomorrow: t("Pause, breathe, and listen before responding.", "پیش از پاسخ دادن مکث کنم، نفس بکشم و گوش بدهم."),
+        gratitude: t("A clear conversation and a quiet walk.", "یک گفت‌وگوی روشن و یک پیاده‌روی آرام."),
+      } : {}),
+    } };
   });
   return calculateStep10Analytics(records, through);
 }
 
 export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, reportInventory }: Step10AnalyticsProps) {
   const { language, t } = useLanguage();
-  const [analytics, setAnalytics] = React.useState<Step10AnalyticsData | null>(() => demo ? createDemoAnalytics() : null);
+  const [savedAnalytics, setAnalytics] = React.useState<Step10AnalyticsData | null>(null);
   const [loading, setLoading] = React.useState(!demo);
   const [error, setError] = React.useState("");
   const [shareMessage, setShareMessage] = React.useState("");
   const [attempt, setAttempt] = React.useState(0);
   const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
+
+  const analytics = React.useMemo(() => demo ? createDemoAnalytics(reportInventory ?? undefined, t) : savedAnalytics, [demo, reportInventory, t, savedAnalytics]);
 
   React.useEffect(() => {
     if (demo) return;
@@ -148,6 +169,8 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
   const changeTone = change === null || Math.abs(change) < 5 ? "steady" : change > 0 ? "up" : "care";
   const currentPattern = describeStep10Pattern(analytics, t);
   const insights = summarizeStep10Insights(analytics);
+  const latestHighlight = analytics.written.reflections.find((item) => item.field === "highlights")?.excerpts[0];
+  const latestConcern = analytics.written.reflections.find((item) => item.field === "attention")?.excerpts[0];
   const maxMonthlyEntries = Math.max(...analytics.months.map((month) => month.entries), 1);
 
   return (
@@ -223,6 +246,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
             ))}</ul> : <p className="analytics-interpretation-empty">{insights.enoughHistory
               ? t("No repeated Practiced pattern is clear yet. Review your entries with your sponsor.", "هنوز الگوی روشنی از «تمرین کردم» دیده نمی‌شود. نوشته‌هایتان را با حامی مرور کنید.")
               : t("Save more inventories to see a repeated pattern. Discuss what you have recorded with your sponsor.", "برای دیدن الگوی تکرارشونده، ترازنامه‌های بیشتری ذخیره کنید. موارد ثبت‌شده را با حامی در میان بگذارید.")}</p>}
+            {latestHighlight && <div className="analytics-interpretation-quote"><strong>{t("Recent words about what went well", "نوشته اخیر درباره آنچه خوب پیش رفت")}</strong><time>{formatDisplayDate(latestHighlight.date, language)}</time><blockquote dir="auto">{latestHighlight.text}</blockquote></div>}
           </article>
           <article className="analytics-interpretation-card is-focus">
             <h4>{t("Where to ask for help", "جاهایی که می‌توانید کمک بخواهید")}</h4>
@@ -232,9 +256,12 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
             ))}</ul> : <p className="analytics-interpretation-empty">{insights.enoughHistory
               ? t("Among principles answered on at least three days, none was marked Needs attention at least half the time. Bring any concerns to your sponsor anyway.", "در میان اصولی که در دست‌کم سه روز به آن‌ها پاسخ داده‌اید، هیچ‌کدام دست‌کم در نیمی از موارد «نیازمند توجه» نبوده‌اند. با این حال نگرانی‌های خود را با حامی در میان بگذارید.")
               : t("Save more inventories before looking for a recurring focus. Your sponsor can still help with today's concerns.", "پیش از جست‌وجوی تمرکز تکرارشونده، ترازنامه‌های بیشتری ذخیره کنید. حامی همچنان می‌تواند درباره نگرانی‌های امروز کمک کند.")}</p>}
+            {latestConcern && <div className="analytics-interpretation-quote"><strong>{t("Recent words about what needs attention", "نوشته اخیر درباره آنچه نیازمند توجه است")}</strong><time>{formatDisplayDate(latestConcern.date, language)}</time><blockquote dir="auto">{latestConcern.text}</blockquote></div>}
           </article>
         </div>
       </section>
+
+      <Step10WrittenInsights analytics={analytics} />
 
       <aside className="analytics-sponsor-note">
         <UsersRound size={23} aria-hidden="true" />
@@ -303,7 +330,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
 
       <footer className="analytics-privacy-note">
         <ShieldCheck size={20} />
-        <div><strong>{t("Private and non-clinical", "خصوصی و غیرپزشکی")}</strong><p>{t("This summary uses only the principle selections in your saved Step 10 inventories. It does not analyze Step 4, and it is not a diagnosis or clinical assessment.", "این خلاصه فقط از انتخاب‌های اصول در ترازنامه‌های ذخیره‌شده گام ۱۰ شما استفاده می‌کند. گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی نیست.")} {t("Future-dated inventories are not included.", "ترازنامه‌های دارای تاریخ آینده محاسبه نمی‌شوند.")}</p></div>
+        <div><strong>{t("Private and non-clinical", "خصوصی و غیرپزشکی")}</strong><p>{t("This private summary organizes saved Step 10 selections and written reflections by field and selected principle. It does not interpret every nuance of your words, analyze Step 4, or provide a diagnosis or clinical assessment.", "این خلاصه خصوصی، انتخاب‌ها و بازتاب‌های نوشته‌شده ذخیره‌شده گام ۱۰ را بر اساس بخش و اصل انتخابی مرتب می‌کند. همه ظرافت‌های نوشته‌های شما را تفسیر نمی‌کند، گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی ارائه نمی‌دهد.")} {t("Future-dated inventories are not included.", "ترازنامه‌های دارای تاریخ آینده محاسبه نمی‌شوند.")}</p></div>
       </footer>
     </section>
   );
