@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BookOpenText, Check, Copy, FileDown, RotateCcw, Save, Share2 } from "lucide-react";
+import { BookOpenText, Copy, FileDown, MoreHorizontal, RotateCcw, Save, Share2 } from "lucide-react";
 import {
   formatDisplayDate,
   principleCategories,
@@ -9,6 +9,8 @@ import {
   type PrincipleState,
   todayIso,
 } from "@/lib/inventory";
+import type { Step10AnalyticsData } from "@/lib/step10-analytics";
+import { formatStep10Inventory, formatStep10SponsorReport } from "@/lib/step10-report";
 import { useLanguage } from "./language-provider";
 
 type Step10Data = {
@@ -31,6 +33,11 @@ type Step10InventoryProps = {
   onSave?: (data: Step10Data) => Promise<void> | void;
   onExport?: () => void;
   onOpenLearning?: () => void;
+  onChange?: (data: Step10Data) => void;
+  analytics?: Step10AnalyticsData | null;
+  analyticsLoading?: boolean;
+  analyticsError?: string;
+  onRetryAnalytics?: () => void;
 };
 
 const demoStates: Record<string, PrincipleState> = {
@@ -49,25 +56,72 @@ const demoStates: Record<string, PrincipleState> = {
   mindfulness: "practiced",
 };
 
-export function Step10Inventory({ demo = false, initialData, onSave, onExport, onOpenLearning }: Step10InventoryProps) {
+export function createDemoStep10Data(t: (english: string, farsi: string) => string): Step10Data {
+  return {
+    date: todayIso(),
+    mood: "steady",
+    states: { ...demoStates },
+    attentionNotes: { patience: t("I became impatient when plans changed.", "وقتی برنامه‌ها تغییر کرد بی‌صبر شدم.") },
+    highlights: t("I paused before answering a difficult message and asked for help when I needed it.", "پیش از پاسخ به یک پیام دشوار مکث کردم و وقتی نیاز داشتم کمک خواستم."),
+    attention: t("I became impatient when plans changed.", "وقتی برنامه‌ها تغییر کرد بی‌صبر شدم."),
+    patternAction: "",
+    familyContext: "",
+    amends: "",
+    tomorrow: t("Pause, breathe, and listen before responding.", "پیش از پاسخ دادن مکث کنم، نفس بکشم و گوش بدهم."),
+    gratitude: t("A clear conversation and a quiet walk.", "یک گفت‌وگوی روشن و یک پیاده‌روی آرام."),
+  };
+}
+
+export function Step10Inventory({ demo = false, initialData, onSave, onExport, onOpenLearning, onChange, analytics, analyticsLoading, analyticsError, onRetryAnalytics }: Step10InventoryProps) {
   const { language, t } = useLanguage();
-  const [data, setData] = React.useState<Step10Data>({
-    date: initialData?.date ?? todayIso(),
-    mood: initialData?.mood ?? "steady",
-    states: initialData?.states ?? (demo ? demoStates : {}),
-    attentionNotes: initialData?.attentionNotes ?? (demo ? {
-      patience: t("I became impatient when plans changed.", "وقتی برنامه‌ها تغییر کرد بی‌صبر شدم."),
-    } : {}),
-    highlights: initialData?.highlights ?? (demo ? t("I paused before answering a difficult message and asked for help when I needed it.", "پیش از پاسخ به یک پیام دشوار مکث کردم و وقتی نیاز داشتم کمک خواستم.") : ""),
-    attention: initialData?.attention ?? (demo ? t("I became impatient when plans changed.", "وقتی برنامه‌ها تغییر کرد بی‌صبر شدم.") : ""),
-    patternAction: initialData?.patternAction ?? "",
-    familyContext: initialData?.familyContext ?? "",
-    amends: initialData?.amends ?? "",
-    tomorrow: initialData?.tomorrow ?? (demo ? t("Pause, breathe, and listen before responding.", "پیش از پاسخ دادن مکث کنم، نفس بکشم و گوش بدهم.") : ""),
-    gratitude: initialData?.gratitude ?? (demo ? t("A clear conversation and a quiet walk.", "یک گفت‌وگوی روشن و یک پیاده‌روی آرام.") : ""),
+  const [data, setData] = React.useState<Step10Data>(() => {
+    const sample = demo ? createDemoStep10Data(t) : null;
+    return {
+      date: initialData?.date ?? sample?.date ?? todayIso(),
+      mood: initialData?.mood ?? "steady",
+      states: initialData?.states ?? sample?.states ?? {},
+      attentionNotes: initialData?.attentionNotes ?? sample?.attentionNotes ?? {},
+      highlights: initialData?.highlights ?? sample?.highlights ?? "",
+      attention: initialData?.attention ?? sample?.attention ?? "",
+      patternAction: initialData?.patternAction ?? "",
+      familyContext: initialData?.familyContext ?? "",
+      amends: initialData?.amends ?? "",
+      tomorrow: initialData?.tomorrow ?? sample?.tomorrow ?? "",
+      gratitude: initialData?.gratitude ?? sample?.gratitude ?? "",
+    };
   });
   const [message, setMessage] = React.useState("");
   const [saving, setSaving] = React.useState(false);
+  const [mobileActionsOpen, setMobileActionsOpen] = React.useState(false);
+  const [editing, setEditing] = React.useState(false);
+  const mobileActionsRef = React.useRef<HTMLDivElement>(null);
+  const mobileActionsButtonRef = React.useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => { onChange?.(data); }, [data, onChange]);
+
+  React.useEffect(() => {
+    if (!mobileActionsOpen) return;
+    mobileMenuRef.current?.querySelector("button")?.focus();
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMobileActionsOpen(false);
+        mobileActionsButtonRef.current?.focus();
+      }
+    }
+
+    function onPointerDown(event: PointerEvent) {
+      if (!mobileActionsRef.current?.contains(event.target as Node)) setMobileActionsOpen(false);
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [mobileActionsOpen]);
 
   const counts = React.useMemo(() => {
     const values = Object.values(data.states);
@@ -101,60 +155,41 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
     setData((current) => ({ ...current, [key]: value }));
   }
 
-  function summaryText() {
-    const practiced = principles
-      .filter((principle) => data.states[principle.id] === "practiced")
-      .map((principle) => language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en)
-      .join(", ");
-    const attention = principles
-      .filter((principle) => data.states[principle.id] === "attention")
-      .map((principle) => language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en)
-      .join(", ");
-    const attentionDetails = principles.flatMap((principle) => {
-      if (data.states[principle.id] !== "attention") return [];
-      const note = data.attentionNotes[principle.id]?.trim();
-      if (!note) return [];
-      const name = language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en;
-      return [`- ${name}: ${note}`];
-    });
-
-    return [
-      t("Step 10 Daily Inventory", "ترازنامه روزانه گام دهم"),
-      formatDisplayDate(data.date, language),
-      "",
-      `${t("Principles practiced", "اصول تمرین‌شده")}: ${practiced || "—"}`,
-      `${t("Needs attention", "نیازمند توجه")}: ${attention || "—"}`,
-      ...(attentionDetails.length > 0 ? [`${t("Attention details", "توضیحات موارد نیازمند توجه")}:`, ...attentionDetails] : []),
-      `${t("What went well", "موارد خوب امروز")}: ${data.highlights || "—"}`,
-      `${t("What needs attention", "موارد نیازمند توجه")}: ${data.attention || "—"}`,
-      ...(data.patternAction.trim() ? [`${t("Pattern and response", "الگو و واکنش")}: ${data.patternAction}`] : []),
-      ...(data.familyContext.trim() ? [`${t("Family impact and what I could control", "تأثیر بر خانواده و آنچه در اختیار من بود")}: ${data.familyContext}`] : []),
-      `${t("Amends or apology", "جبران یا عذرخواهی")}: ${data.amends || "—"}`,
-      `${t("Tomorrow's action", "اقدام فردا")}: ${data.tomorrow || "—"}`,
-      `${t("Gratitude", "قدردانی")}: ${data.gratitude || "—"}`,
-    ].join("\n");
-  }
-
   async function shareInventory() {
-    const text = summaryText();
+    if (!analytics) {
+      setMessage(analyticsError
+        ? t("Analytics could not load. Try again before sharing.", "تحلیل بارگذاری نشد. پیش از اشتراک دوباره تلاش کنید.")
+        : t("Analytics are loading. Try again in a moment.", "تحلیل در حال بارگذاری است. کمی بعد دوباره تلاش کنید."));
+      return;
+    }
+    const text = formatStep10SponsorReport(data, analytics, language, t, demo);
     try {
       if (navigator.share) {
-        await navigator.share({ title: t("My Step 10 Inventory", "ترازنامه گام دهم من"), text });
+        await navigator.share({ title: t("My Step 10 inventory and analytics", "ترازنامه و تحلیل گام دهم من"), text });
         setMessage(t("Share menu opened.", "منوی اشتراک باز شد."));
       } else {
         await navigator.clipboard.writeText(text);
-        setMessage(t("Private summary copied.", "خلاصه خصوصی کپی شد."));
+        setMessage(t("Inventory and analytics copied.", "ترازنامه و تحلیل کپی شد."));
       }
     } catch (error) {
       if ((error as Error).name !== "AbortError") {
-        setMessage(t("Sharing was not available. Try Print / PDF.", "اشتراک در دسترس نبود. از چاپ یا PDF استفاده کنید."));
+        try {
+          await navigator.clipboard.writeText(text);
+          setMessage(t("Sharing was unavailable, so the full report was copied.", "اشتراک در دسترس نبود؛ گزارش کامل کپی شد."));
+        } catch {
+          setMessage(t("Sharing was not available. Try Print / PDF.", "اشتراک در دسترس نبود. از چاپ یا PDF استفاده کنید."));
+        }
       }
     }
   }
 
   async function copyInventory() {
-    await navigator.clipboard.writeText(summaryText());
-    setMessage(t("Private summary copied.", "خلاصه خصوصی کپی شد."));
+    try {
+      await navigator.clipboard.writeText(formatStep10Inventory(data, language, t));
+      setMessage(t("Full inventory copied.", "متن کامل ترازنامه کپی شد."));
+    } catch {
+      setMessage(t("Copy was not available. Try Share or Print / PDF.", "کپی در دسترس نبود. از اشتراک یا چاپ / PDF استفاده کنید."));
+    }
   }
 
   async function saveInventory() {
@@ -192,7 +227,19 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
   }
 
   return (
-    <div className="inventory-layout" data-inventory="step10">
+    <div
+      className="inventory-layout"
+      data-inventory="step10"
+      onFocusCapture={(event) => {
+        if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+          setEditing(true);
+          setMobileActionsOpen(false);
+        }
+      }}
+      onBlurCapture={(event) => {
+        if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) setEditing(false);
+      }}
+    >
       <section className="inventory-main">
         <header className="inventory-header">
           <div className="inventory-title-block">
@@ -321,18 +368,41 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
         <section className="inventory-sidebar-card">
           <h3>{t("Keep or share", "ذخیره یا اشتراک")}</h3>
           <p>{t("Nothing leaves this page unless you choose an action.", "هیچ‌چیز بدون انتخاب شما از این صفحه خارج نمی‌شود.")}</p>
+          <p>{t("Share with sponsor includes this full inventory and your Step 10 analytics.", "اشتراک با حامی شامل ترازنامه کامل و تحلیل گام دهم شماست.")}</p>
+          {!demo && <p>{t("Analytics reflect saved inventories. Save this entry first if you want it counted.", "تحلیل‌ها بر اساس ترازنامه‌های ذخیره‌شده‌اند. اگر می‌خواهید این نوشته هم محاسبه شود، ابتدا آن را ذخیره کنید.")}</p>}
+          {analyticsLoading && <p>{t("Preparing analytics for sharing…", "در حال آماده‌سازی تحلیل برای اشتراک…")}</p>}
           <div className="sidebar-actions">
             <button className="button button-primary" type="button" onClick={saveInventory} disabled={saving}>
               <Save size={17} />{saving ? t("Saving…", "در حال ذخیره…") : t("Save inventory", "ذخیره ترازنامه")}
             </button>
             <button className="button button-outline" type="button" onClick={shareInventory}><Share2 size={17} />{t("Share with sponsor", "اشتراک با حامی")}</button>
-            <button className="button button-outline" type="button" onClick={copyInventory}><Copy size={17} />{t("Copy private summary", "کپی خلاصه خصوصی")}</button>
+            {analyticsError && onRetryAnalytics && <button className="button button-outline" type="button" onClick={onRetryAnalytics}><Share2 size={17} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
+            <button className="button button-outline" type="button" onClick={copyInventory}><Copy size={17} />{t("Copy full inventory", "کپی ترازنامه کامل")}</button>
             <button className="button button-outline" type="button" onClick={onExport ?? (() => window.print())}><FileDown size={17} />{t(onExport ? "Export saved inventory" : "Print / Save PDF", onExport ? "خروجی از ترازنامه ذخیره‌شده" : "چاپ / ذخیره PDF")}</button>
             <button className="button button-danger" type="button" onClick={resetInventory}><RotateCcw size={17} />{t("Clear this page", "پاک کردن صفحه")}</button>
           </div>
-          {message && <p className="toast-note" role="status"><Check size={14} /> {message}</p>}
+          {message && <p className="toast-note step10-desktop-message" role="status">{message}</p>}
         </section>
       </aside>
+
+      <div className={`step10-mobile-actions${editing ? " is-editing" : ""}`} ref={mobileActionsRef}>
+        {message && <p className="step10-mobile-message" role="status">{message}</p>}
+        <div className="step10-mobile-menu" id="step10-mobile-menu" ref={mobileMenuRef} hidden={!mobileActionsOpen} role="group" aria-label={t("Inventory actions", "گزینه‌های ترازنامه")}>
+          <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); void shareInventory(); }}><Share2 size={17} />{t("Share with sponsor", "اشتراک با حامی")}</button>
+          {analyticsError && onRetryAnalytics && <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); onRetryAnalytics(); }}><Share2 size={17} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
+          <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); void copyInventory(); }}><Copy size={17} />{t("Copy full inventory", "کپی ترازنامه کامل")}</button>
+          <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); (onExport ?? (() => window.print()))(); }}><FileDown size={17} />{t(onExport ? "Export saved inventory" : "Print / Save PDF", onExport ? "خروجی از ترازنامه ذخیره‌شده" : "چاپ / ذخیره PDF")}</button>
+          <button className="button button-danger" type="button" onClick={() => { setMobileActionsOpen(false); resetInventory(); }}><RotateCcw size={17} />{t("Clear this page", "پاک کردن صفحه")}</button>
+        </div>
+        <div className="step10-mobile-bar">
+          <button className="button button-primary" type="button" onClick={() => { setMobileActionsOpen(false); void saveInventory(); }} disabled={saving}>
+            <Save size={17} />{saving ? t("Saving…", "در حال ذخیره…") : t("Save inventory", "ذخیره ترازنامه")}
+          </button>
+          <button className="button button-outline" type="button" ref={mobileActionsButtonRef} aria-controls="step10-mobile-menu" aria-expanded={mobileActionsOpen} onClick={() => setMobileActionsOpen((open) => !open)}>
+            <MoreHorizontal size={18} />{t("More actions", "گزینه‌های بیشتر")}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import { BarChart3, BookOpenText, MoonStar } from "lucide-react";
-import { Step10Analytics } from "./step10-analytics";
-import { Step10Inventory } from "./step10-inventory";
+import { Step10Analytics, createDemoAnalytics } from "./step10-analytics";
+import { Step10Inventory, createDemoStep10Data, type Step10Data } from "./step10-inventory";
 import { Step4Inventory } from "./step4-inventory";
 import { RecoveryLearningCenter } from "./recovery-learning-center";
 import { useLanguage } from "./language-provider";
@@ -21,6 +21,8 @@ declare global {
 export function DemoWorkspace() {
   const { t } = useLanguage();
   const [activeStep, setActiveStep] = React.useState<"10" | "4" | "analytics" | "learning">("10");
+  const [demoDraft, setDemoDraft] = React.useState<Step10Data>(() => createDemoStep10Data(t));
+  const [demoAnalytics] = React.useState(createDemoAnalytics);
 
   const chooseStep = React.useCallback((next: "10" | "4" | "analytics" | "learning") => {
     const actions: Record<typeof next, SiteAnalyticsAction> = {
@@ -87,7 +89,7 @@ export function DemoWorkspace() {
           <BookOpenText size={17} />{t("Learning center", "مرکز آموزش")}
         </button>
       </div>
-      {activeStep === "10" ? <Step10Inventory demo onOpenLearning={() => chooseStep("learning")} /> : activeStep === "4" ? <Step4Inventory demo onOpenLearning={() => chooseStep("learning")} /> : activeStep === "analytics" ? <Step10Analytics demo /> : <RecoveryLearningCenter demo />}
+      {activeStep === "10" ? <Step10Inventory demo initialData={demoDraft} analytics={demoAnalytics} onChange={setDemoDraft} onOpenLearning={() => chooseStep("learning")} /> : activeStep === "4" ? <Step4Inventory demo onOpenLearning={() => chooseStep("learning")} /> : activeStep === "analytics" ? <Step10Analytics demo reportInventory={demoDraft} /> : <RecoveryLearningCenter demo />}
     </div>
   );
 }

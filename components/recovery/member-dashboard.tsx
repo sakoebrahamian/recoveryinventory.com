@@ -12,6 +12,7 @@ import { Step10Analytics } from "./step10-analytics";
 import { Step4Workspace } from "./step4-workspace";
 import { RecoveryLearningCenter } from "./recovery-learning-center";
 import { formatDisplayDate, todayIso } from "@/lib/inventory";
+import type { Step10AnalyticsData } from "@/lib/step10-analytics";
 import { recordSiteAction } from "@/lib/site-analytics";
 
 type AccountView = {
@@ -46,6 +47,10 @@ export function MemberDashboard() {
   const [activeType, setActiveType] = React.useState<MemberTool>("step10");
   const [step4Dirty, setStep4Dirty] = React.useState(false);
   const [analyticsVersion, setAnalyticsVersion] = React.useState(0);
+  const [shareAnalytics, setShareAnalytics] = React.useState<Step10AnalyticsData | null>(null);
+  const [shareAnalyticsLoading, setShareAnalyticsLoading] = React.useState(true);
+  const [shareAnalyticsError, setShareAnalyticsError] = React.useState("");
+  const [analyticsRetry, setAnalyticsRetry] = React.useState(0);
   const [message, setMessage] = React.useState("");
   const [billingBusy, setBillingBusy] = React.useState(false);
   const [promotionCode, setPromotionCode] = React.useState("");
@@ -91,6 +96,28 @@ export function MemberDashboard() {
     void start();
     return () => { stopped = true; };
   }, [loadAccount, loadInventories, t, year]);
+
+  React.useEffect(() => {
+    if (!account?.membershipActive) return;
+    const controller = new AbortController();
+    async function loadShareAnalytics() {
+      setShareAnalytics(null);
+      setShareAnalyticsLoading(true);
+      setShareAnalyticsError("");
+      try {
+        const response = await fetch(`/api/analytics/step10?through=${encodeURIComponent(todayIso())}`, { cache: "no-store", signal: controller.signal });
+        const result = await response.json() as { analytics?: Step10AnalyticsData; error?: string };
+        if (!response.ok || !result.analytics) throw new Error(result.error || "Analytics unavailable");
+        if (!controller.signal.aborted) setShareAnalytics(result.analytics);
+      } catch (error) {
+        if (!controller.signal.aborted) setShareAnalyticsError(error instanceof Error ? error.message : "Analytics unavailable");
+      } finally {
+        if (!controller.signal.aborted) setShareAnalyticsLoading(false);
+      }
+    }
+    void loadShareAnalytics();
+    return () => controller.abort();
+  }, [account?.membershipActive, analyticsVersion, analyticsRetry]);
 
   React.useEffect(() => {
     const search = new URLSearchParams(window.location.search);
@@ -180,6 +207,7 @@ export function MemberDashboard() {
       });
     }
     setSelectedDate(date);
+    setShareAnalytics(null);
     setAnalyticsVersion((value) => value + 1);
   }
 
@@ -240,6 +268,7 @@ export function MemberDashboard() {
   }
 
   const selectedStep10 = records.find((record) => record.type === "step10" && record.date === selectedDate);
+  const sponsorInventory = selectedStep10 ?? records.filter((record) => record.type === "step10").at(-1);
   const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
 
   return (
@@ -355,6 +384,10 @@ export function MemberDashboard() {
               onSave={(data) => saveInventory(data.date, data)}
               onExport={() => exportRef.current?.open({ type: "step10" })}
               onOpenLearning={() => switchTool("learning")}
+              analytics={shareAnalytics}
+              analyticsLoading={shareAnalyticsLoading}
+              analyticsError={shareAnalyticsError}
+              onRetryAnalytics={() => setAnalyticsRetry((value) => value + 1)}
             />
           ) : activeType === "step4" ? (
             <Step4Workspace onOpenLearning={() => switchTool("learning")} onDirtyChange={setStep4Dirty} />
@@ -362,6 +395,7 @@ export function MemberDashboard() {
             <Step10Analytics
               refreshKey={analyticsVersion}
               onOpenStep10={() => switchTool("step10")}
+              reportInventory={sponsorInventory?.payload as Step10Data | undefined}
             />
           ) : (
             <RecoveryLearningCenter />

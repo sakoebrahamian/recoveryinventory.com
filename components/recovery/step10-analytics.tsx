@@ -1,15 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { BarChart3, CalendarCheck2, Flame, RefreshCw, ShieldCheck, Sparkles, Target, TrendingUp } from "lucide-react";
+import { BarChart3, CalendarCheck2, Copy, Flame, RefreshCw, Share2, ShieldCheck, Sparkles, Target, TrendingUp } from "lucide-react";
 import { formatDisplayDate, principleCategories, principles, todayIso } from "@/lib/inventory";
 import { calculateStep10Analytics, type PrincipleAnalytics, type Step10AnalyticsData, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
+import { describeStep10Pattern, formatStep10SponsorReport } from "@/lib/step10-report";
 import { useLanguage } from "./language-provider";
+import type { Step10Data } from "./step10-inventory";
 
 type Step10AnalyticsProps = {
   demo?: boolean;
   refreshKey?: number;
   onOpenStep10?: () => void;
+  reportInventory?: Step10Data | null;
 };
 
 function dateBefore(isoDate: string, days: number): string {
@@ -18,7 +21,7 @@ function dateBefore(isoDate: string, days: number): string {
   return value.toISOString().slice(0, 10);
 }
 
-function createDemoAnalytics(): Step10AnalyticsData {
+export function createDemoAnalytics(): Step10AnalyticsData {
   const through = todayIso();
   const offsets = [20, 19, 18, 17, 15, 14, 13, 12, 11, 9, 8, 7, 5, 4, 3, 2, 1, 0];
   const records: Step10AnalyticsRecord[] = offsets.map((offset, entryIndex) => {
@@ -34,11 +37,12 @@ function createDemoAnalytics(): Step10AnalyticsData {
   return calculateStep10Analytics(records, through);
 }
 
-export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10 }: Step10AnalyticsProps) {
+export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, reportInventory }: Step10AnalyticsProps) {
   const { language, t } = useLanguage();
   const [analytics, setAnalytics] = React.useState<Step10AnalyticsData | null>(() => demo ? createDemoAnalytics() : null);
   const [loading, setLoading] = React.useState(!demo);
   const [error, setError] = React.useState("");
+  const [shareMessage, setShareMessage] = React.useState("");
   const [attempt, setAttempt] = React.useState(0);
   const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
 
@@ -70,6 +74,39 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10 }: 
     const principle = principles.find((candidate) => candidate.id === item.id);
     return principle?.[language] ?? item.id;
   }, [language]);
+
+  async function shareCombinedReport() {
+    if (!analytics || !reportInventory) return;
+    const text = formatStep10SponsorReport(reportInventory, analytics, language, t, demo);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: t("My Step 10 inventory and analytics", "ترازنامه و تحلیل گام دهم من"), text });
+        setShareMessage(t("Share menu opened.", "منوی اشتراک باز شد."));
+      } else {
+        await navigator.clipboard.writeText(text);
+        setShareMessage(t("Inventory and analytics copied.", "ترازنامه و تحلیل کپی شد."));
+      }
+    } catch (shareError) {
+      if ((shareError as Error).name !== "AbortError") {
+        try {
+          await navigator.clipboard.writeText(text);
+          setShareMessage(t("Sharing was unavailable, so the full report was copied.", "اشتراک در دسترس نبود؛ گزارش کامل کپی شد."));
+        } catch {
+          setShareMessage(t("Sharing was not available. Try copying the report.", "اشتراک در دسترس نبود. گزارش را کپی کنید."));
+        }
+      }
+    }
+  }
+
+  async function copyCombinedReport() {
+    if (!analytics || !reportInventory) return;
+    try {
+      await navigator.clipboard.writeText(formatStep10SponsorReport(reportInventory, analytics, language, t, demo));
+      setShareMessage(t("Inventory and analytics copied.", "ترازنامه و تحلیل کپی شد."));
+    } catch {
+      setShareMessage(t("Copy was not available. Try Share.", "کپی در دسترس نبود. از اشتراک استفاده کنید."));
+    }
+  }
 
   if (loading) {
     return (
@@ -107,13 +144,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10 }: 
 
   const change = analytics.recentChange;
   const changeTone = change === null || Math.abs(change) < 5 ? "steady" : change > 0 ? "up" : "care";
-  const currentPattern = analytics.totalEntries < 3
-    ? t("Save at least three Step 10 inventories to make your patterns clearer.", "برای روشن‌تر شدن الگوها، دست‌کم سه ترازنامه گام ۱۰ ذخیره کنید.")
-    : change !== null && change >= 5
-      ? t("Your recent entries show a stronger practiced pattern than the preceding entries.", "نوشته‌های اخیر شما نسبت به نوشته‌های پیشین، الگوی تمرین‌شده قوی‌تری نشان می‌دهند.")
-      : change !== null && change <= -5
-        ? t("Your recent entries show more recurring areas for attention than the preceding entries.", "نوشته‌های اخیر شما نسبت به نوشته‌های پیشین، موارد تکرارشونده بیشتری برای توجه نشان می‌دهند.")
-        : t("Your recent balance is steady compared with the preceding entries.", "تعادل اخیر شما در مقایسه با نوشته‌های پیشین ثابت است.");
+  const currentPattern = describeStep10Pattern(analytics, t);
   const maxMonthlyEntries = Math.max(...analytics.months.map((month) => month.entries), 1);
 
   return (
@@ -124,7 +155,24 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10 }: 
           <h2>{t("Step 10 analytics", "تحلیل گام ۱۰")}</h2>
           <p>{t("All saved Step 10 inventories through", "همه ترازنامه‌های ذخیره‌شده گام ۱۰ تا")} {formatDisplayDate(analytics.through, language)}</p>
         </div>
-        {demo && <span className="analytics-sample-badge">{t("Sample data", "داده نمونه")}</span>}
+        <div className="analytics-header-actions">
+          {demo && <span className="analytics-sample-badge">{t("Sample data", "داده نمونه")}</span>}
+          {reportInventory ? (
+            <>
+              <div className="analytics-share-actions">
+                <button className="button button-primary" type="button" onClick={() => void shareCombinedReport()}><Share2 size={16} />{t("Share with sponsor", "اشتراک با حامی")}</button>
+                <button className="button button-outline" type="button" onClick={() => void copyCombinedReport()}><Copy size={16} />{t("Copy inventory and analytics", "کپی ترازنامه و تحلیل")}</button>
+              </div>
+              <p className="analytics-share-context">{t("Includes the inventory for", "شامل ترازنامه روز")} {formatDisplayDate(reportInventory.date, language)}</p>
+            </>
+          ) : (
+            <>
+              <p className="analytics-share-context">{t("Choose a saved Step 10 day to share it with analytics.", "برای اشتراک همراه با تحلیل، یک روز ذخیره‌شده گام دهم را انتخاب کنید.")}</p>
+              {onOpenStep10 && <button className="button button-outline button-small" type="button" onClick={onOpenStep10}>{t("Open Step 10", "باز کردن گام ۱۰")}</button>}
+            </>
+          )}
+          {shareMessage && <p className="analytics-share-message" role="status">{shareMessage}</p>}
+        </div>
       </header>
 
       <div className="analytics-kpis">
