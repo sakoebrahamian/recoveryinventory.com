@@ -384,7 +384,16 @@ export function MemberDashboard() {
               )}
             </p>
           )}
-          {activeType === "step10" && <InventoryExport ref={exportRef} records={records} selectedDate={selectedDate} year={year} />}
+          {activeType === "step10" && <InventoryExport
+            ref={exportRef}
+            records={records}
+            selectedDate={selectedDate}
+            year={year}
+            analytics={shareAnalytics}
+            analyticsLoading={shareAnalyticsLoading}
+            analyticsError={shareAnalyticsError}
+            onRetryAnalytics={() => setAnalyticsRetry((value) => value + 1)}
+          />}
           {activeType === "step10" ? (
             recordsLoading ? <div className="loading-panel" role="status">{t("Loading inventories…", "در حال بارگذاری ترازنامه‌ها…")}</div> : <Step10Inventory
               key={`step10-${selectedDate}-${language}`}

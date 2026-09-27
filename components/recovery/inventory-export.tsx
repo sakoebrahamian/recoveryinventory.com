@@ -2,8 +2,10 @@
 
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { CalendarRange, FileDown, X } from "lucide-react";
-import { formatDisplayDate, principleCategories, principles, step4Types } from "@/lib/inventory";
+import { CalendarRange, FileDown, RefreshCw, X } from "lucide-react";
+import { formatDisplayDate, principleCategories, principles, step4Types, todayIso } from "@/lib/inventory";
+import type { PrincipleAnalytics, Step10AnalyticsData } from "@/lib/step10-analytics";
+import { describeStep10Pattern } from "@/lib/step10-report";
 import { useLanguage } from "./language-provider";
 import type { Step10Data } from "./step10-inventory";
 import type { Step4Data, Step4Entry } from "./step4-inventory";
@@ -26,6 +28,10 @@ type InventoryExportProps = {
   records: InventoryRecord[];
   selectedDate: string;
   year: number;
+  analytics: Step10AnalyticsData | null;
+  analyticsLoading: boolean;
+  analyticsError: string;
+  onRetryAnalytics: () => void;
 };
 
 const subscribeToDom = () => () => undefined;
@@ -182,7 +188,92 @@ function Step4Print({ data }: { data: Step4Data }) {
   );
 }
 
-function PrintDocument({ records, scopeLabel }: { records: InventoryRecord[]; scopeLabel: string }) {
+function Step10AnalyticsPrint({ analytics, scopeLabel }: { analytics: Step10AnalyticsData; scopeLabel: string }) {
+  const { language, t } = useLanguage();
+  const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
+  const monthLocale = language === "fa" ? "fa-IR-u-ca-gregory" : locale;
+  const number = (value: number) => new Intl.NumberFormat(locale).format(value);
+  const principleName = (item: PrincipleAnalytics) => principles.find((principle) => principle.id === item.id)?.[language] ?? item.id;
+  const firstDate = analytics.firstEntryDate ? formatDisplayDate(analytics.firstEntryDate, language) : "—";
+  const throughDate = formatDisplayDate(analytics.through, language);
+
+  return (
+    <section className="inventory-print-analytics">
+      <header>
+        <p>{t("PRIVATE PATTERN SUMMARY", "خلاصه خصوصی الگوها")}</p>
+        <h2>{t("Step 10 analytics", "تحلیل گام ۱۰")}</h2>
+        <span>{t("From the first saved inventory through today", "از نخستین ترازنامه ذخیره‌شده تا امروز")}: {firstDate} – {throughDate}</span>
+        <small>{t("Inventory pages selected", "صفحه‌های ترازنامه انتخاب‌شده")}: {scopeLabel}. {t("The analytics cover your full Step 10 history, including dates outside this export selection.", "این تحلیل تمام سابقه گام ۱۰ شما، از جمله تاریخ‌های خارج از این خروجی، را در بر می‌گیرد.")}</small>
+      </header>
+
+      {analytics.totalEntries === 0 ? (
+        <p className="inventory-print-empty">{t("No saved Step 10 inventories through today.", "تا امروز هیچ ترازنامه ذخیره‌شده‌ای برای گام ۱۰ وجود ندارد.")}</p>
+      ) : (
+        <>
+          <dl className="inventory-print-analytics-stats">
+            <div><dt>{t("Saved inventories", "ترازنامه‌های ذخیره‌شده")}</dt><dd>{number(analytics.totalEntries)}</dd></div>
+            <div><dt>{t("Practiced share", "سهم تمرین‌شده")}</dt><dd>{number(analytics.practiceRate)}%</dd></div>
+            <div><dt>{t("Practiced", "تمرین کردم")}</dt><dd>{number(analytics.totalPracticed)}</dd></div>
+            <div><dt>{t("Needs attention", "نیازمند توجه")}</dt><dd>{number(analytics.totalAttention)}</dd></div>
+            <div><dt>{t("Not applicable", "کاربرد ندارد")}</dt><dd>{number(analytics.totalNA)}</dd></div>
+            <div><dt>{t("Current streak", "روند پیوسته فعلی")}</dt><dd>{number(analytics.currentStreak)} {t("days", "روز")}</dd></div>
+            <div><dt>{t("Longest streak", "طولانی‌ترین روند پیوسته")}</dt><dd>{number(analytics.longestStreak)} {t("days", "روز")}</dd></div>
+          </dl>
+
+          <section className="inventory-print-analytics-block">
+            <h3>{t("Your current pattern", "الگوی فعلی شما")}</h3>
+            <p>{describeStep10Pattern(analytics, t)}</p>
+            <p>{t("Last seven vs. previous seven", "هفت مورد اخیر در برابر هفت مورد پیشین")}: {analytics.recentChange === null
+              ? t("Not enough history yet", "هنوز سابقه کافی نیست")
+              : `${analytics.recentChange > 0 ? "+" : ""}${number(analytics.recentChange)} ${t("percentage points", "واحد درصد")}`}</p>
+          </section>
+
+          <div className="inventory-print-analytics-insights">
+            {([
+              [t("Practiced most often", "بیشترین تمرین"), analytics.topPracticed, "practiced", t("practiced", "تمرین‌شده")],
+              [t("Recurring focus", "تمرکز تکرارشونده"), analytics.topAttention, "attention", t("needs attention", "نیازمند توجه")],
+            ] as const).map(([heading, items, countKey, countLabel]) => (
+              <section className="inventory-print-analytics-block" key={countKey}>
+                <h3>{heading}</h3>
+                {items.length ? <ol>{items.map((item) => <li key={item.id}><span>{principleName(item)}</span><strong>{number(item[countKey])} {countLabel}</strong></li>)}</ol>
+                  : <p>{t("No pattern yet", "هنوز الگویی وجود ندارد")}</p>}
+              </section>
+            ))}
+          </div>
+
+          <section className="inventory-print-analytics-block">
+            <h3>{t("Practice by area", "تمرین بر اساس حوزه")}</h3>
+            <ul className="inventory-print-analytics-areas">
+              {analytics.categories.map((category) => (
+                <li key={category.id}>
+                  <strong>{principleCategories.find((item) => item.id === category.id)?.[language] ?? category.id}</strong>
+                  <span>{number(category.practiceRate)}% · {number(category.answered)} {t("scored selections", "انتخاب امتیازدار")}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section className="inventory-print-analytics-block">
+            <h3>{t("Activity over time", "فعالیت در طول زمان")}</h3>
+            <p>{t("Every month with saved Step 10 inventories, from the first entry through today.", "هر ماه دارای ترازنامه ذخیره‌شده گام ۱۰، از نخستین مورد تا امروز.")}</p>
+            <table className="inventory-print-analytics-months">
+              <thead><tr><th>{t("Month", "ماه")}</th><th>{t("Saved inventories", "ترازنامه‌های ذخیره‌شده")}</th><th>{t("Practiced", "تمرین کردم")}</th><th>{t("Needs attention", "نیازمند توجه")}</th><th>{t("Practiced share", "سهم تمرین‌شده")}</th></tr></thead>
+              <tbody>{analytics.allMonths.map((month) => (
+                <tr key={month.month}>
+                  <th>{new Intl.DateTimeFormat(monthLocale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${month.month}-01T12:00:00Z`))}</th>
+                  <td>{number(month.entries)}</td><td>{number(month.practiced)}</td><td>{number(month.attention)}</td><td>{number(month.practiceRate)}%</td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </section>
+        </>
+      )}
+      <footer>{t("This summary uses only the principle selections in your saved Step 10 inventories. It does not analyze Step 4, and it is not a diagnosis or clinical assessment.", "این خلاصه فقط از انتخاب‌های اصول در ترازنامه‌های ذخیره‌شده گام ۱۰ شما استفاده می‌کند. گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی نیست.")} {t("Future-dated inventories are not included.", "ترازنامه‌های دارای تاریخ آینده محاسبه نمی‌شوند.")}</footer>
+    </section>
+  );
+}
+
+function PrintDocument({ records, scopeLabel, analytics }: { records: InventoryRecord[]; scopeLabel: string; analytics: Step10AnalyticsData | null }) {
   const { language, t } = useLanguage();
   const sorted = React.useMemo(() => [...records].sort((left, right) => {
     const dateOrder = left.date.localeCompare(right.date);
@@ -216,12 +307,13 @@ function PrintDocument({ records, scopeLabel }: { records: InventoryRecord[]; sc
           <footer className="inventory-print-footer"><span>{t("Recovery Inventory", "ترازنامه بهبودی")}</span><span>{index + 1} / {sorted.length}</span></footer>
         </article>
       ))}
+      {analytics && <Step10AnalyticsPrint analytics={analytics} scopeLabel={scopeLabel} />}
     </div>
   );
 }
 
 export const InventoryExport = React.forwardRef<InventoryExportHandle, InventoryExportProps>(function InventoryExport(
-  { records, selectedDate, year },
+  { records, selectedDate, year, analytics, analyticsLoading, analyticsError, onRetryAnalytics },
   ref,
 ) {
   const { language, t } = useLanguage();
@@ -233,6 +325,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
   const [month, setMonth] = React.useState(selectedDate.slice(0, 7));
   const [includeStep10, setIncludeStep10] = React.useState(true);
   const [includeStep4, setIncludeStep4] = React.useState(true);
+  const [includeAnalytics, setIncludeAnalytics] = React.useState(true);
   const panelRef = React.useRef<HTMLElement>(null);
   const canUseDom = React.useSyncExternalStore(
     subscribeToDom,
@@ -254,6 +347,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
       setMonth(selectedDate.slice(0, 7));
       setIncludeStep10(options?.type ? options.type === "step10" : true);
       setIncludeStep4(options?.type ? options.type === "step4" : true);
+      setIncludeAnalytics(true);
       setOpen(true);
       window.setTimeout(() => panelRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
     },
@@ -290,7 +384,9 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
   }, [day, language, month, rangeEnd, rangeStart, scope, t, year]);
 
   const dateCount = new Set(filteredRecords.map((record) => record.date)).size;
-  const canPrint = filteredRecords.length > 0 && (includeStep10 || includeStep4);
+  const wantsAnalytics = includeAnalytics && filteredRecords.some((record) => record.type === "step10");
+  const currentAnalytics = analytics?.through === todayIso() ? analytics : null;
+  const canPrint = filteredRecords.length > 0 && (includeStep10 || includeStep4) && (!wantsAnalytics || Boolean(currentAnalytics && !analyticsLoading));
 
   function toggleType(type: "step10" | "step4", checked: boolean) {
     if (type === "step10") {
@@ -349,6 +445,15 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
             </div>
           </fieldset>
 
+          {includeStep10 && <div className="inventory-export-analytics-option">
+            <label><input type="checkbox" checked={includeAnalytics} onChange={(event) => setIncludeAnalytics(event.target.checked)} /><span><strong>{t("Include all-time Step 10 analytics", "افزودن تحلیل تمام‌دوره گام ۱۰")}</strong><small>{t("From your first saved inventory through today, even if you export only one day.", "از نخستین ترازنامه ذخیره‌شده تا امروز، حتی اگر فقط از یک روز خروجی بگیرید.")}</small></span></label>
+            {wantsAnalytics && (!currentAnalytics || analyticsLoading) && <div className="inventory-export-analytics-status" role="status">
+              <span>{analyticsLoading ? t("Preparing your analytics…", "در حال آماده‌سازی تحلیل شما…") : t("Analytics are unavailable or need refreshing before this PDF can be printed.", "تحلیل در دسترس نیست یا پیش از چاپ PDF باید تازه‌سازی شود.")}</span>
+              {!analyticsLoading && <button className="button button-outline button-small" type="button" onClick={onRetryAnalytics}><RefreshCw size={15} />{t("Try again", "تلاش دوباره")}</button>}
+              {analyticsError && <small>{analyticsError}</small>}
+            </div>}
+          </div>}
+
           <div className="inventory-export-summary">
             <div><strong>{filteredRecords.length}</strong><span>{t(filteredRecords.length === 1 ? "saved inventory" : "saved inventories", "ترازنامه ذخیره‌شده")}</span></div>
             <div><strong>{dateCount}</strong><span>{t(dateCount === 1 ? "date" : "dates", "تاریخ")}</span></div>
@@ -360,7 +465,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
 
       {canUseDom
         ? createPortal(
-          <PrintDocument records={filteredRecords} scopeLabel={scopeLabel} />,
+          <PrintDocument records={filteredRecords} scopeLabel={scopeLabel} analytics={open && wantsAnalytics && canPrint ? currentAnalytics : null} />,
           document.body,
         )
         : null}

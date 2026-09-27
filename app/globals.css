@@ -3398,6 +3398,59 @@ html[dir="rtl"] .inventory-export-fieldset legend {
   opacity: 0.45;
 }
 
+.inventory-export-analytics-option {
+  margin-top: 1rem;
+  border-top: 1px solid rgba(23, 63, 58, 0.1);
+  padding-top: 1rem;
+}
+
+.inventory-export-analytics-option label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.inventory-export-analytics-option input {
+  width: 18px;
+  height: 18px;
+  margin: 0.1rem 0 0;
+  accent-color: var(--ink);
+  flex: none;
+}
+
+.inventory-export-analytics-option label span {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.inventory-export-analytics-option label strong {
+  font-size: 0.82rem;
+}
+
+.inventory-export-analytics-option label small,
+.inventory-export-analytics-status {
+  color: #637771;
+  font-size: 0.75rem;
+}
+
+.inventory-export-analytics-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.7rem 0 0 1.6rem;
+}
+
+html[dir="rtl"] .inventory-export-analytics-status {
+  margin: 0.7rem 1.6rem 0 0;
+}
+
+.inventory-export-analytics-status small {
+  width: 100%;
+}
+
 .inventory-print-root {
   display: none;
 }
@@ -3523,9 +3576,152 @@ html[dir="rtl"] .inventory-export-fieldset legend {
     page-break-after: always;
   }
 
-  html.inventory-export-page .inventory-print-record:last-child {
+  html.inventory-export-page .inventory-print-record:last-of-type {
     break-after: auto;
     page-break-after: auto;
+  }
+
+  html.inventory-export-page .inventory-print-analytics {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  html.inventory-export-page .inventory-print-analytics > header {
+    margin-bottom: 5mm;
+    border-bottom: 1.5pt solid #173f3a;
+    padding-bottom: 4mm;
+  }
+
+  html.inventory-export-page .inventory-print-analytics > header > p {
+    margin: 0 0 1mm;
+    color: #c86145;
+    font-size: 7.5pt;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+  }
+
+  html.inventory-export-page .inventory-print-analytics > header h2 {
+    margin: 0 0 2mm;
+    color: #173f3a;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 20pt;
+    font-weight: 500;
+  }
+
+  html.inventory-export-page .inventory-print-analytics > header span,
+  html.inventory-export-page .inventory-print-analytics > header small {
+    display: block;
+    color: #526d65;
+    font-size: 8pt;
+  }
+
+  html.inventory-export-page .inventory-print-analytics > header small {
+    margin-top: 1.5mm;
+    color: #667973;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2mm;
+    margin: 0 0 5mm;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-stats > div {
+    break-inside: avoid;
+    border: 0.75pt solid #dbe3dd;
+    border-radius: 2mm;
+    background: #f6f8f4;
+    padding: 2.5mm;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-stats dt {
+    color: #5e746d;
+    font-size: 7.5pt;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-stats dd {
+    margin: 1mm 0 0;
+    color: #173f3a;
+    font-size: 13pt;
+    font-weight: 800;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-block {
+    margin: 0 0 5mm;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-block h3 {
+    margin: 0 0 1.5mm;
+    border-bottom: 0.75pt solid #dde5df;
+    color: #173f3a;
+    padding-bottom: 1mm;
+    font-size: 10.5pt;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-block p {
+    margin: 0 0 1.5mm;
+    color: #526d65;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-insights {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5mm;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-insights ol,
+  html.inventory-export-page .inventory-print-analytics-areas {
+    margin: 0;
+    padding-inline-start: 5mm;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-insights li,
+  html.inventory-export-page .inventory-print-analytics-areas li {
+    break-inside: avoid;
+    padding: 1mm 0;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-insights li strong,
+  html.inventory-export-page .inventory-print-analytics-areas li span {
+    display: block;
+    color: #60746e;
+    font-size: 8pt;
+    font-weight: 400;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-months {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8pt;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-months thead {
+    display: table-header-group;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-months tr {
+    break-inside: avoid;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-months th,
+  html.inventory-export-page .inventory-print-analytics-months td {
+    border-bottom: 0.75pt solid #e1e8e2;
+    padding: 1.6mm 2mm;
+    text-align: start;
+  }
+
+  html.inventory-export-page .inventory-print-analytics-months thead th {
+    background: #edf3ec;
+    color: #173f3a;
+  }
+
+  html.inventory-export-page .inventory-print-analytics > footer {
+    margin-top: 5mm;
+    border-top: 0.75pt solid #dbe3dd;
+    color: #667973;
+    padding-top: 2mm;
+    font-size: 7.5pt;
   }
 
   html.inventory-export-page .inventory-print-record-header {

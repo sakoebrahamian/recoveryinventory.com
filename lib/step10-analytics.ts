@@ -47,6 +47,7 @@ export type Step10AnalyticsData = {
   topAttention: PrincipleAnalytics[];
   categories: CategoryAnalytics[];
   months: MonthlyAnalytics[];
+  allMonths: MonthlyAnalytics[];
 };
 
 const validDatePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -177,6 +178,12 @@ export function calculateStep10Analytics(
   const previousPracticeRate = rateForRecords(previous);
   const { currentStreak, longestStreak } = streaks(records.map((record) => record.date), through);
   const totalAnswered = totalPracticed + totalAttention;
+  const allMonths = [...monthTotals.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([month, total]): MonthlyAnalytics => {
+      const answered = total.practiced + total.attention;
+      return { month, ...total, practiceRate: roundRate(total.practiced, answered) };
+    });
 
   return {
     through,
@@ -209,12 +216,7 @@ export function calculateStep10Analytics(
       const answered = total.practiced + total.attention;
       return { id, ...total, answered, practiceRate: roundRate(total.practiced, answered) };
     }),
-    months: [...monthTotals.entries()]
-      .sort(([left], [right]) => left.localeCompare(right))
-      .slice(-8)
-      .map(([month, total]): MonthlyAnalytics => {
-        const answered = total.practiced + total.attention;
-        return { month, ...total, practiceRate: roundRate(total.practiced, answered) };
-      }),
+    months: allMonths.slice(-8),
+    allMonths,
   };
 }
