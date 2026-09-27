@@ -189,6 +189,7 @@ export const spanishTranslations: Record<string, string> = {
   "Daily reflection": "Reflexión diaria",
   "Full inventory copied.": "Inventario completo copiado.",
   "Inventory and analytics copied.": "Inventario y análisis copiados.",
+  "Loading inventories…": "Cargando inventarios…",
   "Date range": "Intervalo de fechas",
   "Date selection": "Selección de fecha",
   "Day": "Día",

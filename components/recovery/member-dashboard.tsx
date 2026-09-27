@@ -44,6 +44,7 @@ export function MemberDashboard() {
   const [yearDraft, setYearDraft] = React.useState(String(currentYear));
   const [selectedDate, setSelectedDate] = React.useState(todayIso());
   const [records, setRecords] = React.useState<InventoryRecord[]>([]);
+  const [recordsLoading, setRecordsLoading] = React.useState(true);
   const [activeType, setActiveType] = React.useState<MemberTool>("step10");
   const [step4Dirty, setStep4Dirty] = React.useState(false);
   const [analyticsVersion, setAnalyticsVersion] = React.useState(0);
@@ -56,6 +57,7 @@ export function MemberDashboard() {
   const [promotionCode, setPromotionCode] = React.useState("");
   const exportRef = React.useRef<InventoryExportHandle>(null);
   const activationRecordedRef = React.useRef(false);
+  const inventoriesLoadId = React.useRef(0);
 
   const loadAccount = React.useCallback(async () => {
     const response = await fetch("/api/account/me", { cache: "no-store" });
@@ -72,11 +74,17 @@ export function MemberDashboard() {
   }, [t]);
 
   const loadInventories = React.useCallback(async (requestedYear: number) => {
-    const response = await fetch(`/api/inventories?year=${requestedYear}&type=step10`, { cache: "no-store" });
-    const result = await response.json() as { inventories?: InventoryRecord[]; error?: string };
-    if (response.status === 401) return;
-    if (!response.ok) throw new Error(result.error || t("Could not load this year.", "این سال بارگذاری نشد."));
-    setRecords(result.inventories ?? []);
+    const loadId = ++inventoriesLoadId.current;
+    setRecordsLoading(true);
+    try {
+      const response = await fetch(`/api/inventories?year=${requestedYear}&type=step10`, { cache: "no-store" });
+      const result = await response.json() as { inventories?: InventoryRecord[]; error?: string };
+      if (response.status === 401) return;
+      if (!response.ok) throw new Error(result.error || t("Could not load this year.", "این سال بارگذاری نشد."));
+      if (loadId === inventoriesLoadId.current) setRecords(result.inventories ?? []);
+    } finally {
+      if (loadId === inventoriesLoadId.current) setRecordsLoading(false);
+    }
   }, [t]);
 
   React.useEffect(() => {
@@ -378,8 +386,8 @@ export function MemberDashboard() {
           )}
           {activeType === "step10" && <InventoryExport ref={exportRef} records={records} selectedDate={selectedDate} year={year} />}
           {activeType === "step10" ? (
-            <Step10Inventory
-              key={`step10-${selectedDate}-${selectedStep10?.updatedAt ?? 0}-${language}`}
+            recordsLoading ? <div className="loading-panel" role="status">{t("Loading inventories…", "در حال بارگذاری ترازنامه‌ها…")}</div> : <Step10Inventory
+              key={`step10-${selectedDate}-${language}`}
               initialData={(selectedStep10?.payload as Step10Data | undefined) ?? { date: selectedDate }}
               onSave={(data) => saveInventory(data.date, data)}
               onExport={() => exportRef.current?.open({ type: "step10" })}
