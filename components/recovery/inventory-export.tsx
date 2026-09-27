@@ -6,6 +6,8 @@ import { CalendarRange, FileDown, RefreshCw, X } from "lucide-react";
 import { formatDisplayDate, principleCategories, principles, step4Types, todayIso } from "@/lib/inventory";
 import type { PrincipleAnalytics, Step10AnalyticsData } from "@/lib/step10-analytics";
 import { describeStep10Pattern } from "@/lib/step10-report";
+import { summarizeStep10Insights } from "@/lib/step10-insights";
+import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
 import type { Step10Data } from "./step10-inventory";
 import type { Step4Data, Step4Entry } from "./step4-inventory";
@@ -194,6 +196,7 @@ function Step10AnalyticsPrint({ analytics, scopeLabel }: { analytics: Step10Anal
   const monthLocale = language === "fa" ? "fa-IR-u-ca-gregory" : locale;
   const number = (value: number) => new Intl.NumberFormat(locale).format(value);
   const principleName = (item: PrincipleAnalytics) => principles.find((principle) => principle.id === item.id)?.[language] ?? item.id;
+  const insights = summarizeStep10Insights(analytics);
   const firstDate = analytics.firstEntryDate ? formatDisplayDate(analytics.firstEntryDate, language) : "—";
   const throughDate = formatDisplayDate(analytics.through, language);
 
@@ -227,6 +230,35 @@ function Step10AnalyticsPrint({ analytics, scopeLabel }: { analytics: Step10Anal
               ? t("Not enough history yet", "هنوز سابقه کافی نیست")
               : `${analytics.recentChange > 0 ? "+" : ""}${number(analytics.recentChange)} ${t("percentage points", "واحد درصد")}`}</p>
           </section>
+
+          <section className="inventory-print-analytics-block inventory-print-interpretation">
+            <h3>{t("What your inventories show", "ترازنامه‌های شما چه نشان می‌دهند")}</h3>
+            <p>{t("These patterns describe your recorded choices, not your worth or a recovery score. We look for repeated answers on at least three days; N/A and unanswered principles do not count.", "این الگوها انتخاب‌های ثبت‌شده شما را توصیف می‌کنند، نه ارزش شما یا نمره بهبودی‌تان را. ما پاسخ‌های تکرارشده در دست‌کم سه روز را بررسی می‌کنیم؛ گزینه «کاربرد ندارد» و پاسخ‌های خالی محاسبه نمی‌شوند.")}</p>
+            <div>
+              {([
+                [t("Where you are doing well", "جاهایی که خوب پیش می‌روید"), insights.strengths, "practiced", insights.enoughHistory
+                  ? t("No repeated Practiced pattern is clear yet. Review your entries with your sponsor.", "هنوز الگوی روشنی از «تمرین کردم» دیده نمی‌شود. نوشته‌هایتان را با حامی مرور کنید.")
+                  : t("Save more inventories to see a repeated pattern. Discuss what you have recorded with your sponsor.", "برای دیدن الگوی تکرارشونده، ترازنامه‌های بیشتری ذخیره کنید. موارد ثبت‌شده را با حامی در میان بگذارید.")],
+                [t("Where to ask for help", "جاهایی که می‌توانید کمک بخواهید"), insights.focus, "attention", insights.enoughHistory
+                  ? t("Among principles answered on at least three days, none was marked Needs attention at least half the time. Bring any concerns to your sponsor anyway.", "در میان اصولی که در دست‌کم سه روز به آن‌ها پاسخ داده‌اید، هیچ‌کدام دست‌کم در نیمی از موارد «نیازمند توجه» نبوده‌اند. با این حال نگرانی‌های خود را با حامی در میان بگذارید.")
+                  : t("Save more inventories before looking for a recurring focus. Your sponsor can still help with today's concerns.", "پیش از جست‌وجوی تمرکز تکرارشونده، ترازنامه‌های بیشتری ذخیره کنید. حامی همچنان می‌تواند درباره نگرانی‌های امروز کمک کند.")],
+              ] as const).map(([heading, items, countKey, empty]) => (
+                <div key={countKey}>
+                  <h4>{heading}</h4>
+                  {items.length ? <ul>{items.map((item) => (
+                    <li key={item.id}><strong>{principleName(item)}</strong> — {number(item[countKey])} {t("of", "از")} {number(item.answered)} {countKey === "practiced"
+                      ? t("recorded answers marked Practiced", "پاسخ ثبت‌شده با برچسب «تمرین کردم»")
+                      : t("recorded answers marked Needs attention", "پاسخ ثبت‌شده با برچسب «نیازمند توجه»")}</li>
+                  ))}</ul> : <p>{empty}</p>}
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <aside className="inventory-print-sponsor-note">
+            <h3>{t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}</h3>
+            <p>{sponsorGuidance(t)}</p>
+          </aside>
 
           <div className="inventory-print-analytics-insights">
             {([

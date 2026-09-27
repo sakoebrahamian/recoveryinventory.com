@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ArrowLeft, BarChart3, Eye, MousePointerClick, RefreshCw, ShieldCheck, UserPlus, WalletCards } from "lucide-react";
 import { BrandMark } from "./brand-mark";
+import { SiteFooter } from "./site-footer";
 import { LanguageToggle, useLanguage } from "./language-provider";
 import type { Language } from "@/lib/inventory";
 
@@ -304,6 +305,7 @@ export function SiteAnalyticsReport() {
           </>
         )}
       </div>
+      <SiteFooter />
     </main>
   );
 }

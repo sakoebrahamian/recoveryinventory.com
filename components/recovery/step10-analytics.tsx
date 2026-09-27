@@ -1,10 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { BarChart3, CalendarCheck2, Copy, Flame, RefreshCw, Share2, ShieldCheck, Sparkles, Target, TrendingUp } from "lucide-react";
+import { BarChart3, CalendarCheck2, Copy, Flame, RefreshCw, Share2, ShieldCheck, Sparkles, Target, TrendingUp, UsersRound } from "lucide-react";
 import { formatDisplayDate, principleCategories, principles, todayIso } from "@/lib/inventory";
 import { calculateStep10Analytics, type PrincipleAnalytics, type Step10AnalyticsData, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
 import { describeStep10Pattern, formatStep10SponsorReport } from "@/lib/step10-report";
+import { summarizeStep10Insights } from "@/lib/step10-insights";
+import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
 import type { Step10Data } from "./step10-inventory";
 
@@ -145,6 +147,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
   const change = analytics.recentChange;
   const changeTone = change === null || Math.abs(change) < 5 ? "steady" : change > 0 ? "up" : "care";
   const currentPattern = describeStep10Pattern(analytics, t);
+  const insights = summarizeStep10Insights(analytics);
   const maxMonthlyEntries = Math.max(...analytics.months.map((month) => month.entries), 1);
 
   return (
@@ -205,6 +208,38 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
           <small>{t("Last seven vs. previous seven", "هفت مورد اخیر در برابر هفت مورد پیشین")}</small>
         </div>
       </article>
+
+      <section className="analytics-interpretation" aria-labelledby="analytics-interpretation-title">
+        <div className="analytics-interpretation-heading">
+          <h3 id="analytics-interpretation-title">{t("What your inventories show", "ترازنامه‌های شما چه نشان می‌دهند")}</h3>
+          <p>{t("These patterns describe your recorded choices, not your worth or a recovery score. We look for repeated answers on at least three days; N/A and unanswered principles do not count.", "این الگوها انتخاب‌های ثبت‌شده شما را توصیف می‌کنند، نه ارزش شما یا نمره بهبودی‌تان را. ما پاسخ‌های تکرارشده در دست‌کم سه روز را بررسی می‌کنیم؛ گزینه «کاربرد ندارد» و پاسخ‌های خالی محاسبه نمی‌شوند.")}</p>
+        </div>
+        <div className="analytics-interpretation-grid">
+          <article className="analytics-interpretation-card is-strength">
+            <h4>{t("Where you are doing well", "جاهایی که خوب پیش می‌روید")}</h4>
+            <p>{t("You chose Practiced more often than Needs attention for these principles.", "برای این اصول، «تمرین کردم» را بیشتر از «نیازمند توجه» انتخاب کرده‌اید.")}</p>
+            {insights.strengths.length ? <ul>{insights.strengths.map((item) => (
+              <li key={item.id}><strong>{principleName(item)}</strong><span>{item.practiced} {t("of", "از")} {item.answered} {t("recorded answers marked Practiced", "پاسخ ثبت‌شده با برچسب «تمرین کردم»")}</span></li>
+            ))}</ul> : <p className="analytics-interpretation-empty">{insights.enoughHistory
+              ? t("No repeated Practiced pattern is clear yet. Review your entries with your sponsor.", "هنوز الگوی روشنی از «تمرین کردم» دیده نمی‌شود. نوشته‌هایتان را با حامی مرور کنید.")
+              : t("Save more inventories to see a repeated pattern. Discuss what you have recorded with your sponsor.", "برای دیدن الگوی تکرارشونده، ترازنامه‌های بیشتری ذخیره کنید. موارد ثبت‌شده را با حامی در میان بگذارید.")}</p>}
+          </article>
+          <article className="analytics-interpretation-card is-focus">
+            <h4>{t("Where to ask for help", "جاهایی که می‌توانید کمک بخواهید")}</h4>
+            <p>{t("These principles were marked Needs attention at least half of the recorded times.", "این اصول دست‌کم در نیمی از پاسخ‌های ثبت‌شده با «نیازمند توجه» مشخص شده‌اند.")}</p>
+            {insights.focus.length ? <ul>{insights.focus.map((item) => (
+              <li key={item.id}><strong>{principleName(item)}</strong><span>{item.attention} {t("of", "از")} {item.answered} {t("recorded answers marked Needs attention", "پاسخ ثبت‌شده با برچسب «نیازمند توجه»")}</span></li>
+            ))}</ul> : <p className="analytics-interpretation-empty">{insights.enoughHistory
+              ? t("Among principles answered on at least three days, none was marked Needs attention at least half the time. Bring any concerns to your sponsor anyway.", "در میان اصولی که در دست‌کم سه روز به آن‌ها پاسخ داده‌اید، هیچ‌کدام دست‌کم در نیمی از موارد «نیازمند توجه» نبوده‌اند. با این حال نگرانی‌های خود را با حامی در میان بگذارید.")
+              : t("Save more inventories before looking for a recurring focus. Your sponsor can still help with today's concerns.", "پیش از جست‌وجوی تمرکز تکرارشونده، ترازنامه‌های بیشتری ذخیره کنید. حامی همچنان می‌تواند درباره نگرانی‌های امروز کمک کند.")}</p>}
+          </article>
+        </div>
+      </section>
+
+      <aside className="analytics-sponsor-note">
+        <UsersRound size={23} aria-hidden="true" />
+        <div><h3>{t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}</h3><p>{sponsorGuidance(t)}</p></div>
+      </aside>
 
       <div className="analytics-insight-grid">
         <AnalyticsPrincipleList

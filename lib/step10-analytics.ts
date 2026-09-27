@@ -43,6 +43,7 @@ export type Step10AnalyticsData = {
   recentChange: number | null;
   currentStreak: number;
   longestStreak: number;
+  principles: PrincipleAnalytics[];
   topPracticed: PrincipleAnalytics[];
   topAttention: PrincipleAnalytics[];
   categories: CategoryAnalytics[];
@@ -203,6 +204,7 @@ export function calculateStep10Analytics(
       : null,
     currentStreak,
     longestStreak,
+    principles: principleResults,
     topPracticed: principleResults
       .filter((result) => result.practiced > 0)
       .sort((left, right) => right.practiced - left.practiced || right.practiceRate - left.practiceRate || left.id.localeCompare(right.id))

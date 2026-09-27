@@ -1170,6 +1170,28 @@ html[dir="rtl"] .feature-number {
   color: var(--ocean);
 }
 
+.footer-guidance {
+  margin-top: 2.5rem;
+  border: 1px solid rgba(81, 152, 125, 0.28);
+  border-radius: 18px;
+  background: rgba(81, 152, 125, 0.09);
+  padding: 1rem 1.2rem;
+}
+
+.footer-guidance strong {
+  display: block;
+  color: inherit;
+  font-size: 0.9rem;
+}
+
+.footer-guidance p {
+  max-width: 850px;
+  margin: 0.4rem 0 0;
+  color: inherit;
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
 .footer-legal {
   display: flex;
   justify-content: space-between;
@@ -3662,6 +3684,47 @@ html[dir="rtl"] .inventory-export-analytics-status {
   html.inventory-export-page .inventory-print-analytics-block p {
     margin: 0 0 1.5mm;
     color: #526d65;
+  }
+
+  html.inventory-export-page .inventory-print-interpretation > div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4mm;
+  }
+
+  html.inventory-export-page .inventory-print-interpretation > div > div,
+  html.inventory-export-page .inventory-print-sponsor-note {
+    break-inside: avoid;
+    border: 0.75pt solid #dbe3dd;
+    border-radius: 2mm;
+    background: #f6f8f4;
+    padding: 3mm;
+  }
+
+  html.inventory-export-page .inventory-print-interpretation h4,
+  html.inventory-export-page .inventory-print-sponsor-note h3 {
+    margin: 0 0 1.5mm;
+    color: #173f3a;
+    font-size: 9pt;
+  }
+
+  html.inventory-export-page .inventory-print-interpretation ul {
+    margin: 0;
+    padding-inline-start: 5mm;
+  }
+
+  html.inventory-export-page .inventory-print-interpretation li {
+    margin-bottom: 1mm;
+  }
+
+  html.inventory-export-page .inventory-print-sponsor-note {
+    margin-bottom: 5mm;
+    border-color: #d5b686;
+    background: #fff8ec;
+  }
+
+  html.inventory-export-page .inventory-print-sponsor-note p {
+    margin: 0;
   }
 
   html.inventory-export-page .inventory-print-analytics-insights {
@@ -7228,6 +7291,102 @@ html[dir="rtl"] .analytics-header h2 {
   margin-top: 0.25rem;
 }
 
+.analytics-interpretation {
+  margin: 0.8rem clamp(1.2rem, 3vw, 2rem);
+}
+
+.analytics-interpretation-heading h3,
+.analytics-sponsor-note h3 {
+  margin: 0;
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+html[dir="rtl"] .analytics-interpretation-heading h3,
+html[dir="rtl"] .analytics-sponsor-note h3 {
+  font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+}
+
+.analytics-interpretation-heading p,
+.analytics-sponsor-note p {
+  margin: 0.4rem 0 0;
+  color: #536d64;
+  font-size: 0.79rem;
+  line-height: 1.6;
+}
+
+.analytics-interpretation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.9rem;
+}
+
+.analytics-interpretation-card {
+  min-width: 0;
+  border: 1px solid rgba(76, 130, 101, 0.2);
+  border-radius: 18px;
+  background: #f3f8f2;
+  padding: 1.1rem;
+}
+
+.analytics-interpretation-card.is-focus {
+  border-color: rgba(190, 131, 58, 0.24);
+  background: #fff8ec;
+}
+
+.analytics-interpretation-card h4 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.analytics-interpretation-card p {
+  margin: 0.35rem 0 0;
+  color: #536d64;
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.analytics-interpretation-card ul {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.analytics-interpretation-card li {
+  display: grid;
+  gap: 0.15rem;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.75);
+  padding: 0.65rem 0.8rem;
+  font-size: 0.8rem;
+}
+
+.analytics-interpretation-card li span {
+  color: #5a7369;
+  font-size: 0.71rem;
+}
+
+.analytics-sponsor-note {
+  display: flex;
+  gap: 0.8rem;
+  margin: 0.8rem clamp(1.2rem, 3vw, 2rem) 1.2rem;
+  border: 1px solid rgba(190, 131, 58, 0.24);
+  border-radius: 18px;
+  background: #fff5e4;
+  padding: 1rem 1.15rem;
+}
+
+.analytics-sponsor-note > svg {
+  flex: 0 0 auto;
+  color: #976332;
+}
+
 .analytics-insight-grid,
 .analytics-detail-grid {
   display: grid;
@@ -7507,6 +7666,13 @@ html[dir="rtl"] .ri-analytics-copy h2 {
   font-size: 0.96rem;
 }
 
+.ri-analytics-copy > .ri-analytics-guidance {
+  border-inline-start: 3px solid #b78142;
+  padding-inline-start: 0.85rem;
+  color: #35554d;
+  font-size: 0.84rem;
+}
+
 .ri-analytics-points {
   display: grid;
   gap: 0.65rem;
@@ -7762,6 +7928,10 @@ html[dir="rtl"] .ri-analytics-preview {
 }
 
 @media (max-width: 620px) {
+  .analytics-interpretation-grid {
+    grid-template-columns: 1fr;
+  }
+
   .workspace-shell > .workspace-tabs {
     grid-template-columns: 1fr;
   }

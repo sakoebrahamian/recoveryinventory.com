@@ -72,8 +72,8 @@ export default function Home() {
     {
       question: t("Can I share an inventory with my sponsor?", "آیا می‌توانم ترازنامه را با حامی خود به اشتراک بگذارم؟"),
       answer: t(
-        "Yes. You choose when to share. Use your device’s share menu, copy a private summary, or print and save a PDF.",
-        "بله. زمان اشتراک‌گذاری را خودتان انتخاب می‌کنید. از منوی اشتراک دستگاه استفاده کنید، خلاصه خصوصی را کپی کنید یا فایل PDF ذخیره کنید."
+        "Yes. Bring your Step 10 inventory and analytics to your sponsor or someone with time in recovery to discuss what is going well, where you need help, and the next step. You decide when to share using your device’s share menu, a copy, or a PDF.",
+        "بله. ترازنامه و تحلیل گام ۱۰ خود را با حامی یا فردی باتجربه در بهبودی در میان بگذارید تا درباره جاهایی که خوب پیش می‌روید، جاهایی که به کمک نیاز دارید و گام بعدی گفت‌وگو کنید. زمان اشتراک‌گذاری از طریق منوی دستگاه، کپی یا PDF با انتخاب شماست."
       ),
     },
   ];
@@ -308,6 +308,7 @@ export default function Home() {
           <span className="ri-section-label"><BarChart3 size={16} />{t("Step 10 analytics", "تحلیل گام ۱۰")}</span>
           <h2>{t("See the patterns behind your daily practice.", "الگوهای پشت تمرین روزانه خود را ببینید.")}</h2>
           <p>{t("Analytics brings every saved Step 10 inventory through today into one calm view—so you can notice practiced strengths, recurring focus areas, recent direction, and your rhythm over time.", "تحلیل، همه ترازنامه‌های ذخیره‌شده گام ۱۰ تا امروز را در یک نمای آرام جمع می‌کند تا نقاط قوت تمرین‌شده، موارد تکرارشونده نیازمند توجه، روند اخیر و ریتم خود را در طول زمان ببینید.")}</p>
+          <p className="ri-analytics-guidance">{t("See where you are practicing well and where you may need help, then review the report with a sponsor or someone with time in recovery for direction.", "ببینید کجا خوب تمرین می‌کنید و کجا شاید به کمک نیاز دارید؛ سپس گزارش را با حامی یا فردی باتجربه در بهبودی مرور کنید و از او راهنمایی بگیرید.")}</p>
           <div className="ri-analytics-points">
             <span><Check size={16} />{t("Step 10 only—Step 4 is never included", "فقط گام ۱۰؛ گام ۴ هرگز وارد تحلیل نمی‌شود")}</span>
             <span><Check size={16} />{t("Built from your principle selections, not your private notes", "ساخته‌شده از انتخاب‌های اصول شما، نه یادداشت‌های خصوصی")}</span>
