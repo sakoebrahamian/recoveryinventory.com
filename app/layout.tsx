@@ -34,6 +34,19 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
+    apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: [{ url: "/social-preview.png", width: 1200, height: 630, alt: "Recovery Inventory logo" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/social-preview.png"],
   },
 };
 

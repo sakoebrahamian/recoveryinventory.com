@@ -225,15 +225,6 @@ a {
   gap: 1.5rem;
 }
 
-.site-header.is-transparent .brand-symbol {
-  border-color: rgba(255, 255, 255, 0.42);
-  color: white;
-}
-
-.site-header.is-transparent .brand-symbol i {
-  background: var(--teal-bright);
-}
-
 .site-header.is-transparent .brand-words,
 .site-header.is-transparent .desktop-nav a {
   color: white;
@@ -263,48 +254,40 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
+  direction: ltr;
   line-height: 1;
 }
 
-.brand-symbol {
-  display: grid;
+.brand-logo-icon {
+  display: block;
   width: 44px;
   height: 44px;
-  grid-template-rows: 1fr 2px 1fr;
-  place-items: center;
-  border: 1.5px solid rgba(7, 28, 43, 0.24);
-  border-radius: 50%;
-  color: var(--ink);
-  font-size: 0.66rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-
-.brand-symbol i {
-  width: 20px;
-  height: 2px;
-  border-radius: 4px;
-  background: var(--teal);
+  flex: none;
 }
 
 .brand-words {
   display: grid;
-  gap: 0.2rem;
+  gap: 0.24rem;
   color: var(--ink);
-  font-size: 0.95rem;
-  letter-spacing: 0.01em;
+  font-size: 0.92rem;
+  line-height: 1;
 }
 
 .brand-words strong {
-  font-weight: 780;
+  font-weight: 800;
+  letter-spacing: 0.035em;
 }
 
 .brand-words span {
-  color: currentColor;
-  font-size: 0.74rem;
-  letter-spacing: 0.15em;
-  opacity: 0.65;
+  color: var(--ocean);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
+}
+
+.site-footer .brand-words span {
+  color: var(--teal-bright);
 }
 
 .desktop-nav {
@@ -4179,15 +4162,8 @@ a[href] {
   min-height: 82px;
 }
 
-.landing-v2 .brand-symbol {
-  border: 0;
-  background: var(--ri-forest);
-  color: white;
-  box-shadow: 0 7px 20px rgba(23, 63, 58, 0.18);
-}
-
-.landing-v2 .brand-symbol i {
-  background: var(--ri-gold);
+.landing-v2 .brand-logo-icon {
+  filter: drop-shadow(0 7px 12px rgba(23, 63, 58, 0.18));
 }
 
 .landing-v2 .desktop-nav {
@@ -5514,9 +5490,8 @@ html[dir="rtl"] .ri-floating-secure {
   color: white;
 }
 
-.landing-v2 .site-footer .brand-symbol {
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: transparent;
+.landing-v2 .site-footer .brand-logo-icon {
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.7));
 }
 
 .landing-v2 .site-footer .brand-words,
@@ -5771,7 +5746,7 @@ html[dir="rtl"] .ri-floating-secure {
 }
 
 @media (max-width: 480px) {
-  .landing-v2 .brand-symbol {
+  .landing-v2 .brand-logo-icon {
     width: 40px;
     height: 40px;
   }
@@ -5920,19 +5895,10 @@ html[dir="rtl"] .member-page::before {
   min-height: 82px;
 }
 
-.inner-page .brand-symbol,
-.member-page .brand-symbol,
-.member-topbar .brand-symbol {
-  border: 0;
-  background: var(--ink);
-  color: white;
-  box-shadow: 0 7px 20px rgba(23, 63, 58, 0.18);
-}
-
-.inner-page .brand-symbol i,
-.member-page .brand-symbol i,
-.member-topbar .brand-symbol i {
-  background: #e7be73;
+.inner-page .brand-logo-icon,
+.member-page .brand-logo-icon,
+.member-topbar .brand-logo-icon {
+  filter: drop-shadow(0 7px 12px rgba(23, 63, 58, 0.18));
 }
 
 .inner-page .desktop-nav {
@@ -6513,10 +6479,8 @@ html[dir="rtl"] .inner-page .legal-card h2 {
   color: white;
 }
 
-.inner-page .site-footer .brand-symbol {
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: transparent;
-  box-shadow: none;
+.inner-page .site-footer .brand-logo-icon {
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.7));
 }
 
 .inner-page .site-footer .brand-words,
@@ -6891,9 +6855,9 @@ html[dir="rtl"] .member-locked h1 {
 }
 
 @media (max-width: 480px) {
-  .inner-page .brand-symbol,
-  .member-page .brand-symbol,
-  .member-topbar .brand-symbol {
+  .inner-page .brand-logo-icon,
+  .member-page .brand-logo-icon,
+  .member-topbar .brand-logo-icon {
     width: 40px;
     height: 40px;
   }
