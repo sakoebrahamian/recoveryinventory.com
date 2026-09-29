@@ -14,7 +14,7 @@ export const spanishTranslations: Record<string, string> = {
   "Last updated September 29, 2026": "Última actualización: 29 de septiembre de 2026",
   "Analytics period": "Período del análisis",
   "Analytics use the chosen period.": "El análisis utiliza el período elegido.",
-  "Bars compare Practiced and Needs attention across saved days. N/A and unanswered choices are shown separately and excluded from the percentage.": "Las barras comparan Practicado y Necesita atención entre los días guardados. Las opciones No aplica y sin respuesta se muestran por separado y se excluyen del porcentaje.",
+  "Each bar shows Practiced, Needs attention, N/A, and unanswered across saved days. N/A and unanswered do not affect the Practiced percentage.": "Cada barra muestra Practicado, Necesita atención, No aplica y sin respuesta en los días guardados. No aplica y las respuestas vacías no afectan al porcentaje de Practicado.",
   "Calendar month": "Mes calendario",
   "Calendar week": "Semana calendario",
   "Choose a valid analytics period and wait for the report to load.": "Elige un período válido y espera a que se cargue el informe.",

@@ -7226,13 +7226,15 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
 .step10-report-chart-bar .is-practiced { background: #23836c; }
 .step10-report-chart-total .is-attention,
 .step10-report-chart-bar .is-attention { background: #cc7955; }
-.step10-report-chart-total .is-na { background: #9ba9a5; }
-.step10-report-chart-total .is-unanswered { background: #dce3df; }
+.step10-report-chart-total .is-na,
+.step10-report-chart-bar .is-na { background: #6b4fb3; }
+.step10-report-chart-total .is-unanswered,
+.step10-report-chart-bar .is-unanswered { background: #dce3df; }
 .step10-report-chart-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin-top: 0.7rem; font-size: 0.75rem; }
 .step10-report-chart-legend span::before { content: ""; display: inline-block; width: 0.55rem; height: 0.55rem; margin-inline-end: 0.35rem; border-radius: 50%; background: #dce3df; }
 .step10-report-chart-legend .is-practiced::before { background: #23836c; }
 .step10-report-chart-legend .is-attention::before { background: #cc7955; }
-.step10-report-chart-legend .is-na::before { background: #9ba9a5; }
+.step10-report-chart-legend .is-na::before { background: #6b4fb3; }
 .step10-report-chart-rows { display: grid; gap: 0.4rem; }
 .step10-report-chart-row { display: grid; grid-template-columns: minmax(0, 38%) minmax(90px, 1fr) minmax(0, 23%); align-items: center; gap: 0.6rem; padding: 0.35rem 0; border-bottom: 1px solid #e8ede9; font-size: 0.76rem; break-inside: avoid; }
 .step10-report-chart-row strong { font-weight: 680; }
@@ -7240,7 +7242,7 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
 .step10-report-chart-state { grid-column: 2 / -1; justify-self: end; border-radius: 999px; background: #e7eee8; padding: 0.3rem 0.55rem; }
 .step10-report-chart-state.is-practiced { color: #176a51; }
 .step10-report-chart-state.is-attention { background: #fcf0e9; color: #a34f2f; }
-.step10-report-chart-state.is-na,
+.step10-report-chart-state.is-na { background: #eee8f8; color: #543893; }
 .step10-report-chart-state.is-unanswered { background: #f0f2f0; color: #62716b; }
 
 @media (max-width: 560px) {

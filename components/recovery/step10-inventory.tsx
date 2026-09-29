@@ -55,7 +55,7 @@ const demoStates: Record<string, PrincipleState> = {
   patience: "attention",
   courage: "practiced",
   kindness: "practiced",
-  boundaries: "practiced",
+  boundaries: "na",
   integrity: "practiced",
   gratitude: "practiced",
   mindfulness: "practiced",
