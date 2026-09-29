@@ -9,7 +9,7 @@ const colors: Record<ChartKind, string> = {
   practiced: "#23836c",
   attention: "#cc7955",
   na: "#6b4fb3",
-  unanswered: "#dce3df",
+  unanswered: "#aebbb4",
 };
 
 function escapeHtml(value: string) {
@@ -48,7 +48,7 @@ export function step10RichReport(text: string, analytics: Step10AnalyticsData, b
   const legend = chart.kinds.map((kind) => `<span style="display:inline-block;margin:0 14px 8px 0"><span style="display:inline-block;width:10px;height:10px;background:${colors[kind]};margin-right:5px"></span>${escapeHtml(chart.labels[kind])}: ${chart.counts[kind]}</span>`).join("");
   const rows = chart.rows.map((row) => {
     const state = chart.kinds.find((kind) => row.counts[kind]) ?? "unanswered";
-    return `<tr><th style="text-align:start;padding:6px;border-bottom:1px solid #e5e9e6">${escapeHtml(row.name)}</th><td style="padding:6px;border-bottom:1px solid #e5e9e6">${chart.daily ? `<span style="color:${colors[state]};font-weight:bold">${escapeHtml(chart.labels[state])}</span>` : bar(row.counts, analytics.totalEntries)}</td><td style="padding:6px;border-bottom:1px solid #e5e9e6;text-align:end">${chart.daily ? "" : `${row.counts.practiced}/${row.answered} ${escapeHtml(chart.labels.practiced)} · ${row.counts.na} ${escapeHtml(chart.labels.na)}`}</td></tr>`;
+    return `<tr><th style="text-align:start;padding:6px;border-bottom:1px solid #e5e9e6">${escapeHtml(row.name)}</th><td style="padding:6px;border-bottom:1px solid #e5e9e6">${bar(row.counts, analytics.totalEntries)}</td><td style="padding:6px;border-bottom:1px solid #e5e9e6;text-align:end">${chart.daily ? `<span style="color:${state === "unanswered" ? "#62716b" : colors[state]};font-weight:bold">${escapeHtml(chart.labels[state])}</span>` : `${row.counts.practiced}/${row.answered} ${escapeHtml(chart.labels.practiced)} · ${row.counts.na} ${escapeHtml(chart.labels.na)}`}</td></tr>`;
   }).join("");
   return `<div dir="${language === "fa" ? "rtl" : "ltr"}" style="font-family:Arial,sans-serif;color:#173f3a"><h2>${escapeHtml(chart.title)}</h2><p>${escapeHtml(t("Analytics period", "بازه تحلیل"))}: ${escapeHtml(chart.period)}</p>${empty ? `<p>${escapeHtml(t("No saved Step 10 inventories in this period.", "هیچ ترازنامه ذخیره‌شده گام ۱۰ در این بازه وجود ندارد."))}</p>` : `${bar(chart.counts, chart.total)}<p>${legend}</p><table style="width:100%;border-collapse:collapse;font-size:13px"><tbody>${rows}</tbody></table>`}<hr><div style="white-space:pre-wrap;line-height:1.5">${escapeHtml(text).replace(/\n/g, "<br>")}</div></div>`;
 }
@@ -107,12 +107,12 @@ function step10ChartPng(analytics: Step10AnalyticsData, bounds: ReportBounds, la
     context.direction = language === "fa" ? "rtl" : "ltr";
     context.textAlign = language === "fa" ? "right" : "left";
     context.fillText(row.name, language === "fa" ? 405 : 45, y, 360);
+    paintBar(row.counts, analytics.totalEntries, 465, y - 7, 410, 15);
     if (chart.daily) {
       const state = chart.kinds.find((kind) => row.counts[kind]) ?? "unanswered";
       context.fillStyle = colors[state] === colors.unanswered ? "#62716b" : colors[state];
-      context.fillText(chart.labels[state], language === "fa" ? 875 : 465, y);
+      context.fillText(chart.labels[state], language === "fa" ? 1150 : 900, y, 250);
     } else {
-      paintBar(row.counts, analytics.totalEntries, 465, y - 7, 410, 15);
       context.fillStyle = "#173f3a";
       context.direction = "ltr";
       context.textAlign = "left";

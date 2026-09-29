@@ -7244,9 +7244,16 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
 .step10-report-chart-rows { display: grid; gap: 0.4rem; }
 .inventory-sidebar .step10-report-chart-rows { max-height: 360px; overflow-y: auto; }
 .step10-report-chart-row { display: grid; grid-template-columns: minmax(0, 38%) minmax(90px, 1fr) minmax(0, 23%); align-items: center; gap: 0.6rem; padding: 0.35rem 0; border-bottom: 1px solid #e8ede9; font-size: 0.76rem; break-inside: avoid; }
+.step10-report-chart-row.is-daily { grid-template-columns: minmax(0, 38%) minmax(68px, 1fr) auto; }
+.step10-report-chart-row.is-daily .step10-report-chart-bar { min-width: 0; }
+.step10-report-chart-row.is-daily .step10-report-chart-bar .is-unanswered { background: #aebbb4; }
+.inventory-sidebar .step10-report-chart-row.is-daily { grid-template-columns: minmax(0, 1fr) auto; }
+.inventory-sidebar .step10-report-chart-row.is-daily .step10-report-chart-bar { grid-column: 1 / -1; grid-row: 2; }
 .step10-report-chart-row strong { font-weight: 680; }
 .step10-report-chart-count { min-width: 0; color: var(--slate); text-align: end; overflow-wrap: break-word; }
 .step10-report-chart-state { grid-column: 2 / -1; justify-self: end; border-radius: 999px; background: #e7eee8; padding: 0.3rem 0.55rem; }
+.step10-report-chart-row.is-daily .step10-report-chart-state { grid-column: 3; white-space: nowrap; }
+.inventory-sidebar .step10-report-chart-row.is-daily .step10-report-chart-state { grid-column: 2; grid-row: 1; }
 .step10-report-chart-state.is-practiced { color: #176a51; }
 .step10-report-chart-state.is-attention { background: #fcf0e9; color: #a34f2f; }
 .step10-report-chart-state.is-na { background: #eee8f8; color: #543893; }
@@ -7256,6 +7263,9 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
   .report-period-dates { grid-template-columns: 1fr; }
   .step10-report-chart-row { grid-template-columns: minmax(0, 1fr) minmax(80px, 1fr); }
   .step10-report-chart-count { grid-column: 2; }
+  .step10-report-chart-row.is-daily { grid-template-columns: minmax(0, 1fr) auto; }
+  .step10-report-chart-row.is-daily .step10-report-chart-bar { grid-column: 1 / -1; grid-row: 2; }
+  .step10-report-chart-row.is-daily .step10-report-chart-state { grid-column: 2; grid-row: 1; }
 }
 
 @media print {
@@ -7268,6 +7278,9 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
     padding: 0.15rem 0;
     font-size: 8pt;
   }
+  html.inventory-export-page .step10-report-chart-row.is-daily { grid-template-columns: minmax(0, 38%) minmax(68px, 1fr) auto; }
+  html.inventory-export-page .step10-report-chart-row.is-daily .step10-report-chart-bar { grid-column: 2; grid-row: 1; }
+  html.inventory-export-page .step10-report-chart-row.is-daily .step10-report-chart-state { grid-column: 3; grid-row: 1; }
   .step10-report-chart { break-inside: auto; }
   .step10-report-chart-total,
   .step10-report-chart-bar,
