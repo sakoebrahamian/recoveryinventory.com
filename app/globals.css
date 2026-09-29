@@ -7234,9 +7234,9 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
 .step10-report-chart-legend .is-attention::before { background: #cc7955; }
 .step10-report-chart-legend .is-na::before { background: #9ba9a5; }
 .step10-report-chart-rows { display: grid; gap: 0.4rem; }
-.step10-report-chart-row { display: grid; grid-template-columns: minmax(125px, 1fr) minmax(90px, 1fr) auto; align-items: center; gap: 0.6rem; padding: 0.35rem 0; border-bottom: 1px solid #e8ede9; font-size: 0.76rem; break-inside: avoid; }
+.step10-report-chart-row { display: grid; grid-template-columns: minmax(0, 38%) minmax(90px, 1fr) minmax(0, 23%); align-items: center; gap: 0.6rem; padding: 0.35rem 0; border-bottom: 1px solid #e8ede9; font-size: 0.76rem; break-inside: avoid; }
 .step10-report-chart-row strong { font-weight: 680; }
-.step10-report-chart-count { color: var(--slate); text-align: end; }
+.step10-report-chart-count { min-width: 0; color: var(--slate); text-align: end; overflow-wrap: break-word; }
 .step10-report-chart-state { grid-column: 2 / -1; justify-self: end; border-radius: 999px; background: #e7eee8; padding: 0.3rem 0.55rem; }
 .step10-report-chart-state.is-practiced { color: #176a51; }
 .step10-report-chart-state.is-attention { background: #fcf0e9; color: #a34f2f; }
