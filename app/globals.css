@@ -7205,6 +7205,17 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
   color: var(--ink);
 }
 
+.analytics-report-preview {
+  padding: 0.9rem clamp(1.35rem, 3vw, 2rem);
+  border-bottom: 1px solid rgba(23, 63, 58, 0.09);
+}
+
+.step10-report-preview > summary {
+  cursor: pointer;
+  color: var(--ocean);
+  font-weight: 700;
+}
+
 .step10-report-chart h3 { margin: 0 0 0.7rem; font-size: 1rem; }
 .step10-report-chart p { color: var(--slate); font-size: 0.78rem; line-height: 1.5; }
 .step10-report-chart-total,

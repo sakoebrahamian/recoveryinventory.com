@@ -206,7 +206,6 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
               {period.mode !== "day" && !demo && <p className="analytics-share-context">{t("Range analytics count saved entries only. Save changes before sharing if you want them counted.", "تحلیل بازه فقط نوشته‌های ذخیره‌شده را می‌شمارد. اگر می‌خواهید تغییرات محاسبه شوند، پیش از اشتراک ذخیره کنید.")}</p>}
               {scoped.loading && <p className="analytics-share-context">{t("Preparing analytics for sharing…", "در حال آماده‌سازی تحلیل برای اشتراک…")}</p>}
               {scoped.error && <button className="button button-outline button-small" type="button" onClick={scoped.retry}><RefreshCw size={16} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
-              {bounds && reportAnalytics && <details className="step10-report-preview"><summary>{t("Preview principle chart", "پیش‌نمایش نمودار اصول")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>}
               <div className="analytics-share-actions">
                 <button className="button button-primary" type="button" onClick={() => void shareCombinedReport()}><Share2 size={16} />{t("Share with sponsor", "اشتراک با حامی")}</button>
                 <button className="button button-outline" type="button" onClick={() => void copyCombinedReport()}><Copy size={16} />{t("Copy inventory and analytics", "کپی ترازنامه و تحلیل")}</button>
@@ -222,6 +221,10 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
           {shareMessage && <p className="analytics-share-message" role="status">{shareMessage}</p>}
         </div>
       </header>
+
+      {bounds && reportAnalytics && reportInventory && <div className="analytics-report-preview">
+        <details className="step10-report-preview"><summary>{t("Preview principle chart", "پیش‌نمایش نمودار اصول")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>
+      </div>}
 
       <div className="analytics-kpis">
         <article>
