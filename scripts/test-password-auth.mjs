@@ -190,14 +190,27 @@ try {
   const meRoute = await server.ssrLoadModule("/app/api/account/me/route.ts");
   const createRoute = await server.ssrLoadModule("/app/api/account/create/route.ts");
   const recoverRoute = await server.ssrLoadModule("/app/api/account/recover/route.ts");
+  const { validatePassword, validateUsername, hashPassword } = await server.ssrLoadModule("/lib/password-auth.ts");
+
+  assert.equal(validatePassword("123456789").error, "Use at least 10 characters for your password.");
+  assert.equal(validatePassword("!River2026").value, "!River2026");
+  assert.equal(validatePassword(" !River2026? ").value, " !River2026? ");
+  assert.equal(validatePassword("x".repeat(128)).value?.length, 128);
+  assert.equal(validatePassword("x".repeat(129)).error, "Use 128 characters or fewer for your password.");
+  assert.equal(validatePassword("password123").error, "Choose a less common password that is different from your username, name, and email.");
+  assert.equal(validateUsername(" 🌙 Quiet.River! ").value?.normalized, " 🌙 quiet.river! ");
+  assert.equal(validateUsername("نام‌من").value?.display, "نام‌من");
+  assert.equal(validateUsername("A\nB").error, "Use printable characters for your username.");
+  assert.equal(validateUsername("   ").error, "Use printable characters for your username.");
+  assert.equal(validateUsername("admin").error, "Choose a different username.");
 
   let response = await passwordRoute.POST(postRequest(
     "http://test/api/account/password",
-    { username: "Quiet.River", password: "private anonymous passphrase 2026" },
+    { username: " 🌙 Quiet.River! ", password: "!River2026" },
     "anon-session-token",
   ));
   assert.equal(response.status, 200);
-  assert.equal(state.passwords.get("existing-anonymous").username, "quiet.river");
+  assert.equal(state.passwords.get("existing-anonymous").username, " 🌙 quiet.river! ");
   assert.equal(
     Number(state.passwords.get("existing-anonymous").password_hash.split("$")[1]),
     100_000,
@@ -206,14 +219,14 @@ try {
 
   response = await passwordRoute.POST(postRequest(
     "http://test/api/account/password",
-    { username: "Quiet.River", password: "another private passphrase 2026" },
+    { username: " 🌙 Quiet.River! ", password: "Different123!" },
     "email-session-token",
   ));
   assert.equal(response.status, 409, "duplicate usernames must be rejected");
 
   response = await passwordRoute.POST(postRequest(
     "http://test/api/account/password",
-    { username: "Email.Member", password: "private email member passphrase 2026" },
+    { username: "Email.Member", password: "RiverStone2026!" },
     "email-session-token",
   ));
   assert.equal(response.status, 200);
@@ -226,14 +239,14 @@ try {
 
   response = await loginRoute.POST(postRequest(
     "http://test/api/account/password/login",
-    { username: "Quiet.River", password: "wrong private password phrase" },
+    { username: " 🌙 Quiet.River! ", password: "wrong private password phrase" },
   ));
   assert.equal(response.status, 401);
   assert.equal(state.passwords.get("existing-anonymous").failed_attempts, 1);
 
   response = await loginRoute.POST(postRequest(
     "http://test/api/account/password/login",
-    { username: "Quiet.River", password: "private anonymous passphrase 2026" },
+    { username: " 🌙 Quiet.River! ", password: "!River2026" },
   ));
   assert.equal(response.status, 200);
   assert.equal(state.passwords.get("existing-anonymous").failed_attempts, 0);
@@ -244,31 +257,39 @@ try {
     headers: { cookie: loginCookie.split(";")[0] },
   }));
   const account = await response.json();
-  assert.equal(account.username, "Quiet.River");
+  assert.equal(account.username, " 🌙 Quiet.River! ");
+
+  const olderPassword = "older long passphrase 2026";
+  state.passwords.get("existing-email").password_hash = await hashPassword(olderPassword);
+  response = await loginRoute.POST(postRequest(
+    "http://test/api/account/password/login",
+    { username: "Email.Member", password: olderPassword },
+  ));
+  assert.equal(response.status, 200, "existing longer passwords must continue to work");
   assert.equal(account.membershipActive, true);
 
   for (let attempt = 0; attempt < 5; attempt += 1) {
     response = await loginRoute.POST(postRequest(
       "http://test/api/account/password/login",
-      { username: "Quiet.River", password: `incorrect private phrase ${attempt}` },
+      { username: " 🌙 Quiet.River! ", password: `incorrect private phrase ${attempt}` },
     ));
     assert.equal(response.status, 401);
   }
   assert.ok(state.passwords.get("existing-anonymous").locked_until > now);
   response = await loginRoute.POST(postRequest(
     "http://test/api/account/password/login",
-    { username: "Quiet.River", password: "private anonymous passphrase 2026" },
+    { username: " 🌙 Quiet.River! ", password: "!River2026" },
   ));
   assert.equal(response.status, 401, "a temporarily locked account must reject even a correct password");
 
   response = await createRoute.POST(postRequest(
     "http://test/api/account/create",
-    { alias: "New Moon", username: "New.Moon", password: "new anonymous private phrase 2026", language: "fa" },
+    { alias: "New Moon", username: "@New Moon🌙", password: "MoonRise2026!", language: "fa" },
   ));
   assert.equal(response.status, 201);
   const created = await response.json();
   assert.match(created.recoveryCode, /^RI-(?:[A-F0-9]{4}-){7}[A-F0-9]{4}$/);
-  const newPasswordAccount = [...state.passwords.values()].find((row) => row.username === "new.moon");
+  const newPasswordAccount = [...state.passwords.values()].find((row) => row.username === "@new moon🌙");
   assert.ok(newPasswordAccount);
   assert.equal(state.users.get(newPasswordAccount.user_id).preferred_language, "fa");
 

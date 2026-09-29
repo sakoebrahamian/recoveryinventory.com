@@ -20,6 +20,10 @@ const RESERVED_USERNAMES = new Set([
 ]);
 
 const COMMON_PASSWORDS = new Set([
+  "1234567890",
+  "password123",
+  "password1234",
+  "qwerty1234",
   "123456789012345",
   "correcthorsebatterystaple",
   "iloveyouiloveyou",
@@ -87,16 +91,17 @@ export type UsernameValue = {
 };
 
 export function validateUsername(value: unknown): { value?: UsernameValue; error?: string } {
-  const display = typeof value === "string" ? value.normalize("NFKC").trim() : "";
+  const display = typeof value === "string" ? value.normalize("NFKC") : "";
   const length = Array.from(display).length;
   if (length < 3 || length > 32) {
     return { error: "Choose a username between 3 and 32 characters." };
   }
-  if (!/^[\p{L}\p{N}](?:[\p{L}\p{N}._-]*[\p{L}\p{N}])?$/u.test(display)) {
-    return { error: "Use letters, numbers, periods, underscores, or hyphens, and begin and end with a letter or number." };
+  if (!display.trim() || Array.from(display).some((character) =>
+    /[\p{Cc}\p{Cf}\p{Zl}\p{Zp}]/u.test(character) && character !== "\u200c" && character !== "\u200d")) {
+    return { error: "Use printable characters for your username." };
   }
   const normalized = display.toLocaleLowerCase("en-US");
-  if (RESERVED_USERNAMES.has(normalized)) {
+  if (RESERVED_USERNAMES.has(normalized.trim())) {
     return { error: "Choose a different username." };
   }
   return { value: { display, normalized } };
@@ -106,7 +111,7 @@ export function validatePassword(value: unknown, personalValues: string[] = []):
   if (typeof value !== "string") return { error: "Enter a password." };
   const password = normalizedPassword(value);
   const length = Array.from(password).length;
-  if (length < 15) return { error: "Use at least 15 characters for your password." };
+  if (length < 10) return { error: "Use at least 10 characters for your password." };
   if (length > 128) return { error: "Use 128 characters or fewer for your password." };
   const lowered = comparable(password);
   const matchesPersonalValue = personalValues.some((item) => item && lowered === comparable(item));

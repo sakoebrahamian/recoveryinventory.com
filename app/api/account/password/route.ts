@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       return Response.json({ error: passwordResult.error }, { status: 400 });
     }
     if (!existing && !passwordResult.value) {
-      return Response.json({ error: "Enter a password with at least 15 characters." }, { status: 400 });
+      return Response.json({ error: "Enter a password with at least 10 characters." }, { status: 400 });
     }
     if (existing) {
       const currentPassword = typeof body.currentPassword === "string" ? body.currentPassword : "";

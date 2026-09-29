@@ -192,20 +192,20 @@ export function JoinForm() {
             </div>
             <div className="form-field">
               <label htmlFor="anonymous-username">{t("Choose a username", "یک نام کاربری انتخاب کنید")}</label>
-              <input id="anonymous-username" className="form-input" value={username} onChange={(event) => setUsername(event.target.value)} minLength={3} maxLength={32} autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder={t("Example: quiet.river", "مثال: quiet.river")} required dir="ltr" />
-              <p className="field-help">{t("This can be private and does not need to be your real name.", "این نام می‌تواند خصوصی باشد و لازم نیست نام واقعی شما باشد.")}</p>
+              <input id="anonymous-username" className="form-input" value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder={t("Example: quiet.river", "مثال: quiet.river")} required dir="ltr" />
+              <p className="field-help">{t("Use 3 to 32 characters. Letters, numbers, spaces, symbols, and emoji can be anywhere. This does not need to be your real name.", "از ۳ تا ۳۲ نویسه استفاده کنید. حروف، اعداد، فاصله، نمادها و ایموجی می‌توانند در هر جای نام باشند. لازم نیست نام واقعی شما باشد.")}</p>
             </div>
             <div className="form-field">
               <label htmlFor="anonymous-password">{t("Create a password", "یک رمز عبور بسازید")}</label>
               <div className="password-input-wrap">
-                <input id="anonymous-password" className="form-input" type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} minLength={15} maxLength={128} autoComplete="new-password" required />
+                <input id="anonymous-password" className="form-input" type={showPassword ? "text" : "password"} value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="new-password" required />
                 <button type="button" onClick={() => setShowPassword((current) => !current)} aria-label={showPassword ? t("Hide password", "پنهان کردن رمز عبور") : t("Show password", "نمایش رمز عبور")}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button>
               </div>
-              <p className="field-help">{t("Use at least 15 characters. Spaces are allowed.", "حداقل از ۱۵ نویسه استفاده کنید. فاصله مجاز است.")}</p>
+              <p className="field-help">{t("Use 10 to 128 characters. Letters, numbers, symbols, and spaces are allowed in any position.", "از ۱۰ تا ۱۲۸ نویسه استفاده کنید. حروف، اعداد، نمادها و فاصله در هر جای رمز مجازند.")}</p>
             </div>
             <div className="form-field">
               <label htmlFor="anonymous-password-confirmation">{t("Confirm password", "تکرار رمز عبور")}</label>
-              <input id="anonymous-password-confirmation" className="form-input" type={showPassword ? "text" : "password"} value={passwordConfirmation} onChange={(event) => setPasswordConfirmation(event.target.value)} minLength={15} maxLength={128} autoComplete="new-password" required />
+              <input id="anonymous-password-confirmation" className="form-input" type={showPassword ? "text" : "password"} value={passwordConfirmation} onChange={(event) => setPasswordConfirmation(event.target.value)} autoComplete="new-password" required />
             </div>
             {message && <p className="form-error" role="alert">{message}</p>}
             <button className="button button-primary button-full" type="submit" disabled={busy}>
