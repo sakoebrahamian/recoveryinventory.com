@@ -40,7 +40,6 @@ type InventoryExportProps = {
   year: number;
   reportPeriod: ReportPeriod;
   onReportPeriodChange: (period: ReportPeriod) => void;
-  onChooseToday?: () => void;
   refreshKey: number;
 };
 
@@ -372,7 +371,7 @@ function PrintDocument({ records, scopeLabel, analytics, bounds, format }: { rec
 }
 
 export const InventoryExport = React.forwardRef<InventoryExportHandle, InventoryExportProps>(function InventoryExport(
-  { records, selectedDate, year, reportPeriod, onReportPeriodChange, onChooseToday, refreshKey },
+  { records, selectedDate, year, reportPeriod, onReportPeriodChange, refreshKey },
   ref,
 ) {
   const { language, t } = useLanguage();
@@ -387,6 +386,8 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
   const [includeStep10, setIncludeStep10] = React.useState(true);
   const [includeStep4, setIncludeStep4] = React.useState(true);
   const [includeAnalytics, setIncludeAnalytics] = React.useState(true);
+  const [todayRecordsResult, setTodayRecordsResult] = React.useState<{ key: string; records: InventoryRecord[]; error: string }>({ key: "", records: [], error: "" });
+  const [todayRetry, setTodayRetry] = React.useState(0);
   const panelRef = React.useRef<HTMLElement>(null);
   const canUseDom = React.useSyncExternalStore(
     subscribeToDom,
@@ -414,11 +415,31 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
       setIncludeStep10(options?.type ? options.type === "step10" : true);
       setIncludeStep4(options?.type ? options.type === "step4" : true);
       setIncludeAnalytics(true);
-      if (nextScope === "today" && year !== Number(nextDay.slice(0, 4))) onChooseToday?.();
       setOpen(true);
       window.setTimeout(() => panelRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
     },
-  }), [onChooseToday, reportPeriod, selectedDate, year]);
+  }), [reportPeriod, selectedDate]);
+
+  const needsTodayRecords = open && format === "archive" && scope === "today" && year !== Number(todayIso().slice(0, 4));
+  const todayRecordsKey = `${todayIso()}:${refreshKey}:${todayRetry}`;
+  React.useEffect(() => {
+    if (!needsTodayRecords) return;
+    const controller = new AbortController();
+    async function loadToday() {
+      try {
+        const date = todayIso();
+        const response = await fetch(`/api/inventories?year=${date.slice(0, 4)}&type=step10`, { cache: "no-store", signal: controller.signal });
+        const result = await response.json() as { inventories?: InventoryRecord[]; error?: string };
+        if (!response.ok) throw new Error(result.error || "Today’s inventory could not load.");
+        if (!controller.signal.aborted) setTodayRecordsResult({ key: todayRecordsKey, records: (result.inventories ?? []).filter((record) => record.date === date), error: "" });
+      } catch {
+        if (!controller.signal.aborted) setTodayRecordsResult({ key: todayRecordsKey, records: [], error: "Today’s inventory could not load." });
+      }
+    }
+    void loadToday();
+    return () => controller.abort();
+  }, [needsTodayRecords, todayRecordsKey]);
+  const todayRecordsReady = !needsTodayRecords || todayRecordsResult.key === todayRecordsKey;
 
   const archivePeriod: ReportPeriod = {
     mode: scope,
@@ -437,7 +458,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
   const filteredRecords = (() => {
     const start = rangeStart <= rangeEnd ? rangeStart : rangeEnd;
     const end = rangeStart <= rangeEnd ? rangeEnd : rangeStart;
-    return records.filter((record) => {
+    return (needsTodayRecords ? todayRecordsReady ? todayRecordsResult.records : [] : records).filter((record) => {
       const includedType = (record.type === "step10" && includeStep10) || (record.type === "step4" && includeStep4);
       if (!includedType) return false;
       if (scope === "today") return record.date === todayIso();
@@ -473,7 +494,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
   const currentAnalytics = scoped.analytics;
   const canPrint = format !== "archive"
     ? Boolean(bounds && currentAnalytics && currentAnalytics.totalEntries > 0 && !scoped.loading)
-    : filteredRecords.length > 0 && (includeStep10 || includeStep4) && Boolean(bounds) && (!wantsAnalytics || Boolean(currentAnalytics && !scoped.loading));
+    : todayRecordsReady && (!needsTodayRecords || !todayRecordsResult.error) && filteredRecords.length > 0 && (includeStep10 || includeStep4) && Boolean(bounds) && (!wantsAnalytics || Boolean(currentAnalytics && !scoped.loading));
   const printLabel = format !== "archive"
     ? bounds ? bounds.from === bounds.through ? formatDisplayDate(bounds.from, language) : `${formatDisplayDate(bounds.from, language)} – ${formatDisplayDate(bounds.through, language)}` : t("Choose a valid date range ending today or earlier.", "بازه تاریخی معتبری انتخاب کنید که تا امروز یا پیش از آن پایان یابد.")
     : scopeLabel;
@@ -533,7 +554,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
                 ["month", t("Month", "ماه")],
                 ["year", t("Year", "سال")],
               ] as const).map(([value, label]) => (
-                <label className={scope === value ? "is-selected" : ""} key={value}><input type="radio" name="export-scope" value={value} checked={scope === value} onChange={() => { setScope(value); if (value === "today" && year !== Number(todayIso().slice(0, 4))) onChooseToday?.(); }} /><span>{label}</span></label>
+                <label className={scope === value ? "is-selected" : ""} key={value}><input type="radio" name="export-scope" value={value} checked={scope === value} onChange={() => setScope(value)} /><span>{label}</span></label>
               ))}
             </div>
             <div className="inventory-export-date-fields">
@@ -562,6 +583,8 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
           </div>}
 
           <div className="inventory-export-summary">
+            {needsTodayRecords && !todayRecordsReady && <p role="status">{t("Loading today's saved inventory…", "در حال بارگذاری ترازنامه ذخیره‌شده امروز…")}</p>}
+            {needsTodayRecords && todayRecordsReady && todayRecordsResult.error && <p role="alert">{t("Today's inventory could not load. Please try again.", "ترازنامه امروز بارگذاری نشد. لطفاً دوباره تلاش کنید.")} <button className="button button-outline button-small" type="button" onClick={() => setTodayRetry((value) => value + 1)}>{t("Try again", "تلاش دوباره")}</button></p>}
             <div><strong>{format !== "archive" ? currentAnalytics?.totalEntries ?? 0 : filteredRecords.length}</strong><span>{t(format !== "archive" ? "saved Step 10 inventories" : filteredRecords.length === 1 ? "saved inventory" : "saved inventories", format !== "archive" ? "ترازنامه ذخیره‌شده گام ۱۰" : "ترازنامه ذخیره‌شده")}</span></div>
             <div><strong>{format !== "archive" ? currentAnalytics?.totalPracticed ?? 0 : dateCount}</strong><span>{format !== "archive" ? t("Practiced choices", "انتخاب‌های تمرین‌شده") : t(dateCount === 1 ? "date" : "dates", "تاریخ")}</span></div>
             <p>{canPrint ? printLabel : format === "summary" ? t("Save a Step 10 inventory to create a sponsor summary.", "برای ساخت خلاصه حامی، ترازنامه گام ۱۰ را ذخیره کنید.") : format === "chart" ? t("Save a Step 10 inventory in this period to export its chart.", "برای خروجی گرفتن از نمودار، ترازنامه گام ۱۰ را در این بازه ذخیره کنید.") : t("No saved inventories match this selection.", "هیچ ترازنامه ذخیره‌شده‌ای با این انتخاب مطابقت ندارد.")}</p>

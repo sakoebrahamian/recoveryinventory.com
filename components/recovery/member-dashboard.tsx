@@ -367,7 +367,6 @@ export function MemberDashboard() {
             year={year}
             reportPeriod={reportPeriod}
             onReportPeriodChange={setReportPeriod}
-            onChooseToday={() => chooseYear(Number(todayIso().slice(0, 4)))}
             refreshKey={analyticsVersion}
           />
           {activeType === "step10" ? (
