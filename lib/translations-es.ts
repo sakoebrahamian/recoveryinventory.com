@@ -1,6 +1,7 @@
 export const spanishTranslations: Record<string, string> = {
   "A printable principle chart for one day or a chosen range, without inventory pages or written reflections.": "Un gráfico de principios imprimible para un día o rango elegido, sin páginas de inventario ni reflexiones escritas.",
   "Chart only": "Solo el gráfico",
+  "View principle chart": "Ver gráfico de principios",
   "Loading today's saved inventory…": "Cargando el inventario guardado de hoy…",
   "Today's inventory could not load. Please try again.": "No se pudo cargar el inventario de hoy. Inténtalo de nuevo.",
   "Choose Today, the selected day, a calendar week, month, year, or custom date range for the principle chart. Share or copy the full inventory with that chart and analytics. Members can print a Full journal, Sponsor summary, or Chart only PDF for the chosen dates. Review the report with a sponsor or someone with time in recovery for guidance.": "Elige Hoy, el día seleccionado, una semana, un mes, un año calendario o un rango de fechas personalizado para el gráfico de principios. Comparte o copia el inventario completo con ese gráfico y el análisis. Los miembros pueden imprimir el Diario completo, un Resumen para su padrino o madrina, o Solo el gráfico en PDF para las fechas elegidas. Revisa el informe con tu padrino, madrina o alguien con tiempo en recuperación.",

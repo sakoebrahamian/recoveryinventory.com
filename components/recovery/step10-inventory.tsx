@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BookOpenText, Copy, FileDown, MoreHorizontal, RotateCcw, Save, Share2 } from "lucide-react";
+import { BarChart3, BookOpenText, Copy, FileDown, MoreHorizontal, RotateCcw, Save, Share2 } from "lucide-react";
 import {
   formatDisplayDate,
   principleCategories,
@@ -99,13 +99,16 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
   const [message, setMessage] = React.useState("");
   const [saving, setSaving] = React.useState(false);
   const [mobileActionsOpen, setMobileActionsOpen] = React.useState(false);
+  const [chartOpen, setChartOpen] = React.useState(true);
   const [editing, setEditing] = React.useState(false);
   const [localReportPeriod, setLocalReportPeriod] = React.useState<ReportPeriod>(() => defaultReportPeriod(initialData?.date ?? todayIso()));
   const mobileActionsRef = React.useRef<HTMLDivElement>(null);
   const mobileActionsButtonRef = React.useRef<HTMLButtonElement>(null);
   const mobileMenuRef = React.useRef<HTMLDivElement>(null);
+  const chartRef = React.useRef<HTMLDetailsElement>(null);
   const period = reportPeriod ?? localReportPeriod;
   const setPeriod = onReportPeriodChange ?? setLocalReportPeriod;
+  const choosePeriod = (next: ReportPeriod) => { setPeriod(next); setChartOpen(true); };
   const bounds = reportBounds(period, data.date);
   const draftDay = period.mode === "day" || (period.mode === "today" && data.date === bounds?.from);
   const rangeReport = useReportAnalytics(bounds, !demo && !draftDay, refreshKey);
@@ -243,6 +246,12 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
       gratitude: "",
     });
     setMessage("");
+  }
+
+  function viewChart() {
+    setChartOpen(true);
+    setMobileActionsOpen(false);
+    window.requestAnimationFrame(() => chartRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   }
 
   return (
@@ -388,11 +397,11 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
           <h3>{t("Keep or share", "ذخیره یا اشتراک")}</h3>
           <p>{t("Nothing leaves this page unless you choose an action.", "هیچ‌چیز بدون انتخاب شما از این صفحه خارج نمی‌شود.")}</p>
           <p>{t("Share and Copy include this full inventory and a chart. Choose Today, the selected day, a week, month, year, or custom range for the chart and analytics.", "اشتراک و کپی، این ترازنامه کامل و نمودار را در بر می‌گیرند. برای نمودار و تحلیل، امروز، روز انتخاب‌شده، هفته، ماه، سال یا بازه دلخواه را انتخاب کنید.")}</p>
-          <ReportPeriodPicker period={period} onChange={setPeriod} selectedDay={data.date} id="step10-report-period" />
+          <ReportPeriodPicker period={period} onChange={choosePeriod} selectedDay={data.date} id="step10-report-period" />
           <p>{t("Ask your sponsor or someone with time in recovery to help you understand the patterns and choose the next step together.", "از حامی یا فردی باتجربه در بهبودی بخواهید در فهم الگوها و انتخاب گام بعدی همراه شما باشد.")}</p>
           {!demo && !draftDay && <p>{t("This period counts saved entries only. Save today's changes first if you want them counted.", "این بازه فقط نوشته‌های ذخیره‌شده را می‌شمارد. اگر می‌خواهید تغییرات امروز محاسبه شوند، ابتدا آن‌ها را ذخیره کنید.")}</p>}
           {rangeReport.loading && <p>{t("Preparing analytics for sharing…", "در حال آماده‌سازی تحلیل برای اشتراک…")}</p>}
-          {bounds && reportAnalytics && <details className="step10-report-preview"><summary>{t("Preview principle chart", "پیش‌نمایش نمودار اصول")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>}
+          {bounds && reportAnalytics && <details className="step10-report-preview" ref={chartRef} open={chartOpen} onToggle={(event) => setChartOpen(event.currentTarget.open)}><summary>{t("Preview principle chart", "پیش‌نمایش نمودار اصول")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>}
           <div className="sidebar-actions">
             <button className="button button-primary" type="button" onClick={saveInventory} disabled={saving}>
               <Save size={17} />{saving ? t("Saving…", "در حال ذخیره…") : t("Save inventory", "ذخیره ترازنامه")}
@@ -411,7 +420,8 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
       <div className={`step10-mobile-actions${editing ? " is-editing" : ""}`} ref={mobileActionsRef}>
         {message && <p className="step10-mobile-message" role="status">{message}</p>}
         <div className="step10-mobile-menu" id="step10-mobile-menu" ref={mobileMenuRef} hidden={!mobileActionsOpen} role="group" aria-label={t("Inventory actions", "گزینه‌های ترازنامه")}>
-          <ReportPeriodPicker period={period} onChange={setPeriod} selectedDay={data.date} id="step10-report-period-mobile" />
+          <ReportPeriodPicker period={period} onChange={choosePeriod} selectedDay={data.date} id="step10-report-period-mobile" />
+          <button className="button button-outline" type="button" onClick={viewChart}><BarChart3 size={17} />{t("View principle chart", "مشاهده نمودار اصول")}</button>
           <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); void shareInventory(); }}><Share2 size={17} />{t("Share with sponsor", "اشتراک با حامی")}</button>
           {rangeReport.error && <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); rangeReport.retry(); }}><Share2 size={17} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
           <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); void copyInventory(); }}><Copy size={17} />{t("Copy full inventory", "کپی ترازنامه کامل")}</button>

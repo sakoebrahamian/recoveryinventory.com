@@ -590,6 +590,11 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
             <p>{canPrint ? printLabel : format === "summary" ? t("Save a Step 10 inventory to create a sponsor summary.", "برای ساخت خلاصه حامی، ترازنامه گام ۱۰ را ذخیره کنید.") : format === "chart" ? t("Save a Step 10 inventory in this period to export its chart.", "برای خروجی گرفتن از نمودار، ترازنامه گام ۱۰ را در این بازه ذخیره کنید.") : t("No saved inventories match this selection.", "هیچ ترازنامه ذخیره‌شده‌ای با این انتخاب مطابقت ندارد.")}</p>
             <button className="button button-primary" type="button" onClick={printExport} disabled={!canPrint}><FileDown size={17} />{t("Print / Save PDF", "چاپ / ذخیره PDF")}</button>
           </div>
+          {bounds && currentAnalytics && wantsAnalytics && currentAnalytics.totalEntries > 0 && (
+            <div className="inventory-export-chart-preview" aria-label={t("Preview principle chart", "پیش‌نمایش نمودار اصول")}>
+              <Step10ReportChart analytics={currentAnalytics} bounds={bounds} />
+            </div>
+          )}
         </section>
       )}
 

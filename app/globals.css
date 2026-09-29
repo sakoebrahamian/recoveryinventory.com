@@ -7205,6 +7205,12 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
   color: var(--ink);
 }
 
+.inventory-export-chart-preview {
+  max-height: min(60vh, 520px);
+  overflow-y: auto;
+  margin-top: 1rem;
+}
+
 .analytics-report-preview {
   padding: 0.9rem clamp(1.35rem, 3vw, 2rem);
   border-bottom: 1px solid rgba(23, 63, 58, 0.09);
@@ -7236,6 +7242,7 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
 .step10-report-chart-legend .is-attention::before { background: #cc7955; }
 .step10-report-chart-legend .is-na::before { background: #6b4fb3; }
 .step10-report-chart-rows { display: grid; gap: 0.4rem; }
+.inventory-sidebar .step10-report-chart-rows { max-height: 360px; overflow-y: auto; }
 .step10-report-chart-row { display: grid; grid-template-columns: minmax(0, 38%) minmax(90px, 1fr) minmax(0, 23%); align-items: center; gap: 0.6rem; padding: 0.35rem 0; border-bottom: 1px solid #e8ede9; font-size: 0.76rem; break-inside: avoid; }
 .step10-report-chart-row strong { font-weight: 680; }
 .step10-report-chart-count { min-width: 0; color: var(--slate); text-align: end; overflow-wrap: break-word; }

@@ -73,10 +73,12 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
   const [loading, setLoading] = React.useState(!demo);
   const [error, setError] = React.useState("");
   const [shareMessage, setShareMessage] = React.useState("");
+  const [chartOpen, setChartOpen] = React.useState(true);
   const [attempt, setAttempt] = React.useState(0);
   const [localReportPeriod, setLocalReportPeriod] = React.useState<ReportPeriod>(() => defaultReportPeriod(reportInventory?.date ?? todayIso()));
   const period = reportPeriod ?? localReportPeriod;
   const setPeriod = onReportPeriodChange ?? setLocalReportPeriod;
+  const choosePeriod = (next: ReportPeriod) => { setPeriod(next); setChartOpen(true); };
   const bounds = reportBounds(period, reportInventory?.date ?? todayIso());
   const draftDay = period.mode === "day" || (period.mode === "today" && reportInventory?.date === bounds?.from);
   const scoped = useReportAnalytics(bounds, !demo && Boolean(reportInventory) && !draftDay, refreshKey);
@@ -203,7 +205,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
           {demo && <span className="analytics-sample-badge">{t("Sample data", "داده نمونه")}</span>}
           {reportInventory ? (
             <>
-              <ReportPeriodPicker period={period} onChange={setPeriod} selectedDay={reportInventory.date} id="analytics-report-period" />
+              <ReportPeriodPicker period={period} onChange={choosePeriod} selectedDay={reportInventory.date} id="analytics-report-period" />
               {!draftDay && !demo && <p className="analytics-share-context">{t("Range analytics count saved entries only. Save changes before sharing if you want them counted.", "تحلیل بازه فقط نوشته‌های ذخیره‌شده را می‌شمارد. اگر می‌خواهید تغییرات محاسبه شوند، پیش از اشتراک ذخیره کنید.")}</p>}
               {scoped.loading && <p className="analytics-share-context">{t("Preparing analytics for sharing…", "در حال آماده‌سازی تحلیل برای اشتراک…")}</p>}
               {scoped.error && <button className="button button-outline button-small" type="button" onClick={scoped.retry}><RefreshCw size={16} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
@@ -225,7 +227,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
       </header>
 
       {bounds && reportAnalytics && reportInventory && <div className="analytics-report-preview">
-        <details className="step10-report-preview"><summary>{t("Preview principle chart", "پیش‌نمایش نمودار اصول")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>
+        <details className="step10-report-preview" open={chartOpen} onToggle={(event) => setChartOpen(event.currentTarget.open)}><summary>{t("Preview principle chart", "پیش‌نمایش نمودار اصول")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>
       </div>}
 
       <div className="analytics-kpis">
