@@ -401,20 +401,24 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
 
   React.useImperativeHandle(ref, () => ({
     open: (options) => {
-      setFormat(options?.format ?? (options?.type === "step4" ? "archive" : "summary"));
+      const nextFormat = options?.format ?? (options?.type === "step4" ? "archive" : "summary");
+      const nextScope = nextFormat === "archive" && options?.type === "step10" ? reportPeriod.mode : "day";
+      const nextDay = nextScope === "today" ? todayIso() : options?.day ?? selectedDate;
+      setFormat(nextFormat);
       setReportDay(options?.day ?? selectedDate);
-      setScope("day");
-      setDay(selectedDate);
-      setRangeStart(selectedDate);
-      setRangeEnd(selectedDate);
-      setMonth(selectedDate.slice(0, 7));
+      setScope(nextScope);
+      setDay(nextDay);
+      setRangeStart(nextScope === "range" ? reportPeriod.from : nextDay);
+      setRangeEnd(nextScope === "range" ? reportPeriod.through : nextDay);
+      setMonth(nextDay.slice(0, 7));
       setIncludeStep10(options?.type ? options.type === "step10" : true);
       setIncludeStep4(options?.type ? options.type === "step4" : true);
       setIncludeAnalytics(true);
+      if (nextScope === "today" && year !== Number(nextDay.slice(0, 4))) onChooseToday?.();
       setOpen(true);
       window.setTimeout(() => panelRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
     },
-  }), [selectedDate]);
+  }), [onChooseToday, reportPeriod, selectedDate, year]);
 
   const archivePeriod: ReportPeriod = {
     mode: scope,
