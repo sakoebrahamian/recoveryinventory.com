@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BarChart3, CalendarCheck2, Copy, Flame, RefreshCw, Share2, ShieldCheck, Sparkles, Target, TrendingUp, UsersRound } from "lucide-react";
+import { BarChart3, CalendarCheck2, Copy, FileDown, Flame, RefreshCw, Share2, ShieldCheck, Sparkles, Target, TrendingUp, UsersRound } from "lucide-react";
 import { formatDisplayDate, principleCategories, principles, todayIso } from "@/lib/inventory";
 import { calculateStep10Analytics, type PrincipleAnalytics, type Step10AnalyticsData, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
 import { describeStep10Pattern, formatStep10SponsorReport } from "@/lib/step10-report";
@@ -22,6 +22,7 @@ type Step10AnalyticsProps = {
   reportInventory?: Step10Data | null;
   reportPeriod?: ReportPeriod;
   onReportPeriodChange?: (period: ReportPeriod) => void;
+  onExportChart?: (day: string) => void;
 };
 
 function dateBefore(isoDate: string, days: number): string {
@@ -65,7 +66,7 @@ export function createDemoAnalytics(draft?: Step10Data, t: (english: string, far
   return calculateStep10Analytics(sampleRecords, through, from);
 }
 
-export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, reportInventory, reportPeriod, onReportPeriodChange }: Step10AnalyticsProps) {
+export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, reportInventory, reportPeriod, onReportPeriodChange, onExportChart }: Step10AnalyticsProps) {
   const { language, t } = useLanguage();
   const [savedAnalytics, setAnalytics] = React.useState<Step10AnalyticsData | null>(null);
   const [loading, setLoading] = React.useState(!demo);
@@ -209,6 +210,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
               <div className="analytics-share-actions">
                 <button className="button button-primary" type="button" onClick={() => void shareCombinedReport()}><Share2 size={16} />{t("Share with sponsor", "اشتراک با حامی")}</button>
                 <button className="button button-outline" type="button" onClick={() => void copyCombinedReport()}><Copy size={16} />{t("Copy inventory and analytics", "کپی ترازنامه و تحلیل")}</button>
+                {onExportChart && <button className="button button-outline" type="button" onClick={() => onExportChart(reportInventory.date)}><FileDown size={16} />{t("Export chart only", "خروجی فقط نمودار")}</button>}
               </div>
               <p className="analytics-share-context">{t("Includes the inventory for", "شامل ترازنامه روز")} {formatDisplayDate(reportInventory.date, language)}. {t("Analytics use the chosen period.", "تحلیل از بازه انتخاب‌شده استفاده می‌کند.")}</p>
             </>

@@ -3257,7 +3257,7 @@ html[dir="rtl"] .inventory-export-fieldset legend {
 }
 
 .inventory-export-format {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .inventory-export-format-help {
@@ -7250,6 +7250,15 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
 }
 
 @media print {
+  html.inventory-export-page .inventory-print-chart-only .step10-report-chart {
+    margin: 0;
+    border: 0;
+    padding: 0;
+  }
+  html.inventory-export-page .inventory-print-chart-only .step10-report-chart-row {
+    padding: 0.15rem 0;
+    font-size: 8pt;
+  }
   .step10-report-chart { break-inside: auto; }
   .step10-report-chart-total,
   .step10-report-chart-bar,

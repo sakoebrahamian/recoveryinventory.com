@@ -37,6 +37,7 @@ type Step10InventoryProps = {
   initialData?: Partial<Step10Data>;
   onSave?: (data: Step10Data) => Promise<void> | void;
   onExport?: () => void;
+  onExportChart?: () => void;
   onOpenLearning?: () => void;
   onChange?: (data: Step10Data) => void;
   reportPeriod?: ReportPeriod;
@@ -76,7 +77,7 @@ export function createDemoStep10Data(t: (english: string, farsi: string) => stri
   };
 }
 
-export function Step10Inventory({ demo = false, initialData, onSave, onExport, onOpenLearning, onChange, reportPeriod, onReportPeriodChange, refreshKey = 0 }: Step10InventoryProps) {
+export function Step10Inventory({ demo = false, initialData, onSave, onExport, onExportChart, onOpenLearning, onChange, reportPeriod, onReportPeriodChange, refreshKey = 0 }: Step10InventoryProps) {
   const { language, t } = useLanguage();
   const [data, setData] = React.useState<Step10Data>(() => {
     const sample = demo ? createDemoStep10Data(t) : null;
@@ -400,6 +401,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
             {rangeReport.error && <button className="button button-outline" type="button" onClick={rangeReport.retry}><Share2 size={17} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
             <button className="button button-outline" type="button" onClick={copyInventory}><Copy size={17} />{t("Copy full inventory", "کپی ترازنامه کامل")}</button>
             <button className="button button-outline" type="button" onClick={onExport ?? (() => window.print())}><FileDown size={17} />{t(onExport ? "Export saved inventory" : "Print / Save PDF", onExport ? "خروجی از ترازنامه ذخیره‌شده" : "چاپ / ذخیره PDF")}</button>
+            {onExportChart && <button className="button button-outline" type="button" onClick={onExportChart}><FileDown size={17} />{t("Export chart only", "خروجی فقط نمودار")}</button>}
             <button className="button button-danger" type="button" onClick={resetInventory}><RotateCcw size={17} />{t("Clear this page", "پاک کردن صفحه")}</button>
           </div>
           {message && <p className="toast-note step10-desktop-message" role="status">{message}</p>}
@@ -414,6 +416,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
           {rangeReport.error && <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); rangeReport.retry(); }}><Share2 size={17} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
           <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); void copyInventory(); }}><Copy size={17} />{t("Copy full inventory", "کپی ترازنامه کامل")}</button>
           <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); (onExport ?? (() => window.print()))(); }}><FileDown size={17} />{t(onExport ? "Export saved inventory" : "Print / Save PDF", onExport ? "خروجی از ترازنامه ذخیره‌شده" : "چاپ / ذخیره PDF")}</button>
+          {onExportChart && <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); onExportChart(); }}><FileDown size={17} />{t("Export chart only", "خروجی فقط نمودار")}</button>}
           <button className="button button-danger" type="button" onClick={() => { setMobileActionsOpen(false); resetInventory(); }}><RotateCcw size={17} />{t("Clear this page", "پاک کردن صفحه")}</button>
         </div>
         <div className="step10-mobile-bar">

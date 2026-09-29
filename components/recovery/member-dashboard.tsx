@@ -360,7 +360,7 @@ export function MemberDashboard() {
               )}
             </p>
           )}
-          {activeType === "step10" && <InventoryExport
+          <InventoryExport
             ref={exportRef}
             records={records}
             selectedDate={selectedDate}
@@ -368,13 +368,14 @@ export function MemberDashboard() {
             reportPeriod={reportPeriod}
             onReportPeriodChange={setReportPeriod}
             refreshKey={analyticsVersion}
-          />}
+          />
           {activeType === "step10" ? (
             recordsLoading ? <div className="loading-panel" role="status">{t("Loading inventories…", "در حال بارگذاری ترازنامه‌ها…")}</div> : <Step10Inventory
               key={`step10-${selectedDate}-${language}`}
               initialData={(selectedStep10?.payload as Step10Data | undefined) ?? { date: selectedDate }}
               onSave={(data) => saveInventory(data.date, data)}
               onExport={() => exportRef.current?.open({ type: "step10" })}
+              onExportChart={() => exportRef.current?.open({ format: "chart", day: selectedDate })}
               onOpenLearning={() => switchTool("learning")}
               reportPeriod={reportPeriod}
               onReportPeriodChange={setReportPeriod}
@@ -389,6 +390,7 @@ export function MemberDashboard() {
               reportInventory={sponsorInventory?.payload as Step10Data | undefined}
               reportPeriod={reportPeriod}
               onReportPeriodChange={setReportPeriod}
+              onExportChart={(day) => exportRef.current?.open({ format: "chart", day })}
             />
           ) : (
             <RecoveryLearningCenter />

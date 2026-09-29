@@ -72,8 +72,8 @@ export default function Home() {
     {
       question: t("Can I share an inventory with my sponsor?", "آیا می‌توانم ترازنامه را با حامی خود به اشتراک بگذارم؟"),
       answer: t(
-        "Yes. Share or copy the selected day's complete Step 10 inventory with analytics for that day. You can choose a calendar week, month, year, or custom date range for broader analytics. A PDF can include a sponsor summary or a full journal with a principle chart for the chosen dates. Review it with your sponsor or someone with time in recovery. Sharing is always your choice.",
-        "بله. ترازنامه کامل روز انتخاب‌شده گام ۱۰ را همراه با تحلیل همان روز به اشتراک بگذارید یا کپی کنید. برای تحلیل گسترده‌تر، هفته، ماه، سال تقویمی یا بازه دلخواه تاریخ را انتخاب کنید. PDF می‌تواند خلاصه حامی یا دفتر کامل همراه با نمودار اصول برای تاریخ‌های انتخاب‌شده داشته باشد. آن را با حامی یا فردی باتجربه در بهبودی مرور کنید. اشتراک‌گذاری همیشه انتخاب شماست."
+        "Yes. Share or copy the selected day's complete Step 10 inventory with analytics for that day. You can choose a calendar week, month, year, or custom date range for broader analytics. Export a sponsor summary, a full journal, or just the principle chart as a PDF for the chosen dates. Review it with your sponsor or someone with time in recovery. Sharing is always your choice.",
+        "بله. ترازنامه کامل روز انتخاب‌شده گام ۱۰ را همراه با تحلیل همان روز به اشتراک بگذارید یا کپی کنید. برای تحلیل گسترده‌تر، هفته، ماه، سال تقویمی یا بازه دلخواه تاریخ را انتخاب کنید. برای تاریخ‌های انتخاب‌شده از خلاصه حامی، دفتر کامل یا فقط نمودار اصول به‌صورت PDF خروجی بگیرید. آن را با حامی یا فردی باتجربه در بهبودی مرور کنید. اشتراک‌گذاری همیشه انتخاب شماست."
       ),
     },
   ];
@@ -398,7 +398,7 @@ export default function Home() {
             <span><CalendarDays size={18} />{t("Continuous year-by-year calendar", "تقویم پیوسته سال‌به‌سال")}</span>
             <span><BarChart3 size={18} />{t("Private Step 10 analytics through today", "تحلیل خصوصی گام ۱۰ تا امروز")}</span>
             <span><BookOpenText size={18} />{t("Defects, shortcomings, and principles learning center", "مرکز آموزش نقص‌ها، کمبودهای رفتاری و اصول")}</span>
-            <span><FileDown size={18} />{t("Share the selected day; export a Sponsor summary or Full journal PDF", "اشتراک روز انتخاب‌شده؛ خروجی PDF «خلاصه برای حامی» یا «دفتر کامل»")}</span>
+            <span><FileDown size={18} />{t("Share a selected day; export a Sponsor summary, Full journal, or Chart only PDF", "اشتراک روز انتخاب‌شده؛ خروجی PDF «خلاصه برای حامی»، «دفتر کامل» یا «فقط نمودار»")}</span>
             <span><ShieldCheck size={18} />{t("Anonymous username or verified email account", "حساب با نام کاربری ناشناس یا ایمیل تأییدشده")}</span>
           </div>
         </div>

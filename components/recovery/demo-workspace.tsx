@@ -94,10 +94,11 @@ export function DemoWorkspace() {
       {activeStep === "analytics" && <section className="demo-report-choices" aria-labelledby="demo-report-choices-title">
         <div>
           <h2 id="demo-report-choices-title">{t("Member report choices", "گزینه‌های گزارش اعضا")}</h2>
-          <p>{t("Explore the sample weekly view below. In a member account, the export menu offers these two PDF formats:", "نمای هفتگی نمونه را در پایین ببینید. در حساب اعضا، منوی خروجی این دو قالب PDF را ارائه می‌کند:")}</p>
+          <p>{t("Explore the sample chart below. Members can export three PDF formats:", "نمودار نمونه را در پایین ببینید. اعضا می‌توانند از سه قالب PDF خروجی بگیرند:")}</p>
         </div>
         <div className="demo-report-choice-grid">
           <article><h3>{t("Sponsor summary", "خلاصه برای حامی")}</h3><p>{t("Selected-day counts and a principle chart by default; choose a week, month, year, or custom range for a broader report.", "شمارش‌ها و نمودار اصول به‌طور پیش‌فرض برای روز انتخاب‌شده‌اند؛ برای گزارشی گسترده‌تر هفته، ماه، سال یا بازه دلخواه را انتخاب کنید.")}</p></article>
+          <article><h3>{t("Chart only", "فقط نمودار")}</h3><p>{t("A printable principle chart for one day or a chosen range, without inventory pages or written reflections.", "نمودار اصول قابل چاپ برای یک روز یا بازه انتخاب‌شده، بدون صفحه ترازنامه یا بازتاب‌های نوشته‌شده.")}</p></article>
           <article><h3>{t("Full journal", "دفتر کامل")}</h3><p>{t("Complete daily entries for selected dates, with an option to include analytics and a principle chart for those same dates.", "نوشته‌های کامل روزانه برای تاریخ‌های انتخاب‌شده، همراه با گزینه افزودن تحلیل و نمودار اصول برای همان تاریخ‌ها.")}</p></article>
         </div>
       </section>}
