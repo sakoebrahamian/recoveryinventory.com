@@ -7161,6 +7161,91 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
 }
 
 /* Step 10 analytics */
+.report-period-picker {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  max-width: 440px;
+}
+
+.report-period-picker > label,
+.report-period-dates label {
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.report-period-picker select,
+.report-period-dates input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: white;
+  color: var(--ink);
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+}
+
+.report-period-dates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.report-period-dates label { display: grid; gap: 0.35rem; }
+.report-period-picker small { color: var(--slate); line-height: 1.5; }
+
+.step10-report-chart {
+  margin: 1.2rem 0;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fffdf9;
+  padding: 1rem;
+  color: var(--ink);
+}
+
+.step10-report-chart h3 { margin: 0 0 0.7rem; font-size: 1rem; }
+.step10-report-chart p { color: var(--slate); font-size: 0.78rem; line-height: 1.5; }
+.step10-report-chart-total,
+.step10-report-chart-bar { display: flex; overflow: hidden; border-radius: 999px; background: #e5e9e6; }
+.step10-report-chart-total { height: 16px; }
+.step10-report-chart-bar { height: 11px; min-width: 90px; }
+.step10-report-chart-total .is-practiced,
+.step10-report-chart-bar .is-practiced { background: #23836c; }
+.step10-report-chart-total .is-attention,
+.step10-report-chart-bar .is-attention { background: #cc7955; }
+.step10-report-chart-total .is-na { background: #9ba9a5; }
+.step10-report-chart-total .is-unanswered { background: #dce3df; }
+.step10-report-chart-legend { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin-top: 0.7rem; font-size: 0.75rem; }
+.step10-report-chart-legend span::before { content: ""; display: inline-block; width: 0.55rem; height: 0.55rem; margin-inline-end: 0.35rem; border-radius: 50%; background: #dce3df; }
+.step10-report-chart-legend .is-practiced::before { background: #23836c; }
+.step10-report-chart-legend .is-attention::before { background: #cc7955; }
+.step10-report-chart-legend .is-na::before { background: #9ba9a5; }
+.step10-report-chart-rows { display: grid; gap: 0.4rem; }
+.step10-report-chart-row { display: grid; grid-template-columns: minmax(125px, 1fr) minmax(90px, 1fr) auto; align-items: center; gap: 0.6rem; padding: 0.35rem 0; border-bottom: 1px solid #e8ede9; font-size: 0.76rem; break-inside: avoid; }
+.step10-report-chart-row strong { font-weight: 680; }
+.step10-report-chart-count { color: var(--slate); text-align: end; }
+.step10-report-chart-state { grid-column: 2 / -1; justify-self: end; border-radius: 999px; background: #e7eee8; padding: 0.3rem 0.55rem; }
+.step10-report-chart-state.is-practiced { color: #176a51; }
+.step10-report-chart-state.is-attention { background: #fcf0e9; color: #a34f2f; }
+.step10-report-chart-state.is-na,
+.step10-report-chart-state.is-unanswered { background: #f0f2f0; color: #62716b; }
+
+@media (max-width: 560px) {
+  .report-period-dates { grid-template-columns: 1fr; }
+  .step10-report-chart-row { grid-template-columns: minmax(0, 1fr) minmax(80px, 1fr); }
+  .step10-report-chart-count { grid-column: 2; }
+}
+
+@media print {
+  .step10-report-chart { break-inside: auto; }
+  .step10-report-chart-total,
+  .step10-report-chart-bar,
+  .step10-report-chart-legend span::before,
+  .step10-report-chart-state { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
+
 .workspace-shell > .workspace-tabs,
 .member-workspace-tabs {
   grid-template-columns: repeat(3, minmax(0, 1fr));

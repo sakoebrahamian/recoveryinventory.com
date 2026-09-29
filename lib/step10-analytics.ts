@@ -40,11 +40,13 @@ export type PrincipleAnalytics = {
   id: string;
   practiced: number;
   attention: number;
+  na: number;
+  unanswered: number;
   answered: number;
   practiceRate: number;
 };
 
-export type CategoryAnalytics = PrincipleAnalytics;
+export type CategoryAnalytics = Pick<PrincipleAnalytics, "id" | "practiced" | "attention" | "answered" | "practiceRate">;
 
 export type MonthlyAnalytics = {
   month: string;
@@ -241,16 +243,17 @@ function streaks(dates: string[], through: string): { currentStreak: number; lon
 export function calculateStep10Analytics(
   sourceRecords: Step10AnalyticsRecord[],
   through: string,
+  from?: string,
 ): Step10AnalyticsData {
   const records = sourceRecords
-    .filter((record) => validDatePattern.test(record.date) && record.date <= through)
+    .filter((record) => validDatePattern.test(record.date) && record.date <= through && (!from || record.date >= from))
     .sort((left, right) => left.date.localeCompare(right.date));
 
-  const principleTotals = new Map<string, { practiced: number; attention: number }>();
+  const principleTotals = new Map<string, { practiced: number; attention: number; na: number; unanswered: number }>();
   const categoryTotals = new Map<string, { practiced: number; attention: number }>();
   const monthTotals = new Map<string, { entries: number; practiced: number; attention: number }>();
   for (const principle of principles) {
-    principleTotals.set(principle.id, { practiced: 0, attention: 0 });
+    principleTotals.set(principle.id, { practiced: 0, attention: 0, na: 0, unanswered: 0 });
     if (!categoryTotals.has(principle.category)) categoryTotals.set(principle.category, { practiced: 0, attention: 0 });
   }
 
@@ -266,13 +269,17 @@ export function calculateStep10Analytics(
 
     for (const principle of principles) {
       const state = states[principle.id];
+      const principleTotal = principleTotals.get(principle.id)!;
       if (state === "na") {
         totalNA += 1;
+        principleTotal.na += 1;
         continue;
       }
-      if (state !== "practiced" && state !== "attention") continue;
+      if (state !== "practiced" && state !== "attention") {
+        principleTotal.unanswered += 1;
+        continue;
+      }
 
-      const principleTotal = principleTotals.get(principle.id)!;
       const categoryTotal = categoryTotals.get(principle.category)!;
       if (state === "practiced") {
         totalPracticed += 1;
@@ -296,6 +303,8 @@ export function calculateStep10Analytics(
       id: principle.id,
       practiced: total.practiced,
       attention: total.attention,
+      na: total.na,
+      unanswered: total.unanswered,
       answered,
       practiceRate: roundRate(total.practiced, answered),
     };

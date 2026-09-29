@@ -9,9 +9,14 @@ import {
   type PrincipleState,
   todayIso,
 } from "@/lib/inventory";
-import type { Step10AnalyticsData } from "@/lib/step10-analytics";
-import { formatStep10Inventory, formatStep10SponsorReport } from "@/lib/step10-report";
+import { calculateStep10Analytics } from "@/lib/step10-analytics";
+import { formatStep10SponsorReport } from "@/lib/step10-report";
+import { defaultReportPeriod, reportBounds, type ReportPeriod } from "@/lib/step10-report-period";
 import { useLanguage } from "./language-provider";
+import { ReportPeriodPicker } from "./report-period-picker";
+import { Step10ReportChart } from "./step10-report-chart";
+import { createDemoAnalytics } from "./step10-analytics";
+import { useReportAnalytics } from "./use-report-analytics";
 
 type Step10Data = {
   date: string;
@@ -34,10 +39,9 @@ type Step10InventoryProps = {
   onExport?: () => void;
   onOpenLearning?: () => void;
   onChange?: (data: Step10Data) => void;
-  analytics?: Step10AnalyticsData | null;
-  analyticsLoading?: boolean;
-  analyticsError?: string;
-  onRetryAnalytics?: () => void;
+  reportPeriod?: ReportPeriod;
+  onReportPeriodChange?: (period: ReportPeriod) => void;
+  refreshKey?: number;
 };
 
 const demoStates: Record<string, PrincipleState> = {
@@ -72,7 +76,7 @@ export function createDemoStep10Data(t: (english: string, farsi: string) => stri
   };
 }
 
-export function Step10Inventory({ demo = false, initialData, onSave, onExport, onOpenLearning, onChange, analytics, analyticsLoading, analyticsError, onRetryAnalytics }: Step10InventoryProps) {
+export function Step10Inventory({ demo = false, initialData, onSave, onExport, onOpenLearning, onChange, reportPeriod, onReportPeriodChange, refreshKey = 0 }: Step10InventoryProps) {
   const { language, t } = useLanguage();
   const [data, setData] = React.useState<Step10Data>(() => {
     const sample = demo ? createDemoStep10Data(t) : null;
@@ -94,9 +98,19 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
   const [saving, setSaving] = React.useState(false);
   const [mobileActionsOpen, setMobileActionsOpen] = React.useState(false);
   const [editing, setEditing] = React.useState(false);
+  const [localReportPeriod, setLocalReportPeriod] = React.useState<ReportPeriod>(() => defaultReportPeriod(initialData?.date ?? todayIso()));
   const mobileActionsRef = React.useRef<HTMLDivElement>(null);
   const mobileActionsButtonRef = React.useRef<HTMLButtonElement>(null);
   const mobileMenuRef = React.useRef<HTMLDivElement>(null);
+  const period = reportPeriod ?? localReportPeriod;
+  const setPeriod = onReportPeriodChange ?? setLocalReportPeriod;
+  const bounds = reportBounds(period, data.date);
+  const rangeReport = useReportAnalytics(bounds, !demo && period.mode !== "day", refreshKey);
+  const reportAnalytics = bounds
+    ? period.mode === "day"
+      ? calculateStep10Analytics([{ date: data.date, payload: data }], bounds.through, bounds.from)
+      : demo ? createDemoAnalytics(data, t, bounds.from, bounds.through) : rangeReport.analytics
+    : null;
 
   React.useEffect(() => { onChange?.(data); }, [data, onChange]);
 
@@ -156,13 +170,13 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
   }
 
   async function shareInventory() {
-    if (!analytics) {
-      setMessage(analyticsError
+    if (!bounds || !reportAnalytics) {
+      setMessage(rangeReport.error
         ? t("Analytics could not load. Try again before sharing.", "تحلیل بارگذاری نشد. پیش از اشتراک دوباره تلاش کنید.")
         : t("Analytics are loading. Try again in a moment.", "تحلیل در حال بارگذاری است. کمی بعد دوباره تلاش کنید."));
       return;
     }
-    const text = formatStep10SponsorReport(data, analytics, language, t, demo);
+    const text = formatStep10SponsorReport(data, reportAnalytics, bounds, language, t, demo);
     try {
       if (navigator.share) {
         await navigator.share({ title: t("My Step 10 inventory and analytics", "ترازنامه و تحلیل گام دهم من"), text });
@@ -184,9 +198,13 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
   }
 
   async function copyInventory() {
+    if (!bounds || !reportAnalytics) {
+      setMessage(t("Choose a valid analytics period and wait for the report to load.", "بازه تحلیل معتبری انتخاب کنید و منتظر بارگذاری گزارش بمانید."));
+      return;
+    }
     try {
-      await navigator.clipboard.writeText(formatStep10Inventory(data, language, t));
-      setMessage(t("Full inventory copied.", "متن کامل ترازنامه کپی شد."));
+      await navigator.clipboard.writeText(formatStep10SponsorReport(data, reportAnalytics, bounds, language, t, demo));
+      setMessage(t("Full inventory and period analytics copied.", "ترازنامه کامل و تحلیل بازه کپی شد."));
     } catch {
       setMessage(t("Copy was not available. Try Share or Print / PDF.", "کپی در دسترس نبود. از اشتراک یا چاپ / PDF استفاده کنید."));
     }
@@ -368,17 +386,18 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
         <section className="inventory-sidebar-card">
           <h3>{t("Keep or share", "ذخیره یا اشتراک")}</h3>
           <p>{t("Nothing leaves this page unless you choose an action.", "هیچ‌چیز بدون انتخاب شما از این صفحه خارج نمی‌شود.")}</p>
-          <p>{t("Share with sponsor includes this day's complete inventory, all-time Step 10 counts, and selected examples from up to four recent calendar weeks.", "اشتراک با حامی شامل ترازنامه کامل این روز، شمارش‌های تمام‌دوره گام ۱۰ و نمونه‌هایی از حداکثر چهار هفته تقویمی اخیر است.")}</p>
-          {!demo && <p>{t("Save your latest changes before sharing so the written analytics include them.", "پیش از اشتراک‌گذاری، تغییرات جدید را ذخیره کنید تا در تحلیل نوشته‌ها هم دیده شوند.")}</p>}
+          <p>{t("Share and Copy include this full inventory. Analytics use the selected day unless you choose a week, month, year, or custom range.", "اشتراک و کپی، این ترازنامه کامل را در بر می‌گیرند. تحلیل فقط برای روز انتخاب‌شده است، مگر اینکه هفته، ماه، سال یا بازه دلخواهی را انتخاب کنید.")}</p>
+          <ReportPeriodPicker period={period} onChange={setPeriod} selectedDay={data.date} id="step10-report-period" />
           <p>{t("Ask your sponsor or someone with time in recovery to help you understand the patterns and choose the next step together.", "از حامی یا فردی باتجربه در بهبودی بخواهید در فهم الگوها و انتخاب گام بعدی همراه شما باشد.")}</p>
-          {!demo && <p>{t("Analytics reflect saved inventories. Save this entry first if you want it counted.", "تحلیل‌ها بر اساس ترازنامه‌های ذخیره‌شده‌اند. اگر می‌خواهید این نوشته هم محاسبه شود، ابتدا آن را ذخیره کنید.")}</p>}
-          {analyticsLoading && <p>{t("Preparing analytics for sharing…", "در حال آماده‌سازی تحلیل برای اشتراک…")}</p>}
+          {!demo && period.mode !== "day" && <p>{t("Week, month, year, and range analytics count saved entries only. Save today's changes first if you want them counted.", "تحلیل هفته، ماه، سال و بازه دلخواه فقط نوشته‌های ذخیره‌شده را می‌شمارد. اگر می‌خواهید تغییرات امروز محاسبه شوند، ابتدا آن‌ها را ذخیره کنید.")}</p>}
+          {rangeReport.loading && <p>{t("Preparing analytics for sharing…", "در حال آماده‌سازی تحلیل برای اشتراک…")}</p>}
+          {bounds && reportAnalytics && <details className="step10-report-preview"><summary>{t("Preview principle chart", "پیش‌نمایش نمودار اصول")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>}
           <div className="sidebar-actions">
             <button className="button button-primary" type="button" onClick={saveInventory} disabled={saving}>
               <Save size={17} />{saving ? t("Saving…", "در حال ذخیره…") : t("Save inventory", "ذخیره ترازنامه")}
             </button>
             <button className="button button-outline" type="button" onClick={shareInventory}><Share2 size={17} />{t("Share with sponsor", "اشتراک با حامی")}</button>
-            {analyticsError && onRetryAnalytics && <button className="button button-outline" type="button" onClick={onRetryAnalytics}><Share2 size={17} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
+            {rangeReport.error && <button className="button button-outline" type="button" onClick={rangeReport.retry}><Share2 size={17} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
             <button className="button button-outline" type="button" onClick={copyInventory}><Copy size={17} />{t("Copy full inventory", "کپی ترازنامه کامل")}</button>
             <button className="button button-outline" type="button" onClick={onExport ?? (() => window.print())}><FileDown size={17} />{t(onExport ? "Export saved inventory" : "Print / Save PDF", onExport ? "خروجی از ترازنامه ذخیره‌شده" : "چاپ / ذخیره PDF")}</button>
             <button className="button button-danger" type="button" onClick={resetInventory}><RotateCcw size={17} />{t("Clear this page", "پاک کردن صفحه")}</button>
@@ -390,8 +409,9 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
       <div className={`step10-mobile-actions${editing ? " is-editing" : ""}`} ref={mobileActionsRef}>
         {message && <p className="step10-mobile-message" role="status">{message}</p>}
         <div className="step10-mobile-menu" id="step10-mobile-menu" ref={mobileMenuRef} hidden={!mobileActionsOpen} role="group" aria-label={t("Inventory actions", "گزینه‌های ترازنامه")}>
+          <ReportPeriodPicker period={period} onChange={setPeriod} selectedDay={data.date} id="step10-report-period-mobile" />
           <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); void shareInventory(); }}><Share2 size={17} />{t("Share with sponsor", "اشتراک با حامی")}</button>
-          {analyticsError && onRetryAnalytics && <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); onRetryAnalytics(); }}><Share2 size={17} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
+          {rangeReport.error && <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); rangeReport.retry(); }}><Share2 size={17} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
           <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); void copyInventory(); }}><Copy size={17} />{t("Copy full inventory", "کپی ترازنامه کامل")}</button>
           <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); (onExport ?? (() => window.print()))(); }}><FileDown size={17} />{t(onExport ? "Export saved inventory" : "Print / Save PDF", onExport ? "خروجی از ترازنامه ذخیره‌شده" : "چاپ / ذخیره PDF")}</button>
           <button className="button button-danger" type="button" onClick={() => { setMobileActionsOpen(false); resetInventory(); }}><RotateCcw size={17} />{t("Clear this page", "پاک کردن صفحه")}</button>

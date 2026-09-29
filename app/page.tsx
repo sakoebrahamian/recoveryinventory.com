@@ -72,8 +72,8 @@ export default function Home() {
     {
       question: t("Can I share an inventory with my sponsor?", "آیا می‌توانم ترازنامه را با حامی خود به اشتراک بگذارم؟"),
       answer: t(
-        "Yes. Share or copy the selected day's complete Step 10 inventory together with all-time counts and up to four recent weekly reviews. For a PDF, choose a compact Sponsor summary or a Full journal with complete daily entries. Review it with your sponsor or someone with time in recovery for guidance. Sharing is always your choice.",
-        "بله. ترازنامه کامل روز انتخاب‌شده گام ۱۰ را همراه با شمارش‌های تمام‌دوره و حداکثر چهار مرور هفتگی اخیر به اشتراک بگذارید یا کپی کنید. برای PDF، «خلاصه برای حامی» کوتاه یا «دفتر کامل» با نوشته‌های کامل روزانه را انتخاب کنید. برای راهنمایی، آن را با حامی یا فردی باتجربه در بهبودی مرور کنید. اشتراک‌گذاری همیشه انتخاب شماست."
+        "Yes. Share or copy the selected day's complete Step 10 inventory with analytics for that day. You can choose a calendar week, month, year, or custom date range for broader analytics. A PDF can include a sponsor summary or a full journal with a principle chart for the chosen dates. Review it with your sponsor or someone with time in recovery. Sharing is always your choice.",
+        "بله. ترازنامه کامل روز انتخاب‌شده گام ۱۰ را همراه با تحلیل همان روز به اشتراک بگذارید یا کپی کنید. برای تحلیل گسترده‌تر، هفته، ماه، سال تقویمی یا بازه دلخواه تاریخ را انتخاب کنید. PDF می‌تواند خلاصه حامی یا دفتر کامل همراه با نمودار اصول برای تاریخ‌های انتخاب‌شده داشته باشد. آن را با حامی یا فردی باتجربه در بهبودی مرور کنید. اشتراک‌گذاری همیشه انتخاب شماست."
       ),
     },
   ];
@@ -312,7 +312,7 @@ export default function Home() {
           <div className="ri-analytics-points">
             <span><Check size={16} />{t("Step 10 only—Step 4 is never included", "فقط گام ۱۰؛ گام ۴ هرگز وارد تحلیل نمی‌شود")}</span>
             <span><Check size={16} />{t("Uses your saved selections and written reflections privately", "از انتخاب‌ها و بازتاب‌های نوشته‌شده ذخیره‌شده شما به‌صورت خصوصی استفاده می‌کند")}</span>
-            <span><Check size={16} />{t("All-time counts with selected writing from the last four calendar weeks", "شمارش‌های تمام‌دوره همراه با نمونه‌هایی از نوشته‌های چهار هفته تقویمی اخیر")}</span>
+            <span><Check size={16} />{t("Share a selected day or choose weekly, monthly, yearly, or custom range analytics with a principle chart", "اشتراک روز انتخاب‌شده یا انتخاب تحلیل هفتگی، ماهانه، سالانه یا بازه دلخواه همراه با نمودار اصول")}</span>
             <span><Check size={16} />{t("A private pattern summary, not a clinical assessment", "خلاصه خصوصی الگوها، نه ارزیابی بالینی")}</span>
           </div>
           <a href="/demo?step=analytics" className="button button-primary">

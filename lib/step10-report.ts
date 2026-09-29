@@ -4,6 +4,7 @@ import type { Step10Data } from "@/components/recovery/step10-inventory";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
 import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { practiceForPrinciple } from "@/lib/step10-practices";
+import type { ReportBounds } from "@/lib/step10-report-period";
 
 type Translate = (english: string, farsi: string) => string;
 
@@ -193,6 +194,59 @@ export function formatStep10Analytics(analytics: Step10AnalyticsData, language: 
   ].join("\n").trimEnd();
 }
 
-export function formatStep10SponsorReport(data: Step10Data, analytics: Step10AnalyticsData, language: Language, t: Translate, sample = false) {
-  return `${formatStep10Inventory(data, language, t)}\n\n━━━━━━━━━━━━━━━━━━━━\n\n${formatStep10Analytics(analytics, language, t, sample)}`;
+function bar(practiced: number, answered: number) {
+  if (!answered) return "──────────";
+  const filled = Math.round((practiced / answered) * 10);
+  return `${"█".repeat(filled)}${"░".repeat(10 - filled)}`;
+}
+
+export function formatStep10ReportAnalytics(analytics: Step10AnalyticsData, bounds: ReportBounds, language: Language, t: Translate, sample = false) {
+  const daily = bounds.mode === "day";
+  const insights = summarizeStep10Insights(analytics);
+  const period = bounds.from === bounds.through
+    ? formatDisplayDate(bounds.from, language)
+    : `${formatDisplayDate(bounds.from, language)} – ${formatDisplayDate(bounds.through, language)}`;
+  const unanswered = analytics.totalEntries * principles.length - analytics.totalPracticed - analytics.totalAttention - analytics.totalNA;
+  const name = (id: string) => principles.find((item) => item.id === id)?.[language] ?? id;
+  return [
+    t("Step 10 report analytics", "تحلیل گزارش گام ۱۰"),
+    ...(sample ? [t("Sample data", "داده نمونه")] : []),
+    `${t("Analytics period", "بازه تحلیل")}: ${period}`,
+    `${daily ? t("Inventory represented", "ترازنامه نمایش‌داده‌شده") : t("Saved days in this period", "روزهای ذخیره‌شده در این بازه")}: ${analytics.totalEntries}`,
+    "",
+    `${t("Practiced", "تمرین کردم")}: ${analytics.totalPracticed} · ${t("Needs attention", "نیازمند توجه")}: ${analytics.totalAttention} · ${t("Not applicable", "کاربرد ندارد")}: ${analytics.totalNA} · ${t("Not answered", "پاسخ داده نشده")}: ${unanswered}`,
+    `${t("Practiced share", "سهم تمرین‌شده")}: ${analytics.practiceRate}% ${t("of Practiced and Needs attention answers; N/A and unanswered are excluded", "از پاسخ‌های «تمرین کردم» و «نیازمند توجه»؛ «کاربرد ندارد» و پاسخ‌های خالی محاسبه نمی‌شوند")}`,
+    "",
+    t("Principles at a glance", "اصول در یک نگاه").toLocaleUpperCase(language),
+    t("Each bar shows Practiced among scored answers. Counts beside it show Needs attention and N/A separately.", "هر نوار سهم «تمرین کردم» را در میان پاسخ‌های امتیازدار نشان می‌دهد. شمارش‌های کنار آن، «نیازمند توجه» و «کاربرد ندارد» را جداگانه نشان می‌دهند."),
+    ...analytics.principles.map((item) => daily
+      ? `• ${name(item.id)}: ${item.practiced ? t("Practiced", "تمرین کردم") : item.attention ? t("Needs attention", "نیازمند توجه") : item.na ? t("Not applicable", "کاربرد ندارد") : t("Not answered", "پاسخ داده نشده")}`
+      : `• ${name(item.id)}: ${bar(item.practiced, item.answered)} ${item.practiced}/${item.answered} ${t("Practiced", "تمرین کردم")} · ${item.attention} ${t("Needs attention", "نیازمند توجه")} · ${item.na} ${t("N/A", "کاربرد ندارد")}`),
+    "",
+    t("Where you practiced", "جاهایی که تمرین کردید").toLocaleUpperCase(language),
+    ...(daily
+      ? (analytics.principles.filter((item) => item.practiced).map((item) => `• ${name(item.id)}`))
+      : insights.strengths.map((item) => `• ${name(item.id)}: ${item.practiced}/${item.answered} ${t("marked Practiced", "با برچسب تمرین کردم")}`)),
+    ...(!daily && !insights.enoughHistory ? [t("More saved days are needed to describe a repeated pattern.", "برای توصیف الگوی تکرارشونده روزهای ذخیره‌شده بیشتری لازم است.")] : []),
+    "",
+    t("Where to ask for help", "جاهایی که می‌توانید کمک بخواهید").toLocaleUpperCase(language),
+    ...(daily ? analytics.principles.filter((item) => item.attention) : insights.focus).flatMap((item) => {
+      const guide = practiceForPrinciple(item.id, language);
+      return [`• ${name(item.id)}${daily ? "" : `: ${item.attention}/${item.answered} ${t("marked Needs attention", "با برچسب نیازمند توجه")}`}`,
+        ...(guide ? [`  ${t("Principles to discuss", "اصولی برای گفت‌وگو")}: ${guide.primary} + ${guide.companion}`, `  ${t("Possible practice to discuss", "تمرین پیشنهادی برای گفت‌وگو")}: ${guide.action}`] : [])];
+    }),
+    "",
+    ...(daily ? [] : [
+      t("Selected weekly writing", "نوشته‌های هفتگی منتخب").toLocaleUpperCase(language),
+      t("Up to four recent calendar weeks within this period; examples are your own words, not an AI interpretation.", "حداکثر چهار هفته تقویمی اخیر در این بازه؛ نمونه‌ها نوشته‌های خودتان هستند، نه تفسیر هوش مصنوعی."),
+      ...(analytics.weekly.length ? analytics.weekly.flatMap((week) => ["", formatStep10Week(week, language, t)]) : [t("No saved writing in those weeks.", "در این هفته‌ها نوشته ذخیره‌شده‌ای وجود ندارد.")]),
+      "",
+    ]),
+    `${t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}: ${sponsorGuidance(t)}`,
+    t("This is a summary of your recorded choices, not a diagnosis or a recovery score. Step 4 is not analyzed.", "این خلاصه‌ای از انتخاب‌های ثبت‌شده شماست، نه تشخیص یا نمره بهبودی. گام ۴ تحلیل نمی‌شود."),
+  ].join("\n").trimEnd();
+}
+
+export function formatStep10SponsorReport(data: Step10Data, analytics: Step10AnalyticsData, bounds: ReportBounds, language: Language, t: Translate, sample = false) {
+  return `${formatStep10Inventory(data, language, t)}\n\n━━━━━━━━━━━━━━━━━━━━\n\n${formatStep10ReportAnalytics(analytics, bounds, language, t, sample)}`;
 }

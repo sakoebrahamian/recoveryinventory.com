@@ -2,13 +2,15 @@
 
 import * as React from "react";
 import { BarChart3, BookOpenText, MoonStar } from "lucide-react";
-import { Step10Analytics, createDemoAnalytics } from "./step10-analytics";
+import { Step10Analytics } from "./step10-analytics";
 import { Step10Inventory, createDemoStep10Data, type Step10Data } from "./step10-inventory";
 import { Step4Inventory } from "./step4-inventory";
 import { RecoveryLearningCenter } from "./recovery-learning-center";
 import { useLanguage } from "./language-provider";
 import { recordSiteAction } from "@/lib/site-analytics";
 import type { SiteAnalyticsAction } from "@/lib/site-analytics-config";
+import { defaultReportPeriod } from "@/lib/step10-report-period";
+import { todayIso } from "@/lib/inventory";
 
 declare global {
   interface Document {
@@ -22,7 +24,7 @@ export function DemoWorkspace() {
   const { t } = useLanguage();
   const [activeStep, setActiveStep] = React.useState<"10" | "4" | "analytics" | "learning">("10");
   const [demoDraft, setDemoDraft] = React.useState<Step10Data>(() => createDemoStep10Data(t));
-  const demoAnalytics = React.useMemo(() => createDemoAnalytics(demoDraft, t), [demoDraft, t]);
+  const [reportPeriod, setReportPeriod] = React.useState(() => defaultReportPeriod(todayIso()));
 
   const chooseStep = React.useCallback((next: "10" | "4" | "analytics" | "learning") => {
     const actions: Record<typeof next, SiteAnalyticsAction> = {
@@ -95,11 +97,11 @@ export function DemoWorkspace() {
           <p>{t("Explore the sample weekly view below. In a member account, the export menu offers these two PDF formats:", "نمای هفتگی نمونه را در پایین ببینید. در حساب اعضا، منوی خروجی این دو قالب PDF را ارائه می‌کند:")}</p>
         </div>
         <div className="demo-report-choice-grid">
-          <article><h3>{t("Sponsor summary", "خلاصه برای حامی")}</h3><p>{t("All-time Step 10 counts and selected examples from up to four recent calendar weeks, without daily pages.", "شمارش‌های تمام‌دوره گام ۱۰ و نمونه‌هایی از حداکثر چهار هفته تقویمی اخیر، بدون صفحه‌های روزانه.")}</p></article>
-          <article><h3>{t("Full journal", "دفتر کامل")}</h3><p>{t("Complete daily entries for your selected dates, with an option to include detailed all-time Step 10 analytics.", "نوشته‌های کامل روزانه برای تاریخ‌های انتخاب‌شده، همراه با گزینه افزودن تحلیل تفصیلی تمام‌دوره گام ۱۰.")}</p></article>
+          <article><h3>{t("Sponsor summary", "خلاصه برای حامی")}</h3><p>{t("Selected-day counts and a principle chart by default; choose a week, month, year, or custom range for a broader report.", "شمارش‌ها و نمودار اصول به‌طور پیش‌فرض برای روز انتخاب‌شده‌اند؛ برای گزارشی گسترده‌تر هفته، ماه، سال یا بازه دلخواه را انتخاب کنید.")}</p></article>
+          <article><h3>{t("Full journal", "دفتر کامل")}</h3><p>{t("Complete daily entries for selected dates, with an option to include analytics and a principle chart for those same dates.", "نوشته‌های کامل روزانه برای تاریخ‌های انتخاب‌شده، همراه با گزینه افزودن تحلیل و نمودار اصول برای همان تاریخ‌ها.")}</p></article>
         </div>
       </section>}
-      {activeStep === "10" ? <Step10Inventory demo initialData={demoDraft} analytics={demoAnalytics} onChange={setDemoDraft} onOpenLearning={() => chooseStep("learning")} /> : activeStep === "4" ? <Step4Inventory demo onOpenLearning={() => chooseStep("learning")} /> : activeStep === "analytics" ? <Step10Analytics demo reportInventory={demoDraft} /> : <RecoveryLearningCenter demo />}
+      {activeStep === "10" ? <Step10Inventory demo initialData={demoDraft} onChange={setDemoDraft} onOpenLearning={() => chooseStep("learning")} reportPeriod={reportPeriod} onReportPeriodChange={setReportPeriod} /> : activeStep === "4" ? <Step4Inventory demo onOpenLearning={() => chooseStep("learning")} /> : activeStep === "analytics" ? <Step10Analytics demo reportInventory={demoDraft} reportPeriod={reportPeriod} onReportPeriodChange={setReportPeriod} /> : <RecoveryLearningCenter demo />}
     </div>
   );
 }

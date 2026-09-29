@@ -25,12 +25,22 @@ export async function GET(request: Request) {
       return Response.json({ error: "An active membership is required to view analytics." }, { status: 403 });
     }
 
-    const requestedThrough = new URL(request.url).searchParams.get("through");
+    const search = new URL(request.url).searchParams;
+    const requestedThrough = search.get("through");
+    if (requestedThrough && !isIsoCalendarDate(requestedThrough)) {
+      return Response.json({ error: "Choose a valid report date." }, { status: 400 });
+    }
     const through = isIsoCalendarDate(requestedThrough) ? requestedThrough : todayIso();
+    const requestedFrom = search.get("from");
+    // A member may already be on the next calendar day while the server is still on UTC's previous day.
+    const latestLocalDay = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+    if ((requestedFrom && !isIsoCalendarDate(requestedFrom)) || (requestedFrom && requestedFrom > through) || through > latestLocalDay) {
+      return Response.json({ error: "Choose a valid report period ending today or earlier." }, { status: 400 });
+    }
     const result = await env.DB.prepare(
       `SELECT entry_date, encrypted_payload FROM inventories
-       WHERE user_id = ? AND type = 'step10' AND entry_date <= ? ORDER BY entry_date`,
-    ).bind(account.id, through).all<AnalyticsInventoryRow>();
+       WHERE user_id = ? AND type = 'step10' AND entry_date >= ? AND entry_date <= ? ORDER BY entry_date`,
+    ).bind(account.id, requestedFrom ?? "0001-01-01", through).all<AnalyticsInventoryRow>();
 
     const records: Step10AnalyticsRecord[] = [];
     for (const row of result.results ?? []) {
@@ -45,7 +55,7 @@ export async function GET(request: Request) {
     }
 
     return Response.json(
-      { analytics: calculateStep10Analytics(records, through) },
+      { analytics: calculateStep10Analytics(records, through, requestedFrom ?? undefined) },
       { headers: { "cache-control": "no-store" } },
     );
   } catch (error) {

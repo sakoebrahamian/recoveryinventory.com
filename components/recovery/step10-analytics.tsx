@@ -10,12 +10,18 @@ import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
 import type { Step10Data } from "./step10-inventory";
 import { Step10WeeklyInsights } from "./step10-weekly-insights";
+import { ReportPeriodPicker } from "./report-period-picker";
+import { Step10ReportChart } from "./step10-report-chart";
+import { useReportAnalytics } from "./use-report-analytics";
+import { defaultReportPeriod, reportBounds, type ReportPeriod } from "@/lib/step10-report-period";
 
 type Step10AnalyticsProps = {
   demo?: boolean;
   refreshKey?: number;
   onOpenStep10?: () => void;
   reportInventory?: Step10Data | null;
+  reportPeriod?: ReportPeriod;
+  onReportPeriodChange?: (period: ReportPeriod) => void;
 };
 
 function dateBefore(isoDate: string, days: number): string {
@@ -24,8 +30,7 @@ function dateBefore(isoDate: string, days: number): string {
   return value.toISOString().slice(0, 10);
 }
 
-export function createDemoAnalytics(draft?: Step10Data, t: (english: string, farsi: string) => string = (english) => english): Step10AnalyticsData {
-  const through = todayIso();
+export function createDemoAnalytics(draft?: Step10Data, t: (english: string, farsi: string) => string = (english) => english, from?: string, through = todayIso()): Step10AnalyticsData {
   const offsets = [20, 19, 18, 17, 15, 14, 13, 12, 11, 9, 8, 7, 5, 4, 3, 2, 1, 0];
   const records: Step10AnalyticsRecord[] = offsets.map((offset, entryIndex) => {
     const states = Object.fromEntries(principles.map((principle, principleIndex) => {
@@ -35,8 +40,7 @@ export function createDemoAnalytics(draft?: Step10Data, t: (english: string, far
       if (principleIndex >= 6 && principleIndex <= 9) return [principle.id, seed % 3 === 0 ? "practiced" : "attention"];
       return [principle.id, seed % 5 < 3 ? "practiced" : "attention"];
     }));
-    const date = dateBefore(through, offset);
-    if (offset === 0 && draft) return { date, payload: { ...draft, date } };
+    const date = dateBefore(todayIso(), offset);
     const reflection = entryIndex === 10 || entryIndex === 14;
     return { date, payload: {
       states,
@@ -55,16 +59,29 @@ export function createDemoAnalytics(draft?: Step10Data, t: (english: string, far
       } : {}),
     } };
   });
-  return calculateStep10Analytics(records, through);
+  const sampleRecords = draft && draft.date <= todayIso()
+    ? [...records.filter((record) => record.date !== draft.date), { date: draft.date, payload: draft }]
+    : records;
+  return calculateStep10Analytics(sampleRecords, through, from);
 }
 
-export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, reportInventory }: Step10AnalyticsProps) {
+export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, reportInventory, reportPeriod, onReportPeriodChange }: Step10AnalyticsProps) {
   const { language, t } = useLanguage();
   const [savedAnalytics, setAnalytics] = React.useState<Step10AnalyticsData | null>(null);
   const [loading, setLoading] = React.useState(!demo);
   const [error, setError] = React.useState("");
   const [shareMessage, setShareMessage] = React.useState("");
   const [attempt, setAttempt] = React.useState(0);
+  const [localReportPeriod, setLocalReportPeriod] = React.useState<ReportPeriod>(() => defaultReportPeriod(reportInventory?.date ?? todayIso()));
+  const period = reportPeriod ?? localReportPeriod;
+  const setPeriod = onReportPeriodChange ?? setLocalReportPeriod;
+  const bounds = reportBounds(period, reportInventory?.date ?? todayIso());
+  const scoped = useReportAnalytics(bounds, !demo && Boolean(reportInventory) && period.mode !== "day", refreshKey);
+  const reportAnalytics = bounds && reportInventory
+    ? period.mode === "day"
+      ? calculateStep10Analytics([{ date: reportInventory.date, payload: reportInventory }], bounds.through, bounds.from)
+      : demo ? createDemoAnalytics(reportInventory, t, bounds.from, bounds.through) : scoped.analytics
+    : null;
   const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
 
   const analytics = React.useMemo(() => demo ? createDemoAnalytics(reportInventory ?? undefined, t) : savedAnalytics, [demo, reportInventory, t, savedAnalytics]);
@@ -99,8 +116,8 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
   }, [language]);
 
   async function shareCombinedReport() {
-    if (!analytics || !reportInventory) return;
-    const text = formatStep10SponsorReport(reportInventory, analytics, language, t, demo);
+    if (!reportAnalytics || !reportInventory || !bounds) { setShareMessage(t("Choose a valid analytics period and wait for the report to load.", "بازه تحلیل معتبری انتخاب کنید و منتظر بارگذاری گزارش بمانید.")); return; }
+    const text = formatStep10SponsorReport(reportInventory, reportAnalytics, bounds, language, t, demo);
     try {
       if (navigator.share) {
         await navigator.share({ title: t("My Step 10 inventory and analytics", "ترازنامه و تحلیل گام دهم من"), text });
@@ -122,9 +139,9 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
   }
 
   async function copyCombinedReport() {
-    if (!analytics || !reportInventory) return;
+    if (!reportAnalytics || !reportInventory || !bounds) { setShareMessage(t("Choose a valid analytics period and wait for the report to load.", "بازه تحلیل معتبری انتخاب کنید و منتظر بارگذاری گزارش بمانید.")); return; }
     try {
-      await navigator.clipboard.writeText(formatStep10SponsorReport(reportInventory, analytics, language, t, demo));
+      await navigator.clipboard.writeText(formatStep10SponsorReport(reportInventory, reportAnalytics, bounds, language, t, demo));
       setShareMessage(t("Inventory and analytics copied.", "ترازنامه و تحلیل کپی شد."));
     } catch {
       setShareMessage(t("Copy was not available. Try Share.", "کپی در دسترس نبود. از اشتراک استفاده کنید."));
@@ -185,11 +202,16 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
           {demo && <span className="analytics-sample-badge">{t("Sample data", "داده نمونه")}</span>}
           {reportInventory ? (
             <>
+              <ReportPeriodPicker period={period} onChange={setPeriod} selectedDay={reportInventory.date} id="analytics-report-period" />
+              {period.mode !== "day" && !demo && <p className="analytics-share-context">{t("Range analytics count saved entries only. Save changes before sharing if you want them counted.", "تحلیل بازه فقط نوشته‌های ذخیره‌شده را می‌شمارد. اگر می‌خواهید تغییرات محاسبه شوند، پیش از اشتراک ذخیره کنید.")}</p>}
+              {scoped.loading && <p className="analytics-share-context">{t("Preparing analytics for sharing…", "در حال آماده‌سازی تحلیل برای اشتراک…")}</p>}
+              {scoped.error && <button className="button button-outline button-small" type="button" onClick={scoped.retry}><RefreshCw size={16} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
+              {bounds && reportAnalytics && <details className="step10-report-preview"><summary>{t("Preview principle chart", "پیش‌نمایش نمودار اصول")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>}
               <div className="analytics-share-actions">
                 <button className="button button-primary" type="button" onClick={() => void shareCombinedReport()}><Share2 size={16} />{t("Share with sponsor", "اشتراک با حامی")}</button>
                 <button className="button button-outline" type="button" onClick={() => void copyCombinedReport()}><Copy size={16} />{t("Copy inventory and analytics", "کپی ترازنامه و تحلیل")}</button>
               </div>
-              <p className="analytics-share-context">{t("Includes the inventory for", "شامل ترازنامه روز")} {formatDisplayDate(reportInventory.date, language)}</p>
+              <p className="analytics-share-context">{t("Includes the inventory for", "شامل ترازنامه روز")} {formatDisplayDate(reportInventory.date, language)}. {t("Analytics use the chosen period.", "تحلیل از بازه انتخاب‌شده استفاده می‌کند.")}</p>
             </>
           ) : (
             <>
