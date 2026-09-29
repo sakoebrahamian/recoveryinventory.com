@@ -5,6 +5,7 @@ import { BarChart3, CalendarCheck2, Copy, FileDown, Flame, RefreshCw, Share2, Sh
 import { formatDisplayDate, principleCategories, principles, todayIso } from "@/lib/inventory";
 import { calculateStep10Analytics, type PrincipleAnalytics, type Step10AnalyticsData, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
 import { describeStep10Pattern, formatStep10SponsorReport } from "@/lib/step10-report";
+import { copyStep10Report, shareStep10Report } from "@/lib/step10-share";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
 import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
@@ -77,9 +78,10 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
   const period = reportPeriod ?? localReportPeriod;
   const setPeriod = onReportPeriodChange ?? setLocalReportPeriod;
   const bounds = reportBounds(period, reportInventory?.date ?? todayIso());
-  const scoped = useReportAnalytics(bounds, !demo && Boolean(reportInventory) && period.mode !== "day", refreshKey);
+  const draftDay = period.mode === "day" || (period.mode === "today" && reportInventory?.date === bounds?.from);
+  const scoped = useReportAnalytics(bounds, !demo && Boolean(reportInventory) && !draftDay, refreshKey);
   const reportAnalytics = bounds && reportInventory
-    ? period.mode === "day"
+    ? draftDay
       ? calculateStep10Analytics([{ date: reportInventory.date, payload: reportInventory }], bounds.through, bounds.from)
       : demo ? createDemoAnalytics(reportInventory, t, bounds.from, bounds.through) : scoped.analytics
     : null;
@@ -120,18 +122,15 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
     if (!reportAnalytics || !reportInventory || !bounds) { setShareMessage(t("Choose a valid analytics period and wait for the report to load.", "بازه تحلیل معتبری انتخاب کنید و منتظر بارگذاری گزارش بمانید.")); return; }
     const text = formatStep10SponsorReport(reportInventory, reportAnalytics, bounds, language, t, demo);
     try {
-      if (navigator.share) {
-        await navigator.share({ title: t("My Step 10 inventory and analytics", "ترازنامه و تحلیل گام دهم من"), text });
-        setShareMessage(t("Share menu opened.", "منوی اشتراک باز شد."));
-      } else {
-        await navigator.clipboard.writeText(text);
-        setShareMessage(t("Inventory and analytics copied.", "ترازنامه و تحلیل کپی شد."));
-      }
+      const result = await shareStep10Report(text, reportAnalytics, bounds, language, t);
+      setShareMessage(result === "image" ? t("Share menu opened with the chart image and full report.", "منوی اشتراک با تصویر نمودار و گزارش کامل باز شد.")
+        : result === "rich-copy" ? t("Full report and visual chart copied. Paste into a rich-text app to see the chart.", "گزارش کامل و نمودار تصویری کپی شد. برای دیدن نمودار آن را در برنامه‌ای با پشتیبانی از متن غنی جای‌گذاری کنید.")
+          : t("Full report shared or copied with a text chart. Use Print / PDF for a visual chart.", "گزارش کامل با نمودار متنی به اشتراک گذاشته یا کپی شد. برای نمودار تصویری از چاپ / PDF استفاده کنید."));
     } catch (shareError) {
       if ((shareError as Error).name !== "AbortError") {
         try {
-          await navigator.clipboard.writeText(text);
-          setShareMessage(t("Sharing was unavailable, so the full report was copied.", "اشتراک در دسترس نبود؛ گزارش کامل کپی شد."));
+          const copied = await copyStep10Report(text, reportAnalytics, bounds, language, t);
+          setShareMessage(copied === "rich" ? t("Sharing was unavailable; full report and visual chart copied.", "اشتراک در دسترس نبود؛ گزارش کامل و نمودار تصویری کپی شد.") : t("Sharing was unavailable, so the full report was copied with a text chart.", "اشتراک در دسترس نبود؛ گزارش کامل با نمودار متنی کپی شد."));
         } catch {
           setShareMessage(t("Sharing was not available. Try copying the report.", "اشتراک در دسترس نبود. گزارش را کپی کنید."));
         }
@@ -142,8 +141,9 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
   async function copyCombinedReport() {
     if (!reportAnalytics || !reportInventory || !bounds) { setShareMessage(t("Choose a valid analytics period and wait for the report to load.", "بازه تحلیل معتبری انتخاب کنید و منتظر بارگذاری گزارش بمانید.")); return; }
     try {
-      await navigator.clipboard.writeText(formatStep10SponsorReport(reportInventory, reportAnalytics, bounds, language, t, demo));
-      setShareMessage(t("Inventory and analytics copied.", "ترازنامه و تحلیل کپی شد."));
+      const text = formatStep10SponsorReport(reportInventory, reportAnalytics, bounds, language, t, demo);
+      const copied = await copyStep10Report(text, reportAnalytics, bounds, language, t);
+      setShareMessage(copied === "rich" ? t("Full inventory, period analytics, and visual chart copied.", "ترازنامه کامل، تحلیل بازه و نمودار تصویری کپی شد.") : t("Full inventory and analytics copied with a text chart.", "ترازنامه کامل و تحلیل همراه با نمودار متنی کپی شد."));
     } catch {
       setShareMessage(t("Copy was not available. Try Share.", "کپی در دسترس نبود. از اشتراک استفاده کنید."));
     }
@@ -204,7 +204,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
           {reportInventory ? (
             <>
               <ReportPeriodPicker period={period} onChange={setPeriod} selectedDay={reportInventory.date} id="analytics-report-period" />
-              {period.mode !== "day" && !demo && <p className="analytics-share-context">{t("Range analytics count saved entries only. Save changes before sharing if you want them counted.", "تحلیل بازه فقط نوشته‌های ذخیره‌شده را می‌شمارد. اگر می‌خواهید تغییرات محاسبه شوند، پیش از اشتراک ذخیره کنید.")}</p>}
+              {!draftDay && !demo && <p className="analytics-share-context">{t("Range analytics count saved entries only. Save changes before sharing if you want them counted.", "تحلیل بازه فقط نوشته‌های ذخیره‌شده را می‌شمارد. اگر می‌خواهید تغییرات محاسبه شوند، پیش از اشتراک ذخیره کنید.")}</p>}
               {scoped.loading && <p className="analytics-share-context">{t("Preparing analytics for sharing…", "در حال آماده‌سازی تحلیل برای اشتراک…")}</p>}
               {scoped.error && <button className="button button-outline button-small" type="button" onClick={scoped.retry}><RefreshCw size={16} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
               <div className="analytics-share-actions">
@@ -212,7 +212,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
                 <button className="button button-outline" type="button" onClick={() => void copyCombinedReport()}><Copy size={16} />{t("Copy inventory and analytics", "کپی ترازنامه و تحلیل")}</button>
                 {onExportChart && <button className="button button-outline" type="button" onClick={() => onExportChart(reportInventory.date)}><FileDown size={16} />{t("Export chart only", "خروجی فقط نمودار")}</button>}
               </div>
-              <p className="analytics-share-context">{t("Includes the inventory for", "شامل ترازنامه روز")} {formatDisplayDate(reportInventory.date, language)}. {t("Analytics use the chosen period.", "تحلیل از بازه انتخاب‌شده استفاده می‌کند.")}</p>
+              <p className="analytics-share-context">{t("Includes the inventory for", "شامل ترازنامه روز")} {formatDisplayDate(reportInventory.date, language)}. {t("The chart and analytics use the chosen period.", "نمودار و تحلیل از بازه انتخاب‌شده استفاده می‌کنند.")}</p>
             </>
           ) : (
             <>

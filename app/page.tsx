@@ -72,8 +72,8 @@ export default function Home() {
     {
       question: t("Can I share an inventory with my sponsor?", "آیا می‌توانم ترازنامه را با حامی خود به اشتراک بگذارم؟"),
       answer: t(
-        "Yes. Share or copy the selected day's complete Step 10 inventory with analytics for that day. You can choose a calendar week, month, year, or custom date range for broader analytics. Export a sponsor summary, a full journal, or just the principle chart as a PDF for the chosen dates. Review it with your sponsor or someone with time in recovery. Sharing is always your choice.",
-        "بله. ترازنامه کامل روز انتخاب‌شده گام ۱۰ را همراه با تحلیل همان روز به اشتراک بگذارید یا کپی کنید. برای تحلیل گسترده‌تر، هفته، ماه، سال تقویمی یا بازه دلخواه تاریخ را انتخاب کنید. برای تاریخ‌های انتخاب‌شده از خلاصه حامی، دفتر کامل یا فقط نمودار اصول به‌صورت PDF خروجی بگیرید. آن را با حامی یا فردی باتجربه در بهبودی مرور کنید. اشتراک‌گذاری همیشه انتخاب شماست."
+        "Yes. Share or copy the selected day's complete Step 10 inventory with a chart and analytics for Today, that day, a calendar week, month, year, or custom date range. Print a full journal with a chart, a sponsor summary, or just the chart as a PDF for the chosen dates. Review it with your sponsor or someone with time in recovery. Sharing is always your choice.",
+        "بله. ترازنامه کامل روز انتخاب‌شده گام ۱۰ را همراه با نمودار و تحلیل برای امروز، همان روز، هفته، ماه، سال تقویمی یا بازه دلخواه تاریخ به اشتراک بگذارید یا کپی کنید. برای تاریخ‌های انتخاب‌شده، دفتر کامل همراه با نمودار، خلاصه حامی یا فقط نمودار را به‌صورت PDF چاپ کنید. آن را با حامی یا فردی باتجربه در بهبودی مرور کنید. اشتراک‌گذاری همیشه انتخاب شماست."
       ),
     },
   ];

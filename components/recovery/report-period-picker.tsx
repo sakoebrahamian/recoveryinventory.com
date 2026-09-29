@@ -13,6 +13,7 @@ export function ReportPeriodPicker({ period, onChange, selectedDay, id }: {
   const { language, t } = useLanguage();
   const bounds = reportBounds(period, selectedDay);
   const modes: [ReportPeriodMode, string][] = [
+    ["today", t("Today", "امروز")],
     ["day", t("Selected day", "روز انتخاب‌شده")],
     ["week", t("Calendar week", "هفته تقویمی")],
     ["month", t("Calendar month", "ماه تقویمی")],

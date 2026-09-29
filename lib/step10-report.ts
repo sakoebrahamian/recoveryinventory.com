@@ -201,7 +201,7 @@ function bar(practiced: number, answered: number) {
 }
 
 export function formatStep10ReportAnalytics(analytics: Step10AnalyticsData, bounds: ReportBounds, language: Language, t: Translate, sample = false) {
-  const daily = bounds.mode === "day";
+  const daily = bounds.mode === "day" || bounds.mode === "today";
   const insights = summarizeStep10Insights(analytics);
   const period = bounds.from === bounds.through
     ? formatDisplayDate(bounds.from, language)

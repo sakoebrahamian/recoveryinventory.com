@@ -11,6 +11,7 @@ import {
 } from "@/lib/inventory";
 import { calculateStep10Analytics } from "@/lib/step10-analytics";
 import { formatStep10SponsorReport } from "@/lib/step10-report";
+import { copyStep10Report, shareStep10Report } from "@/lib/step10-share";
 import { defaultReportPeriod, reportBounds, type ReportPeriod } from "@/lib/step10-report-period";
 import { useLanguage } from "./language-provider";
 import { ReportPeriodPicker } from "./report-period-picker";
@@ -106,9 +107,10 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
   const period = reportPeriod ?? localReportPeriod;
   const setPeriod = onReportPeriodChange ?? setLocalReportPeriod;
   const bounds = reportBounds(period, data.date);
-  const rangeReport = useReportAnalytics(bounds, !demo && period.mode !== "day", refreshKey);
+  const draftDay = period.mode === "day" || (period.mode === "today" && data.date === bounds?.from);
+  const rangeReport = useReportAnalytics(bounds, !demo && !draftDay, refreshKey);
   const reportAnalytics = bounds
-    ? period.mode === "day"
+    ? draftDay
       ? calculateStep10Analytics([{ date: data.date, payload: data }], bounds.through, bounds.from)
       : demo ? createDemoAnalytics(data, t, bounds.from, bounds.through) : rangeReport.analytics
     : null;
@@ -179,18 +181,15 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
     }
     const text = formatStep10SponsorReport(data, reportAnalytics, bounds, language, t, demo);
     try {
-      if (navigator.share) {
-        await navigator.share({ title: t("My Step 10 inventory and analytics", "ترازنامه و تحلیل گام دهم من"), text });
-        setMessage(t("Share menu opened.", "منوی اشتراک باز شد."));
-      } else {
-        await navigator.clipboard.writeText(text);
-        setMessage(t("Inventory and analytics copied.", "ترازنامه و تحلیل کپی شد."));
-      }
+      const result = await shareStep10Report(text, reportAnalytics, bounds, language, t);
+      setMessage(result === "image" ? t("Share menu opened with the chart image and full report.", "منوی اشتراک با تصویر نمودار و گزارش کامل باز شد.")
+        : result === "rich-copy" ? t("Full report and visual chart copied. Paste into a rich-text app to see the chart.", "گزارش کامل و نمودار تصویری کپی شد. برای دیدن نمودار آن را در برنامه‌ای با پشتیبانی از متن غنی جای‌گذاری کنید.")
+          : t("Full report shared or copied with a text chart. Use Print / PDF for a visual chart.", "گزارش کامل با نمودار متنی به اشتراک گذاشته یا کپی شد. برای نمودار تصویری از چاپ / PDF استفاده کنید."));
     } catch (error) {
       if ((error as Error).name !== "AbortError") {
         try {
-          await navigator.clipboard.writeText(text);
-          setMessage(t("Sharing was unavailable, so the full report was copied.", "اشتراک در دسترس نبود؛ گزارش کامل کپی شد."));
+          const copied = await copyStep10Report(text, reportAnalytics, bounds, language, t);
+          setMessage(copied === "rich" ? t("Sharing was unavailable; full report and visual chart copied.", "اشتراک در دسترس نبود؛ گزارش کامل و نمودار تصویری کپی شد.") : t("Sharing was unavailable, so the full report was copied with a text chart.", "اشتراک در دسترس نبود؛ گزارش کامل با نمودار متنی کپی شد."));
         } catch {
           setMessage(t("Sharing was not available. Try Print / PDF.", "اشتراک در دسترس نبود. از چاپ یا PDF استفاده کنید."));
         }
@@ -204,8 +203,9 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
       return;
     }
     try {
-      await navigator.clipboard.writeText(formatStep10SponsorReport(data, reportAnalytics, bounds, language, t, demo));
-      setMessage(t("Full inventory and period analytics copied.", "ترازنامه کامل و تحلیل بازه کپی شد."));
+      const text = formatStep10SponsorReport(data, reportAnalytics, bounds, language, t, demo);
+      const copied = await copyStep10Report(text, reportAnalytics, bounds, language, t);
+      setMessage(copied === "rich" ? t("Full inventory, period analytics, and visual chart copied.", "ترازنامه کامل، تحلیل بازه و نمودار تصویری کپی شد.") : t("Full inventory and analytics copied with a text chart.", "ترازنامه کامل و تحلیل همراه با نمودار متنی کپی شد."));
     } catch {
       setMessage(t("Copy was not available. Try Share or Print / PDF.", "کپی در دسترس نبود. از اشتراک یا چاپ / PDF استفاده کنید."));
     }
@@ -387,10 +387,10 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
         <section className="inventory-sidebar-card">
           <h3>{t("Keep or share", "ذخیره یا اشتراک")}</h3>
           <p>{t("Nothing leaves this page unless you choose an action.", "هیچ‌چیز بدون انتخاب شما از این صفحه خارج نمی‌شود.")}</p>
-          <p>{t("Share and Copy include this full inventory. Analytics use the selected day unless you choose a week, month, year, or custom range.", "اشتراک و کپی، این ترازنامه کامل را در بر می‌گیرند. تحلیل فقط برای روز انتخاب‌شده است، مگر اینکه هفته، ماه، سال یا بازه دلخواهی را انتخاب کنید.")}</p>
+          <p>{t("Share and Copy include this full inventory and a chart. Choose Today, the selected day, a week, month, year, or custom range for the chart and analytics.", "اشتراک و کپی، این ترازنامه کامل و نمودار را در بر می‌گیرند. برای نمودار و تحلیل، امروز، روز انتخاب‌شده، هفته، ماه، سال یا بازه دلخواه را انتخاب کنید.")}</p>
           <ReportPeriodPicker period={period} onChange={setPeriod} selectedDay={data.date} id="step10-report-period" />
           <p>{t("Ask your sponsor or someone with time in recovery to help you understand the patterns and choose the next step together.", "از حامی یا فردی باتجربه در بهبودی بخواهید در فهم الگوها و انتخاب گام بعدی همراه شما باشد.")}</p>
-          {!demo && period.mode !== "day" && <p>{t("Week, month, year, and range analytics count saved entries only. Save today's changes first if you want them counted.", "تحلیل هفته، ماه، سال و بازه دلخواه فقط نوشته‌های ذخیره‌شده را می‌شمارد. اگر می‌خواهید تغییرات امروز محاسبه شوند، ابتدا آن‌ها را ذخیره کنید.")}</p>}
+          {!demo && !draftDay && <p>{t("This period counts saved entries only. Save today's changes first if you want them counted.", "این بازه فقط نوشته‌های ذخیره‌شده را می‌شمارد. اگر می‌خواهید تغییرات امروز محاسبه شوند، ابتدا آن‌ها را ذخیره کنید.")}</p>}
           {rangeReport.loading && <p>{t("Preparing analytics for sharing…", "در حال آماده‌سازی تحلیل برای اشتراک…")}</p>}
           {bounds && reportAnalytics && <details className="step10-report-preview"><summary>{t("Preview principle chart", "پیش‌نمایش نمودار اصول")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>}
           <div className="sidebar-actions">

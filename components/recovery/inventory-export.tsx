@@ -3,7 +3,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { CalendarRange, FileDown, RefreshCw, X } from "lucide-react";
-import { formatDisplayDate, principleCategories, principles, step4Types } from "@/lib/inventory";
+import { formatDisplayDate, principleCategories, principles, step4Types, todayIso } from "@/lib/inventory";
 import type { PrincipleAnalytics, Step10AnalyticsData } from "@/lib/step10-analytics";
 import { describeStep10Pattern } from "@/lib/step10-report";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
@@ -31,7 +31,7 @@ export type InventoryExportHandle = {
   open: (options?: { type?: "step10" | "step4"; format?: ExportFormat; day?: string }) => void;
 };
 
-type ExportScope = "day" | "week" | "range" | "month" | "year";
+type ExportScope = "today" | "day" | "week" | "range" | "month" | "year";
 type ExportFormat = "summary" | "archive" | "chart";
 
 type InventoryExportProps = {
@@ -40,6 +40,7 @@ type InventoryExportProps = {
   year: number;
   reportPeriod: ReportPeriod;
   onReportPeriodChange: (period: ReportPeriod) => void;
+  onChooseToday?: () => void;
   refreshKey: number;
 };
 
@@ -206,7 +207,7 @@ function Step10AnalyticsPrint({ analytics, bounds, scopeLabel, brief = false }: 
   const insights = summarizeStep10Insights(analytics);
   const latestHighlight = analytics.written.reflections.find((item) => item.field === "highlights")?.excerpts[0];
   const latestConcern = analytics.written.reflections.find((item) => item.field === "attention")?.excerpts[0];
-  const daily = bounds.mode === "day";
+  const daily = bounds.mode === "day" || bounds.mode === "today";
   const fromDate = formatDisplayDate(bounds.from, language);
   const throughDate = formatDisplayDate(bounds.through, language);
 
@@ -371,7 +372,7 @@ function PrintDocument({ records, scopeLabel, analytics, bounds, format }: { rec
 }
 
 export const InventoryExport = React.forwardRef<InventoryExportHandle, InventoryExportProps>(function InventoryExport(
-  { records, selectedDate, year, reportPeriod, onReportPeriodChange, refreshKey },
+  { records, selectedDate, year, reportPeriod, onReportPeriodChange, onChooseToday, refreshKey },
   ref,
 ) {
   const { language, t } = useLanguage();
@@ -420,10 +421,10 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
     from: rangeStart <= rangeEnd ? rangeStart : rangeEnd,
     through: rangeStart <= rangeEnd ? rangeEnd : rangeStart,
   };
-  const archiveDay = scope === "month" ? `${month}-01` : scope === "year" ? firstDayOfYear(year) : day;
+  const archiveDay = scope === "today" ? todayIso() : scope === "month" ? `${month}-01` : scope === "year" ? firstDayOfYear(year) : day;
   const rawBounds = reportBounds(format === "archive" ? archivePeriod : reportPeriod, format === "archive" ? archiveDay : reportDay);
-  const archiveFrom = rawBounds && rawBounds.from < firstDayOfYear(year) ? firstDayOfYear(year) : rawBounds?.from;
-  const archiveThrough = rawBounds && rawBounds.through > lastDayOfYear(year) ? lastDayOfYear(year) : rawBounds?.through;
+  const archiveFrom = rawBounds && scope !== "today" && rawBounds.from < firstDayOfYear(year) ? firstDayOfYear(year) : rawBounds?.from;
+  const archiveThrough = rawBounds && scope !== "today" && rawBounds.through > lastDayOfYear(year) ? lastDayOfYear(year) : rawBounds?.through;
   const bounds = rawBounds && format === "archive"
     ? archiveFrom && archiveThrough && archiveFrom <= archiveThrough ? { ...rawBounds, from: archiveFrom, through: archiveThrough } : null
     : rawBounds;
@@ -435,6 +436,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
     return records.filter((record) => {
       const includedType = (record.type === "step10" && includeStep10) || (record.type === "step4" && includeStep4);
       if (!includedType) return false;
+      if (scope === "today") return record.date === todayIso();
       if (scope === "day") return record.date === day;
       if (scope === "week") return Boolean(bounds && record.date >= bounds.from && record.date <= bounds.through);
       if (scope === "range") return record.date >= start && record.date <= end;
@@ -445,6 +447,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
 
   const scopeLabel = (() => {
     const validDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value);
+    if (scope === "today") return formatDisplayDate(todayIso(), language);
     if (scope === "day") return validDate(day) ? formatDisplayDate(day, language) : t("Choose a day", "یک روز انتخاب کنید");
     if (scope === "week") return bounds ? `${formatDisplayDate(bounds.from, language)} – ${formatDisplayDate(bounds.through, language)}` : t("Choose a valid date range ending today or earlier.", "بازه تاریخی معتبری انتخاب کنید که تا امروز یا پیش از آن پایان یابد.");
     if (scope === "range") {
@@ -519,13 +522,14 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
             <legend>{t("Date selection", "انتخاب تاریخ")}</legend>
             <div className="inventory-export-scope" role="radiogroup">
               {([
+                ["today", t("Today", "امروز")],
                 ["day", t("One day", "یک روز")],
                 ["week", t("Calendar week", "هفته تقویمی")],
                 ["range", t("Date range", "بازه تاریخ")],
                 ["month", t("Month", "ماه")],
                 ["year", t("Year", "سال")],
               ] as const).map(([value, label]) => (
-                <label className={scope === value ? "is-selected" : ""} key={value}><input type="radio" name="export-scope" value={value} checked={scope === value} onChange={() => setScope(value)} /><span>{label}</span></label>
+                <label className={scope === value ? "is-selected" : ""} key={value}><input type="radio" name="export-scope" value={value} checked={scope === value} onChange={() => { setScope(value); if (value === "today" && year !== Number(todayIso().slice(0, 4))) onChooseToday?.(); }} /><span>{label}</span></label>
               ))}
             </div>
             <div className="inventory-export-date-fields">

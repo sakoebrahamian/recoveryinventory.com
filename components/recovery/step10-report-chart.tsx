@@ -18,11 +18,12 @@ export function Step10ReportChart({ analytics, bounds }: { analytics: Step10Anal
   return (
     <section className="step10-report-chart" aria-label={t("Visual summary by principle", "خلاصه تصویری بر اساس اصل")}>
       <h3>{t("Principles at a glance", "اصول در یک نگاه")}</h3>
+      {analytics.totalEntries === 0 ? <p>{t("No saved Step 10 inventories in this period.", "هیچ ترازنامه ذخیره‌شده گام ۱۰ در این بازه وجود ندارد.")}</p> : <>
       <div className="step10-report-chart-total" role="img" aria-label={groups.map((group) => `${group.label}: ${group.count}`).join("; ")}>
         {groups.map((group) => group.count > 0 && <span key={group.kind} className={`is-${group.kind}`} style={{ width: `${total ? group.count / total * 100 : 0}%` }} />)}
       </div>
       <div className="step10-report-chart-legend">{groups.map((group) => <span key={group.kind} className={`is-${group.kind}`}>{group.label} <strong>{group.count}</strong></span>)}</div>
-      <p>{bounds.mode === "day"
+      <p>{bounds.mode === "day" || bounds.mode === "today"
         ? t("One day shows each principle's recorded choice. It is not a trend.", "یک روز انتخاب ثبت‌شده هر اصل را نشان می‌دهد، نه یک روند را.")
         : t("Each bar shows Practiced, Needs attention, N/A, and unanswered across saved days. N/A and unanswered do not affect the Practiced percentage.", "هر نوار «تمرین کردم»، «نیازمند توجه»، «کاربرد ندارد» و پاسخ‌های خالی را در روزهای ذخیره‌شده نشان می‌دهد. «کاربرد ندارد» و پاسخ‌های خالی بر درصد «تمرین کردم» تأثیری ندارند.")}</p>
       <div className="step10-report-chart-rows">
@@ -31,7 +32,7 @@ export function Step10ReportChart({ analytics, bounds }: { analytics: Step10Anal
           const state = item.practiced ? "practiced" : item.attention ? "attention" : item.na ? "na" : "unanswered";
           return <div className="step10-report-chart-row" key={item.id}>
             <strong>{name}</strong>
-            {bounds.mode === "day" ? <span className={`step10-report-chart-state is-${state}`}>{groups.find((group) => group.kind === state)?.label}</span> : <>
+            {bounds.mode === "day" || bounds.mode === "today" ? <span className={`step10-report-chart-state is-${state}`}>{groups.find((group) => group.kind === state)?.label}</span> : <>
               <div className="step10-report-chart-bar" role="img" aria-label={`${name}: ${item.practiced} ${t("Practiced", "تمرین کردم")}, ${item.attention} ${t("Needs attention", "نیازمند توجه")}, ${item.na} ${t("N/A", "کاربرد ندارد")}, ${item.unanswered} ${t("Not answered", "پاسخ داده نشده")}`}>
                 {groups.map((group) => {
                   const count = item[group.kind];
@@ -43,6 +44,7 @@ export function Step10ReportChart({ analytics, bounds }: { analytics: Step10Anal
           </div>;
         })}
       </div>
+      </>}
     </section>
   );
 }

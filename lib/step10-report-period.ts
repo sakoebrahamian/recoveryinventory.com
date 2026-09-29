@@ -1,6 +1,6 @@
 import { todayIso } from "@/lib/inventory";
 
-export type ReportPeriodMode = "day" | "week" | "month" | "year" | "range";
+export type ReportPeriodMode = "today" | "day" | "week" | "month" | "year" | "range";
 export type ReportPeriod = { mode: ReportPeriodMode; from: string; through: string };
 export type ReportBounds = { from: string; through: string; mode: ReportPeriodMode };
 
@@ -18,7 +18,10 @@ export function reportBounds(period: ReportPeriod, selectedDay: string, today = 
   if (!validDay(selectedDay) || !validDay(today)) return null;
   let from = selectedDay;
   let through = selectedDay;
-  if (period.mode === "range") {
+  if (period.mode === "today") {
+    from = today;
+    through = today;
+  } else if (period.mode === "range") {
     from = period.from;
     through = period.through;
   } else if (period.mode === "week") {

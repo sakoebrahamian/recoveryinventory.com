@@ -367,6 +367,7 @@ export function MemberDashboard() {
             year={year}
             reportPeriod={reportPeriod}
             onReportPeriodChange={setReportPeriod}
+            onChooseToday={() => chooseYear(Number(todayIso().slice(0, 4)))}
             refreshKey={analyticsVersion}
           />
           {activeType === "step10" ? (
@@ -374,7 +375,7 @@ export function MemberDashboard() {
               key={`step10-${selectedDate}-${language}`}
               initialData={(selectedStep10?.payload as Step10Data | undefined) ?? { date: selectedDate }}
               onSave={(data) => saveInventory(data.date, data)}
-              onExport={() => exportRef.current?.open({ type: "step10" })}
+              onExport={() => exportRef.current?.open({ type: "step10", format: "archive" })}
               onExportChart={() => exportRef.current?.open({ format: "chart", day: selectedDate })}
               onOpenLearning={() => switchTool("learning")}
               reportPeriod={reportPeriod}
