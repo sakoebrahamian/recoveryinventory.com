@@ -1,13 +1,13 @@
 "use client";
 
-import { formatDisplayDate, principles } from "@/lib/inventory";
+import { formatDisplayDate, questionWithPrinciple } from "@/lib/inventory";
 import type { Step10AnalyticsData, WrittenExcerpt, WrittenWeek } from "@/lib/step10-analytics";
 import { practiceForPrinciple } from "@/lib/step10-practices";
 import { useLanguage } from "./language-provider";
 
 export function Step10WeeklyInsights({ analytics, print = false }: { analytics: Step10AnalyticsData; print?: boolean }) {
   const { language, t } = useLanguage();
-  const name = (id: string) => principles.find((item) => item.id === id)?.[language] ?? id;
+  const name = (id: string) => questionWithPrinciple(id, language);
   const sample = (label: string, item: WrittenExcerpt | null, principleId?: string) => item && (
     <div className="analytics-weekly-sample">
       <strong>{label}{principleId ? ` · ${name(principleId)}` : ""}</strong>

@@ -5,7 +5,7 @@ An English, Farsi, and Spanish recovery inventory website built for Cloudflare W
 ## Included
 
 - Public landing page
-- Interactive Step 10 demo with 24 main reflection questions, 15 supporting prompts, and matching chart and report labels
+- Interactive Step 10 demo with 39 independently answerable questions across 24 principles, including 15 follow-ups, visible principle labels, and matching charts and reports
 - Reusable Step 4 workbooks with six detailed, editable sections
 - Recovery learning center connecting defects, shortcomings, corrective principles, and practical actions
 - A choice of anonymous accounts or verified email accounts

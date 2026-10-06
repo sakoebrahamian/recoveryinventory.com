@@ -3,9 +3,9 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { CalendarRange, FileDown, RefreshCw, X } from "lucide-react";
-import { formatDisplayDate, principleCategories, principles, principleQuestion, principleFollowUpQuestions, step4Types, todayIso } from "@/lib/inventory";
-import type { PrincipleAnalytics, Step10AnalyticsData } from "@/lib/step10-analytics";
-import { describeStep10Pattern } from "@/lib/step10-report";
+import { formatDisplayDate, principleCategories, step10QuestionsForPayload, principleQuestion, questionPrincipleName, questionWithPrinciple, reflectionPrincipleNames, step4Types, todayIso } from "@/lib/inventory";
+import { reflectionFields, type PrincipleAnalytics, type Step10AnalyticsData } from "@/lib/step10-analytics";
+import { describeStep10Pattern, step10ReflectionLabel } from "@/lib/step10-report";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
 import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { practiceForPrinciple } from "@/lib/step10-practices";
@@ -88,16 +88,7 @@ function step4Labels(type: string, t: (en: string, fa: string) => string) {
 
 function Step10Print({ data }: { data: Step10Data }) {
   const { language, t } = useLanguage();
-  const answered = principles.filter((principle) => Boolean(data.states?.[principle.id]));
-  const reflectionFields = [
-    [t("Where I lived my principles", "جایی که بر اساس اصولم زندگی کردم"), data.highlights],
-    [t("Where I still need to work", "جایی که هنوز نیاز به کار دارم"), data.attention],
-    ...(data.patternAction?.trim() ? [[t("Pattern and response", "الگو و واکنش"), data.patternAction] as const] : []),
-    ...(data.familyContext?.trim() ? [[t("Family impact and what I could control", "تأثیر بر خانواده و آنچه در اختیار من بود"), data.familyContext] as const] : []),
-    [t("Apology or amends", "عذرخواهی یا جبران"), data.amends],
-    [t("What is one helpful action I can take tomorrow?", "فردا چه اقدام مفیدی می‌توانم انجام دهم؟"), data.tomorrow],
-    [t("Gratitude", "قدردانی"), data.gratitude],
-  ] as const;
+  const answered = step10QuestionsForPayload(data).filter((principle) => Boolean(data.states?.[principle.id]));
 
   return (
     <>
@@ -120,7 +111,7 @@ function Step10Print({ data }: { data: Step10Data }) {
                   <div className="inventory-print-principle" key={principle.id}>
                     <span className={`inventory-print-state is-${state}`}>{stateLabel}</span>
                     <strong>{principleQuestion(principle.id, language)}</strong>
-                    {principleFollowUpQuestions(principle.id, language).map((question) => <p key={question}>{question}</p>)}
+                    <span className="question-principle">{t("Principle", "اصل")}: {questionPrincipleName(principle.id, language)}</span>
                     {attentionNote && (
                       <div className="inventory-print-attention-note">
                         <strong>{t("What happened today that needs attention?", "امروز چه اتفاقی افتاد که نیاز به توجه دارد؟")}</strong>
@@ -134,16 +125,17 @@ function Step10Print({ data }: { data: Step10Data }) {
           </section>
         );
       }) : (
-        <p className="inventory-print-empty">{t("No principle responses were recorded.", "هیچ پاسخی برای اصول ثبت نشده است.")}</p>
+        <p className="inventory-print-empty">{t("No question responses were recorded.", "هیچ پاسخی برای پرسش‌ها ثبت نشده است.")}</p>
       )}
 
       <section className="inventory-print-section">
         <h3>{t("Daily reflection", "بازتاب روزانه")}</h3>
         <div className="inventory-print-reflections">
-          {reflectionFields.map(([label, value]) => (
-            <div key={label}>
-              <strong>{label}</strong>
-              <p>{value?.trim() || "—"}</p>
+          {reflectionFields.map((field) => (
+            <div key={field}>
+              <strong>{step10ReflectionLabel(field, t)}</strong>
+              <small className="question-principle">{t("Related principles", "اصول مرتبط")}: {reflectionPrincipleNames(field, language)}</small>
+              <p>{data[field]?.trim() || "—"}</p>
             </div>
           ))}
         </div>
@@ -202,7 +194,7 @@ function Step10AnalyticsPrint({ analytics, bounds, scopeLabel, brief = false }: 
   const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
   const monthLocale = language === "fa" ? "fa-IR-u-ca-gregory" : locale;
   const number = (value: number) => new Intl.NumberFormat(locale).format(value);
-  const principleName = (item: PrincipleAnalytics) => principleQuestion(item.id, language);
+  const principleName = (item: PrincipleAnalytics) => questionWithPrinciple(item.id, language);
   const insights = summarizeStep10Insights(analytics);
   const latestHighlight = analytics.written.reflections.find((item) => item.field === "highlights")?.excerpts[0];
   const latestConcern = analytics.written.reflections.find((item) => item.field === "attention")?.excerpts[0];
@@ -253,14 +245,14 @@ function Step10AnalyticsPrint({ analytics, bounds, scopeLabel, brief = false }: 
 
           {!daily && <section className="inventory-print-analytics-block inventory-print-interpretation">
             <h3>{t("What your inventories show", "ترازنامه‌های شما چه نشان می‌دهند")}</h3>
-            <p>{t("These patterns describe your recorded choices, not your worth or a recovery score. We look for repeated answers on at least three days; N/A and unanswered principles do not count.", "این الگوها انتخاب‌های ثبت‌شده شما را توصیف می‌کنند، نه ارزش شما یا نمره بهبودی‌تان را. ما پاسخ‌های تکرارشده در دست‌کم سه روز را بررسی می‌کنیم؛ گزینه «کاربرد ندارد» و پاسخ‌های خالی محاسبه نمی‌شوند.")}</p>
+            <p>{t("These patterns describe your recorded choices, not your worth or a recovery score. We look for repeated answers on at least three days; N/A and unanswered questions do not count.", "این الگوها انتخاب‌های ثبت‌شده شما را توصیف می‌کنند، نه ارزش شما یا نمره بهبودی‌تان را. ما پاسخ‌های تکرارشده در دست‌کم سه روز را بررسی می‌کنیم؛ گزینه «کاربرد ندارد» و پاسخ‌های خالی محاسبه نمی‌شوند.")}</p>
             <div>
               {([
                 [t("Where you are doing well", "جاهایی که خوب پیش می‌روید"), insights.strengths, "practiced", insights.enoughHistory
                   ? t("No repeated Practiced pattern is clear yet. Review your entries with your sponsor.", "هنوز الگوی روشنی از «تمرین کردم» دیده نمی‌شود. نوشته‌هایتان را با حامی مرور کنید.")
                   : t("Save more inventories to see a repeated pattern. Discuss what you have recorded with your sponsor.", "برای دیدن الگوی تکرارشونده، ترازنامه‌های بیشتری ذخیره کنید. موارد ثبت‌شده را با حامی در میان بگذارید.")],
                 [t("Where to ask for help", "جاهایی که می‌توانید کمک بخواهید"), insights.focus, "attention", insights.enoughHistory
-                  ? t("Among principles answered on at least three days, none was marked Needs attention at least half the time. Bring any concerns to your sponsor anyway.", "در میان اصولی که در دست‌کم سه روز به آن‌ها پاسخ داده‌اید، هیچ‌کدام دست‌کم در نیمی از موارد «نیازمند توجه» نبوده‌اند. با این حال نگرانی‌های خود را با حامی در میان بگذارید.")
+                  ? t("Among questions answered on at least three days, none was marked Needs attention at least half the time. Bring any concerns to your sponsor anyway.", "در میان پرسش‌هایی که در دست‌کم سه روز به آن‌ها پاسخ داده‌اید، هیچ‌کدام دست‌کم در نیمی از موارد «نیازمند توجه» نبوده‌اند. با این حال نگرانی‌های خود را با حامی در میان بگذارید.")
                   : t("Save more inventories before looking for a recurring focus. Your sponsor can still help with today's concerns.", "پیش از جست‌وجوی تمرکز تکرارشونده، ترازنامه‌های بیشتری ذخیره کنید. حامی همچنان می‌تواند درباره نگرانی‌های امروز کمک کند.")],
               ] as const).map(([heading, items, countKey, empty]) => (
                 <div key={countKey}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { principles, principleQuestion } from "@/lib/inventory";
+import { principleQuestion, questionPrincipleName } from "@/lib/inventory";
 import type { Step10AnalyticsData } from "@/lib/step10-analytics";
 import type { ReportBounds } from "@/lib/step10-report-period";
 import { useLanguage } from "./language-provider";
@@ -8,7 +8,7 @@ import { useLanguage } from "./language-provider";
 export function Step10ReportChart({ analytics, bounds }: { analytics: Step10AnalyticsData; bounds: ReportBounds }) {
   const { language, t } = useLanguage();
   const daily = bounds.mode === "day" || bounds.mode === "today";
-  const total = analytics.totalEntries * principles.length;
+  const total = analytics.principles.reduce((sum, item) => sum + item.practiced + item.attention + item.na + item.unanswered, 0);
   const unanswered = Math.max(0, total - analytics.totalPracticed - analytics.totalAttention - analytics.totalNA);
   const groups = [
     { label: t("Practiced", "تمرین کردم"), count: analytics.totalPracticed, kind: "practiced" },
@@ -30,15 +30,16 @@ export function Step10ReportChart({ analytics, bounds }: { analytics: Step10Anal
       <div className="step10-report-chart-rows">
         {analytics.principles.map((item) => {
           const name = principleQuestion(item.id, language);
+          const rowTotal = item.practiced + item.attention + item.na + item.unanswered;
           const state = item.practiced ? "practiced" : item.attention ? "attention" : item.na ? "na" : "unanswered";
           return <div className={`step10-report-chart-row${daily ? " is-daily" : ""}`} key={item.id}>
-            <strong>{name}</strong>
+            <strong>{name}<small className="question-principle">{t("Principle", "اصل")}: {questionPrincipleName(item.id, language)}</small></strong>
             <div className="step10-report-chart-bar" role="img" aria-label={daily
               ? `${name}: ${groups.find((group) => group.kind === state)?.label}`
               : `${name}: ${item.practiced} ${t("Practiced", "تمرین کردم")}, ${item.attention} ${t("Needs attention", "نیازمند توجه")}, ${item.na} ${t("N/A", "کاربرد ندارد")}, ${item.unanswered} ${t("Not answered", "پاسخ داده نشده")}`}>
               {groups.map((group) => {
                 const count = item[group.kind];
-                return count > 0 && <span key={group.kind} className={`is-${group.kind}`} style={{ width: `${count / analytics.totalEntries * 100}%` }} />;
+                return count > 0 && <span key={group.kind} className={`is-${group.kind}`} style={{ width: `${rowTotal ? count / rowTotal * 100 : 0}%` }} />;
               })}
             </div>
             {daily

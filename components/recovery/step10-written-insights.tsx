@@ -1,6 +1,6 @@
 "use client";
 
-import { formatDisplayDate, type Language } from "@/lib/inventory";
+import { formatDisplayDate, questionWithPrinciple, reflectionPrincipleNames, type Language } from "@/lib/inventory";
 import type { Step10AnalyticsData, WrittenExcerpt } from "@/lib/step10-analytics";
 import { step10ReflectionLabel, writtenFocusPrinciples } from "@/lib/step10-report";
 import { practiceForPrinciple } from "@/lib/step10-practices";
@@ -35,6 +35,7 @@ export function Step10WrittenInsights({ analytics, print = false }: { analytics:
         {written.reflections.map((item) => (
           <article key={item.field} className="analytics-written-card">
             <h4>{step10ReflectionLabel(item.field, t)}</h4>
+            <small className="question-principle">{t("Related principles", "اصول مرتبط")}: {reflectionPrincipleNames(item.field, language)}</small>
             <span>{item.count} {t("days with writing", "روز دارای نوشته")}</span>
             <Excerpts excerpts={item.excerpts} language={language} t={t} />
           </article>
@@ -46,7 +47,7 @@ export function Step10WrittenInsights({ analytics, print = false }: { analytics:
         const practice = practiceForPrinciple(item.id, language);
         const notes = written.principles.find((entry) => entry.id === item.id);
         return <article key={item.id} className="analytics-written-card analytics-written-focus">
-          <h4>{practice?.primary ?? item.id}</h4>
+          <h4>{questionWithPrinciple(item.id, language)}</h4>
           <span>{item.attention} {t("times marked Needs attention", "بار نیازمند توجه ثبت شده")} · {notes?.count ?? 0} {t("written explanations", "توضیح نوشته‌شده")}</span>
           {practice && <p><strong>{t("Principles to discuss", "اصولی برای گفت‌وگو")}:</strong> {practice.primary} + {practice.companion}<br /><strong>{t("Possible practice to discuss", "تمرین پیشنهادی برای گفت‌وگو")}:</strong> {practice.action}</p>}
           {notes?.excerpts.length ? <Excerpts excerpts={notes.excerpts} language={language} t={t} /> : <p className="analytics-written-empty">{t("No written explanation saved for this principle yet.", "هنوز توضیحی برای این اصل ذخیره نشده است.")}</p>}

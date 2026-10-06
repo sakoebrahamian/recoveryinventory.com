@@ -1,4 +1,4 @@
-import { formatDisplayDate, principles, principleQuestion, type Language } from "@/lib/inventory";
+import { formatDisplayDate, principleQuestion, questionPrincipleName, type Language } from "@/lib/inventory";
 import type { Step10AnalyticsData } from "@/lib/step10-analytics";
 import type { ReportBounds } from "@/lib/step10-report-period";
 
@@ -24,7 +24,7 @@ function chartDetails(analytics: Step10AnalyticsData, bounds: ReportBounds, lang
     unanswered: t("Not answered", "پاسخ داده نشده"),
   };
   const kinds: ChartKind[] = ["practiced", "attention", "na", "unanswered"];
-  const total = analytics.totalEntries * principles.length;
+  const total = analytics.principles.reduce((sum, item) => sum + item.practiced + item.attention + item.na + item.unanswered, 0);
   const counts: Record<ChartKind, number> = {
     practiced: analytics.totalPracticed,
     attention: analytics.totalAttention,
@@ -34,7 +34,9 @@ function chartDetails(analytics: Step10AnalyticsData, bounds: ReportBounds, lang
   const period = bounds.from === bounds.through ? formatDisplayDate(bounds.from, language) : `${formatDisplayDate(bounds.from, language)} – ${formatDisplayDate(bounds.through, language)}`;
   const rows = analytics.principles.map((item) => ({
     name: principleQuestion(item.id, language),
+    principle: `${t("Principle", "اصل")}: ${questionPrincipleName(item.id, language)}`,
     counts: { practiced: item.practiced, attention: item.attention, na: item.na, unanswered: item.unanswered },
+    total: item.practiced + item.attention + item.na + item.unanswered,
     answered: item.answered,
   }));
   return { labels, kinds, counts, total, period, rows, daily: bounds.mode === "day" || bounds.mode === "today", title: t("Daily questions at a glance", "پرسش‌های روزانه در یک نگاه") };
@@ -48,7 +50,7 @@ export function step10RichReport(text: string, analytics: Step10AnalyticsData, b
   const legend = chart.kinds.map((kind) => `<span style="display:inline-block;margin:0 14px 8px 0"><span style="display:inline-block;width:10px;height:10px;background:${colors[kind]};margin-right:5px"></span>${escapeHtml(chart.labels[kind])}: ${chart.counts[kind]}</span>`).join("");
   const rows = chart.rows.map((row) => {
     const state = chart.kinds.find((kind) => row.counts[kind]) ?? "unanswered";
-    return `<tr><th style="text-align:start;padding:6px;border-bottom:1px solid #e5e9e6">${escapeHtml(row.name)}</th><td style="padding:6px;border-bottom:1px solid #e5e9e6">${bar(row.counts, analytics.totalEntries)}</td><td style="padding:6px;border-bottom:1px solid #e5e9e6;text-align:end">${chart.daily ? `<span style="color:${state === "unanswered" ? "#62716b" : colors[state]};font-weight:bold">${escapeHtml(chart.labels[state])}</span>` : `${row.counts.practiced}/${row.answered} ${escapeHtml(chart.labels.practiced)} · ${row.counts.na} ${escapeHtml(chart.labels.na)}`}</td></tr>`;
+    return `<tr><th style="text-align:start;padding:6px;border-bottom:1px solid #e5e9e6">${escapeHtml(row.name)}<small style="display:block;font-weight:normal;color:#62716b;margin-top:3px">${escapeHtml(row.principle)}</small></th><td style="padding:6px;border-bottom:1px solid #e5e9e6">${bar(row.counts, row.total)}</td><td style="padding:6px;border-bottom:1px solid #e5e9e6;text-align:end">${chart.daily ? `<span style="color:${state === "unanswered" ? "#62716b" : colors[state]};font-weight:bold">${escapeHtml(chart.labels[state])}</span>` : `${row.counts.practiced}/${row.answered} ${escapeHtml(chart.labels.practiced)} · ${row.counts.na} ${escapeHtml(chart.labels.na)}`}</td></tr>`;
   }).join("");
   return `<div dir="${language === "fa" ? "rtl" : "ltr"}" style="font-family:Arial,sans-serif;color:#173f3a"><h2>${escapeHtml(chart.title)}</h2><p>${escapeHtml(t("Analytics period", "بازه تحلیل"))}: ${escapeHtml(chart.period)}</p>${empty ? `<p>${escapeHtml(t("No saved Step 10 inventories in this period.", "هیچ ترازنامه ذخیره‌شده گام ۱۰ در این بازه وجود ندارد."))}</p>` : `${bar(chart.counts, chart.total)}<p>${legend}</p><table style="width:100%;border-collapse:collapse;font-size:13px"><tbody>${rows}</tbody></table>`}<hr><div style="white-space:pre-wrap;line-height:1.5">${escapeHtml(text).replace(/\n/g, "<br>")}</div></div>`;
 }
@@ -72,7 +74,7 @@ function step10ChartPng(analytics: Step10AnalyticsData, bounds: ReportBounds, la
       } else line = candidate;
     }
     if (line) lines.push(line);
-    return { ...row, lines, height: Math.max(58, lines.length * 22 + 20) };
+    return { ...row, lines, height: Math.max(72, lines.length * 22 + 42) };
   });
   canvas.height = analytics.totalEntries ? 270 + rows.reduce((height, row) => height + row.height, 0) : 210;
   context.fillStyle = "#fff";
@@ -121,8 +123,13 @@ function step10ChartPng(analytics: Step10AnalyticsData, bounds: ReportBounds, la
     context.fillStyle = "#173f3a";
     context.direction = language === "fa" ? "rtl" : "ltr";
     context.textAlign = language === "fa" ? "right" : "left";
-    row.lines.forEach((line, index) => context.fillText(line, language === "fa" ? 405 : 45, y + (index - (row.lines.length - 1) / 2) * 22));
-    paintBar(row.counts, analytics.totalEntries, 465, y - 7, 410, 15);
+    context.font = "17px Arial, sans-serif";
+    row.lines.forEach((line, index) => context.fillText(line, language === "fa" ? 405 : 45, rowTop + 18 + index * 22));
+    context.font = "14px Arial, sans-serif";
+    context.fillStyle = "#62716b";
+    context.fillText(row.principle, language === "fa" ? 405 : 45, rowTop + 18 + row.lines.length * 22, 360);
+    context.font = "17px Arial, sans-serif";
+    paintBar(row.counts, row.total, 465, y - 7, 410, 15);
     if (chart.daily) {
       const state = chart.kinds.find((kind) => row.counts[kind]) ?? "unanswered";
       context.fillStyle = colors[state] === colors.unanswered ? "#62716b" : colors[state];

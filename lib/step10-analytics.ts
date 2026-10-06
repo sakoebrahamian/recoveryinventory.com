@@ -1,4 +1,4 @@
-import { principles, type PrincipleState } from "@/lib/inventory";
+import { step10Questions, step10QuestionsForPayload, type PrincipleState } from "@/lib/inventory";
 
 type Step10AnalyticsPayload = {
   states?: Record<string, PrincipleState | undefined>;
@@ -107,7 +107,7 @@ function excerpt(date: string, value: unknown): WrittenExcerpt | null {
 
 function writtenAnalytics(records: Step10AnalyticsRecord[]): WrittenAnalytics {
   const reflections = reflectionFields.map((field) => ({ field, count: 0, excerpts: [] as WrittenExcerpt[] }));
-  const principleNotes = principles.map(({ id }) => ({ id, count: 0, excerpts: [] as WrittenExcerpt[] }));
+  const principleNotes = step10Questions.map(({ id }) => ({ id, count: 0, excerpts: [] as WrittenExcerpt[] }));
 
   // Counts span the complete saved history; only the two most recent excerpts per field are returned.
   // Text is grouped by the member's own field and principle selection, without guessing its meaning.
@@ -169,7 +169,7 @@ function weeklyAnalytics(records: Step10AnalyticsRecord[], through: string): Wri
       highlight = weeklyExcerpt(record.date, content.highlights) ?? highlight;
       nextAction = weeklyExcerpt(record.date, content.tomorrow) ?? nextAction;
       concern = weeklyExcerpt(record.date, content.attention) ?? concern;
-      for (const principle of principles) {
+      for (const principle of step10QuestionsForPayload(record.payload)) {
         const state = states[principle.id];
         if (state === "practiced") practiced.set(principle.id, (practiced.get(principle.id) ?? 0) + 1);
         if (state === "attention") {
@@ -198,7 +198,7 @@ function rateForRecords(records: Step10AnalyticsRecord[]): number | null {
   let answered = 0;
   for (const record of records) {
     const states = payloadStates(record.payload);
-    for (const principle of principles) {
+    for (const principle of step10QuestionsForPayload(record.payload)) {
       const state = states[principle.id];
       if (state === "practiced") {
         practiced += 1;
@@ -252,7 +252,7 @@ export function calculateStep10Analytics(
   const principleTotals = new Map<string, { practiced: number; attention: number; na: number; unanswered: number }>();
   const categoryTotals = new Map<string, { practiced: number; attention: number }>();
   const monthTotals = new Map<string, { entries: number; practiced: number; attention: number }>();
-  for (const principle of principles) {
+  for (const principle of step10Questions) {
     principleTotals.set(principle.id, { practiced: 0, attention: 0, na: 0, unanswered: 0 });
     if (!categoryTotals.has(principle.category)) categoryTotals.set(principle.category, { practiced: 0, attention: 0 });
   }
@@ -267,7 +267,7 @@ export function calculateStep10Analytics(
     monthTotal.entries += 1;
     const states = payloadStates(record.payload);
 
-    for (const principle of principles) {
+    for (const principle of step10QuestionsForPayload(record.payload)) {
       const state = states[principle.id];
       const principleTotal = principleTotals.get(principle.id)!;
       if (state === "na") {
@@ -296,7 +296,7 @@ export function calculateStep10Analytics(
     monthTotals.set(month, monthTotal);
   }
 
-  const principleResults = principles.map((principle): PrincipleAnalytics => {
+  const principleResults = step10Questions.map((principle): PrincipleAnalytics => {
     const total = principleTotals.get(principle.id)!;
     const answered = total.practiced + total.attention;
     return {
@@ -308,7 +308,7 @@ export function calculateStep10Analytics(
       answered,
       practiceRate: roundRate(total.practiced, answered),
     };
-  });
+  }).filter((item) => records.length === 0 || item.practiced + item.attention + item.na + item.unanswered > 0);
   const recent = records.slice(-7);
   const previous = records.slice(Math.max(0, records.length - 14), Math.max(0, records.length - 7));
   const recentPracticeRate = rateForRecords(recent);

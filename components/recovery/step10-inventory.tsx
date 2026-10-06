@@ -6,8 +6,10 @@ import {
   formatDisplayDate,
   principleCategories,
   principleQuestion,
-  principleFollowUpQuestions,
-  principles,
+  questionPrincipleName,
+  reflectionPrincipleNames,
+  step10Questions,
+  step10QuestionSetVersion,
   type PrincipleState,
   todayIso,
 } from "@/lib/inventory";
@@ -22,6 +24,7 @@ import { createDemoAnalytics } from "./step10-analytics";
 import { useReportAnalytics } from "./use-report-analytics";
 
 type Step10Data = {
+  questionSetVersion?: number;
   date: string;
   mood: string;
   states: Record<string, PrincipleState | undefined>;
@@ -50,12 +53,17 @@ type Step10InventoryProps = {
 
 const demoStates: Record<string, PrincipleState> = {
   honesty: "practiced",
+  "honesty-motives": "attention",
   "open-mindedness": "practiced",
+  "open-mindedness-being-mistaken": "practiced",
   willingness: "practiced",
+  "willingness-accepting-help": "practiced",
   humility: "attention",
+  "humility-asking-for-help": "practiced",
   responsibility: "practiced",
   acceptance: "attention",
   patience: "attention",
+  "patience-pausing": "practiced",
   courage: "practiced",
   kindness: "practiced",
   boundaries: "na",
@@ -66,10 +74,14 @@ const demoStates: Record<string, PrincipleState> = {
 
 export function createDemoStep10Data(t: (english: string, farsi: string) => string): Step10Data {
   return {
+    questionSetVersion: step10QuestionSetVersion,
     date: todayIso(),
     mood: "steady",
     states: { ...demoStates },
-    attentionNotes: { patience: t("I became impatient when plans changed.", "وقتی برنامه‌ها تغییر کرد بی‌صبر شدم.") },
+    attentionNotes: {
+      patience: t("I became impatient when plans changed.", "وقتی برنامه‌ها تغییر کرد بی‌صبر شدم."),
+      "honesty-motives": t("I wanted approval and did not admit that to myself at first.", "در ابتدا به خودم نگفتم که به دنبال تأیید دیگران بودم."),
+    },
     highlights: t("I paused before answering a difficult message and asked for help when I needed it.", "پیش از پاسخ به یک پیام دشوار مکث کردم و وقتی نیاز داشتم کمک خواستم."),
     attention: t("I became impatient when plans changed.", "وقتی برنامه‌ها تغییر کرد بی‌صبر شدم."),
     patternAction: "",
@@ -85,6 +97,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
   const [data, setData] = React.useState<Step10Data>(() => {
     const sample = demo ? createDemoStep10Data(t) : null;
     return {
+      questionSetVersion: step10QuestionSetVersion,
       date: initialData?.date ?? sample?.date ?? todayIso(),
       mood: initialData?.mood ?? "steady",
       states: initialData?.states ?? sample?.states ?? {},
@@ -146,7 +159,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
   }, [mobileActionsOpen]);
 
   const counts = React.useMemo(() => {
-    const values = Object.values(data.states);
+    const values = step10Questions.map((question) => data.states[question.id]);
     return {
       answered: values.filter(Boolean).length,
       practiced: values.filter((value) => value === "practiced").length,
@@ -154,7 +167,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
     };
   }, [data.states]);
 
-  function setPrinciple(id: string, state: PrincipleState) {
+  function setQuestion(id: string, state: PrincipleState) {
     setData((current) => {
       const attentionNotes = { ...current.attentionNotes };
       if (state !== "attention") delete attentionNotes[id];
@@ -235,6 +248,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
 
   function resetInventory() {
     setData({
+      questionSetVersion: step10QuestionSetVersion,
       date: todayIso(),
       mood: "steady",
       states: {},
@@ -291,13 +305,13 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
         <div className="inventory-content">
           <div className="inventory-intro-row">
             <div>
-              <h3>{t("Reflect on these 24 daily questions", "به این ۲۴ پرسش روزانه فکر کنید")}</h3>
-              <p>{t("Use the supporting questions to reflect, then choose Practiced, Needs attention, or N/A once for each item. There is no score to earn.", "از پرسش‌های تکمیلی برای تأمل استفاده کنید، سپس برای هر مورد یک بار «تمرین کردم»، «نیاز به توجه» یا «کاربرد ندارد» را انتخاب کنید. اینجا نمره‌ای در کار نیست.")}</p>
+              <h3>{t("Reflect on each daily question", "به هر پرسش روزانه فکر کنید")}</h3>
+              <p>{t("39 questions explore 24 principles. Answer each question, including follow-ups, separately with Practiced, Needs attention, or N/A. Each shows its principle. There is no score to earn.", "۳۹ پرسش به ۲۴ اصل می‌پردازند. هر پرسش، از جمله پرسش‌های تکمیلی، را جداگانه با «تمرین کردم»، «نیاز به توجه» یا «کاربرد ندارد» پاسخ دهید. اصل هر پرسش نمایش داده می‌شود. اینجا نمره‌ای در کار نیست.")}</p>
             </div>
             <div className="inventory-intro-actions">
               {onOpenLearning && <button className="button button-outline button-small" type="button" onClick={onOpenLearning}><BookOpenText size={16} />{t("Learn these principles", "یادگیری این اصول")}</button>}
-              <div className="progress-ring" aria-label={`${counts.answered} of 24 answered`}>
-                {counts.answered}/24
+              <div className="progress-ring" aria-label={`${counts.answered} ${t("of", "از")} ${step10Questions.length} ${t("answered", "پاسخ داده‌شده")}`}>
+                {counts.answered}/{step10Questions.length}
               </div>
             </div>
           </div>
@@ -308,37 +322,36 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
                 {language === "fa" ? category.fa : language === "es" ? category.es : category.en}
               </div>
               <div className="principle-grid">
-                {principles.filter((principle) => principle.category === category.id).map((principle) => {
-                  const state = data.states[principle.id];
-                  const question = principleQuestion(principle.id, language);
-                  const followUps = principleFollowUpQuestions(principle.id, language);
+                {step10Questions.filter((item) => item.category === category.id).map((item) => {
+                  const state = data.states[item.id];
+                  const question = principleQuestion(item.id, language);
                   return (
-                    <article className={`principle-card${state ? ` is-${state}` : ""}`} key={principle.id}>
+                    <article className={`principle-card${state ? ` is-${state}` : ""}`} key={item.id}>
                       <div className="principle-name">
                         <strong>{question}</strong>
-                        {followUps.length > 0 && <ul className="principle-follow-up-list">{followUps.map((followUp) => <li key={followUp}>{followUp}</li>)}</ul>}
+                        <span className="question-principle">{t("Principle", "اصل")}: {questionPrincipleName(item.id, language)}{item.followUp && <> · {t("Follow-up question", "پرسش تکمیلی")}</>}</span>
                       </div>
                       <div className="state-picker" role="group" aria-label={question}>
-                        <button className="practiced" type="button" aria-pressed={state === "practiced"} onClick={() => setPrinciple(principle.id, "practiced")}>
+                        <button className="practiced" type="button" aria-pressed={state === "practiced"} onClick={() => setQuestion(item.id, "practiced")}>
                           {t("Practiced", "تمرین کردم")}
                         </button>
-                        <button className="attention" type="button" aria-pressed={state === "attention"} onClick={() => setPrinciple(principle.id, "attention")}>
+                        <button className="attention" type="button" aria-pressed={state === "attention"} onClick={() => setQuestion(item.id, "attention")}>
                           {t("Needs attention", "نیاز به توجه")}
                         </button>
-                        <button className="na" type="button" aria-pressed={state === "na"} onClick={() => setPrinciple(principle.id, "na")} aria-label={t("Not applicable", "کاربرد ندارد")}>
+                        <button className="na" type="button" aria-pressed={state === "na"} onClick={() => setQuestion(item.id, "na")} aria-label={t("Not applicable", "کاربرد ندارد")}>
                           {language === "en" ? "N/A" : t("Not applicable", "کاربرد ندارد")}
                         </button>
                       </div>
                       {state === "attention" && (
                         <div className="principle-attention-note">
-                          <label htmlFor={`attention-note-${principle.id}`}>
+                          <label htmlFor={`attention-note-${item.id}`}>
                             {t("What happened today that needs attention?", "امروز چه اتفاقی افتاد که نیاز به توجه دارد؟")}
                           </label>
                           <textarea
-                            id={`attention-note-${principle.id}`}
+                            id={`attention-note-${item.id}`}
                             className="form-textarea"
-                            value={data.attentionNotes[principle.id] ?? ""}
-                            onChange={(event) => setAttentionNote(principle.id, event.target.value)}
+                            value={data.attentionNotes[item.id] ?? ""}
+                            onChange={(event) => setAttentionNote(item.id, event.target.value)}
                             placeholder={t("Briefly describe what needs attention in your answer.", "کوتاه توضیح دهید چه چیزی در پاسخ شما نیاز به توجه دارد.")}
                             rows={3}
                           />
@@ -356,31 +369,38 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
             <div className="prompt-grid">
               <div className="form-field">
                 <label htmlFor="step10-highlights">{t("Where did I live my principles?", "کجا بر اساس اصولم زندگی کردم؟")}</label>
+                <small className="question-principle">{t("Related principles", "اصول مرتبط")}: {reflectionPrincipleNames("highlights", language)}</small>
                 <textarea id="step10-highlights" className="form-textarea" value={data.highlights} onChange={(event) => updateField("highlights", event.target.value)} />
               </div>
               <div className="form-field">
                 <label htmlFor="step10-attention">{t("Where do I still need to work?", "کجا هنوز نیاز به کار دارم؟")}</label>
+                <small className="question-principle">{t("Related principles", "اصول مرتبط")}: {reflectionPrincipleNames("attention", language)}</small>
                 <textarea id="step10-attention" className="form-textarea" value={data.attention} onChange={(event) => updateField("attention", event.target.value)} />
               </div>
               <div className="form-field">
                 <label htmlFor="step10-pattern-action">{t("What character pattern, including self-pity, did I notice, and how did I work on it?", "چه الگوی رفتاری، از جمله ترحم به خود، را دیدم و چگونه روی آن کار کردم؟")}</label>
+                <small className="question-principle">{t("Related principles", "اصول مرتبط")}: {reflectionPrincipleNames("patternAction", language)}</small>
                 <textarea id="step10-pattern-action" className="form-textarea" value={data.patternAction} onChange={(event) => updateField("patternAction", event.target.value)} />
               </div>
               <div className="form-field">
                 <label htmlFor="step10-family-context">{t("If another person's drinking or substance use affected me or my family today, what happened and what could I control?", "اگر مصرف الکل یا موادِ فرد دیگری امروز بر من یا خانواده‌ام اثر گذاشت، چه اتفاقی افتاد و چه چیزی در اختیار من بود؟")}</label>
+                <small className="question-principle">{t("Related principles", "اصول مرتبط")}: {reflectionPrincipleNames("familyContext", language)}</small>
                 <textarea id="step10-family-context" className="form-textarea" value={data.familyContext} onChange={(event) => updateField("familyContext", event.target.value)} />
                 <small>{t("Optional. If another person's behavior felt unpredictable, focus on your choices and what was outside your control.", "اختیاری است. اگر رفتار فرد دیگری پیش‌بینی‌ناپذیر بود، به انتخاب‌های خود و آنچه خارج از اختیار شما بود توجه کنید.")}</small>
               </div>
               <div className="form-field">
                 <label htmlFor="step10-amends">{t("Do I owe an apology or amends?", "آیا به کسی عذرخواهی یا جبران بدهکارم؟")}</label>
+                <small className="question-principle">{t("Related principles", "اصول مرتبط")}: {reflectionPrincipleNames("amends", language)}</small>
                 <textarea id="step10-amends" className="form-textarea" value={data.amends} onChange={(event) => updateField("amends", event.target.value)} />
               </div>
               <div className="form-field">
                 <label htmlFor="step10-tomorrow">{t("What is one helpful action I can take tomorrow?", "فردا چه اقدام مفیدی می‌توانم انجام دهم؟")}</label>
+                <small className="question-principle">{t("Related principles", "اصول مرتبط")}: {reflectionPrincipleNames("tomorrow", language)}</small>
                 <textarea id="step10-tomorrow" className="form-textarea" value={data.tomorrow} onChange={(event) => updateField("tomorrow", event.target.value)} />
               </div>
               <div className="form-field full">
                 <label htmlFor="step10-gratitude">{t("What am I grateful for?", "برای چه چیزی سپاسگزارم؟")}</label>
+                <small className="question-principle">{t("Related principles", "اصول مرتبط")}: {reflectionPrincipleNames("gratitude", language)}</small>
                 <textarea id="step10-gratitude" className="form-textarea" value={data.gratitude} onChange={(event) => updateField("gratitude", event.target.value)} />
               </div>
             </div>

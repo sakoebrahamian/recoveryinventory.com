@@ -1,4 +1,4 @@
-import { principles, type Language } from "@/lib/inventory";
+import { principles, principleForQuestion, type Language } from "@/lib/inventory";
 
 type Practice = { companion: string; en: string; es: string; fa: string };
 
@@ -31,9 +31,10 @@ const practices: Record<string, Practice> = {
 };
 
 export function practiceForPrinciple(id: string, language: Language) {
-  const practice = practices[id];
+  const principle = principleForQuestion(id);
+  const practice = practices[principle?.id ?? id];
   if (!practice) return null;
-  const primary = principles.find((principle) => principle.id === id)?.[language] ?? id;
+  const primary = principle?.[language] ?? id;
   const companion = principles.find((principle) => principle.id === practice.companion)?.[language] ?? practice.companion;
   return { primary, companion, action: practice[language] };
 }

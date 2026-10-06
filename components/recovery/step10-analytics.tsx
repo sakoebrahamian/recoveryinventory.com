@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { BarChart3, CalendarCheck2, Copy, FileDown, Flame, RefreshCw, Share2, ShieldCheck, Sparkles, Target, TrendingUp, UsersRound } from "lucide-react";
-import { formatDisplayDate, principleCategories, principles, principleQuestion, todayIso } from "@/lib/inventory";
+import { formatDisplayDate, principleCategories, step10Questions, step10QuestionSetVersion, questionWithPrinciple, todayIso } from "@/lib/inventory";
 import { calculateStep10Analytics, type PrincipleAnalytics, type Step10AnalyticsData, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
 import { describeStep10Pattern, formatStep10SponsorReport } from "@/lib/step10-report";
 import { copyStep10Report, shareStep10Report } from "@/lib/step10-share";
@@ -35,7 +35,7 @@ function dateBefore(isoDate: string, days: number): string {
 export function createDemoAnalytics(draft?: Step10Data, t: (english: string, farsi: string) => string = (english) => english, from?: string, through = todayIso()): Step10AnalyticsData {
   const offsets = [20, 19, 18, 17, 15, 14, 13, 12, 11, 9, 8, 7, 5, 4, 3, 2, 1, 0];
   const records: Step10AnalyticsRecord[] = offsets.map((offset, entryIndex) => {
-    const states = Object.fromEntries(principles.map((principle, principleIndex) => {
+    const states = Object.fromEntries(step10Questions.map((principle, principleIndex) => {
       const seed = entryIndex + principleIndex * 2;
       if (seed % 17 === 0) return [principle.id, "na"];
       if (principleIndex < 4) return [principle.id, seed % 7 === 0 ? "attention" : "practiced"];
@@ -45,6 +45,7 @@ export function createDemoAnalytics(draft?: Step10Data, t: (english: string, far
     const date = dateBefore(todayIso(), offset);
     const reflection = entryIndex === 10 || entryIndex === 14;
     return { date, payload: {
+      questionSetVersion: step10QuestionSetVersion,
       states,
       ...(reflection ? {
         attentionNotes: {
@@ -116,7 +117,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
   }, [demo, refreshKey, attempt, t]);
 
   const principleName = React.useCallback((item: PrincipleAnalytics) => {
-    return principleQuestion(item.id, language);
+    return questionWithPrinciple(item.id, language);
   }, [language]);
 
   async function shareCombinedReport() {
@@ -263,12 +264,12 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
       <section className="analytics-interpretation" aria-labelledby="analytics-interpretation-title">
         <div className="analytics-interpretation-heading">
           <h3 id="analytics-interpretation-title">{t("What your inventories show", "ترازنامه‌های شما چه نشان می‌دهند")}</h3>
-          <p>{t("These patterns describe your recorded choices, not your worth or a recovery score. We look for repeated answers on at least three days; N/A and unanswered principles do not count.", "این الگوها انتخاب‌های ثبت‌شده شما را توصیف می‌کنند، نه ارزش شما یا نمره بهبودی‌تان را. ما پاسخ‌های تکرارشده در دست‌کم سه روز را بررسی می‌کنیم؛ گزینه «کاربرد ندارد» و پاسخ‌های خالی محاسبه نمی‌شوند.")}</p>
+          <p>{t("These patterns describe your recorded choices, not your worth or a recovery score. We look for repeated answers on at least three days; N/A and unanswered questions do not count.", "این الگوها انتخاب‌های ثبت‌شده شما را توصیف می‌کنند، نه ارزش شما یا نمره بهبودی‌تان را. ما پاسخ‌های تکرارشده در دست‌کم سه روز را بررسی می‌کنیم؛ گزینه «کاربرد ندارد» و پاسخ‌های خالی محاسبه نمی‌شوند.")}</p>
         </div>
         <div className="analytics-interpretation-grid">
           <article className="analytics-interpretation-card is-strength">
             <h4>{t("Where you are doing well", "جاهایی که خوب پیش می‌روید")}</h4>
-            <p>{t("You chose Practiced more often than Needs attention for these principles.", "برای این اصول، «تمرین کردم» را بیشتر از «نیازمند توجه» انتخاب کرده‌اید.")}</p>
+            <p>{t("You chose Practiced more often than Needs attention for these questions.", "برای این پرسش‌ها، «تمرین کردم» را بیشتر از «نیازمند توجه» انتخاب کرده‌اید.")}</p>
             {insights.strengths.length ? <ul>{insights.strengths.map((item) => (
               <li key={item.id}><strong>{principleName(item)}</strong><span>{item.practiced} {t("of", "از")} {item.answered} {t("recorded answers marked Practiced", "پاسخ ثبت‌شده با برچسب «تمرین کردم»")}</span></li>
             ))}</ul> : <p className="analytics-interpretation-empty">{insights.enoughHistory
@@ -278,11 +279,11 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
           </article>
           <article className="analytics-interpretation-card is-focus">
             <h4>{t("Where to ask for help", "جاهایی که می‌توانید کمک بخواهید")}</h4>
-            <p>{t("These principles were marked Needs attention at least half of the recorded times.", "این اصول دست‌کم در نیمی از پاسخ‌های ثبت‌شده با «نیازمند توجه» مشخص شده‌اند.")}</p>
+            <p>{t("These questions were marked Needs attention at least half of the recorded times.", "این پرسش‌ها دست‌کم در نیمی از پاسخ‌های ثبت‌شده با «نیازمند توجه» مشخص شده‌اند.")}</p>
             {insights.focus.length ? <ul>{insights.focus.map((item) => (
               <li key={item.id}><strong>{principleName(item)}</strong><span>{item.attention} {t("of", "از")} {item.answered} {t("recorded answers marked Needs attention", "پاسخ ثبت‌شده با برچسب «نیازمند توجه»")}</span></li>
             ))}</ul> : <p className="analytics-interpretation-empty">{insights.enoughHistory
-              ? t("Among principles answered on at least three days, none was marked Needs attention at least half the time. Bring any concerns to your sponsor anyway.", "در میان اصولی که در دست‌کم سه روز به آن‌ها پاسخ داده‌اید، هیچ‌کدام دست‌کم در نیمی از موارد «نیازمند توجه» نبوده‌اند. با این حال نگرانی‌های خود را با حامی در میان بگذارید.")
+              ? t("Among questions answered on at least three days, none was marked Needs attention at least half the time. Bring any concerns to your sponsor anyway.", "در میان پرسش‌هایی که در دست‌کم سه روز به آن‌ها پاسخ داده‌اید، هیچ‌کدام دست‌کم در نیمی از موارد «نیازمند توجه» نبوده‌اند. با این حال نگرانی‌های خود را با حامی در میان بگذارید.")
               : t("Save more inventories before looking for a recurring focus. Your sponsor can still help with today's concerns.", "پیش از جست‌وجوی تمرکز تکرارشونده، ترازنامه‌های بیشتری ذخیره کنید. حامی همچنان می‌تواند درباره نگرانی‌های امروز کمک کند.")}</p>}
             {latestConcern && <div className="analytics-interpretation-quote"><strong>{t("Recent words about what needs attention", "نوشته اخیر درباره آنچه نیازمند توجه است")}</strong><time>{formatDisplayDate(latestConcern.date, language)}</time><blockquote dir="auto">{latestConcern.text}</blockquote></div>}
           </article>

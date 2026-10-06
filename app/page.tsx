@@ -25,7 +25,7 @@ import {
 import { SiteHeader } from "@/components/recovery/site-header";
 import { SiteFooter } from "@/components/recovery/site-footer";
 import { useLanguage } from "@/components/recovery/language-provider";
-import { principleQuestion } from "@/lib/inventory";
+import { questionWithPrinciple, step10Questions } from "@/lib/inventory";
 
 type PreviewMode = "step10" | "step4";
 
@@ -38,8 +38,8 @@ export default function Home() {
     {
       question: t("How do the Step 10 questions work?", "پرسش‌های گام دهم چگونه کار می‌کنند؟"),
       answer: t(
-        "Each of the 24 main questions describes a recovery principle through everyday behavior. Supporting questions help you reflect before choosing Practiced, Needs attention, or N/A. Charts, sharing, and PDF exports use the same main questions.",
-        "هر یک از ۲۴ پرسش اصلی، یک اصل بهبودی را در رفتار روزمره بیان می‌کند. پرسش‌های تکمیلی پیش از انتخاب «تمرین کردم»، «نیازمند توجه» یا «کاربرد ندارد» به تأمل کمک می‌کنند. نمودارها، گزارش‌های اشتراک‌گذاری‌شده و خروجی PDF از همان پرسش‌های اصلی استفاده می‌کنند."
+        "The 39 questions explore 24 recovery principles through everyday behavior. Each question shows its principle and has its own Practiced, Needs attention, or N/A answer, including follow-ups. Charts, sharing, and PDF exports include these separate answers.",
+        "۳۹ پرسش، ۲۴ اصل بهبودی را در رفتار روزمره بررسی می‌کنند. هر پرسش اصل مربوط به خود و پاسخ جداگانه «تمرین کردم»، «نیازمند توجه» یا «کاربرد ندارد» دارد، از جمله پرسش‌های تکمیلی. نمودارها، گزارش‌های اشتراک‌گذاری‌شده و خروجی PDF این پاسخ‌های جداگانه را نشان می‌دهند."
       ),
     },
     {
@@ -163,19 +163,19 @@ export default function Home() {
               {previewMode === "step10" ? (
                 <>
                   <div className="ri-preview-summary">
-                    <div className="ri-score-ring"><strong>18</strong><span>/24</span></div>
+                    <div className="ri-score-ring"><strong>18</strong><span>/{step10Questions.length}</span></div>
                     <div>
-                      <span>{t("Principles practiced", "اصول تمرین‌شده")}</span>
+                      <span>{t("Questions marked Practiced", "پرسش‌های با پاسخ تمرین کردم")}</span>
                       <strong>{t("A thoughtful day", "روزی آگاهانه")}</strong>
                       <p>{t("There is progress here—and room to grow.", "در اینجا پیشرفت هست و جا برای رشد.")}</p>
                     </div>
                   </div>
                   <div className="ri-principle-list">
                     {[
-                      [principleQuestion("honesty", language), t("Practiced", "تمرین شد"), "good"],
-                      [principleQuestion("patience", language), t("Needs attention", "نیازمند توجه"), "care"],
-                      [principleQuestion("boundaries", language), t("Practiced", "تمرین شد"), "good"],
-                      [principleQuestion("gratitude", language), t("Practiced", "تمرین شد"), "good"],
+                      [questionWithPrinciple("honesty", language), t("Practiced", "تمرین شد"), "good"],
+                      [questionWithPrinciple("patience", language), t("Needs attention", "نیازمند توجه"), "care"],
+                      [questionWithPrinciple("boundaries", language), t("Practiced", "تمرین شد"), "good"],
+                      [questionWithPrinciple("gratitude", language), t("Practiced", "تمرین شد"), "good"],
                     ].map(([label, status, tone]) => (
                       <div key={label}>
                         <span className={`ri-status-dot ${tone}`} aria-hidden="true" />
@@ -254,7 +254,7 @@ export default function Home() {
               </div>
             </div>
             <h3>{t("Step 10 Daily Inventory", "ترازنامه روزانه گام دهم")}</h3>
-            <p>{t("Reflect on 24 daily questions, use supporting prompts where helpful, and choose your next helpful action.", "به ۲۴ پرسش روزانه فکر کنید، در صورت نیاز از پرسش‌های تکمیلی کمک بگیرید و اقدام مفید بعدی را انتخاب کنید.")}</p>
+            <p>{t("Reflect on 39 daily questions across 24 principles, answer follow-ups separately, and choose your next helpful action.", "به ۳۹ پرسش روزانه درباره ۲۴ اصل فکر کنید، پرسش‌های تکمیلی را جداگانه پاسخ دهید و اقدام مفید بعدی را انتخاب کنید.")}</p>
             <ul>
               <li><Check size={16} />{t("Daily questions, gratitude, and notes", "پرسش‌های روزانه، قدردانی و یادداشت‌ها")}</li>
               <li><Check size={16} />{t("A calendar that continues every year", "تقویمی که هر سال ادامه دارد")}</li>
@@ -348,8 +348,8 @@ export default function Home() {
             ))}
           </div>
           <div className="ri-analytics-preview-insights">
-            <div><span>{t("Practiced most often", "بیشترین تمرین")}</span><strong>{principleQuestion("honesty", language)}</strong></div>
-            <div><span>{t("Recurring focus", "تمرکز تکرارشونده")}</span><strong>{principleQuestion("patience", language)}</strong></div>
+            <div><span>{t("Practiced most often", "بیشترین تمرین")}</span><strong>{questionWithPrinciple("honesty", language)}</strong></div>
+            <div><span>{t("Recurring focus", "تمرکز تکرارشونده")}</span><strong>{questionWithPrinciple("patience", language)}</strong></div>
           </div>
         </div>
       </section>
