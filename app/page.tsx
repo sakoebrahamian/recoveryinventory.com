@@ -25,6 +25,7 @@ import {
 import { SiteHeader } from "@/components/recovery/site-header";
 import { SiteFooter } from "@/components/recovery/site-footer";
 import { useLanguage } from "@/components/recovery/language-provider";
+import { principleQuestion } from "@/lib/inventory";
 
 type PreviewMode = "step10" | "step4";
 
@@ -34,6 +35,13 @@ export default function Home() {
   const arrowClass = language === "fa" ? "rotate-180" : "";
 
   const faqs = [
+    {
+      question: t("How do the Step 10 questions work?", "پرسش‌های گام دهم چگونه کار می‌کنند؟"),
+      answer: t(
+        "Each of the 24 main questions describes a recovery principle through everyday behavior. Supporting questions help you reflect before choosing Practiced, Needs attention, or N/A. Charts, sharing, and PDF exports use the same main questions.",
+        "هر یک از ۲۴ پرسش اصلی، یک اصل بهبودی را در رفتار روزمره بیان می‌کند. پرسش‌های تکمیلی پیش از انتخاب «تمرین کردم»، «نیازمند توجه» یا «کاربرد ندارد» به تأمل کمک می‌کنند. نمودارها، گزارش‌های اشتراک‌گذاری‌شده و خروجی PDF از همان پرسش‌های اصلی استفاده می‌کنند."
+      ),
+    },
     {
       question: t("Can I use a username and password while staying anonymous?", "آیا می‌توانم در حالت ناشناس از نام کاربری و رمز عبور استفاده کنم؟"),
       answer: t(
@@ -164,10 +172,10 @@ export default function Home() {
                   </div>
                   <div className="ri-principle-list">
                     {[
-                      [t("Honesty", "صداقت"), t("Practiced", "تمرین شد"), "good"],
-                      [t("Patience", "صبر"), t("Needs attention", "نیازمند توجه"), "care"],
-                      [t("Healthy boundaries", "مرزهای سالم"), t("Practiced", "تمرین شد"), "good"],
-                      [t("Gratitude", "قدردانی"), t("Practiced", "تمرین شد"), "good"],
+                      [principleQuestion("honesty", language), t("Practiced", "تمرین شد"), "good"],
+                      [principleQuestion("patience", language), t("Needs attention", "نیازمند توجه"), "care"],
+                      [principleQuestion("boundaries", language), t("Practiced", "تمرین شد"), "good"],
+                      [principleQuestion("gratitude", language), t("Practiced", "تمرین شد"), "good"],
                     ].map(([label, status, tone]) => (
                       <div key={label}>
                         <span className={`ri-status-dot ${tone}`} aria-hidden="true" />
@@ -246,9 +254,9 @@ export default function Home() {
               </div>
             </div>
             <h3>{t("Step 10 Daily Inventory", "ترازنامه روزانه گام دهم")}</h3>
-            <p>{t("Review 24 major principles, notice what needs attention, and choose the next right action.", "۲۴ اصل مهم را مرور کنید، موارد نیازمند توجه را ببینید و اقدام درست بعدی را انتخاب کنید.")}</p>
+            <p>{t("Reflect on 24 daily questions, use supporting prompts where helpful, and choose your next helpful action.", "به ۲۴ پرسش روزانه فکر کنید، در صورت نیاز از پرسش‌های تکمیلی کمک بگیرید و اقدام مفید بعدی را انتخاب کنید.")}</p>
             <ul>
-              <li><Check size={16} />{t("Principles, gratitude, and notes", "اصول، قدردانی و یادداشت‌ها")}</li>
+              <li><Check size={16} />{t("Daily questions, gratitude, and notes", "پرسش‌های روزانه، قدردانی و یادداشت‌ها")}</li>
               <li><Check size={16} />{t("A calendar that continues every year", "تقویمی که هر سال ادامه دارد")}</li>
               <li><Check size={16} />{t("Private analytics across your Step 10 history", "تحلیل خصوصی در سراسر سابقه گام ۱۰ شما")}</li>
             </ul>
@@ -283,7 +291,7 @@ export default function Home() {
           )}</p>
           <div className="ri-learning-points">
             <span><Check size={16} />{t("Detailed explanations of defects and related shortcomings", "توضیح کامل نقص‌ها و کمبودهای رفتاری مرتبط")}</span>
-            <span><Check size={16} />{t("All 24 Step 10 principles explained with practical examples", "توضیح هر ۲۴ اصل گام دهم همراه با مثال‌های عملی")}</span>
+            <span><Check size={16} />{t("All 24 Step 10 principles explained with examples and reflection questions", "توضیح هر ۲۴ اصل گام دهم همراه با مثال‌ها و پرسش‌های تأمل")}</span>
             <span><Check size={16} />{t("Recovery paths you can apply to real situations", "مسیرهای بهبودی قابل اجرا در موقعیت‌های واقعی")}</span>
           </div>
           <a href="/demo?step=learning" className="button button-primary">
@@ -312,7 +320,7 @@ export default function Home() {
           <div className="ri-analytics-points">
             <span><Check size={16} />{t("Step 10 only—Step 4 is never included", "فقط گام ۱۰؛ گام ۴ هرگز وارد تحلیل نمی‌شود")}</span>
             <span><Check size={16} />{t("Uses your saved selections and written reflections privately", "از انتخاب‌ها و بازتاب‌های نوشته‌شده ذخیره‌شده شما به‌صورت خصوصی استفاده می‌کند")}</span>
-            <span><Check size={16} />{t("Share a selected day or choose weekly, monthly, yearly, or custom range analytics with a principle chart", "اشتراک روز انتخاب‌شده یا انتخاب تحلیل هفتگی، ماهانه، سالانه یا بازه دلخواه همراه با نمودار اصول")}</span>
+            <span><Check size={16} />{t("Share a selected day or choose weekly, monthly, yearly, or custom range analytics with an inventory chart", "اشتراک روز انتخاب‌شده یا انتخاب تحلیل هفتگی، ماهانه، سالانه یا بازه دلخواه همراه با نمودار ترازنامه")}</span>
             <span><Check size={16} />{t("A private pattern summary, not a clinical assessment", "خلاصه خصوصی الگوها، نه ارزیابی بالینی")}</span>
           </div>
           <a href="/demo?step=analytics" className="button button-primary">
@@ -340,8 +348,8 @@ export default function Home() {
             ))}
           </div>
           <div className="ri-analytics-preview-insights">
-            <div><span>{t("Practiced most often", "بیشترین تمرین")}</span><strong>{t("Honesty", "صداقت")}</strong></div>
-            <div><span>{t("Recurring focus", "تمرکز تکرارشونده")}</span><strong>{t("Patience", "صبر")}</strong></div>
+            <div><span>{t("Practiced most often", "بیشترین تمرین")}</span><strong>{principleQuestion("honesty", language)}</strong></div>
+            <div><span>{t("Recurring focus", "تمرکز تکرارشونده")}</span><strong>{principleQuestion("patience", language)}</strong></div>
           </div>
         </div>
       </section>

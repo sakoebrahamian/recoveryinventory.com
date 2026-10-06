@@ -1,4 +1,4 @@
-import { formatDisplayDate, principles, type Language } from "@/lib/inventory";
+import { formatDisplayDate, principles, principleQuestion, type Language } from "@/lib/inventory";
 import type { Step10AnalyticsData } from "@/lib/step10-analytics";
 import type { ReportBounds } from "@/lib/step10-report-period";
 
@@ -33,11 +33,11 @@ function chartDetails(analytics: Step10AnalyticsData, bounds: ReportBounds, lang
   };
   const period = bounds.from === bounds.through ? formatDisplayDate(bounds.from, language) : `${formatDisplayDate(bounds.from, language)} – ${formatDisplayDate(bounds.through, language)}`;
   const rows = analytics.principles.map((item) => ({
-    name: principles.find((principle) => principle.id === item.id)?.[language] ?? item.id,
+    name: principleQuestion(item.id, language),
     counts: { practiced: item.practiced, attention: item.attention, na: item.na, unanswered: item.unanswered },
     answered: item.answered,
   }));
-  return { labels, kinds, counts, total, period, rows, daily: bounds.mode === "day" || bounds.mode === "today", title: t("Principles at a glance", "اصول در یک نگاه") };
+  return { labels, kinds, counts, total, period, rows, daily: bounds.mode === "day" || bounds.mode === "today", title: t("Daily questions at a glance", "پرسش‌های روزانه در یک نگاه") };
 }
 
 /** A self-contained HTML chart for rich-text paste. Plain-text paste still gets the full report and its text chart. */
@@ -58,9 +58,23 @@ function step10ChartPng(analytics: Step10AnalyticsData, bounds: ReportBounds, la
   const chart = chartDetails(analytics, bounds, language, t);
   const canvas = document.createElement("canvas");
   canvas.width = 1200;
-  canvas.height = analytics.totalEntries ? 270 + chart.rows.length * 58 : 210;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Chart image unavailable");
+  context.font = "17px Arial, sans-serif";
+  const rows = chart.rows.map((row) => {
+    const lines: string[] = [];
+    let line = "";
+    for (const word of row.name.split(/\s+/)) {
+      const candidate = line ? `${line} ${word}` : word;
+      if (line && context.measureText(candidate).width > 360) {
+        lines.push(line);
+        line = word;
+      } else line = candidate;
+    }
+    if (line) lines.push(line);
+    return { ...row, lines, height: Math.max(58, lines.length * 22 + 20) };
+  });
+  canvas.height = analytics.totalEntries ? 270 + rows.reduce((height, row) => height + row.height, 0) : 210;
   context.fillStyle = "#fff";
   context.fillRect(0, 0, canvas.width, canvas.height);
   context.textBaseline = "middle";
@@ -99,14 +113,15 @@ function step10ChartPng(analytics: Step10AnalyticsData, bounds: ReportBounds, la
     const label = `${chart.labels[kind]}: ${chart.counts[kind]}`;
     context.fillText(label, legendX + 19, legendY + 6, 515);
   }
-  chart.rows.forEach((row, index) => {
-    const y = 250 + index * 58;
+  let rowTop = 221;
+  rows.forEach((row) => {
+    const y = rowTop + row.height / 2;
     context.fillStyle = "#edf0ee";
-    context.fillRect(45, y + 26, 1110, 1);
+    context.fillRect(45, rowTop + row.height - 3, 1110, 1);
     context.fillStyle = "#173f3a";
     context.direction = language === "fa" ? "rtl" : "ltr";
     context.textAlign = language === "fa" ? "right" : "left";
-    context.fillText(row.name, language === "fa" ? 405 : 45, y, 360);
+    row.lines.forEach((line, index) => context.fillText(line, language === "fa" ? 405 : 45, y + (index - (row.lines.length - 1) / 2) * 22));
     paintBar(row.counts, analytics.totalEntries, 465, y - 7, 410, 15);
     if (chart.daily) {
       const state = chart.kinds.find((kind) => row.counts[kind]) ?? "unanswered";
@@ -118,6 +133,7 @@ function step10ChartPng(analytics: Step10AnalyticsData, bounds: ReportBounds, la
       context.textAlign = "left";
       context.fillText(`${row.counts.practiced}/${row.answered} ${chart.labels.practiced} · ${row.counts.na} ${chart.labels.na}`, 900, y, 250);
     }
+    rowTop += row.height;
   });
   }
   const base64 = canvas.toDataURL("image/png").split(",")[1];

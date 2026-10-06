@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { BarChart3, CalendarCheck2, Copy, FileDown, Flame, RefreshCw, Share2, ShieldCheck, Sparkles, Target, TrendingUp, UsersRound } from "lucide-react";
-import { formatDisplayDate, principleCategories, principles, todayIso } from "@/lib/inventory";
+import { formatDisplayDate, principleCategories, principles, principleQuestion, todayIso } from "@/lib/inventory";
 import { calculateStep10Analytics, type PrincipleAnalytics, type Step10AnalyticsData, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
 import { describeStep10Pattern, formatStep10SponsorReport } from "@/lib/step10-report";
 import { copyStep10Report, shareStep10Report } from "@/lib/step10-share";
@@ -116,8 +116,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
   }, [demo, refreshKey, attempt, t]);
 
   const principleName = React.useCallback((item: PrincipleAnalytics) => {
-    const principle = principles.find((candidate) => candidate.id === item.id);
-    return principle?.[language] ?? item.id;
+    return principleQuestion(item.id, language);
   }, [language]);
 
   async function shareCombinedReport() {
@@ -227,7 +226,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
       </header>
 
       {bounds && reportAnalytics && reportInventory && <div className="analytics-report-preview">
-        <details className="step10-report-preview" open={chartOpen} onToggle={(event) => setChartOpen(event.currentTarget.open)}><summary>{t("Preview principle chart", "پیش‌نمایش نمودار اصول")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>
+        <details className="step10-report-preview" open={chartOpen} onToggle={(event) => setChartOpen(event.currentTarget.open)}><summary>{t("Preview inventory chart", "پیش‌نمایش نمودار ترازنامه")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>
       </div>}
 
       <div className="analytics-kpis">

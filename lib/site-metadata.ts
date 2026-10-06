@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const SITE_NAME = "Recovery Inventory";
 export const SITE_URL = "https://recoveryinventory.com";
 export const SITE_DESCRIPTION =
-  "Private, encrypted Step 4 and Step 10 reflection tools with analytics, learning guidance, anonymous username-and-password membership with a recovery code, or verified email access.";
+  "Private, encrypted Step 4 workbooks and 24 Step 10 daily questions with supporting prompts, matching inventory charts, recovery guidance, and anonymous or verified email membership.";
 
 type PageMetadataOptions = {
   title: string;

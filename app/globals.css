@@ -4620,11 +4620,22 @@ html[dir="rtl"] .ri-hero-demo::before {
 .ri-principle-list strong {
   color: #264943;
   font-size: 0.76rem;
+  min-width: 0;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .ri-principle-list small {
   color: #778984;
   font-size: 0.63rem;
+}
+
+.principle-follow-up-list {
+  margin: 0.45rem 0 0;
+  padding-inline-start: 1.1rem;
+  color: var(--slate);
+  font-size: 0.78rem;
+  line-height: 1.5;
 }
 
 .ri-status-dot {
@@ -7249,7 +7260,7 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
 .step10-report-chart-row.is-daily .step10-report-chart-bar .is-unanswered { background: #aebbb4; }
 .inventory-sidebar .step10-report-chart-row.is-daily { grid-template-columns: minmax(0, 1fr) auto; }
 .inventory-sidebar .step10-report-chart-row.is-daily .step10-report-chart-bar { grid-column: 1 / -1; grid-row: 2; }
-.step10-report-chart-row strong { font-weight: 680; }
+.step10-report-chart-row strong { min-width: 0; font-weight: 680; line-height: 1.45; overflow-wrap: anywhere; }
 .step10-report-chart-count { min-width: 0; color: var(--slate); text-align: end; overflow-wrap: break-word; }
 .step10-report-chart-state { grid-column: 2 / -1; justify-self: end; border-radius: 999px; background: #e7eee8; padding: 0.3rem 0.55rem; }
 .step10-report-chart-row.is-daily .step10-report-chart-state { grid-column: 3; white-space: nowrap; }

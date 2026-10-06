@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ArrowRight, BookOpenText, Check, ChevronDown, Compass, Search, Sparkles } from "lucide-react";
-import { principleCategories, principles } from "@/lib/inventory";
+import { principleCategories, principles, principleQuestion, principleFollowUpQuestions } from "@/lib/inventory";
 import { characterDefects, localized, principleGuides } from "@/lib/recovery-learning";
 import { useLanguage } from "./language-provider";
 
@@ -145,12 +145,13 @@ export function RecoveryLearningCenter({ demo = false, initialView = "defects" }
                     const guide = guideById.get(principle.id);
                     if (!guide) return null;
                     const name = language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en;
-                    const prompt = language === "fa" ? principle.promptFa : language === "es" ? principle.promptEs : principle.promptEn;
+                    const prompt = principleQuestion(principle.id, language);
                     return (
                       <details className="learning-principle-card" key={principle.id} open={Boolean(normalizedQuery)}>
                         <summary><span><strong>{name}</strong><small>{prompt}</small></span><ChevronDown size={18} /></summary>
                         <div>
                           <p className="principle-definition">{localized(guide.definition, language)}</p>
+                          {principleFollowUpQuestions(principle.id, language).map((question) => <p key={question}>{question}</p>)}
                           <h4>{t("Ways to practice", "راه‌های تمرین")}</h4>
                           <ul>{guide.practices.map((practice) => <li key={localized(practice, language)}><Check size={15} />{localized(practice, language)}</li>)}</ul>
                           <div className="principle-reflection"><Sparkles size={16} /><span><b>{t("Reflection", "تأمل")}</b>{localized(guide.reflection, language)}</span></div>

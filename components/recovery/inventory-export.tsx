@@ -3,7 +3,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { CalendarRange, FileDown, RefreshCw, X } from "lucide-react";
-import { formatDisplayDate, principleCategories, principles, step4Types, todayIso } from "@/lib/inventory";
+import { formatDisplayDate, principleCategories, principles, principleQuestion, principleFollowUpQuestions, step4Types, todayIso } from "@/lib/inventory";
 import type { PrincipleAnalytics, Step10AnalyticsData } from "@/lib/step10-analytics";
 import { describeStep10Pattern } from "@/lib/step10-report";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
@@ -95,7 +95,7 @@ function Step10Print({ data }: { data: Step10Data }) {
     ...(data.patternAction?.trim() ? [[t("Pattern and response", "الگو و واکنش"), data.patternAction] as const] : []),
     ...(data.familyContext?.trim() ? [[t("Family impact and what I could control", "تأثیر بر خانواده و آنچه در اختیار من بود"), data.familyContext] as const] : []),
     [t("Apology or amends", "عذرخواهی یا جبران"), data.amends],
-    [t("One action for tomorrow", "یک اقدام برای فردا"), data.tomorrow],
+    [t("What is one helpful action I can take tomorrow?", "فردا چه اقدام مفیدی می‌توانم انجام دهم؟"), data.tomorrow],
     [t("Gratitude", "قدردانی"), data.gratitude],
   ] as const;
 
@@ -119,8 +119,8 @@ function Step10Print({ data }: { data: Step10Data }) {
                 return (
                   <div className="inventory-print-principle" key={principle.id}>
                     <span className={`inventory-print-state is-${state}`}>{stateLabel}</span>
-                    <strong>{language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en}</strong>
-                    <p>{language === "fa" ? principle.promptFa : language === "es" ? principle.promptEs : principle.promptEn}</p>
+                    <strong>{principleQuestion(principle.id, language)}</strong>
+                    {principleFollowUpQuestions(principle.id, language).map((question) => <p key={question}>{question}</p>)}
                     {attentionNote && (
                       <div className="inventory-print-attention-note">
                         <strong>{t("What happened today that needs attention?", "امروز چه اتفاقی افتاد که نیاز به توجه دارد؟")}</strong>
@@ -202,7 +202,7 @@ function Step10AnalyticsPrint({ analytics, bounds, scopeLabel, brief = false }: 
   const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
   const monthLocale = language === "fa" ? "fa-IR-u-ca-gregory" : locale;
   const number = (value: number) => new Intl.NumberFormat(locale).format(value);
-  const principleName = (item: PrincipleAnalytics) => principles.find((principle) => principle.id === item.id)?.[language] ?? item.id;
+  const principleName = (item: PrincipleAnalytics) => principleQuestion(item.id, language);
   const insights = summarizeStep10Insights(analytics);
   const latestHighlight = analytics.written.reflections.find((item) => item.field === "highlights")?.excerpts[0];
   const latestConcern = analytics.written.reflections.find((item) => item.field === "attention")?.excerpts[0];
@@ -217,7 +217,7 @@ function Step10AnalyticsPrint({ analytics, bounds, scopeLabel, brief = false }: 
         <h2>{t("Step 10 analytics", "تحلیل گام ۱۰")}</h2>
         <span>{t("Analytics period", "بازه تحلیل")}: {fromDate}{bounds.from !== bounds.through && <> – {throughDate}</>}</span>
         <small>{brief
-          ? t("Counts and a principle chart for the chosen period. Individual inventory pages are not included.", "شمارش‌ها و نمودار اصول برای بازه انتخاب‌شده. صفحه‌های ترازنامه روزانه در این خلاصه نیستند.")
+          ? t("Counts and an inventory chart for the chosen period. Individual inventory pages are not included.", "شمارش‌ها و نمودار ترازنامه برای بازه انتخاب‌شده. صفحه‌های ترازنامه روزانه در این خلاصه نیستند.")
           : <>{t("Inventory pages selected", "صفحه‌های ترازنامه انتخاب‌شده")}: {scopeLabel}. {t("Analytics count saved Step 10 entries in those dates.", "تحلیل، ترازنامه‌های ذخیره‌شده گام ۱۰ را در همین تاریخ‌ها می‌شمارد.")}</>}</small>
       </header>
 
@@ -536,8 +536,8 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
               <label className={format === "archive" ? "is-selected" : ""}><input type="radio" name="export-format" checked={format === "archive"} onChange={() => setFormat("archive")} /><span>{t("Full journal", "دفتر کامل")}</span></label>
             </div>
             <p className="inventory-export-format-help">{format === "summary"
-              ? t("Counts and principle chart for the selected day by default. Choose a week, month, year, or custom range for a broader sponsor summary without individual daily pages.", "شمارش‌ها و نمودار اصول به‌طور پیش‌فرض برای روز انتخاب‌شده‌اند. برای خلاصه گسترده‌تر حامی بدون صفحه‌های روزانه، هفته، ماه، سال یا بازه دلخواه را انتخاب کنید.")
-              : format === "chart" ? t("Export only the principle chart for the chosen day or range as a printable PDF. No inventory pages or written reflections are included.", "فقط نمودار اصول را برای روز یا بازه انتخاب‌شده به‌صورت PDF قابل چاپ خروجی بگیرید. صفحه ترازنامه یا بازتاب‌های نوشته‌شده در آن نیست.")
+              ? t("Counts and inventory chart for the selected day by default. Choose a week, month, year, or custom range for a broader sponsor summary without individual daily pages.", "شمارش‌ها و نمودار ترازنامه به‌طور پیش‌فرض برای روز انتخاب‌شده‌اند. برای خلاصه گسترده‌تر حامی بدون صفحه‌های روزانه، هفته، ماه، سال یا بازه دلخواه را انتخاب کنید.")
+              : format === "chart" ? t("Export only the inventory chart for the chosen day or range as a printable PDF. No inventory pages or written reflections are included.", "فقط نمودار ترازنامه را برای روز یا بازه انتخاب‌شده به‌صورت PDF قابل چاپ خروجی بگیرید. صفحه ترازنامه یا بازتاب‌های نوشته‌شده در آن نیست.")
                 : t("Print every saved inventory in the selected dates, with complete daily writing. You can include Step 10 analytics for those same dates.", "همه ترازنامه‌های ذخیره‌شده در تاریخ‌های انتخابی را با نوشته‌های کامل روزانه چاپ کنید. می‌توانید تحلیل گام ۱۰ را برای همان تاریخ‌ها اضافه کنید.")}</p>
           </fieldset>
 
@@ -574,7 +574,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
           </fieldset>}
 
           {(format !== "archive" || includeStep10) && <div className="inventory-export-analytics-option">
-            {format === "archive" && <label><input type="checkbox" checked={includeAnalytics} onChange={(event) => setIncludeAnalytics(event.target.checked)} /><span><strong>{t("Include Step 10 analytics for selected dates", "افزودن تحلیل گام ۱۰ برای تاریخ‌های انتخاب‌شده")}</strong><small>{t("The principle chart and counts use the same dates as this export.", "نمودار اصول و شمارش‌ها از همان تاریخ‌های این خروجی استفاده می‌کنند.")}</small></span></label>}
+            {format === "archive" && <label><input type="checkbox" checked={includeAnalytics} onChange={(event) => setIncludeAnalytics(event.target.checked)} /><span><strong>{t("Include Step 10 analytics for selected dates", "افزودن تحلیل گام ۱۰ برای تاریخ‌های انتخاب‌شده")}</strong><small>{t("The inventory chart and counts use the same dates as this export.", "نمودار ترازنامه و شمارش‌ها از همان تاریخ‌های این خروجی استفاده می‌کنند.")}</small></span></label>}
             {wantsAnalytics && (!currentAnalytics || scoped.loading) && <div className="inventory-export-analytics-status" role="status">
               <span>{scoped.loading ? t("Preparing your analytics…", "در حال آماده‌سازی تحلیل شما…") : t("Analytics are unavailable or need refreshing before this PDF can be printed.", "تحلیل در دسترس نیست یا پیش از چاپ PDF باید تازه‌سازی شود.")}</span>
               {!scoped.loading && <button className="button button-outline button-small" type="button" onClick={scoped.retry}><RefreshCw size={15} />{t("Try again", "تلاش دوباره")}</button>}
@@ -591,7 +591,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
             <button className="button button-primary" type="button" onClick={printExport} disabled={!canPrint}><FileDown size={17} />{t("Print / Save PDF", "چاپ / ذخیره PDF")}</button>
           </div>
           {bounds && currentAnalytics && wantsAnalytics && currentAnalytics.totalEntries > 0 && (
-            <div className="inventory-export-chart-preview" aria-label={t("Preview principle chart", "پیش‌نمایش نمودار اصول")}>
+            <div className="inventory-export-chart-preview" aria-label={t("Preview inventory chart", "پیش‌نمایش نمودار ترازنامه")}>
               <Step10ReportChart analytics={currentAnalytics} bounds={bounds} />
             </div>
           )}

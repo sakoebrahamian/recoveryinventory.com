@@ -22,7 +22,7 @@ export default function JoinPage() {
             <div className="auth-step"><strong>03</strong><div><strong>{t("Subscribe securely", "اشتراک امن")}</strong><span><RefreshCw size={13} /> {t("$25 yearly; cancel any time.", "سالانه ۲۵ دلار؛ هر زمان لغو کنید.")}</span></div></div>
           </div>
           <p className="privacy-inline"><Check size={15} /> {t("Existing anonymous and email members can add username-and-password access without losing inventories, analytics, or membership progress.", "اعضای ناشناس و ایمیلی موجود می‌توانند بدون از دست دادن ترازنامه‌ها، تحلیل‌ها یا پیشرفت عضویت، ورود با نام کاربری و رمز عبور را اضافه کنند.")}</p>
-          <p className="privacy-inline"><Check size={15} /> {t("Membership includes weekly Step 10 writing examples, a compact Sponsor summary, and a Full journal export. Share your report only when you choose.", "عضویت شامل نمونه‌هایی از نوشته‌های هفتگی گام ۱۰، «خلاصه برای حامی» کوتاه و خروجی «دفتر کامل» است. گزارش خود را فقط با انتخاب خودتان به اشتراک بگذارید.")}</p>
+          <p className="privacy-inline"><Check size={15} /> {t("Membership includes 24 Step 10 questions with supporting prompts, matching inventory charts, weekly writing examples, a Sponsor summary, and a Full journal export. Share your report only when you choose.", "عضویت شامل ۲۴ پرسش گام ۱۰ با پرسش‌های تکمیلی، نمودارهای هماهنگ ترازنامه، نمونه نوشته‌های هفتگی، «خلاصه برای حامی» و خروجی «دفتر کامل» است. گزارش خود را فقط با انتخاب خودتان به اشتراک بگذارید.")}</p>
         </div>
         <JoinForm />
       </section>

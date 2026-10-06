@@ -1,4 +1,4 @@
-import { formatDisplayDate, principleCategories, principles, type Language } from "@/lib/inventory";
+import { formatDisplayDate, principleCategories, principles, principleQuestion, principleFollowUpQuestions, type Language } from "@/lib/inventory";
 import type { Step10AnalyticsData, PrincipleAnalytics, ReflectionField, WrittenExcerpt, WrittenWeek } from "@/lib/step10-analytics";
 import type { Step10Data } from "@/components/recovery/step10-inventory";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
@@ -19,7 +19,7 @@ export function step10ReflectionLabel(field: ReflectionField, t: Translate) {
     patternAction: t("What character pattern, including self-pity, did I notice, and how did I work on it?", "چه الگوی رفتاری، از جمله ترحم به خود، را دیدم و چگونه روی آن کار کردم؟"),
     familyContext: t("If another person's drinking or substance use affected me or my family today, what happened and what could I control?", "اگر مصرف الکل یا موادِ فرد دیگری امروز بر من یا خانواده‌ام اثر گذاشت، چه اتفاقی افتاد و چه چیزی در اختیار من بود؟"),
     amends: t("Do I owe an apology or amends?", "آیا به کسی عذرخواهی یا جبران بدهکارم؟"),
-    tomorrow: t("One action for tomorrow", "یک اقدام برای فردا"),
+    tomorrow: t("What is one helpful action I can take tomorrow?", "فردا چه اقدام مفیدی می‌توانم انجام دهم؟"),
     gratitude: t("What am I grateful for?", "برای چه چیزی سپاسگزارم؟"),
   };
   return labels[field];
@@ -55,7 +55,7 @@ export function formatStep10Written(analytics: Step10AnalyticsData, language: La
       const notes = written.principles.find((note) => note.id === item.id);
       return [
         "",
-        `${guide?.primary ?? item.id} — ${item.attention} ${t("times marked Needs attention", "بار نیازمند توجه ثبت شده")}; ${notes?.count ?? 0} ${t("written explanations", "توضیح نوشته‌شده")}`,
+        `${principleQuestion(item.id, language)} — ${item.attention} ${t("times marked Needs attention", "بار نیازمند توجه ثبت شده")}; ${notes?.count ?? 0} ${t("written explanations", "توضیح نوشته‌شده")}`,
         `${t("Principles to discuss", "اصولی برای گفت‌وگو")}: ${guide?.primary ?? item.id}${guide ? ` + ${guide.companion}` : ""}`,
         ...(guide ? [`${t("Possible practice to discuss", "تمرین پیشنهادی برای گفت‌وگو")}: ${guide.action}`] : []),
         ...(notes?.excerpts.length ? notes.excerpts.map((sample) => formatWrittenExcerpt(sample, language)) : [`  ${t("No written explanation saved for this principle yet.", "هنوز توضیحی برای این اصل ذخیره نشده است.")}`]),
@@ -76,11 +76,10 @@ export function formatStep10Inventory(data: Step10Data, language: Language, t: T
         : state === "attention" ? t("Needs attention", "نیازمند توجه")
           : state === "na" ? t("Not applicable", "کاربرد ندارد")
             : t("Not answered", "پاسخ داده نشده");
-      const prompt = language === "fa" ? principle.promptFa : language === "es" ? principle.promptEs : principle.promptEn;
       const note = state === "attention" ? data.attentionNotes[principle.id]?.trim() : "";
       return [
-        `${index + 1}. ${localized(principle, language)} — ${stateLabel}`,
-        `  ${prompt}`,
+        `${index + 1}. ${principleQuestion(principle.id, language)} — ${stateLabel}`,
+        ...principleFollowUpQuestions(principle.id, language).map((question) => `  ${question}`),
         ...(note ? [`  ${t("What happened today that needs attention?", "امروز چه اتفاقی افتاد که نیاز به توجه دارد؟")}`, `  ${answer(note)}`] : []),
         "",
       ];
@@ -92,7 +91,7 @@ export function formatStep10Inventory(data: Step10Data, language: Language, t: T
     [t("What character pattern, including self-pity, did I notice, and how did I work on it?", "چه الگوی رفتاری، از جمله ترحم به خود، را دیدم و چگونه روی آن کار کردم؟"), data.patternAction],
     [t("If another person's drinking or substance use affected me or my family today, what happened and what could I control?", "اگر مصرف الکل یا موادِ فرد دیگری امروز بر من یا خانواده‌ام اثر گذاشت، چه اتفاقی افتاد و چه چیزی در اختیار من بود؟"), data.familyContext],
     [t("Do I owe an apology or amends?", "آیا به کسی عذرخواهی یا جبران بدهکارم؟"), data.amends],
-    [t("One action for tomorrow", "یک اقدام برای فردا"), data.tomorrow],
+    [t("What is one helpful action I can take tomorrow?", "فردا چه اقدام مفیدی می‌توانم انجام دهم؟"), data.tomorrow],
     [t("What am I grateful for?", "برای چه چیزی سپاسگزارم؟"), data.gratitude],
   ];
 
@@ -121,7 +120,7 @@ export function describeStep10Pattern(analytics: Step10AnalyticsData, t: Transla
 }
 
 function formatStep10Week(week: WrittenWeek, language: Language, t: Translate) {
-  const name = (id: string) => principles.find((item) => item.id === id)?.[language] ?? id;
+  const name = (id: string) => principleQuestion(id, language);
   const list = (items: WrittenWeek["strengths"]) => items.length
     ? items.map((item) => `${name(item.id)} (${item.count})`).join(", ")
     : t("None marked", "هیچ موردی ثبت نشده");
@@ -151,11 +150,10 @@ export function formatStep10Analytics(analytics: Step10AnalyticsData, language: 
   }
   const insights = summarizeStep10Insights(analytics);
   const insightLines = (items: PrincipleAnalytics[], countKey: "practiced" | "attention") => items.map((item) => {
-    const principle = principles.find((candidate) => candidate.id === item.id);
     const label = countKey === "practiced"
       ? t("recorded answers marked Practiced", "پاسخ ثبت‌شده با برچسب «تمرین کردم»")
       : t("recorded answers marked Needs attention", "پاسخ ثبت‌شده با برچسب «نیازمند توجه»");
-    return `• ${principle ? localized(principle, language) : item.id}: ${item[countKey]} ${t("of", "از")} ${item.answered} ${label}`;
+    return `• ${principleQuestion(item.id, language)}: ${item[countKey]} ${t("of", "از")} ${item.answered} ${label}`;
   });
 
   return [
@@ -207,7 +205,7 @@ export function formatStep10ReportAnalytics(analytics: Step10AnalyticsData, boun
     ? formatDisplayDate(bounds.from, language)
     : `${formatDisplayDate(bounds.from, language)} – ${formatDisplayDate(bounds.through, language)}`;
   const unanswered = analytics.totalEntries * principles.length - analytics.totalPracticed - analytics.totalAttention - analytics.totalNA;
-  const name = (id: string) => principles.find((item) => item.id === id)?.[language] ?? id;
+  const name = (id: string) => principleQuestion(id, language);
   return [
     t("Step 10 report analytics", "تحلیل گزارش گام ۱۰"),
     ...(sample ? [t("Sample data", "داده نمونه")] : []),
@@ -217,7 +215,7 @@ export function formatStep10ReportAnalytics(analytics: Step10AnalyticsData, boun
     `${t("Practiced", "تمرین کردم")}: ${analytics.totalPracticed} · ${t("Needs attention", "نیازمند توجه")}: ${analytics.totalAttention} · ${t("Not applicable", "کاربرد ندارد")}: ${analytics.totalNA} · ${t("Not answered", "پاسخ داده نشده")}: ${unanswered}`,
     `${t("Practiced share", "سهم تمرین‌شده")}: ${analytics.practiceRate}% ${t("of Practiced and Needs attention answers; N/A and unanswered are excluded", "از پاسخ‌های «تمرین کردم» و «نیازمند توجه»؛ «کاربرد ندارد» و پاسخ‌های خالی محاسبه نمی‌شوند")}`,
     "",
-    t("Principles at a glance", "اصول در یک نگاه").toLocaleUpperCase(language),
+    t("Daily questions at a glance", "پرسش‌های روزانه در یک نگاه").toLocaleUpperCase(language),
     t("Each bar shows Practiced among scored answers. Counts beside it show Needs attention and N/A separately.", "هر نوار سهم «تمرین کردم» را در میان پاسخ‌های امتیازدار نشان می‌دهد. شمارش‌های کنار آن، «نیازمند توجه» و «کاربرد ندارد» را جداگانه نشان می‌دهند."),
     ...analytics.principles.map((item) => daily
       ? `• ${name(item.id)}: ${item.practiced ? t("Practiced", "تمرین کردم") : item.attention ? t("Needs attention", "نیازمند توجه") : item.na ? t("Not applicable", "کاربرد ندارد") : t("Not answered", "پاسخ داده نشده")}`

@@ -5,6 +5,8 @@ import { BarChart3, BookOpenText, Copy, FileDown, MoreHorizontal, RotateCcw, Sav
 import {
   formatDisplayDate,
   principleCategories,
+  principleQuestion,
+  principleFollowUpQuestions,
   principles,
   type PrincipleState,
   todayIso,
@@ -289,8 +291,8 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
         <div className="inventory-content">
           <div className="inventory-intro-row">
             <div>
-              <h3>{t("How did you practice these principles today?", "امروز چگونه این اصول را تمرین کردید؟")}</h3>
-              <p>{t("Choose what fits. There is no score to earn.", "گزینه مناسب را انتخاب کنید. اینجا نمره‌ای در کار نیست.")}</p>
+              <h3>{t("Reflect on these 24 daily questions", "به این ۲۴ پرسش روزانه فکر کنید")}</h3>
+              <p>{t("Use the supporting questions to reflect, then choose Practiced, Needs attention, or N/A once for each item. There is no score to earn.", "از پرسش‌های تکمیلی برای تأمل استفاده کنید، سپس برای هر مورد یک بار «تمرین کردم»، «نیاز به توجه» یا «کاربرد ندارد» را انتخاب کنید. اینجا نمره‌ای در کار نیست.")}</p>
             </div>
             <div className="inventory-intro-actions">
               {onOpenLearning && <button className="button button-outline button-small" type="button" onClick={onOpenLearning}><BookOpenText size={16} />{t("Learn these principles", "یادگیری این اصول")}</button>}
@@ -308,13 +310,15 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
               <div className="principle-grid">
                 {principles.filter((principle) => principle.category === category.id).map((principle) => {
                   const state = data.states[principle.id];
+                  const question = principleQuestion(principle.id, language);
+                  const followUps = principleFollowUpQuestions(principle.id, language);
                   return (
                     <article className={`principle-card${state ? ` is-${state}` : ""}`} key={principle.id}>
                       <div className="principle-name">
-                        <strong>{language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en}</strong>
-                        <span>{language === "fa" ? principle.promptFa : language === "es" ? principle.promptEs : principle.promptEn}</span>
+                        <strong>{question}</strong>
+                        {followUps.length > 0 && <ul className="principle-follow-up-list">{followUps.map((followUp) => <li key={followUp}>{followUp}</li>)}</ul>}
                       </div>
-                      <div className="state-picker" role="group" aria-label={language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en}>
+                      <div className="state-picker" role="group" aria-label={question}>
                         <button className="practiced" type="button" aria-pressed={state === "practiced"} onClick={() => setPrinciple(principle.id, "practiced")}>
                           {t("Practiced", "تمرین کردم")}
                         </button>
@@ -335,7 +339,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
                             className="form-textarea"
                             value={data.attentionNotes[principle.id] ?? ""}
                             onChange={(event) => setAttentionNote(principle.id, event.target.value)}
-                            placeholder={t("Briefly describe the issue for this principle.", "موضوع مربوط به این اصل را کوتاه توضیح دهید.")}
+                            placeholder={t("Briefly describe what needs attention in your answer.", "کوتاه توضیح دهید چه چیزی در پاسخ شما نیاز به توجه دارد.")}
                             rows={3}
                           />
                         </div>
@@ -372,7 +376,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
                 <textarea id="step10-amends" className="form-textarea" value={data.amends} onChange={(event) => updateField("amends", event.target.value)} />
               </div>
               <div className="form-field">
-                <label htmlFor="step10-tomorrow">{t("One action for tomorrow", "یک اقدام برای فردا")}</label>
+                <label htmlFor="step10-tomorrow">{t("What is one helpful action I can take tomorrow?", "فردا چه اقدام مفیدی می‌توانم انجام دهم؟")}</label>
                 <textarea id="step10-tomorrow" className="form-textarea" value={data.tomorrow} onChange={(event) => updateField("tomorrow", event.target.value)} />
               </div>
               <div className="form-field full">
@@ -401,7 +405,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
           <p>{t("Ask your sponsor or someone with time in recovery to help you understand the patterns and choose the next step together.", "از حامی یا فردی باتجربه در بهبودی بخواهید در فهم الگوها و انتخاب گام بعدی همراه شما باشد.")}</p>
           {!demo && !draftDay && <p>{t("This period counts saved entries only. Save today's changes first if you want them counted.", "این بازه فقط نوشته‌های ذخیره‌شده را می‌شمارد. اگر می‌خواهید تغییرات امروز محاسبه شوند، ابتدا آن‌ها را ذخیره کنید.")}</p>}
           {rangeReport.loading && <p>{t("Preparing analytics for sharing…", "در حال آماده‌سازی تحلیل برای اشتراک…")}</p>}
-          {bounds && reportAnalytics && <details className="step10-report-preview" ref={chartRef} open={chartOpen} onToggle={(event) => setChartOpen(event.currentTarget.open)}><summary>{t("Preview principle chart", "پیش‌نمایش نمودار اصول")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>}
+          {bounds && reportAnalytics && <details className="step10-report-preview" ref={chartRef} open={chartOpen} onToggle={(event) => setChartOpen(event.currentTarget.open)}><summary>{t("Preview inventory chart", "پیش‌نمایش نمودار ترازنامه")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>}
           <div className="sidebar-actions">
             <button className="button button-primary" type="button" onClick={saveInventory} disabled={saving}>
               <Save size={17} />{saving ? t("Saving…", "در حال ذخیره…") : t("Save inventory", "ذخیره ترازنامه")}
@@ -421,7 +425,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
         {message && <p className="step10-mobile-message" role="status">{message}</p>}
         <div className="step10-mobile-menu" id="step10-mobile-menu" ref={mobileMenuRef} hidden={!mobileActionsOpen} role="group" aria-label={t("Inventory actions", "گزینه‌های ترازنامه")}>
           <ReportPeriodPicker period={period} onChange={choosePeriod} selectedDay={data.date} id="step10-report-period-mobile" />
-          <button className="button button-outline" type="button" onClick={viewChart}><BarChart3 size={17} />{t("View principle chart", "مشاهده نمودار اصول")}</button>
+          <button className="button button-outline" type="button" onClick={viewChart}><BarChart3 size={17} />{t("View inventory chart", "مشاهده نمودار ترازنامه")}</button>
           <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); void shareInventory(); }}><Share2 size={17} />{t("Share with sponsor", "اشتراک با حامی")}</button>
           {rangeReport.error && <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); rangeReport.retry(); }}><Share2 size={17} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
           <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); void copyInventory(); }}><Copy size={17} />{t("Copy full inventory", "کپی ترازنامه کامل")}</button>
