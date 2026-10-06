@@ -1501,6 +1501,7 @@ html[dir="rtl"] .page-hero h1 {
 
 .principle-card {
   display: grid;
+  align-content: start;
   gap: 0.7rem;
   border: 1px solid var(--line);
   border-radius: 16px;
