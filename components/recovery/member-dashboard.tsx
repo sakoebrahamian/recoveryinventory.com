@@ -15,6 +15,7 @@ import { RecoveryLearningCenter } from "./recovery-learning-center";
 import { formatDisplayDate, todayIso } from "@/lib/inventory";
 import { defaultReportPeriod } from "@/lib/step10-report-period";
 import { recordSiteAction } from "@/lib/site-analytics";
+import { BillingTimeoutError, requestBilling } from "@/lib/billing-client";
 
 type AccountView = {
   alias: string;
@@ -52,6 +53,7 @@ export function MemberDashboard() {
   const [reportPeriod, setReportPeriod] = React.useState(() => defaultReportPeriod(todayIso()));
   const [message, setMessage] = React.useState("");
   const [billingBusy, setBillingBusy] = React.useState(false);
+  const [billingRecovery, setBillingRecovery] = React.useState(false);
   const [promotionCode, setPromotionCode] = React.useState("");
   const exportRef = React.useRef<InventoryExportHandle>(null);
   const activationRecordedRef = React.useRef(false);
@@ -196,31 +198,28 @@ export function MemberDashboard() {
 
   async function openBilling(path: "checkout" | "portal") {
     setBillingBusy(true);
+    setBillingRecovery(false);
     setMessage("");
     try {
-      const response = await fetch(`/api/billing/${path}`, {
-        method: "POST",
-        ...(path === "checkout" ? {
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ promotionCode: promotionCode.trim() || undefined }),
-        } : {}),
-      });
-      const result = await response.json() as { url?: string; activated?: boolean; error?: string };
-      if (!response.ok) throw new Error(result.error || t("Billing is not available yet.", "پرداخت هنوز در دسترس نیست."));
+      const { ok, result } = await requestBilling(path, promotionCode);
+      if (!ok) throw new Error(result.error || t("Billing is not available yet.", "پرداخت هنوز در دسترس نیست."));
       if (result.activated) {
         recordSiteAction("membership_activated");
-        const refreshed = await loadAccount();
-        if (refreshed?.membershipActive) await loadInventories(year);
-        setPromotionCode("");
-        setMessage(t("Code accepted. Your membership is active.", "کد پذیرفته شد. عضویت شما فعال است."));
-        setBillingBusy(false);
+        // Open a fresh workspace without keeping the billing button busy
+        // while account and inventory requests finish.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+        window.location.assign("/app");
         return;
       }
       if (!result.url) throw new Error(t("Billing is not available yet.", "پرداخت هنوز در دسترس نیست."));
       recordSiteAction("checkout_started");
       window.location.assign(result.url);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
+      setBillingRecovery(true);
+      setMessage(error instanceof BillingTimeoutError
+        ? t("This is taking longer than expected. Open your workspace to check your membership before trying again.", "این کار بیش از حد انتظار طول کشیده است. پیش از تلاش دوباره، فضای کاری خود را باز کنید و وضعیت عضویت را بررسی کنید.")
+        : error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
+    } finally {
       setBillingBusy(false);
     }
   }
@@ -278,6 +277,7 @@ export function MemberDashboard() {
           </div>
         </div>
         {message && <p className="dashboard-message" role="status">{message}</p>}
+        {billingRecovery && <p className="auth-switch"><a href="/app">{t("Open your workspace", "فضای کاری خود را باز کنید")}</a></p>}
 
         {!account.membershipActive ? (
           <div className="membership-gate-grid">
