@@ -5,6 +5,7 @@ import { ArrowLeft, CheckCircle2, Copy, Download, Eye, EyeOff, KeyRound, Mail, S
 import { useLanguage } from "./language-provider";
 import { translatePasswordError } from "./password-error";
 import { recordSiteAction } from "@/lib/site-analytics";
+import { BillingTimeoutError, requestBilling } from "@/lib/billing-client";
 
 type JoinMethod = "anonymous" | "email";
 
@@ -124,13 +125,8 @@ export function JoinForm() {
     setBusy(true);
     setBillingError("");
     try {
-      const response = await fetch("/api/billing/checkout", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ promotionCode: promotionCode.trim() || undefined }),
-      });
-      const result = await response.json() as { url?: string; activated?: boolean; error?: string };
-      if (!response.ok) throw new Error(result.error || t("Checkout is not available yet.", "پرداخت هنوز در دسترس نیست."));
+      const { ok, result } = await requestBilling("checkout", promotionCode);
+      if (!ok) throw new Error(result.error || t("Checkout is not available yet.", "پرداخت هنوز در دسترس نیست."));
       if (result.activated) {
         recordSiteAction("membership_activated");
         // Native navigation avoids the production Vinext client-router interception error.
@@ -142,7 +138,10 @@ export function JoinForm() {
       recordSiteAction("checkout_started");
       window.location.assign(result.url);
     } catch (error) {
-      setBillingError(error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
+      setBillingError(error instanceof BillingTimeoutError
+        ? t("This is taking longer than expected. Open your workspace to check your membership before trying again.", "این کار بیش از حد انتظار طول کشیده است. پیش از تلاش دوباره، فضای کاری خود را باز کنید و وضعیت عضویت را بررسی کنید.")
+        : error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
+    } finally {
       setBusy(false);
     }
   }
@@ -157,6 +156,7 @@ export function JoinForm() {
         </div>
         {billingError && <p className="form-error" role="alert">{billingError}</p>}
         <button className="button button-primary button-full" type="button" onClick={beginCheckout} disabled={disabled || busy}><ShieldCheck size={18} />{busy ? (promotionCode.trim() ? t("Applying code…", "در حال اعمال کد…") : t("Opening secure checkout…", "در حال باز کردن پرداخت امن…")) : t("Activate membership", "فعال‌سازی عضویت")}</button>
+        {!disabled && <p className="auth-switch"><a href="/app">{t("Open your workspace", "فضای کاری خود را باز کنید")}</a></p>}
       </>
     );
   }

@@ -393,6 +393,8 @@ export const spanishTranslations: Record<string, string> = {
   "Open this demo": "Abrir esta demostración",
   "Open your account": "Abre tu cuenta",
   "Opening secure checkout…": "Abriendo el pago seguro…",
+  "Open your workspace": "Abre tu espacio de trabajo",
+  "This is taking longer than expected. Open your workspace to check your membership before trying again.": "Esto está tardando más de lo esperado. Abre tu espacio de trabajo para comprobar tu membresía antes de volver a intentarlo.",
   "Opening your private space…": "Abriendo tu espacio privado…",
   "Opening…": "Abriendo…",
   "Organize resentments, fears, relationship patterns, harms, and strengths in a clear working guide.": "Organiza resentimientos, miedos, patrones de relación, daños y fortalezas en una guía de trabajo clara.",
