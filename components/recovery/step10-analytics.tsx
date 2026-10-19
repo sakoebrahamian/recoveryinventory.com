@@ -11,6 +11,7 @@ import { Step10AnalyticsDetail, Step10PeriodComparison } from "./step10-analytic
 import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
 import type { Step10Data } from "./step10-inventory";
+import { Step10PatternVisual } from "./step10-pattern-visual";
 import { Step10WeeklyInsights } from "./step10-weekly-insights";
 import { ReportPeriodPicker } from "./report-period-picker";
 import { Step10ReportChart } from "./step10-report-chart";
@@ -145,7 +146,7 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
           <p>{t("Every summary below follows the selected dates and saved inventories only.", "همه خلاصه‌های زیر فقط از تاریخ‌های انتخاب‌شده و ترازنامه‌های ذخیره‌شده استفاده می‌کنند.")}</p>
         </div>
         <div className="analytics-header-actions">
-          {controls}{demo && <span className="analytics-sample-badge">{t("Sample data", "داده نمونه")}</span>}
+          {controls}<button type="button" className="button button-outline button-small" onClick={() => choosePeriod({ mode: "range", from: dateBefore(todayIso(), 29), through: todayIso() })}>{t("Last 30 days", "۳۰ روز گذشته")}</button>{demo && <span className="analytics-sample-badge">{t("Sample data", "داده نمونه")}</span>}
           {reportInventory ? (
             <>
 
@@ -191,6 +192,7 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
         </article>
       </div>
 
+      <Step10PatternVisual key={`patterns:${bounds.from}:${bounds.through}`} analytics={analytics} bounds={bounds} onOpenDate={onOpenDate} />
       <Step10PeriodComparison analytics={analytics} bounds={bounds} />
       {!analytics.totalEntries && <p className="analytics-data-note">{t("No saved Step 10 inventories in this period.", "هیچ ترازنامه ذخیره‌شده گام ۱۰ در این بازه وجود ندارد.")}</p>}
 

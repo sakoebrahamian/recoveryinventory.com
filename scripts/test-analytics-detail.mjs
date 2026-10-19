@@ -100,5 +100,36 @@ try {
   assert.ok(memberHtml.includes("Your reflection history"));
   assert.ok(memberHtml.includes("INCLUDE_THIS_NOTE"));
   assert.ok(!memberHtml.includes("PREVIOUS_PRIVATE_WORDS"));
+  const patterns = await server.ssrLoadModule("/lib/step10-patterns.ts");
+  const patternModule = await server.ssrLoadModule("/components/recovery/step10-pattern-visual.tsx");
+  const thirtyDays = Array.from({ length: 30 }, (_, index) => make(new Date(Date.UTC(2026, 8, 20 + index)).toISOString().slice(0, 10), {
+    honesty: "practiced", "honesty-motives": "attention", patience: "practiced", acceptance: "attention", kindness: "na",
+  })).filter((_, index) => index !== 12);
+  const thirtyBounds = { mode: "range", from: "2026-09-20", through: "2026-10-19" };
+  const thirtyAnalytics = model.calculateStep10PeriodAnalytics(thirtyDays, thirtyBounds);
+  const visual = patterns.buildStep10Patterns(thirtyAnalytics, thirtyBounds);
+  assert.equal(visual.interval, "day");
+  assert.equal(visual.buckets.length, 30, "a 30-day visual must include all 30 calendar days");
+  assert.equal(visual.rows.find((row) => row.id === "honesty").cells[0].tone, "mixed", "main and follow-up answers must both be represented");
+  assert.equal(visual.rows.find((row) => row.id === "patience").cells[0].tone, "practiced");
+  assert.equal(visual.rows.find((row) => row.id === "acceptance").cells[0].tone, "attention");
+  assert.equal(visual.rows.find((row) => row.id === "kindness").cells[0].tone, "na");
+  assert.equal(visual.rows[0].cells[12].tone, "no-entry", "a missing day must never become Needs attention");
+  assert.equal(visual.rows.find((row) => row.id === "hope").cells[0].tone, "unanswered");
+  assert.ok(visual.strengths.some((row) => row.id === "patience"));
+  assert.ok(!visual.strengths.some((row) => row.id === "kindness"));
+  assert.ok(visual.focus.some((row) => row.id === "acceptance"));
+  assert.ok(!visual.focus.some((row) => row.id === "kindness"));
+  assert.equal(patterns.buildStep10Patterns(analytics, bounds).strengths.length, 0, "two saved days cannot establish a repeated pattern");
+  const yearVisual = patterns.buildStep10Patterns(thirtyAnalytics, { mode: "year", from: "2026-01-01", through: "2026-12-31" });
+  assert.equal(yearVisual.interval, "week");
+  assert.ok(yearVisual.buckets.length <= 54);
+  const longer = patterns.buildStep10Patterns(thirtyAnalytics, { mode: "range", from: "2025-01-01", through: "2026-12-31" });
+  assert.equal(longer.interval, "month");
+  assert.equal(longer.buckets.length, 24);
+  const graphicHtml = renderToStaticMarkup(React.createElement(LanguageProvider, null, React.createElement(patternModule.Step10PatternVisual, { analytics: thirtyAnalytics, bounds: thirtyBounds, print: true })));
+  assert.ok(graphicHtml.includes("Consistent practice"));
+  assert.equal((graphicHtml.match(/<span class="pattern-square pattern-tone-/g) ?? []).length, 24 * 30, "print map must include all principles and dates");
+  assert.ok(graphicHtml.includes("Mixed Practiced and Needs attention"));
   console.log("Detailed analytics checks passed: calendar comparisons, partial and leap periods, scoped history, older questions, missing data, selected-note privacy, localized reports, and complete Spanish interface coverage.");
 } finally { await server.close(); }

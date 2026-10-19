@@ -10,6 +10,7 @@ import { summarizeStep10Insights } from "@/lib/step10-insights";
 import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { practiceForPrinciple } from "@/lib/step10-practices";
 import { Step10PeriodComparison } from "./step10-analytics-detail";
+import { Step10PatternVisual } from "./step10-pattern-visual";
 import { Step10WrittenInsights } from "./step10-written-insights";
 import { Step10WeeklyInsights } from "./step10-weekly-insights";
 import { useLanguage } from "./language-provider";
@@ -236,6 +237,7 @@ function Step10AnalyticsPrint({ analytics, bounds, scopeLabel, brief = false }: 
             })}</ul> : <p>—</p>}
           </section>}
 
+          {!daily && <Step10PatternVisual analytics={analytics} bounds={bounds} print />}
           <Step10PeriodComparison analytics={analytics} bounds={bounds} />
 
           {!daily && <section className="inventory-print-analytics-block inventory-print-interpretation">
