@@ -1536,7 +1536,7 @@ html[dir="rtl"] .page-hero h1 {
 
 .state-picker {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.35rem;
 }
 
@@ -1568,11 +1568,6 @@ html[dir="rtl"] .page-hero h1 {
   border-color: var(--slate);
   background: var(--slate);
   color: white;
-}
-
-.state-picker button.na {
-  min-width: 3.25rem;
-  white-space: nowrap;
 }
 
 .principle-attention-note {
@@ -3138,7 +3133,7 @@ html[dir="rtl"] .membership-gate-card h2 {
   }
 
   .state-picker {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .demo-banner {
@@ -6885,7 +6880,7 @@ html[dir="rtl"] .member-locked h1 {
 
   .inner-page .state-picker,
   .member-page .state-picker {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) max-content;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .member-page .member-header-actions .button {
@@ -10413,7 +10408,7 @@ html[dir="rtl"] .ri-learning-preview {
 
 /* Detailed member analytics: readable labels, dated evidence, and optional sharing. */
 .state-picker { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.state-picker button { min-height: 44px; white-space: normal; overflow-wrap: anywhere; line-height: 1.35; }
+.state-picker button { min-width: 0; min-height: 44px; white-space: normal; overflow-wrap: anywhere; line-height: 1.35; }
 .step10-report-chart-row.is-daily .step10-report-chart-state { white-space: normal; max-width: 12rem; text-align: center; }
 .inventory-answer-help { color: #405e55; font-size: .85rem; line-height: 1.6; }
 .analytics-deep-dive { display: grid; gap: 1.25rem; margin: 1.25rem; }
