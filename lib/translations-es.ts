@@ -1,4 +1,7 @@
 export const spanishTranslations: Record<string, string> = {
+  "Selected principle": "Principio seleccionado",
+  "Whole inventory": "Inventario completo",
+  "All principles for these dates, including follow-up questions. These totals can differ from the selected principle above.": "Todos los principios de estas fechas, incluidas las preguntas de seguimiento. Estos totales pueden ser distintos de los del principio seleccionado arriba.",
   "Principle": "Principio",
   "Related principles": "Principios relacionados",
   "answered": "respondidas",

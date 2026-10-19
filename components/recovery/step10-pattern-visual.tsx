@@ -4,6 +4,7 @@ import * as React from "react";
 import { formatDisplayDate, principles, step10Questions, type Language } from "@/lib/inventory";
 import type { Step10AnalyticsData } from "@/lib/step10-analytics";
 import type { ReportBounds } from "@/lib/step10-report-period";
+import { countQuestionDays, type AnswerTotals } from "@/lib/step10-detail";
 import { buildStep10Patterns, type PatternCell, type PatternTone, type PrinciplePattern } from "@/lib/step10-patterns";
 import { useLanguage } from "./language-provider";
 
@@ -65,7 +66,36 @@ export function Step10PatternVisual({ analytics, bounds, onOpenDate, print = fal
       </div><small>{row.practiced}/{row.answered} {t("Practiced", "تمرین کردم")}{!row.answered && <span> · {t("No answered opportunities", "بدون فرصت پاسخ‌داده‌شده")}</span>}</small>
     </div>;
   })}</div>;
-  const selectedDetail = !print && selectedCell && selectedRow ? <article className="pattern-cell-detail" aria-live="polite"><h4>{name(selectedRow.id)} · {rangeLabel(selectedCell, language)}</h4><p><strong>{t("Saved days", "روزهای ذخیره‌شده")}: {selectedCell.savedDays}</strong> · {toneLabel(selectedCell.tone, t)}</p><p>{t("Practiced", "تمرین کردم")}: {selectedCell.practiced} · {t("Needs attention", "نیازمند توجه")}: {selectedCell.attention} · {t("Didn’t come up today", "امروز پیش نیامد")}: {selectedCell.na} · {t("Not answered", "پاسخ داده نشده")}: {selectedCell.unanswered}</p>{analytics.days.filter((day) => day.date >= selectedCell.from && day.date <= selectedCell.through).map((day) => <div className="pattern-evidence-day" key={day.date}><strong>{formatDisplayDate(day.date, language)}</strong><ul>{step10Questions.filter((question) => question.principleId === selectedRow.id && day.questionIds.includes(question.id)).map((question) => <li key={question.id}><span>{question[language]}</span><strong>{day.states[question.id] === "practiced" ? t("Practiced", "تمرین کردم") : day.states[question.id] === "attention" ? t("Needs attention", "نیازمند توجه") : day.states[question.id] === "na" ? t("Didn’t come up today", "امروز پیش نیامد") : t("Not answered", "پاسخ داده نشده")}</strong>{day.states[question.id] === "attention" && day.notes[question.id] && <blockquote dir="auto">{day.notes[question.id]}</blockquote>}</li>)}</ul>{onOpenDate && <button type="button" className="button button-outline button-small" onClick={() => onOpenDate(day.date)}>{t("Open this inventory", "باز کردن این ترازنامه")}</button>}</div>)}</article> : null;
+  const selectedDays = selectedCell ? analytics.days.filter((day) => day.date >= selectedCell.from && day.date <= selectedCell.through) : [];
+  const selectedInventoryTotals = countQuestionDays(selectedDays, step10Questions.map(({ id }) => id));
+  const answerCounts = (counts: AnswerTotals) => <dl className="pattern-answer-counts">
+    <div><dt>{t("Practiced", "تمرین کردم")}</dt><dd>{counts.practiced}</dd></div>
+    <div><dt>{t("Needs attention", "نیازمند توجه")}</dt><dd>{counts.attention}</dd></div>
+    <div><dt>{t("Didn’t come up today", "امروز پیش نیامد")}</dt><dd>{counts.na}</dd></div>
+    <div><dt>{t("Not answered", "پاسخ داده نشده")}</dt><dd>{counts.unanswered}</dd></div>
+  </dl>;
+  const selectedDetail = !print && selectedCell && selectedRow ? <article className="pattern-cell-detail" aria-live="polite">
+    <h4>{name(selectedRow.id)} · {rangeLabel(selectedCell, language)}</h4>
+    <p><strong>{t("Saved days", "روزهای ذخیره‌شده")}: {selectedCell.savedDays}</strong> · {toneLabel(selectedCell.tone, t)}</p>
+    <section className="pattern-principle-counts">
+      <h5>{t("Selected principle", "اصل انتخاب‌شده")}: {name(selectedRow.id)}</h5>
+      {answerCounts(selectedCell)}
+    </section>
+    <section className="pattern-inventory-counts">
+      <h5>{t("Whole inventory", "کل ترازنامه")}</h5>
+      <p className="pattern-method-note">{t("All principles for these dates, including follow-up questions. These totals can differ from the selected principle above.", "همه اصول در این تاریخ‌ها، شامل پرسش‌های تکمیلی. این مجموع‌ها ممکن است با اصل انتخاب‌شده در بالا متفاوت باشند.")}</p>
+      {answerCounts(selectedInventoryTotals)}
+    </section>
+    {selectedDays.map((day) => <div className="pattern-evidence-day" key={day.date}>
+      <strong>{formatDisplayDate(day.date, language)}</strong>
+      <ul>{step10Questions.filter((question) => question.principleId === selectedRow.id && day.questionIds.includes(question.id)).map((question) => <li key={question.id}>
+        <span>{question[language]}</span>
+        <strong>{day.states[question.id] === "practiced" ? t("Practiced", "تمرین کردم") : day.states[question.id] === "attention" ? t("Needs attention", "نیازمند توجه") : day.states[question.id] === "na" ? t("Didn’t come up today", "امروز پیش نیامد") : t("Not answered", "پاسخ داده نشده")}</strong>
+        {day.states[question.id] === "attention" && day.notes[question.id] && <blockquote dir="auto">{day.notes[question.id]}</blockquote>}
+      </li>)}</ul>
+      {onOpenDate && <button type="button" className="button button-outline button-small" onClick={() => onOpenDate(day.date)}>{t("Open this inventory", "باز کردن این ترازنامه")}</button>}
+    </div>)}
+  </article> : null;
   const map = (view === "map" || print) ? <>
     <p>{data.interval === "day" ? t("Each square is one principle on one day. Look across a row for repeated colors. Select a square to inspect the actual answers.", "هر خانه یک اصل در یک روز است. تکرار رنگ‌ها را در هر ردیف ببینید. برای بررسی پاسخ‌های واقعی، یک خانه را انتخاب کنید.") : data.interval === "week" ? t("For longer ranges, each square groups one calendar week. Select a square to see its dates and answers.", "برای بازه‌های طولانی‌تر، هر خانه یک هفته تقویمی را نشان می‌دهد. برای دیدن تاریخ‌ها و پاسخ‌ها، یک خانه را انتخاب کنید.") : t("For ranges longer than a year, each square groups one calendar month. Select a square to see its dates and answers.", "برای بازه‌های طولانی‌تر از یک سال، هر خانه یک ماه تقویمی را نشان می‌دهد. برای دیدن تاریخ‌ها و پاسخ‌ها، یک خانه را انتخاب کنید.")}</p>
     <p className="pattern-method-note">{t("Purple squares are saved answers marked Didn’t come up today. Only dotted white squares mean no saved inventory.", "خانه‌های بنفش، پاسخ‌های ذخیره‌شده با گزینه «امروز پیش نیامد» هستند. فقط خانه‌های سفید نقطه‌چین یعنی ترازنامه‌ای ذخیره نشده است.")}</p>

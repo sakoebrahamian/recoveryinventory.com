@@ -10544,6 +10544,12 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
 .pattern-cell-detail { border: 1px solid #91ad9f; background: #f4f8ef; border-radius: 12px; padding: 1rem; margin-top: 1rem; }
 .pattern-cell-detail h4 { margin: 0 0 .5rem; }
 .pattern-cell-detail p { font-size: .9rem; line-height: 1.6; }
+.pattern-cell-detail h5 { margin: .8rem 0 .5rem; font-size: .9rem; color: #173f3a; }
+.pattern-inventory-counts { border-top: 1px solid #c8d9cd; padding-top: .25rem; margin-top: .75rem; }
+.pattern-answer-counts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin: .5rem 0 .75rem; }
+.pattern-answer-counts > div { min-width: 0; border: 1px solid #d8e3d9; border-radius: 8px; padding: .5rem; background: #fffdf9; }
+.pattern-answer-counts dt { font-size: .8rem; line-height: 1.4; overflow-wrap: anywhere; }
+.pattern-answer-counts dd { margin: .2rem 0 0; font-size: 1.05rem; font-weight: 750; color: #173f3a; }
 .pattern-evidence-day { border-top: 1px solid #c8d9cd; padding: .75rem 0; }
 .pattern-evidence-day ul { padding-inline-start: 1.25rem; }
 .pattern-evidence-day li { margin: .5rem 0; line-height: 1.55; font-size: .9rem; }

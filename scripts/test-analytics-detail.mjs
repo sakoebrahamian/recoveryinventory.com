@@ -136,6 +136,21 @@ try {
     assert.equal(cell.unanswered, 0);
   }
   assert.equal(calendarPattern.cells.at(-1).tone, "no-entry", "an unfinished today remains separate from saved not-encountered answers");
+  const dayStates = Object.fromEntries(inventory.step10Questions.map(({ id }) => [id, "practiced"]));
+  for (const index of [4, 5, 7, 8, 14, 15, 18, 19, 20, 24, 25, 26, 27, 36]) dayStates[inventory.step10Questions[index].id] = "na";
+  dayStates.patience = "attention";
+  const exampleBounds = { mode: "day", from: "2026-10-03", through: "2026-10-03" };
+  const exampleAnalytics = model.calculateStep10PeriodAnalytics([make(exampleBounds.from, dayStates)], exampleBounds);
+  const exampleRows = patterns.buildStep10Patterns(exampleAnalytics, exampleBounds).rows;
+  const wholeInventory = detail.countQuestionDays(exampleAnalytics.days, inventory.step10Questions.map(({ id }) => id));
+  assert.deepEqual([wholeInventory.practiced, wholeInventory.attention, wholeInventory.na, wholeInventory.unanswered], [24, 1, 14, 0]);
+  const willingness = exampleRows.find(({ id }) => id === "willingness").cells[0];
+  assert.deepEqual([willingness.practiced, willingness.attention, willingness.na, willingness.unanswered], [0, 0, 2, 0], "principle totals must stay separate from whole-inventory totals");
+  assert.equal(exampleRows.find(({ id }) => id === "honesty").cells[0].practiced, 2);
+  assert.equal(exampleRows.find(({ id }) => id === "patience").cells[0].tone, "mixed");
+  for (const kind of ["practiced", "attention", "na", "unanswered"]) {
+    assert.equal(exampleRows.reduce((sum, row) => sum + row.cells[0][kind], 0), wholeInventory[kind], "every question answer must appear once across principle rows");
+  }
   const yearVisual = patterns.buildStep10Patterns(thirtyAnalytics, { mode: "year", from: "2026-01-01", through: "2026-12-31" });
   assert.equal(yearVisual.interval, "week");
   assert.ok(yearVisual.buckets.length <= 54);
