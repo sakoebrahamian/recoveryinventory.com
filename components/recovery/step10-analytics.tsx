@@ -11,6 +11,7 @@ import { Step10AnalyticsDetail, Step10PeriodComparison } from "./step10-analytic
 import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
 import type { Step10Data } from "./step10-inventory";
+import { Step10PatternSummary } from "./step10-pattern-summary";
 import { Step10PatternVisual } from "./step10-pattern-visual";
 import { Step10WeeklyInsights } from "./step10-weekly-insights";
 import { ReportPeriodPicker } from "./report-period-picker";
@@ -192,6 +193,7 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
         </article>
       </div>
 
+      <Step10PatternSummary key={`summary:${bounds.from}:${bounds.through}`} analytics={analytics} bounds={bounds} demo={demo} />
       <Step10PatternVisual key={`patterns:${bounds.from}:${bounds.through}`} analytics={analytics} bounds={bounds} onOpenDate={onOpenDate} />
       <Step10PeriodComparison analytics={analytics} bounds={bounds} />
       {!analytics.totalEntries && <p className="analytics-data-note">{t("No saved Step 10 inventories in this period.", "هیچ ترازنامه ذخیره‌شده گام ۱۰ در این بازه وجود ندارد.")}</p>}

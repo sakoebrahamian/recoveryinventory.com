@@ -10595,3 +10595,23 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
   html.inventory-export-page .pattern-map thead { display: table-header-group; }
   html.inventory-export-page .pattern-stacked-bar { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
+
+/* A single landscape sheet, separate from full inventories and multi-page reports. */
+.pattern-summary-export { margin: 1.25rem; padding: clamp(1rem, 3vw, 1.5rem); border: 1px solid #c8d9cd; border-radius: 20px; background: #f4f8ef; color: #173f3a; min-width: 0; }
+.pattern-summary-export h4 { margin: 0 0 .5rem; font-size: 1.2rem; }
+.pattern-summary-export p { font-size: .9rem; line-height: 1.65; margin: .4rem 0 1rem; }
+.pattern-summary-export .pattern-method-note { font-size: .8rem; }
+.pattern-summary-export-actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin: 1rem 0; }
+.pattern-summary-export-actions label { display: flex; gap: .5rem; align-items: center; font-size: .85rem; }
+.pattern-summary-export-actions select { min-height: 44px; padding: .4rem; border: 1px solid #91ad9f; border-radius: 8px; background: white; }
+.pattern-summary-preview figure { margin: 0; min-width: 0; }
+.pattern-summary-sheet { display: block; width: 100%; max-width: 100%; height: auto; border: 1px solid #c8d9cd; border-radius: 8px; background: white; }
+.pattern-summary-preview figcaption { font-size: .8rem; line-height: 1.6; color: #405e55; padding-top: .6rem; }
+.pattern-summary-print-root { display: none; }
+@media (max-width: 650px) { .pattern-summary-export { margin: .75rem; } }
+@media print {
+  html.pattern-summary-printing, html.pattern-summary-printing body { margin: 0 !important; padding: 0 !important; min-height: 0 !important; background: white !important; overflow: visible !important; }
+  html.pattern-summary-printing body > :not(.pattern-summary-print-root) { display: none !important; }
+  html.pattern-summary-printing .pattern-summary-print-root { display: block !important; position: static; width: 100%; margin: 0; padding: 0; break-inside: avoid; }
+  html.pattern-summary-printing .pattern-summary-print-root img { display: block; width: 100%; height: auto; max-height: 190mm; object-fit: contain; margin: 0 auto; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}

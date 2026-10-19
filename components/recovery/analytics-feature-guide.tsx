@@ -8,7 +8,7 @@ const copy = {
     title: "Understand your patterns, one recorded day at a time.",
     intro: "Member analytics brings your saved Step 10 answers and writing together. Choose a day, week, month, year, or custom range; every summary follows those dates.",
     features: [
-      ["See patterns at a glance", "Choose Last 30 days or any date range. Green and orange principle bars show recorded strengths and recurring concerns. A pattern map shows how answers repeat across days; select a square to inspect its answers. On phones, dates wrap into a grid under each principle, with no sideways scrolling."],
+      ["See patterns at a glance", "Choose Last 30 days or any date range. Green and orange principle bars show recorded strengths and recurring concerns. A pattern map shows how answers repeat across days; select a square to inspect its answers. On phones, dates wrap into a grid under each principle, with no sideways scrolling. Preview a one-page pattern summary with all 24 principles and a timeline; print it, download a PDF or PNG, or share it."],
       ["Explore all 24 principles", "Open a principle to review its main question, independent follow-ups, dated answers, and notes. Follow selected principles in weekly or monthly trends."],
       ["Find a recorded day", "Use the marked-day calendar to inspect daily counts and reopen an inventory. Days without an entry are never treated as negative answers."],
       ["Read your own words", "Filter and search your saved reflections about gratitude, relationships, amends, concerns, and next actions. Original writing stays in its original language."],
@@ -27,7 +27,7 @@ const copy = {
     title: "Comprende tus patrones, un día registrado a la vez.",
     intro: "El análisis para miembros reúne tus respuestas y textos guardados del Paso 10. Elige un día, semana, mes, año o intervalo personalizado; todos los resúmenes siguen esas fechas.",
     features: [
-      ["Observa tus patrones de un vistazo", "Elige los últimos 30 días o cualquier intervalo. Las barras verdes y naranjas muestran fortalezas registradas y preocupaciones repetidas por principio. Un mapa muestra cómo se repiten las respuestas a lo largo de los días; selecciona un cuadro para revisarlas. En el teléfono, las fechas se distribuyen en filas debajo de cada principio, sin desplazamiento horizontal."],
+      ["Observa tus patrones de un vistazo", "Elige los últimos 30 días o cualquier intervalo. Las barras verdes y naranjas muestran fortalezas registradas y preocupaciones repetidas por principio. Un mapa muestra cómo se repiten las respuestas a lo largo de los días; selecciona un cuadro para revisarlas. En el teléfono, las fechas se distribuyen en filas debajo de cada principio, sin desplazamiento horizontal. Revisa un resumen de patrones de una página con los 24 principios y una línea de tiempo; imprímelo, descarga un PDF o PNG, o compártelo."],
       ["Explora los 24 principios", "Abre un principio para revisar su pregunta principal, seguimientos independientes, respuestas fechadas y notas. Sigue principios elegidos en tendencias semanales o mensuales."],
       ["Encuentra un día registrado", "Usa el calendario de días marcados para revisar los totales diarios y volver a abrir un inventario. Los días sin entrada nunca se consideran respuestas negativas."],
       ["Lee tus propias palabras", "Filtra y busca tus reflexiones guardadas sobre gratitud, relaciones, reparaciones, preocupaciones y próximas acciones. Tus textos conservan su idioma original."],
@@ -46,7 +46,7 @@ const copy = {
     title: "الگوهای خود را، روز به روز، بهتر بشناسید.",
     intro: "تحلیل اعضا پاسخ‌ها و نوشته‌های ذخیره‌شده گام ۱۰ را کنار هم قرار می‌دهد. یک روز، هفته، ماه، سال یا بازه دلخواه انتخاب کنید؛ همه خلاصه‌ها از همان تاریخ‌ها پیروی می‌کنند.",
     features: [
-      ["الگوها را در یک نگاه ببینید", "۳۰ روز گذشته یا هر بازه‌ای را انتخاب کنید. نوارهای سبز و نارنجی نقاط قوت ثبت‌شده و نگرانی‌های تکرارشونده هر اصل را نشان می‌دهند. نقشه الگوها تکرار پاسخ‌ها در روزها را نشان می‌دهد؛ برای بررسی پاسخ‌ها، یک خانه را انتخاب کنید. در تلفن همراه، تاریخ‌ها در چند ردیف زیر هر اصل قرار می‌گیرند و نیازی به پیمایش افقی نیست."],
+      ["الگوها را در یک نگاه ببینید", "۳۰ روز گذشته یا هر بازه‌ای را انتخاب کنید. نوارهای سبز و نارنجی نقاط قوت ثبت‌شده و نگرانی‌های تکرارشونده هر اصل را نشان می‌دهند. نقشه الگوها تکرار پاسخ‌ها در روزها را نشان می‌دهد؛ برای بررسی پاسخ‌ها، یک خانه را انتخاب کنید. در تلفن همراه، تاریخ‌ها در چند ردیف زیر هر اصل قرار می‌گیرند و نیازی به پیمایش افقی نیست. خلاصه یک‌صفحه‌ای الگوها با هر ۲۴ اصل و خط زمانی را پیش‌نمایش کنید؛ چاپ کنید، PDF یا PNG دانلود کنید یا به اشتراک بگذارید."],
       ["هر ۲۴ اصل را بررسی کنید", "هر اصل را باز کنید و پرسش اصلی، پاسخ‌های جداگانه تکمیلی، پاسخ‌های تاریخ‌دار و یادداشت‌ها را ببینید. روند هفتگی یا ماهانه اصول مورد نظر را دنبال کنید."],
       ["روز ثبت‌شده را پیدا کنید", "با تقویم روزهای علامت‌دار، شمارش‌های روزانه را ببینید و ترازنامه را دوباره باز کنید. روز بدون نوشته هرگز پاسخ منفی محسوب نمی‌شود."],
       ["نوشته‌های خود را بخوانید", "نوشته‌های ذخیره‌شده درباره قدردانی، روابط، جبران، نگرانی‌ها و اقدام‌های بعدی را فیلتر و جست‌وجو کنید. زبان اصلی نوشته‌های شما حفظ می‌شود."],
