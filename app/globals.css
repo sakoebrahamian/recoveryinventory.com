@@ -10539,7 +10539,7 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
 .pattern-map th:first-child { position: sticky; inset-inline-start: 0; z-index: 1; text-align: start; min-width: 155px; max-width: 180px; background: #fffdf9; padding-inline-end: .6rem; }
 .pattern-map tbody th { font-weight: 650; line-height: 1.4; }
 .pattern-map td { padding: 0; text-align: center; }
-.pattern-cell-date, .pattern-map-mobile-note, .pattern-map .pattern-inline-detail { display: none; }
+.pattern-cell-date, .pattern-cell-entry, .pattern-map-mobile-note, .pattern-map .pattern-inline-detail { display: none; }
 .pattern-map button:hover, .pattern-map button:focus-visible, .pattern-map button[aria-pressed="true"] { outline: 3px solid #173f3a; outline-offset: 1px; }
 .pattern-cell-detail { border: 1px solid #91ad9f; background: #f4f8ef; border-radius: 12px; padding: 1rem; margin-top: 1rem; }
 .pattern-cell-detail h4 { margin: 0 0 .5rem; }
@@ -10567,8 +10567,9 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
     .pattern-map tbody tr { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; min-width: 0; border: 1px solid #d8e3d9; border-radius: 12px; padding: .65rem; }
     .pattern-map th:first-child { grid-column: 1 / -1; position: static; inset-inline-start: auto; z-index: auto; min-width: 0; max-width: none; background: transparent; padding: .2rem 0 .5rem; overflow-wrap: anywhere; font-size: .95rem; }
     .pattern-map td { display: block; min-width: 0; }
-    .pattern-map .pattern-square { display: flex; flex-direction: column; gap: .2rem; width: 100%; min-width: 0; height: auto; min-height: 54px; padding: .3rem .1rem; }
+    .pattern-map .pattern-square { display: flex; flex-direction: column; gap: .2rem; width: 100%; min-width: 0; height: auto; min-height: 68px; padding: .3rem .1rem; }
     .pattern-map .pattern-cell-date { display: block; max-width: 100%; font-size: .65rem; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+    .pattern-map .pattern-cell-entry { display: block; min-height: 1.2em; max-width: 100%; font-size: .6rem; font-weight: 650; line-height: 1.2; overflow-wrap: anywhere; }
     .pattern-map .pattern-inline-detail { display: block; grid-column: 1 / -1; text-align: start; }
     .pattern-inline-detail .pattern-cell-detail { padding: .7rem; overflow-wrap: anywhere; }
     .pattern-map-detail { display: none; }

@@ -121,6 +121,21 @@ try {
   assert.ok(visual.focus.some((row) => row.id === "acceptance"));
   assert.ok(!visual.focus.some((row) => row.id === "kindness"));
   assert.equal(patterns.buildStep10Patterns(analytics, bounds).strengths.length, 0, "two saved days cannot establish a repeated pattern");
+  const calendarRecords = Array.from({ length: 29 }, (_, index) => {
+    const date = new Date(Date.UTC(2026, 8, 20 + index)).toISOString().slice(0, 10);
+    return make(date, { willingness: ["2026-10-02", "2026-10-03", "2026-10-07"].includes(date) ? "na" : "practiced", "willingness-accepting-help": "na" });
+  });
+  const calendarAnalytics = model.calculateStep10PeriodAnalytics(calendarRecords, thirtyBounds);
+  const calendarPattern = patterns.buildStep10Patterns(calendarAnalytics, thirtyBounds).rows.find((row) => row.id === "willingness");
+  for (const date of ["2026-10-02", "2026-10-03", "2026-10-07"]) {
+    const cell = calendarPattern.cells.find((cell) => cell.from === date);
+    assert.ok(calendarAnalytics.days.some((day) => day.date === date), "a calendar marker confirms a saved inventory");
+    assert.equal(cell.savedDays, 1, "not encountered must retain its saved-inventory status");
+    assert.equal(cell.tone, "na");
+    assert.equal(cell.na, 2);
+    assert.equal(cell.unanswered, 0);
+  }
+  assert.equal(calendarPattern.cells.at(-1).tone, "no-entry", "an unfinished today remains separate from saved not-encountered answers");
   const yearVisual = patterns.buildStep10Patterns(thirtyAnalytics, { mode: "year", from: "2026-01-01", through: "2026-12-31" });
   assert.equal(yearVisual.interval, "week");
   assert.ok(yearVisual.buckets.length <= 54);
