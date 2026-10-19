@@ -1082,5 +1082,6 @@ export const spanishTranslations: Record<string, string> = {
   "Principle name": "Nombre del principio",
   "Show fewer principles": "Mostrar menos principios",
   "Show all 24 principles": "Mostrar los 24 principios",
-  "Keyboard: use arrow keys to move between squares; Home and End move to the first and last date.": "Teclado: usa las flechas para moverte entre cuadros; Inicio y Fin llevan a la primera y la última fecha."
+  "Keyboard: use arrow keys to move between squares; Home and End move to the first and last date.": "Teclado: usa las flechas para moverte entre cuadros; Inicio y Fin llevan a la primera y la última fecha.",
+  "On smaller screens, each principle has its own grid. Dates continue on the next row. Tap a square to see its answers below that principle.": "En pantallas pequeñas, cada principio tiene su propia cuadrícula. Las fechas continúan en la siguiente fila. Toca un cuadro para ver sus respuestas debajo de ese principio.",
 };
