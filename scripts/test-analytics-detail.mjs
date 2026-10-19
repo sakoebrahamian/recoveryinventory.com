@@ -81,6 +81,7 @@ try {
   };
   ["app", "components/recovery", "lib"].forEach(scan);
   assert.deepEqual([...missing], [], "every literal interface string must have a Spanish translation");
+  assert.ok(Object.values(translations.spanishTranslations).every((value) => !value.includes("Didn’t come up today")), "Spanish explanations must use the Spanish response label");
   const [{ LanguageProvider }, { AnalyticsFeatureGuide }, { Step10AnalyticsDetail, Step10PeriodComparison }] = await Promise.all([
     server.ssrLoadModule("/components/recovery/language-provider.tsx"),
     server.ssrLoadModule("/components/recovery/analytics-feature-guide.tsx"),
