@@ -15,7 +15,8 @@
     "test:password-auth": "node scripts/test-password-auth.mjs",
     "test:step10": "node scripts/test-step10.mjs",
     "test:billing": "node scripts/test-billing-client.mjs",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "test:analytics": "node scripts/test-analytics-detail.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

@@ -386,6 +386,8 @@ export function MemberDashboard() {
           ) : activeType === "analytics" ? (
             <Step10Analytics
               refreshKey={analyticsVersion}
+              selectedDay={selectedDate}
+              onOpenDate={(date) => { const nextYear = Number(date.slice(0, 4)); setYear(nextYear); setYearDraft(String(nextYear)); setSelectedDate(date); switchTool("step10"); }}
               onOpenStep10={() => switchTool("step10")}
               reportInventory={sponsorInventory?.payload as Step10Data | undefined}
               reportPeriod={reportPeriod}

@@ -1,12 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { BarChart3, CalendarCheck2, Copy, FileDown, Flame, RefreshCw, Share2, ShieldCheck, Sparkles, Target, TrendingUp, UsersRound } from "lucide-react";
+import { BarChart3, CalendarCheck2, Copy, FileDown, Flame, RefreshCw, Share2, ShieldCheck, Target, UsersRound } from "lucide-react";
 import { formatDisplayDate, principleCategories, step10Questions, step10QuestionSetVersion, questionWithPrinciple, todayIso } from "@/lib/inventory";
-import { calculateStep10Analytics, type PrincipleAnalytics, type Step10AnalyticsData, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
-import { describeStep10Pattern, formatStep10SponsorReport } from "@/lib/step10-report";
+import { calculateStep10Analytics, calculateStep10PeriodAnalytics, type PrincipleAnalytics, type Step10AnalyticsData, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
+import { formatStep10SponsorReport } from "@/lib/step10-report";
 import { copyStep10Report, shareStep10Report } from "@/lib/step10-share";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
+import { Step10AnalyticsDetail, Step10PeriodComparison } from "./step10-analytics-detail";
 import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
 import type { Step10Data } from "./step10-inventory";
@@ -14,10 +15,12 @@ import { Step10WeeklyInsights } from "./step10-weekly-insights";
 import { ReportPeriodPicker } from "./report-period-picker";
 import { Step10ReportChart } from "./step10-report-chart";
 import { useReportAnalytics } from "./use-report-analytics";
-import { defaultReportPeriod, reportBounds, type ReportPeriod } from "@/lib/step10-report-period";
+import { defaultReportPeriod, reportBounds, type ReportPeriod, type ReportPeriodMode } from "@/lib/step10-report-period";
 
 type Step10AnalyticsProps = {
   demo?: boolean;
+  selectedDay?: string;
+  onOpenDate?: (date: string) => void;
   refreshKey?: number;
   onOpenStep10?: () => void;
   reportInventory?: Step10Data | null;
@@ -32,8 +35,8 @@ function dateBefore(isoDate: string, days: number): string {
   return value.toISOString().slice(0, 10);
 }
 
-export function createDemoAnalytics(draft?: Step10Data, t: (english: string, farsi: string) => string = (english) => english, from?: string, through = todayIso()): Step10AnalyticsData {
-  const offsets = [20, 19, 18, 17, 15, 14, 13, 12, 11, 9, 8, 7, 5, 4, 3, 2, 1, 0];
+export function createDemoAnalytics(draft?: Step10Data, t: (english: string, farsi: string) => string = (english) => english, from?: string, through = todayIso(), mode: ReportPeriodMode = "range"): Step10AnalyticsData {
+  const offsets = Array.from({ length: 180 }, (_, index) => 179 - index).filter((offset) => offset % 6 !== 3);
   const records: Step10AnalyticsRecord[] = offsets.map((offset, entryIndex) => {
     const states = Object.fromEntries(step10Questions.map((principle, principleIndex) => {
       const seed = entryIndex + principleIndex * 2;
@@ -43,7 +46,7 @@ export function createDemoAnalytics(draft?: Step10Data, t: (english: string, far
       return [principle.id, seed % 5 < 3 ? "practiced" : "attention"];
     }));
     const date = dateBefore(todayIso(), offset);
-    const reflection = entryIndex === 10 || entryIndex === 14;
+    const reflection = entryIndex % 5 === 0;
     return { date, payload: {
       questionSetVersion: step10QuestionSetVersion,
       states,
@@ -65,56 +68,26 @@ export function createDemoAnalytics(draft?: Step10Data, t: (english: string, far
   const sampleRecords = draft && draft.date <= todayIso()
     ? [...records.filter((record) => record.date !== draft.date), { date: draft.date, payload: draft }]
     : records;
-  return calculateStep10Analytics(sampleRecords, through, from);
+  return from ? calculateStep10PeriodAnalytics(sampleRecords, { from, through, mode }) : calculateStep10Analytics(sampleRecords, through);
 }
 
-export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, reportInventory, reportPeriod, onReportPeriodChange, onExportChart }: Step10AnalyticsProps) {
+export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refreshKey = 0, onOpenStep10, reportInventory, reportPeriod, onReportPeriodChange, onExportChart }: Step10AnalyticsProps) {
   const { language, t } = useLanguage();
-  const [savedAnalytics, setAnalytics] = React.useState<Step10AnalyticsData | null>(null);
-  const [loading, setLoading] = React.useState(!demo);
-  const [error, setError] = React.useState("");
   const [shareMessage, setShareMessage] = React.useState("");
-  const [chartOpen, setChartOpen] = React.useState(true);
-  const [attempt, setAttempt] = React.useState(0);
-  const [localReportPeriod, setLocalReportPeriod] = React.useState<ReportPeriod>(() => defaultReportPeriod(reportInventory?.date ?? todayIso()));
+  const [chartOpen, setChartOpen] = React.useState(false);
+  const anchorDay = selectedDay ?? reportInventory?.date ?? todayIso();
+  const [localReportPeriod, setLocalReportPeriod] = React.useState<ReportPeriod>(() => ({ ...defaultReportPeriod(anchorDay), mode: "month" }));
   const period = reportPeriod ?? localReportPeriod;
   const setPeriod = onReportPeriodChange ?? setLocalReportPeriod;
-  const choosePeriod = (next: ReportPeriod) => { setPeriod(next); setChartOpen(true); };
-  const bounds = reportBounds(period, reportInventory?.date ?? todayIso());
-  const draftDay = period.mode === "day" || (period.mode === "today" && reportInventory?.date === bounds?.from);
-  const scoped = useReportAnalytics(bounds, !demo && Boolean(reportInventory) && !draftDay, refreshKey);
-  const reportAnalytics = bounds && reportInventory
-    ? draftDay
-      ? calculateStep10Analytics([{ date: reportInventory.date, payload: reportInventory }], bounds.through, bounds.from)
-      : demo ? createDemoAnalytics(reportInventory, t, bounds.from, bounds.through) : scoped.analytics
-    : null;
-  const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
-
-  const analytics = React.useMemo(() => demo ? createDemoAnalytics(reportInventory ?? undefined, t) : savedAnalytics, [demo, reportInventory, t, savedAnalytics]);
-
-  React.useEffect(() => {
-    if (demo) return;
-    const controller = new AbortController();
-    async function load() {
-      setLoading(true);
-      setError("");
-      try {
-        const response = await fetch(`/api/analytics/step10?through=${encodeURIComponent(todayIso())}`, { cache: "no-store", signal: controller.signal });
-        const result = await response.json() as { analytics?: Step10AnalyticsData; error?: string };
-        if (!response.ok || !result.analytics) {
-          throw new Error(result.error || t("We could not load your analytics.", "نتوانستیم تحلیل شما را بارگذاری کنیم."));
-        }
-        setAnalytics(result.analytics);
-      } catch (loadError) {
-        if (controller.signal.aborted) return;
-        setError(loadError instanceof Error ? loadError.message : t("We could not load your analytics.", "نتوانستیم تحلیل شما را بارگذاری کنیم."));
-      } finally {
-        if (!controller.signal.aborted) setLoading(false);
-      }
-    }
-    void load();
-    return () => controller.abort();
-  }, [demo, refreshKey, attempt, t]);
+  const choosePeriod = (next: ReportPeriod) => { setPeriod(next); setShareMessage(""); };
+  const bounds = reportBounds(period, anchorDay);
+  const scoped = useReportAnalytics(bounds, !demo && Boolean(bounds), refreshKey);
+  const reportAnalytics = React.useMemo(() => demo && bounds ? createDemoAnalytics(reportInventory ?? undefined, t, bounds.from, bounds.through, bounds.mode) : scoped.analytics, [demo, reportInventory, t, bounds?.from, bounds?.through, bounds?.mode, scoped.analytics]);
+  const analytics = reportAnalytics;
+  const loading = !demo && scoped.loading;
+  const error = scoped.error;
+  const draftDay = false;
+  const locale = language === "fa" ? "fa-IR-u-ca-gregory" : language === "es" ? "es-US" : "en-US";
 
   const principleName = React.useCallback((item: PrincipleAnalytics) => {
     return questionWithPrinciple(item.id, language);
@@ -151,43 +124,13 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
     }
   }
 
-  if (loading) {
-    return (
-      <section className="analytics-shell analytics-loading" data-inventory="analytics" aria-live="polite">
-        <div className="analytics-spinner" aria-hidden="true"><BarChart3 size={25} /></div>
-        <p>{t("Refreshing your analytics…", "در حال به‌روزرسانی تحلیل شما…")}</p>
-      </section>
-    );
-  }
+  const controls = <ReportPeriodPicker period={period} onChange={choosePeriod} selectedDay={anchorDay} id="analytics-report-period" />;
+  if (!bounds || loading || error || !analytics) return <section className="analytics-shell analytics-empty" data-inventory="analytics">
+    <h2>{t("Step 10 analytics", "تحلیل گام ۱۰")}</h2>{controls}
+    <p role={error ? "alert" : "status"}>{error ? t("We could not load your analytics.", "نتوانستیم تحلیل شما را بارگذاری کنیم.") : loading ? t("Refreshing your analytics…", "در حال به‌روزرسانی تحلیل شما…") : t("Choose a valid date range ending today or earlier.", "بازه تاریخی معتبری انتخاب کنید که تا امروز یا پیش از آن پایان یابد.")}</p>
+    {error && <button className="button button-outline" type="button" onClick={scoped.retry}>{t("Try again", "تلاش دوباره")}</button>}
+  </section>;
 
-  if (error) {
-    return (
-      <section className="analytics-shell analytics-empty" data-inventory="analytics" role="alert">
-        <div className="analytics-empty-icon"><BarChart3 size={25} /></div>
-        <h3>{t("We could not load your analytics.", "نتوانستیم تحلیل شما را بارگذاری کنیم.")}</h3>
-        <p>{error}</p>
-        <button className="button button-outline" type="button" onClick={() => setAttempt((value) => value + 1)}>
-          <RefreshCw size={16} />{t("Try again", "تلاش دوباره")}
-        </button>
-      </section>
-    );
-  }
-
-  if (!analytics || analytics.totalEntries === 0) {
-    return (
-      <section className="analytics-shell analytics-empty" data-inventory="analytics">
-        <div className="analytics-empty-icon"><Sparkles size={25} /></div>
-        <span className="analytics-eyebrow">{t("Step 10 analytics", "تحلیل گام ۱۰")}</span>
-        <h3>{t("Your analytics will grow with your practice.", "تحلیل شما همراه با تمرینتان شکل می‌گیرد.")}</h3>
-        <p>{t("Save your first Step 10 inventory to begin seeing patterns across time.", "اولین ترازنامه گام ۱۰ خود را ذخیره کنید تا الگوها را در طول زمان ببینید.")}</p>
-        {onOpenStep10 && <button className="button button-primary" type="button" onClick={onOpenStep10}>{t("Open Step 10", "باز کردن گام ۱۰")}</button>}
-      </section>
-    );
-  }
-
-  const change = analytics.recentChange;
-  const changeTone = change === null || Math.abs(change) < 5 ? "steady" : change > 0 ? "up" : "care";
-  const currentPattern = describeStep10Pattern(analytics, t);
   const insights = summarizeStep10Insights(analytics);
   const latestHighlight = analytics.written.reflections.find((item) => item.field === "highlights")?.excerpts[0];
   const latestConcern = analytics.written.reflections.find((item) => item.field === "attention")?.excerpts[0];
@@ -199,13 +142,13 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
         <div>
           <span className="analytics-eyebrow"><BarChart3 size={15} />{t("Private pattern summary", "خلاصه خصوصی الگوها")}</span>
           <h2>{t("Step 10 analytics", "تحلیل گام ۱۰")}</h2>
-          <p>{t("All saved Step 10 inventories through", "همه ترازنامه‌های ذخیره‌شده گام ۱۰ تا")} {formatDisplayDate(analytics.through, language)}</p>
+          <p>{t("Every summary below follows the selected dates and saved inventories only.", "همه خلاصه‌های زیر فقط از تاریخ‌های انتخاب‌شده و ترازنامه‌های ذخیره‌شده استفاده می‌کنند.")}</p>
         </div>
         <div className="analytics-header-actions">
-          {demo && <span className="analytics-sample-badge">{t("Sample data", "داده نمونه")}</span>}
+          {controls}{demo && <span className="analytics-sample-badge">{t("Sample data", "داده نمونه")}</span>}
           {reportInventory ? (
             <>
-              <ReportPeriodPicker period={period} onChange={choosePeriod} selectedDay={reportInventory.date} id="analytics-report-period" />
+
               {!draftDay && !demo && <p className="analytics-share-context">{t("Range analytics count saved entries only. Save changes before sharing if you want them counted.", "تحلیل بازه فقط نوشته‌های ذخیره‌شده را می‌شمارد. اگر می‌خواهید تغییرات محاسبه شوند، پیش از اشتراک ذخیره کنید.")}</p>}
               {scoped.loading && <p className="analytics-share-context">{t("Preparing analytics for sharing…", "در حال آماده‌سازی تحلیل برای اشتراک…")}</p>}
               {scoped.error && <button className="button button-outline button-small" type="button" onClick={scoped.retry}><RefreshCw size={16} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
@@ -226,45 +169,35 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
         </div>
       </header>
 
-      {bounds && reportAnalytics && reportInventory && <div className="analytics-report-preview">
+      {bounds && reportAnalytics && <div className="analytics-report-preview">
         <details className="step10-report-preview" open={chartOpen} onToggle={(event) => setChartOpen(event.currentTarget.open)}><summary>{t("Preview inventory chart", "پیش‌نمایش نمودار ترازنامه")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>
       </div>}
 
       <div className="analytics-kpis">
         <article>
           <span><Target size={18} />{t("Practiced share", "سهم تمرین‌شده")}</span>
-          <strong>{analytics.practiceRate}%</strong>
-          <small>{t("of scored selections", "از انتخاب‌های امتیازدار")}</small>
+          <strong>{analytics.totalAnswered ? `${analytics.practiceRate}%` : "—"}</strong>
+          <small>{analytics.totalPracticed}/{analytics.totalAnswered} {t("answers marked Practiced", "پاسخ با برچسب تمرین کردم")}</small>
         </article>
         <article>
           <span><CalendarCheck2 size={18} />{t("Saved inventories", "ترازنامه‌های ذخیره‌شده")}</span>
           <strong>{analytics.totalEntries}</strong>
-          <small>{t("through today", "تا امروز")}</small>
+          <small>{t("in selected period", "در بازه انتخاب‌شده")}</small>
         </article>
         <article>
-          <span><Flame size={18} />{t("Current streak", "روند پیوسته فعلی")}</span>
-          <strong>{analytics.currentStreak}</strong>
+          <span><Flame size={18} />{t("Days with writing", "روزهای دارای نوشته")}</span>
+          <strong>{analytics.days.filter((day) => Object.keys(day.reflections).length > 0 || day.questionIds.some((id) => day.states[id] === "attention" && day.notes[id]?.trim())).length}</strong>
           <small>{t("days", "روز")}</small>
         </article>
       </div>
 
-      <article className={`analytics-pattern analytics-pattern-${changeTone}`}>
-        <div className="analytics-pattern-icon"><TrendingUp size={22} /></div>
-        <div>
-          <span>{t("Your current pattern", "الگوی فعلی شما")}</span>
-          <p>{currentPattern}</p>
-        </div>
-        <div className="analytics-change">
-          <strong>{change === null ? "—" : `${change > 0 ? "+" : ""}${change}`}</strong>
-          <span>{change === null ? t("Not enough history yet", "هنوز سابقه کافی نیست") : t("percentage points", "واحد درصد")}</span>
-          <small>{t("Last seven vs. previous seven", "هفت مورد اخیر در برابر هفت مورد پیشین")}</small>
-        </div>
-      </article>
+      <Step10PeriodComparison analytics={analytics} bounds={bounds} />
+      {!analytics.totalEntries && <p className="analytics-data-note">{t("No saved Step 10 inventories in this period.", "هیچ ترازنامه ذخیره‌شده گام ۱۰ در این بازه وجود ندارد.")}</p>}
 
       <section className="analytics-interpretation" aria-labelledby="analytics-interpretation-title">
         <div className="analytics-interpretation-heading">
           <h3 id="analytics-interpretation-title">{t("What your inventories show", "ترازنامه‌های شما چه نشان می‌دهند")}</h3>
-          <p>{t("These patterns describe your recorded choices, not your worth or a recovery score. We look for repeated answers on at least three days; N/A and unanswered questions do not count.", "این الگوها انتخاب‌های ثبت‌شده شما را توصیف می‌کنند، نه ارزش شما یا نمره بهبودی‌تان را. ما پاسخ‌های تکرارشده در دست‌کم سه روز را بررسی می‌کنیم؛ گزینه «کاربرد ندارد» و پاسخ‌های خالی محاسبه نمی‌شوند.")}</p>
+          <p>{t("These patterns describe your recorded choices, not your worth or a recovery score. We look for repeated answers on at least three days; Didn’t come up today and unanswered questions do not count.", "این الگوها انتخاب‌های ثبت‌شده شما را توصیف می‌کنند، نه ارزش شما یا نمره بهبودی‌تان را. ما پاسخ‌های تکرارشده در دست‌کم سه روز را بررسی می‌کنیم؛ گزینه «امروز پیش نیامد» و پاسخ‌های خالی محاسبه نمی‌شوند.")}</p>
         </div>
         <div className="analytics-interpretation-grid">
           <article className="analytics-interpretation-card is-strength">
@@ -300,6 +233,8 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
         <div><h3>{t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}</h3><p>{sponsorGuidance(t)}</p></div>
       </aside>
 
+      <Step10AnalyticsDetail key={`${bounds.from}:${bounds.through}:${bounds.mode}`} analytics={analytics} bounds={bounds} demo={demo} onOpenDate={onOpenDate} />
+
       <div className="analytics-insight-grid">
         <AnalyticsPrincipleList
           title={t("Practiced most often", "بیشترین تمرین")}
@@ -331,9 +266,9 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
               const definition = principleCategories.find((candidate) => candidate.id === category.id);
               return (
                 <div key={category.id}>
-                  <div><strong>{definition?.[language] ?? category.id}</strong><span>{category.practiceRate}%</span></div>
+                  <div><strong>{definition?.[language] ?? category.id}</strong><span>{category.answered ? `${category.practiceRate}%` : "—"}</span></div>
                   <div className="analytics-progress" role="progressbar" aria-label={definition?.[language] ?? category.id} aria-valuemin={0} aria-valuemax={100} aria-valuenow={category.practiceRate}>
-                    <i style={{ width: `${category.practiceRate}%` }} />
+                    <i style={{ width: `${category.answered ? `${category.practiceRate}%` : "—"}` }} />
                   </div>
                   <small>{category.answered} {t("scored selections", "انتخاب امتیازدار")}</small>
                 </div>
@@ -362,7 +297,7 @@ export function Step10Analytics({ demo = false, refreshKey = 0, onOpenStep10, re
 
       <footer className="analytics-privacy-note">
         <ShieldCheck size={20} />
-        <div><strong>{t("Private and non-clinical", "خصوصی و غیرپزشکی")}</strong><p>{t("This private summary counts all saved Step 10 selections and shows selected writing from recent weeks. It does not interpret every nuance of your words, analyze Step 4, or provide a diagnosis or clinical assessment.", "این خلاصه خصوصی، همه انتخاب‌های ذخیره‌شده گام ۱۰ را می‌شمارد و نمونه‌هایی از نوشته‌های هفته‌های اخیر را نشان می‌دهد. همه ظرافت‌های نوشته‌های شما را تفسیر نمی‌کند، گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی ارائه نمی‌دهد.")} {t("Future-dated inventories are not included.", "ترازنامه‌های دارای تاریخ آینده محاسبه نمی‌شوند.")}</p></div>
+        <div><strong>{t("Private and non-clinical", "خصوصی و غیرپزشکی")}</strong><p>{t("This private summary counts saved Step 10 selections within the selected dates and shows your own writing. It does not interpret every nuance of your words, analyze Step 4, or provide a diagnosis or clinical assessment.", "این خلاصه خصوصی انتخاب‌های ذخیره‌شده گام ۱۰ در تاریخ‌های انتخاب‌شده و نوشته‌های خودتان را نشان می‌دهد. همه ظرافت‌های نوشته‌های شما را تفسیر نمی‌کند، گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی ارائه نمی‌دهد.")} {t("Future-dated inventories are not included.", "ترازنامه‌های دارای تاریخ آینده محاسبه نمی‌شوند.")}</p></div>
       </footer>
     </section>
   );

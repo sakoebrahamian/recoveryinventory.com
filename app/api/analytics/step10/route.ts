@@ -2,7 +2,8 @@ import { env } from "cloudflare:workers";
 import { hasActiveMembership, jsonError, requireAccount } from "@/lib/auth";
 import { todayIso } from "@/lib/inventory";
 import { decryptJson } from "@/lib/server-crypto";
-import { calculateStep10Analytics, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
+import { calculateStep10Analytics, calculateStep10PeriodAnalytics, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
+import { comparisonReportBounds, type ReportBounds, type ReportPeriodMode } from "@/lib/step10-report-period";
 
 type AnalyticsInventoryRow = {
   entry_date: string;
@@ -37,10 +38,14 @@ export async function GET(request: Request) {
     if ((requestedFrom && !isIsoCalendarDate(requestedFrom)) || (requestedFrom && requestedFrom > through) || through > latestLocalDay) {
       return Response.json({ error: "Choose a valid report period ending today or earlier." }, { status: 400 });
     }
+    const mode = search.get("mode") ?? "range";
+    if (!["today", "day", "week", "month", "year", "range"].includes(mode)) return Response.json({ error: "Choose a valid report period." }, { status: 400 });
+    const bounds: ReportBounds | null = requestedFrom ? { from: requestedFrom, through, mode: mode as ReportPeriodMode } : null;
+    const previous = bounds ? comparisonReportBounds(bounds) : null;
     const result = await env.DB.prepare(
       `SELECT entry_date, encrypted_payload FROM inventories
        WHERE user_id = ? AND type = 'step10' AND entry_date >= ? AND entry_date <= ? ORDER BY entry_date`,
-    ).bind(account.id, requestedFrom ?? "0001-01-01", through).all<AnalyticsInventoryRow>();
+    ).bind(account.id, previous?.from ?? requestedFrom ?? "0001-01-01", through).all<AnalyticsInventoryRow>();
 
     const records: Step10AnalyticsRecord[] = [];
     for (const row of result.results ?? []) {
@@ -55,7 +60,7 @@ export async function GET(request: Request) {
     }
 
     return Response.json(
-      { analytics: calculateStep10Analytics(records, through, requestedFrom ?? undefined) },
+      { analytics: bounds ? calculateStep10PeriodAnalytics(records, bounds) : calculateStep10Analytics(records, through) },
       { headers: { "cache-control": "no-store" } },
     );
   } catch (error) {

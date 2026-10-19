@@ -1,4 +1,5 @@
 import { step10Questions, step10QuestionsForPayload, type PrincipleState } from "@/lib/inventory";
+import { comparisonReportBounds, type ReportBounds } from "@/lib/step10-report-period";
 
 type Step10AnalyticsPayload = {
   states?: Record<string, PrincipleState | undefined>;
@@ -36,6 +37,23 @@ export type Step10AnalyticsRecord = {
   payload: unknown;
 };
 
+export type AnalyticsDay = {
+  date: string;
+  questionIds: string[];
+  states: Record<string, PrincipleState | undefined>;
+  notes: Record<string, string | undefined>;
+  reflections: Partial<Record<ReflectionField, string>>;
+};
+
+export type PeriodComparison = {
+  bounds: ReportBounds;
+  totalEntries: number;
+  totalAnswered: number;
+  totalPracticed: number;
+  practiceRate: number | null;
+  principles: PrincipleAnalytics[];
+};
+
 export type PrincipleAnalytics = {
   id: string;
   practiced: number;
@@ -57,6 +75,9 @@ export type MonthlyAnalytics = {
 };
 
 export type Step10AnalyticsData = {
+  from?: string;
+  days: AnalyticsDay[];
+  comparison?: PeriodComparison;
   through: string;
   totalEntries: number;
   firstEntryDate: string | null;
@@ -323,6 +344,17 @@ export function calculateStep10Analytics(
     });
 
   return {
+    from,
+    days: records.map(({ date, payload }) => {
+      const content = payloadContent(payload);
+      return {
+        date,
+        questionIds: step10QuestionsForPayload(payload).map(({ id }) => id),
+        states: payloadStates(payload),
+        notes: content.attentionNotes ?? {},
+        reflections: Object.fromEntries(reflectionFields.flatMap((field) => typeof content[field] === "string" && content[field]?.trim() ? [[field, content[field]]] : [])),
+      };
+    }),
     through,
     totalEntries: records.length,
     firstEntryDate: records.at(0)?.date ?? null,
@@ -359,4 +391,20 @@ export function calculateStep10Analytics(
     written: writtenAnalytics(records),
     weekly: weeklyAnalytics(records, through),
   };
+}
+
+export function calculateStep10PeriodAnalytics(records: Step10AnalyticsRecord[], bounds: ReportBounds): Step10AnalyticsData {
+  const current = calculateStep10Analytics(records, bounds.through, bounds.from);
+  current.weekly = current.weekly.map((week) => ({ ...week, start: week.start < bounds.from ? bounds.from : week.start, end: week.end > bounds.through ? bounds.through : week.end }));
+  const previousBounds = comparisonReportBounds(bounds);
+  const previous = calculateStep10Analytics(records, previousBounds.through, previousBounds.from);
+  current.comparison = {
+    bounds: previousBounds,
+    totalEntries: previous.totalEntries,
+    totalAnswered: previous.totalAnswered,
+    totalPracticed: previous.totalPracticed,
+    practiceRate: previous.totalAnswered ? previous.practiceRate : null,
+    principles: previous.principles,
+  };
+  return current;
 }

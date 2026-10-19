@@ -29,7 +29,7 @@ export function Step10WrittenInsights({ analytics, print = false }: { analytics:
   return (
     <section className={`analytics-written${print ? " analytics-written-print inventory-print-analytics-block" : ""}`}>
       <h3>{t("What you wrote over time", "آنچه در طول زمان نوشته‌اید")}</h3>
-      <p>{t("Counts cover all saved Step 10 entries through today. The dated words below are the two most recent excerpts for each field, not a full transcript. They stay in the language you wrote them.", "شمارش‌ها همه نوشته‌های ذخیره‌شده گام ۱۰ تا امروز را در بر می‌گیرند. متن‌های تاریخ‌دار زیر دو نمونه اخیر از هر بخش هستند، نه رونویسی کامل. زبان نوشته‌های شما حفظ می‌شود.")}</p>
+      <p>{t("Counts cover saved Step 10 entries in the selected period. The dated words below are the two most recent excerpts for each field, not a full transcript. They stay in the language you wrote them.", "شمارش‌ها نوشته‌های ذخیره‌شده گام ۱۰ در بازه انتخاب‌شده را در بر می‌گیرند. متن‌های تاریخ‌دار زیر دو نمونه اخیر از هر بخش هستند، نه رونویسی کامل. زبان نوشته‌های شما حفظ می‌شود.")}</p>
       {!hasWriting && <p>{t("No written reflections have been saved yet. Add details to an inventory, save it, and return here.", "هنوز بازتاب نوشته‌شده‌ای ذخیره نشده است. جزئیات را به ترازنامه اضافه و ذخیره کنید و سپس به اینجا برگردید.")}</p>}
       <div className="analytics-written-reflections">
         {written.reflections.map((item) => (

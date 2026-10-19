@@ -13,6 +13,10 @@ An English, Farsi, and Spanish recovery inventory website built for Cloudflare W
 - In-place conversion from anonymous to email access without moving member data
 - $25/year Stripe subscription flow with automatic renewal and self-service cancellation
 - Encrypted private inventory storage in Cloudflare D1
+- Selected-period member analytics with calendar comparisons, expandable question history, weekly/monthly trends, a recorded-day calendar, and searchable reflections
+- Focused sponsor reports with individually selected notes and an exact preview
+- Clear “Didn’t come up today” response wording throughout English, Spanish, and Farsi interfaces and reports
+- Matching public analytics explanations and an interactive sample
 - An ongoing year-by-year calendar
 - Sponsor sharing, copying, printing, and Save as PDF
 - Responsive English, Farsi, and Spanish interfaces with left-to-right and right-to-left layouts
@@ -37,6 +41,8 @@ Requirements: Node.js 22.13 or newer and pnpm 11.
 
 ```bash
 pnpm install --frozen-lockfile
+pnpm test:step10
+pnpm test:analytics
 pnpm build
 pnpm lint
 ```

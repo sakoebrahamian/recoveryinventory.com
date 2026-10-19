@@ -13,7 +13,7 @@ export function Step10ReportChart({ analytics, bounds }: { analytics: Step10Anal
   const groups = [
     { label: t("Practiced", "تمرین کردم"), count: analytics.totalPracticed, kind: "practiced" },
     { label: t("Needs attention", "نیازمند توجه"), count: analytics.totalAttention, kind: "attention" },
-    { label: t("N/A", "کاربرد ندارد"), count: analytics.totalNA, kind: "na" },
+    { label: t("Didn’t come up today", "امروز پیش نیامد"), count: analytics.totalNA, kind: "na" },
     { label: t("Not answered", "پاسخ داده نشده"), count: unanswered, kind: "unanswered" },
   ] as const;
   return (
@@ -26,7 +26,7 @@ export function Step10ReportChart({ analytics, bounds }: { analytics: Step10Anal
       <div className="step10-report-chart-legend">{groups.map((group) => <span key={group.kind} className={`is-${group.kind}`}>{group.label} <strong>{group.count}</strong></span>)}</div>
       <p>{daily
         ? t("One day shows the recorded choice for each question. It is not a trend.", "یک روز انتخاب ثبت‌شده هر پرسش را نشان می‌دهد، نه یک روند را.")
-        : t("Each bar shows Practiced, Needs attention, N/A, and unanswered across saved days. N/A and unanswered do not affect the Practiced percentage.", "هر نوار «تمرین کردم»، «نیازمند توجه»، «کاربرد ندارد» و پاسخ‌های خالی را در روزهای ذخیره‌شده نشان می‌دهد. «کاربرد ندارد» و پاسخ‌های خالی بر درصد «تمرین کردم» تأثیری ندارند.")}</p>
+        : t("Each bar shows Practiced, Needs attention, Didn’t come up today, and unanswered across saved days. Didn’t come up today and unanswered do not affect the Practiced percentage.", "هر نوار «تمرین کردم»، «نیازمند توجه»، «امروز پیش نیامد» و پاسخ‌های خالی را در روزهای ذخیره‌شده نشان می‌دهد. «امروز پیش نیامد» و پاسخ‌های خالی بر درصد «تمرین کردم» تأثیری ندارند.")}</p>
       <div className="step10-report-chart-rows">
         {analytics.principles.map((item) => {
           const name = principleQuestion(item.id, language);
@@ -36,7 +36,7 @@ export function Step10ReportChart({ analytics, bounds }: { analytics: Step10Anal
             <strong>{name}<small className="question-principle">{t("Principle", "اصل")}: {questionPrincipleName(item.id, language)}</small></strong>
             <div className="step10-report-chart-bar" role="img" aria-label={daily
               ? `${name}: ${groups.find((group) => group.kind === state)?.label}`
-              : `${name}: ${item.practiced} ${t("Practiced", "تمرین کردم")}, ${item.attention} ${t("Needs attention", "نیازمند توجه")}, ${item.na} ${t("N/A", "کاربرد ندارد")}, ${item.unanswered} ${t("Not answered", "پاسخ داده نشده")}`}>
+              : `${name}: ${item.practiced} ${t("Practiced", "تمرین کردم")}, ${item.attention} ${t("Needs attention", "نیازمند توجه")}, ${item.na} ${t("Didn’t come up today", "امروز پیش نیامد")}, ${item.unanswered} ${t("Not answered", "پاسخ داده نشده")}`}>
               {groups.map((group) => {
                 const count = item[group.kind];
                 return count > 0 && <span key={group.kind} className={`is-${group.kind}`} style={{ width: `${rowTotal ? count / rowTotal * 100 : 0}%` }} />;
@@ -44,7 +44,7 @@ export function Step10ReportChart({ analytics, bounds }: { analytics: Step10Anal
             </div>
             {daily
               ? <span className={`step10-report-chart-state is-${state}`}>{groups.find((group) => group.kind === state)?.label}</span>
-              : <span className="step10-report-chart-count">{item.practiced}/{item.answered} {t("Practiced", "تمرین کردم")}{item.na ? ` · ${item.na} ${t("N/A", "کاربرد ندارد")}` : ""}</span>}
+              : <span className="step10-report-chart-count">{item.practiced}/{item.answered} {t("Practiced", "تمرین کردم")}{item.na ? ` · ${item.na} ${t("Didn’t come up today", "امروز پیش نیامد")}` : ""}</span>}
           </div>;
         })}
       </div>

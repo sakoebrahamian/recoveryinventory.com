@@ -2,6 +2,7 @@
 
 import { Check, KeyRound, LockKeyhole, Mail, RefreshCw } from "lucide-react";
 import { JoinForm } from "@/components/recovery/join-form";
+import { AnalyticsFeatureGuide } from "@/components/recovery/analytics-feature-guide";
 import { SiteFooter } from "@/components/recovery/site-footer";
 import { SiteHeader } from "@/components/recovery/site-header";
 import { useLanguage } from "@/components/recovery/language-provider";
@@ -26,6 +27,7 @@ export default function JoinPage() {
         </div>
         <JoinForm />
       </section>
+      <AnalyticsFeatureGuide compact />
       <SiteFooter />
     </main>
   );

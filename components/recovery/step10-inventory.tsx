@@ -306,8 +306,8 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
           <div className="inventory-intro-row">
             <div>
               <h3>{t("Reflect on each daily question", "به هر پرسش روزانه فکر کنید")}</h3>
-              <p>{t("39 questions explore 24 principles. Answer each question, including follow-ups, separately with Practiced, Needs attention, or N/A. Each shows its principle. There is no score to earn.", "۳۹ پرسش به ۲۴ اصل می‌پردازند. هر پرسش، از جمله پرسش‌های تکمیلی، را جداگانه با «تمرین کردم»، «نیاز به توجه» یا «کاربرد ندارد» پاسخ دهید. اصل هر پرسش نمایش داده می‌شود. اینجا نمره‌ای در کار نیست.")}</p>
-            </div>
+              <p>{t("39 questions explore 24 principles. Answer each question, including follow-ups, separately with Practiced, Needs attention, or Didn’t come up today. Each shows its principle. There is no score to earn.", "۳۹ پرسش به ۲۴ اصل می‌پردازند. هر پرسش، از جمله پرسش‌های تکمیلی، را جداگانه با «تمرین کردم»، «نیاز به توجه» یا «امروز پیش نیامد» پاسخ دهید. اصل هر پرسش نمایش داده می‌شود. اینجا نمره‌ای در کار نیست.")}</p>
+            <p className="inventory-answer-help" id="inventory-na-help">{t("Choose “Didn’t come up today” when you did not encounter this situation or have an opportunity to practice it today.", "وقتی امروز با این موقعیت روبه‌رو نشدید یا فرصتی برای تمرین آن نداشتید، «امروز پیش نیامد» را انتخاب کنید.")}</p></div>
             <div className="inventory-intro-actions">
               {onOpenLearning && <button className="button button-outline button-small" type="button" onClick={onOpenLearning}><BookOpenText size={16} />{t("Learn these principles", "یادگیری این اصول")}</button>}
               <div className="progress-ring" aria-label={`${counts.answered} ${t("of", "از")} ${step10Questions.length} ${t("answered", "پاسخ داده‌شده")}`}>
@@ -338,8 +338,8 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
                         <button className="attention" type="button" aria-pressed={state === "attention"} onClick={() => setQuestion(item.id, "attention")}>
                           {t("Needs attention", "نیاز به توجه")}
                         </button>
-                        <button className="na" type="button" aria-pressed={state === "na"} onClick={() => setQuestion(item.id, "na")} aria-label={t("Not applicable", "کاربرد ندارد")}>
-                          {language === "en" ? "N/A" : t("Not applicable", "کاربرد ندارد")}
+                        <button className="na" type="button" aria-pressed={state === "na"} onClick={() => setQuestion(item.id, "na")} aria-label={t("Didn’t come up today", "امروز پیش نیامد")} aria-describedby="inventory-na-help">
+                          {t("Didn’t come up today", "امروز پیش نیامد")}
                         </button>
                       </div>
                       {state === "attention" && (

@@ -46,3 +46,24 @@ export function reportBounds(period: ReportPeriod, selectedDay: string, today = 
 export function defaultReportPeriod(day: string): ReportPeriod {
   return { mode: "day", from: day, through: day };
 }
+
+/** Compare calendar periods at the same point; custom ranges use the same number of days. */
+export function comparisonReportBounds(bounds: ReportBounds): ReportBounds {
+  const start = new Date(`${bounds.from}T12:00:00Z`);
+  const end = new Date(`${bounds.through}T12:00:00Z`);
+  const days = Math.round((end.getTime() - start.getTime()) / 86_400_000) + 1;
+  if (bounds.mode === "month") {
+    const first = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() - 1, 1, 12));
+    const last = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 0, 12));
+    const currentLast = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 0, 12));
+    const through = end.getTime() === currentLast.getTime() ? last : new Date(first.getTime() + (Math.min(days, last.getUTCDate()) - 1) * 86_400_000);
+    return { mode: "month", from: isoDay(first), through: isoDay(through) };
+  }
+  if (bounds.mode === "year") {
+    const year = start.getUTCFullYear() - 1;
+    const lastDay = new Date(Date.UTC(year, end.getUTCMonth() + 1, 0, 12)).getUTCDate();
+    return { mode: "year", from: `${year}-01-01`, through: isoDay(new Date(Date.UTC(year, end.getUTCMonth(), Math.min(end.getUTCDate(), lastDay), 12))) };
+  }
+  const offset = bounds.mode === "week" ? 7 : days;
+  return { mode: bounds.mode, from: isoDay(new Date(start.getTime() - offset * 86_400_000)), through: isoDay(new Date(end.getTime() - offset * 86_400_000)) };
+}

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { BarChart3, BookOpenText, MoonStar } from "lucide-react";
-import { Step10Analytics } from "./step10-analytics";
+import { Step10Analytics, createDemoAnalytics } from "./step10-analytics";
 import { Step10Inventory, createDemoStep10Data, type Step10Data } from "./step10-inventory";
 import { Step4Inventory } from "./step4-inventory";
 import { RecoveryLearningCenter } from "./recovery-learning-center";
@@ -34,6 +34,7 @@ export function DemoWorkspace() {
       learning: "demo_learning",
     };
     setActiveStep(next);
+    if (next === "analytics") setReportPeriod((value) => ({ ...value, mode: "month" }));
     recordSiteAction(actions[next]);
   }, []);
 
@@ -102,7 +103,7 @@ export function DemoWorkspace() {
           <article><h3>{t("Full journal", "دفتر کامل")}</h3><p>{t("Complete daily entries for selected dates, with an option to include analytics and an inventory chart for those same dates.", "نوشته‌های کامل روزانه برای تاریخ‌های انتخاب‌شده، همراه با گزینه افزودن تحلیل و نمودار ترازنامه برای همان تاریخ‌ها.")}</p></article>
         </div>
       </section>}
-      {activeStep === "10" ? <Step10Inventory demo initialData={demoDraft} onChange={setDemoDraft} onOpenLearning={() => chooseStep("learning")} reportPeriod={reportPeriod} onReportPeriodChange={setReportPeriod} /> : activeStep === "4" ? <Step4Inventory demo onOpenLearning={() => chooseStep("learning")} /> : activeStep === "analytics" ? <Step10Analytics demo reportInventory={demoDraft} reportPeriod={reportPeriod} onReportPeriodChange={setReportPeriod} /> : <RecoveryLearningCenter demo />}
+      {activeStep === "10" ? <Step10Inventory demo initialData={demoDraft} onChange={setDemoDraft} onOpenLearning={() => chooseStep("learning")} reportPeriod={reportPeriod} onReportPeriodChange={setReportPeriod} /> : activeStep === "4" ? <Step4Inventory demo onOpenLearning={() => chooseStep("learning")} /> : activeStep === "analytics" ? <Step10Analytics demo selectedDay={demoDraft.date} onOpenDate={(date) => { const day = createDemoAnalytics(demoDraft, t).days.find((item) => item.date === date); if (day) setDemoDraft({ ...createDemoStep10Data(t), date, states: day.states as Step10Data["states"], attentionNotes: day.notes as Step10Data["attentionNotes"], ...day.reflections }); chooseStep("10"); }} reportInventory={demoDraft} reportPeriod={reportPeriod} onReportPeriodChange={setReportPeriod} /> : <RecoveryLearningCenter demo />}
     </div>
   );
 }

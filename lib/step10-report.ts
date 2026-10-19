@@ -5,6 +5,7 @@ import { summarizeStep10Insights } from "@/lib/step10-insights";
 import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { practiceForPrinciple } from "@/lib/step10-practices";
 import type { ReportBounds } from "@/lib/step10-report-period";
+import { countQuestionDays, questionIdsForPrinciples, reflectionEntries } from "@/lib/step10-detail";
 
 type Translate = (english: string, farsi: string) => string;
 
@@ -41,7 +42,7 @@ export function formatStep10Written(analytics: Step10AnalyticsData, language: La
   const focus = writtenFocusPrinciples(analytics);
   return [
     t("What you wrote over time", "آنچه در طول زمان نوشته‌اید").toLocaleUpperCase(language),
-    t("Counts cover all saved Step 10 entries through today. The dated words below are the two most recent excerpts for each field, not a full transcript. They stay in the language you wrote them.", "شمارش‌ها همه نوشته‌های ذخیره‌شده گام ۱۰ تا امروز را در بر می‌گیرند. متن‌های تاریخ‌دار زیر دو نمونه اخیر از هر بخش هستند، نه رونویسی کامل. زبان نوشته‌های شما حفظ می‌شود."),
+    t("Counts cover saved Step 10 entries in the selected period. The dated words below are the two most recent excerpts for each field, not a full transcript. They stay in the language you wrote them.", "شمارش‌ها نوشته‌های ذخیره‌شده گام ۱۰ در بازه انتخاب‌شده را در بر می‌گیرند. متن‌های تاریخ‌دار زیر دو نمونه اخیر از هر بخش هستند، نه رونویسی کامل. زبان نوشته‌های شما حفظ می‌شود."),
     "",
     ...written.reflections.flatMap((item) => [
       `${step10ReflectionLabel(item.field, t)} (${reflectionPrincipleNames(item.field, language)}) — ${item.count} ${t("days with writing", "روز دارای نوشته")}`,
@@ -74,7 +75,7 @@ export function formatStep10Inventory(data: Step10Data, language: Language, t: T
       const state = data.states[principle.id];
       const stateLabel = state === "practiced" ? t("Practiced", "تمرین کردم")
         : state === "attention" ? t("Needs attention", "نیازمند توجه")
-          : state === "na" ? t("Not applicable", "کاربرد ندارد")
+          : state === "na" ? t("Didn’t come up today", "امروز پیش نیامد")
             : t("Not answered", "پاسخ داده نشده");
       const note = state === "attention" ? data.attentionNotes?.[principle.id]?.trim() : "";
       return [
@@ -154,13 +155,13 @@ export function formatStep10Analytics(analytics: Step10AnalyticsData, language: 
     "",
     `${t("Practiced share", "سهم تمرین‌شده")}: ${analytics.practiceRate}% ${t("of scored selections", "از انتخاب‌های امتیازدار")}`,
     `${t("Saved inventories", "ترازنامه‌های ذخیره‌شده")}: ${analytics.totalEntries}`,
-    `${t("Practiced", "تمرین کردم")}: ${analytics.totalPracticed} · ${t("Needs attention", "نیازمند توجه")}: ${analytics.totalAttention} · ${t("Not applicable", "کاربرد ندارد")}: ${analytics.totalNA}`,
+    `${t("Practiced", "تمرین کردم")}: ${analytics.totalPracticed} · ${t("Needs attention", "نیازمند توجه")}: ${analytics.totalAttention} · ${t("Didn’t come up today", "امروز پیش نیامد")}: ${analytics.totalNA}`,
     `${t("Current streak", "روند پیوسته فعلی")}: ${analytics.currentStreak} ${t("days", "روز")}`,
     "",
     `${t("Your current pattern", "الگوی فعلی شما")}: ${describeStep10Pattern(analytics, t)}`,
     "",
     t("What your inventories show", "ترازنامه‌های شما چه نشان می‌دهند").toLocaleUpperCase(language),
-    t("These patterns describe your recorded choices, not your worth or a recovery score. We look for repeated answers on at least three days; N/A and unanswered questions do not count.", "این الگوها انتخاب‌های ثبت‌شده شما را توصیف می‌کنند، نه ارزش شما یا نمره بهبودی‌تان را. ما پاسخ‌های تکرارشده در دست‌کم سه روز را بررسی می‌کنیم؛ گزینه «کاربرد ندارد» و پاسخ‌های خالی محاسبه نمی‌شوند."),
+    t("These patterns describe your recorded choices, not your worth or a recovery score. We look for repeated answers on at least three days; Didn’t come up today and unanswered questions do not count.", "این الگوها انتخاب‌های ثبت‌شده شما را توصیف می‌کنند، نه ارزش شما یا نمره بهبودی‌تان را. ما پاسخ‌های تکرارشده در دست‌کم سه روز را بررسی می‌کنیم؛ گزینه «امروز پیش نیامد» و پاسخ‌های خالی محاسبه نمی‌شوند."),
     "",
     t("Where you are doing well", "جاهایی که خوب پیش می‌روید"),
     ...(insights.strengths.length ? insightLines(insights.strengths, "practiced") : [insights.enoughHistory
@@ -173,7 +174,7 @@ export function formatStep10Analytics(analytics: Step10AnalyticsData, language: 
       : t("Save more inventories before looking for a recurring focus. Your sponsor can still help with today's concerns.", "پیش از جست‌وجوی تمرکز تکرارشونده، ترازنامه‌های بیشتری ذخیره کنید. حامی همچنان می‌تواند درباره نگرانی‌های امروز کمک کند.")]),
     "",
     t("Recent weekly writing", "نوشته‌های هفتگی اخیر").toLocaleUpperCase(language),
-    t("Last four calendar weeks (Monday–Sunday), including this week. Weeks without saved entries are omitted. These are selected examples in your own words, not an interpretation or a full transcript.", "چهار هفته تقویمی اخیر (دوشنبه تا یکشنبه)، شامل این هفته. هفته‌های بدون نوشته ذخیره‌شده نمایش داده نمی‌شوند. این‌ها نمونه‌هایی از نوشته‌های خودتان هستند، نه تفسیر یا رونویسی کامل."),
+    t("Up to four recent calendar weeks (Monday–Sunday) within the selected period. Weeks without saved entries are omitted. These are selected examples in your own words, not an interpretation or a full transcript.", "حداکثر چهار هفته تقویمی اخیر (دوشنبه تا یکشنبه) در بازه انتخاب‌شده. هفته‌های بدون نوشته ذخیره‌شده نمایش داده نمی‌شوند. این‌ها نمونه‌هایی از نوشته‌های خودتان هستند، نه تفسیر یا رونویسی کامل."),
     ...(analytics.weekly.length ? analytics.weekly.flatMap((week) => ["", formatStep10Week(week, language, t)]) : [t("No saved entries in these four weeks.", "در این چهار هفته نوشته ذخیره‌شده‌ای وجود ندارد.")]),
     "",
     `${t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}: ${sponsorGuidance(t)}`,
@@ -201,15 +202,22 @@ export function formatStep10ReportAnalytics(analytics: Step10AnalyticsData, boun
     ...(sample ? [t("Sample data", "داده نمونه")] : []),
     `${t("Analytics period", "بازه تحلیل")}: ${period}`,
     `${daily ? t("Inventory represented", "ترازنامه نمایش‌داده‌شده") : t("Saved days in this period", "روزهای ذخیره‌شده در این بازه")}: ${analytics.totalEntries}`,
+    ...(analytics.comparison ? [
+      `${t("Previous period", "بازه پیشین")}: ${formatDisplayDate(analytics.comparison.bounds.from, language)} – ${formatDisplayDate(analytics.comparison.bounds.through, language)}`,
+      `${t("Saved days", "روزهای ذخیره‌شده")}: ${analytics.comparison.totalEntries}`,
+      `${t("Practiced share", "سهم تمرین‌شده")}: ${analytics.comparison.practiceRate === null ? "—" : `${analytics.comparison.practiceRate}%`} (${analytics.comparison.totalPracticed}/${analytics.comparison.totalAnswered})`,
+      `${t("Change in recorded answers", "تغییر پاسخ‌های ثبت‌شده")}: ${!analytics.totalAnswered || analytics.comparison.practiceRate === null ? "—" : `${analytics.practiceRate - analytics.comparison.practiceRate} ${t("percentage points", "واحد درصد")}`}`,
+      t("Percentages describe recorded answers, not a recovery grade. Question availability and recorded days can differ between periods.", "درصدها پاسخ‌های ثبت‌شده را توصیف می‌کنند، نه نمره بهبودی را. پرسش‌های موجود و روزهای ثبت‌شده ممکن است بین بازه‌ها متفاوت باشند."),
+    ] : []),
     "",
-    `${t("Practiced", "تمرین کردم")}: ${analytics.totalPracticed} · ${t("Needs attention", "نیازمند توجه")}: ${analytics.totalAttention} · ${t("Not applicable", "کاربرد ندارد")}: ${analytics.totalNA} · ${t("Not answered", "پاسخ داده نشده")}: ${unanswered}`,
-    `${t("Practiced share", "سهم تمرین‌شده")}: ${analytics.practiceRate}% ${t("of Practiced and Needs attention answers; N/A and unanswered are excluded", "از پاسخ‌های «تمرین کردم» و «نیازمند توجه»؛ «کاربرد ندارد» و پاسخ‌های خالی محاسبه نمی‌شوند")}`,
+    `${t("Practiced", "تمرین کردم")}: ${analytics.totalPracticed} · ${t("Needs attention", "نیازمند توجه")}: ${analytics.totalAttention} · ${t("Didn’t come up today", "امروز پیش نیامد")}: ${analytics.totalNA} · ${t("Not answered", "پاسخ داده نشده")}: ${unanswered}`,
+    `${t("Practiced share", "سهم تمرین‌شده")}: ${analytics.totalAnswered ? `${analytics.practiceRate}%` : "—"} ${t("of Practiced and Needs attention answers; Didn’t come up today and unanswered are excluded", "از پاسخ‌های «تمرین کردم» و «نیازمند توجه»؛ «امروز پیش نیامد» و پاسخ‌های خالی محاسبه نمی‌شوند")}`,
     "",
     t("Daily questions at a glance", "پرسش‌های روزانه در یک نگاه").toLocaleUpperCase(language),
-    t("Each bar shows Practiced among scored answers. Counts beside it show Needs attention and N/A separately.", "هر نوار سهم «تمرین کردم» را در میان پاسخ‌های امتیازدار نشان می‌دهد. شمارش‌های کنار آن، «نیازمند توجه» و «کاربرد ندارد» را جداگانه نشان می‌دهند."),
+    t("Each bar shows Practiced among scored answers. Counts beside it show Needs attention and Didn’t come up today separately.", "هر نوار سهم «تمرین کردم» را در میان پاسخ‌های امتیازدار نشان می‌دهد. شمارش‌های کنار آن، «نیازمند توجه» و «امروز پیش نیامد» را جداگانه نشان می‌دهند."),
     ...analytics.principles.map((item) => daily
-      ? `• ${name(item.id)}: ${item.practiced ? t("Practiced", "تمرین کردم") : item.attention ? t("Needs attention", "نیازمند توجه") : item.na ? t("Not applicable", "کاربرد ندارد") : t("Not answered", "پاسخ داده نشده")}`
-      : `• ${name(item.id)}: ${bar(item.practiced, item.answered)} ${item.practiced}/${item.answered} ${t("Practiced", "تمرین کردم")} · ${item.attention} ${t("Needs attention", "نیازمند توجه")} · ${item.na} ${t("N/A", "کاربرد ندارد")}`),
+      ? `• ${name(item.id)}: ${item.practiced ? t("Practiced", "تمرین کردم") : item.attention ? t("Needs attention", "نیازمند توجه") : item.na ? t("Didn’t come up today", "امروز پیش نیامد") : t("Not answered", "پاسخ داده نشده")}`
+      : `• ${name(item.id)}: ${bar(item.practiced, item.answered)} ${item.practiced}/${item.answered} ${t("Practiced", "تمرین کردم")} · ${item.attention} ${t("Needs attention", "نیازمند توجه")} · ${item.na} ${t("Didn’t come up today", "امروز پیش نیامد")}`),
     "",
     t("Where you practiced", "جاهایی که تمرین کردید").toLocaleUpperCase(language),
     ...(daily
@@ -237,4 +245,42 @@ export function formatStep10ReportAnalytics(analytics: Step10AnalyticsData, boun
 
 export function formatStep10SponsorReport(data: Step10Data, analytics: Step10AnalyticsData, bounds: ReportBounds, language: Language, t: Translate, sample = false) {
   return `${formatStep10Inventory(data, language, t)}\n\n━━━━━━━━━━━━━━━━━━━━\n\n${formatStep10ReportAnalytics(analytics, bounds, language, t, sample)}`;
+}
+
+export function formatStep10FocusedReport(analytics: Step10AnalyticsData, bounds: ReportBounds, principleIds: string[], noteIds: string[], language: Language, t: Translate, sample = false) {
+  const ids = questionIdsForPrinciples(principleIds);
+  const current = countQuestionDays(analytics.days, ids);
+  const previousItems = analytics.comparison?.principles.filter((item) => ids.includes(item.id)) ?? [];
+  const previousAnswered = previousItems.reduce((sum, item) => sum + item.answered, 0);
+  const previousPracticed = previousItems.reduce((sum, item) => sum + item.practiced, 0);
+  const previousRate = previousAnswered ? Math.round(previousPracticed / previousAnswered * 100) : null;
+  const range = (value: { from: string; through: string }) => `${formatDisplayDate(value.from, language)} – ${formatDisplayDate(value.through, language)}`;
+  const notes = reflectionEntries(analytics).filter((item) => noteIds.includes(item.id));
+  return [
+    t("Focused sponsor report", "گزارش منتخب برای حامی"),
+    t("Recovery Inventory", "ترازنامه بهبودی"),
+    ...(sample ? [t("Sample data", "داده نمونه")] : []),
+    `${t("Selected period", "بازه انتخاب‌شده")}: ${range(bounds)}`,
+    `${t("Saved days", "روزهای ذخیره‌شده")}: ${analytics.totalEntries}`,
+    `${t("Practiced share", "سهم تمرین‌شده")}: ${current.rate === null ? "—" : `${current.rate}%`} (${current.practiced}/${current.answered})`,
+    ...(analytics.comparison ? [
+      `${t("Previous period", "بازه پیشین")}: ${range(analytics.comparison.bounds)}`,
+      `${t("Saved days", "روزهای ذخیره‌شده")}: ${analytics.comparison.totalEntries}`,
+      `${t("Practiced share", "سهم تمرین‌شده")}: ${previousRate === null ? "—" : `${previousRate}%`} (${previousPracticed}/${previousAnswered})`,
+      `${t("Change in recorded answers", "تغییر پاسخ‌های ثبت‌شده")}: ${current.rate === null || previousRate === null ? "—" : `${current.rate - previousRate} ${t("percentage points", "واحد درصد")}`}`,
+    ] : []),
+    t("Percentages describe recorded answers, not a recovery grade. Question availability and recorded days can differ between periods.", "درصدها پاسخ‌های ثبت‌شده را توصیف می‌کنند، نه نمره بهبودی را. پرسش‌های موجود و روزهای ثبت‌شده ممکن است بین بازه‌ها متفاوت باشند."),
+    "",
+    t("Selected questions", "پرسش‌های انتخاب‌شده"),
+    ...analytics.principles.filter((item) => ids.includes(item.id)).map((item) => `${questionWithPrinciple(item.id, language)}\n  ${t("Practiced", "تمرین کردم")}: ${item.practiced} · ${t("Needs attention", "نیازمند توجه")}: ${item.attention} · ${t("Didn’t come up today", "امروز پیش نیامد")}: ${item.na} · ${t("Not answered", "پاسخ داده نشده")}: ${item.unanswered}`),
+    "",
+    t("Selected notes", "یادداشت‌های انتخاب‌شده"),
+    ...(notes.length ? notes.flatMap((item) => [
+      `${formatDisplayDate(item.date, language)} · ${item.questionId ? questionWithPrinciple(item.questionId, language) : step10ReflectionLabel(item.field as ReflectionField, t)}`,
+      item.text,
+      "",
+    ]) : [t("No notes selected. No private writing is included.", "هیچ یادداشتی انتخاب نشده است. هیچ نوشته خصوصی در گزارش نیست.")]),
+    "",
+    `${t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}: ${sponsorGuidance(t)}`,
+  ].join("\n");
 }

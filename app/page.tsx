@@ -23,6 +23,7 @@ import {
   Users,
 } from "lucide-react";
 import { SiteHeader } from "@/components/recovery/site-header";
+import { AnalyticsFeatureGuide } from "@/components/recovery/analytics-feature-guide";
 import { SiteFooter } from "@/components/recovery/site-footer";
 import { useLanguage } from "@/components/recovery/language-provider";
 import { questionWithPrinciple, step10Questions } from "@/lib/inventory";
@@ -38,8 +39,8 @@ export default function Home() {
     {
       question: t("How do the Step 10 questions work?", "پرسش‌های گام دهم چگونه کار می‌کنند؟"),
       answer: t(
-        "The 39 questions explore 24 recovery principles through everyday behavior. Each question shows its principle and has its own Practiced, Needs attention, or N/A answer, including follow-ups. Charts, sharing, and PDF exports include these separate answers.",
-        "۳۹ پرسش، ۲۴ اصل بهبودی را در رفتار روزمره بررسی می‌کنند. هر پرسش اصل مربوط به خود و پاسخ جداگانه «تمرین کردم»، «نیازمند توجه» یا «کاربرد ندارد» دارد، از جمله پرسش‌های تکمیلی. نمودارها، گزارش‌های اشتراک‌گذاری‌شده و خروجی PDF این پاسخ‌های جداگانه را نشان می‌دهند."
+        "The 39 questions explore 24 recovery principles through everyday behavior. Each question shows its principle and has its own Practiced, Needs attention, or Didn’t come up today answer, including follow-ups. Charts, sharing, and PDF exports include these separate answers.",
+        "۳۹ پرسش، ۲۴ اصل بهبودی را در رفتار روزمره بررسی می‌کنند. هر پرسش اصل مربوط به خود و پاسخ جداگانه «تمرین کردم»، «نیازمند توجه» یا «امروز پیش نیامد» دارد، از جمله پرسش‌های تکمیلی. نمودارها، گزارش‌های اشتراک‌گذاری‌شده و خروجی PDF این پاسخ‌های جداگانه را نشان می‌دهند."
       ),
     },
     {
@@ -311,48 +312,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="ri-section ri-analytics-showcase" id="analytics">
-        <div className="ri-analytics-copy">
-          <span className="ri-section-label"><BarChart3 size={16} />{t("Step 10 analytics", "تحلیل گام ۱۰")}</span>
-          <h2>{t("See the patterns behind your daily practice.", "الگوهای پشت تمرین روزانه خود را ببینید.")}</h2>
-          <p>{t("Analytics brings every saved Step 10 inventory through today into one calm view—so you can notice practiced strengths, recurring focus areas, recent direction, and your rhythm over time.", "تحلیل، همه ترازنامه‌های ذخیره‌شده گام ۱۰ تا امروز را در یک نمای آرام جمع می‌کند تا نقاط قوت تمرین‌شده، موارد تکرارشونده نیازمند توجه، روند اخیر و ریتم خود را در طول زمان ببینید.")}</p>
-          <p className="ri-analytics-guidance">{t("See where you are practicing well and where you may need help, then review the report with a sponsor or someone with time in recovery for direction.", "ببینید کجا خوب تمرین می‌کنید و کجا شاید به کمک نیاز دارید؛ سپس گزارش را با حامی یا فردی باتجربه در بهبودی مرور کنید و از او راهنمایی بگیرید.")}</p>
-          <div className="ri-analytics-points">
-            <span><Check size={16} />{t("Step 10 only—Step 4 is never included", "فقط گام ۱۰؛ گام ۴ هرگز وارد تحلیل نمی‌شود")}</span>
-            <span><Check size={16} />{t("Uses your saved selections and written reflections privately", "از انتخاب‌ها و بازتاب‌های نوشته‌شده ذخیره‌شده شما به‌صورت خصوصی استفاده می‌کند")}</span>
-            <span><Check size={16} />{t("Share a selected day or choose weekly, monthly, yearly, or custom range analytics with an inventory chart", "اشتراک روز انتخاب‌شده یا انتخاب تحلیل هفتگی، ماهانه، سالانه یا بازه دلخواه همراه با نمودار ترازنامه")}</span>
-            <span><Check size={16} />{t("A private pattern summary, not a clinical assessment", "خلاصه خصوصی الگوها، نه ارزیابی بالینی")}</span>
-          </div>
-          <a href="/demo?step=analytics" className="button button-primary">
-            {t("Explore sample analytics", "مشاهده تحلیل نمونه")}
-            <ArrowRight className={arrowClass} size={17} />
-          </a>
-        </div>
-
-        <div className="ri-analytics-preview" aria-label={t("Sample Step 10 analytics", "نمونه تحلیل گام ۱۰")}>
-          <div className="ri-analytics-preview-head">
-            <div><span>{t("Your current pattern", "الگوی فعلی شما")}</span><strong>{t("Step 10 at a glance", "گام ۱۰ در یک نگاه")}</strong></div>
-            <span>{t("Sample", "نمونه")}</span>
-          </div>
-          <div className="ri-analytics-score-row">
-            <div className="ri-analytics-score"><strong>72%</strong><span>{t("Practiced share", "سهم تمرین‌شده")}</span></div>
-            <div className="ri-analytics-direction"><TrendingUp size={19} /><strong>+8</strong><span>{t("recent direction", "روند اخیر")}</span></div>
-          </div>
-          <div className="ri-analytics-preview-bars">
-            {[
-              [t("Inner practice", "تمرین درونی"), 78],
-              [t("Relationships", "روابط"), 61],
-              [t("Recovery practice", "تمرین بهبودی"), 74],
-            ].map(([label, value]) => (
-              <div key={String(label)}><span><strong>{label}</strong><b>{value}%</b></span><i><em style={{ width: `${value}%` }} /></i></div>
-            ))}
-          </div>
-          <div className="ri-analytics-preview-insights">
-            <div><span>{t("Practiced most often", "بیشترین تمرین")}</span><strong>{questionWithPrinciple("honesty", language)}</strong></div>
-            <div><span>{t("Recurring focus", "تمرکز تکرارشونده")}</span><strong>{questionWithPrinciple("patience", language)}</strong></div>
-          </div>
-        </div>
-      </section>
+      <AnalyticsFeatureGuide />
 
       <section className="ri-section ri-how">
         <div className="ri-section-heading ri-heading-light">
@@ -404,7 +364,7 @@ export default function Home() {
           <div className="ri-included">
             <span><NotebookPen size={18} />{t("Daily Step 10 and multiple editable Step 4 workbooks", "گام دهم روزانه و چندین دفتر قابل ویرایش گام چهارم")}</span>
             <span><CalendarDays size={18} />{t("Continuous year-by-year calendar", "تقویم پیوسته سال‌به‌سال")}</span>
-            <span><BarChart3 size={18} />{t("Private Step 10 analytics through today", "تحلیل خصوصی گام ۱۰ تا امروز")}</span>
+            <span><BarChart3 size={18} />{t("Detailed Step 10 analytics for selected dates", "تحلیل کامل گام ۱۰ برای تاریخ‌های انتخاب‌شده")}</span>
             <span><BookOpenText size={18} />{t("Defects, shortcomings, and principles learning center", "مرکز آموزش نقص‌ها، کمبودهای رفتاری و اصول")}</span>
             <span><FileDown size={18} />{t("Share a selected day; export a Sponsor summary, Full journal, or Chart only PDF", "اشتراک روز انتخاب‌شده؛ خروجی PDF «خلاصه برای حامی»، «دفتر کامل» یا «فقط نمودار»")}</span>
             <span><ShieldCheck size={18} />{t("Anonymous username or verified email account", "حساب با نام کاربری ناشناس یا ایمیل تأییدشده")}</span>

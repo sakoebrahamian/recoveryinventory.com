@@ -5,10 +5,11 @@ import { createPortal } from "react-dom";
 import { CalendarRange, FileDown, RefreshCw, X } from "lucide-react";
 import { formatDisplayDate, principleCategories, step10QuestionsForPayload, principleQuestion, questionPrincipleName, questionWithPrinciple, reflectionPrincipleNames, step4Types, todayIso } from "@/lib/inventory";
 import { reflectionFields, type PrincipleAnalytics, type Step10AnalyticsData } from "@/lib/step10-analytics";
-import { describeStep10Pattern, step10ReflectionLabel } from "@/lib/step10-report";
+import { step10ReflectionLabel } from "@/lib/step10-report";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
 import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { practiceForPrinciple } from "@/lib/step10-practices";
+import { Step10PeriodComparison } from "./step10-analytics-detail";
 import { Step10WrittenInsights } from "./step10-written-insights";
 import { Step10WeeklyInsights } from "./step10-weekly-insights";
 import { useLanguage } from "./language-provider";
@@ -106,7 +107,7 @@ function Step10Print({ data }: { data: Step10Data }) {
                   ? t("Practiced", "تمرین کردم")
                   : state === "attention"
                     ? t("Needs attention", "نیازمند توجه")
-                    : t("Not applicable", "کاربرد ندارد");
+                    : t("Didn’t come up today", "امروز پیش نیامد");
                 return (
                   <div className="inventory-print-principle" key={principle.id}>
                     <span className={`inventory-print-state is-${state}`}>{stateLabel}</span>
@@ -222,7 +223,7 @@ function Step10AnalyticsPrint({ analytics, bounds, scopeLabel, brief = false }: 
             <div><dt>{t("Practiced share", "سهم تمرین‌شده")}</dt><dd>{number(analytics.practiceRate)}%</dd></div>
             <div><dt>{t("Practiced", "تمرین کردم")}</dt><dd>{number(analytics.totalPracticed)}</dd></div>
             <div><dt>{t("Needs attention", "نیازمند توجه")}</dt><dd>{number(analytics.totalAttention)}</dd></div>
-            <div><dt>{t("Not applicable", "کاربرد ندارد")}</dt><dd>{number(analytics.totalNA)}</dd></div>
+            <div><dt>{t("Didn’t come up today", "امروز پیش نیامد")}</dt><dd>{number(analytics.totalNA)}</dd></div>
           </dl>
           <Step10ReportChart analytics={analytics} bounds={bounds} />
           {daily && <section className="inventory-print-analytics-block inventory-print-interpretation">
@@ -235,17 +236,11 @@ function Step10AnalyticsPrint({ analytics, bounds, scopeLabel, brief = false }: 
             })}</ul> : <p>—</p>}
           </section>}
 
-          {!daily && <section className="inventory-print-analytics-block">
-            <h3>{t("Your current pattern", "الگوی فعلی شما")}</h3>
-            <p>{describeStep10Pattern(analytics, t)}</p>
-            <p>{t("Last seven vs. previous seven", "هفت مورد اخیر در برابر هفت مورد پیشین")}: {analytics.recentChange === null
-              ? t("Not enough history yet", "هنوز سابقه کافی نیست")
-              : `${analytics.recentChange > 0 ? "+" : ""}${number(analytics.recentChange)} ${t("percentage points", "واحد درصد")}`}</p>
-          </section>}
+          <Step10PeriodComparison analytics={analytics} bounds={bounds} />
 
           {!daily && <section className="inventory-print-analytics-block inventory-print-interpretation">
             <h3>{t("What your inventories show", "ترازنامه‌های شما چه نشان می‌دهند")}</h3>
-            <p>{t("These patterns describe your recorded choices, not your worth or a recovery score. We look for repeated answers on at least three days; N/A and unanswered questions do not count.", "این الگوها انتخاب‌های ثبت‌شده شما را توصیف می‌کنند، نه ارزش شما یا نمره بهبودی‌تان را. ما پاسخ‌های تکرارشده در دست‌کم سه روز را بررسی می‌کنیم؛ گزینه «کاربرد ندارد» و پاسخ‌های خالی محاسبه نمی‌شوند.")}</p>
+            <p>{t("These patterns describe your recorded choices, not your worth or a recovery score. We look for repeated answers on at least three days; Didn’t come up today and unanswered questions do not count.", "این الگوها انتخاب‌های ثبت‌شده شما را توصیف می‌کنند، نه ارزش شما یا نمره بهبودی‌تان را. ما پاسخ‌های تکرارشده در دست‌کم سه روز را بررسی می‌کنیم؛ گزینه «امروز پیش نیامد» و پاسخ‌های خالی محاسبه نمی‌شوند.")}</p>
             <div>
               {([
                 [t("Where you are doing well", "جاهایی که خوب پیش می‌روید"), insights.strengths, "practiced", insights.enoughHistory

@@ -22,7 +22,7 @@ export function Step10WeeklyInsights({ analytics, print = false }: { analytics: 
   return (
     <section className={`analytics-weekly${print ? " analytics-weekly-print inventory-print-analytics-block" : ""}`}>
       <h3>{t("Recent weekly writing", "نوشته‌های هفتگی اخیر")}</h3>
-      <p>{t("Last four calendar weeks (Monday–Sunday), including this week. Weeks without saved entries are omitted. These are selected examples in your own words, not an interpretation or a full transcript.", "چهار هفته تقویمی اخیر (دوشنبه تا یکشنبه)، شامل این هفته. هفته‌های بدون نوشته ذخیره‌شده نمایش داده نمی‌شوند. این‌ها نمونه‌هایی از نوشته‌های خودتان هستند، نه تفسیر یا رونویسی کامل.")}</p>
+      <p>{t("Up to four recent calendar weeks (Monday–Sunday) within the selected period. Weeks without saved entries are omitted. These are selected examples in your own words, not an interpretation or a full transcript.", "حداکثر چهار هفته تقویمی اخیر (دوشنبه تا یکشنبه) در بازه انتخاب‌شده. هفته‌های بدون نوشته ذخیره‌شده نمایش داده نمی‌شوند. این‌ها نمونه‌هایی از نوشته‌های خودتان هستند، نه تفسیر یا رونویسی کامل.")}</p>
       {analytics.weekly.length ? <div className="analytics-weekly-list">{analytics.weekly.map((week) => {
         const guide = week.focus[0] ? practiceForPrinciple(week.focus[0].id, language) : null;
         return <article key={week.start} className="analytics-weekly-card">

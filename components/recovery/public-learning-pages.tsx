@@ -19,6 +19,7 @@ import {
   publicLearningTopics,
   type PublicLearningTopic,
 } from "@/lib/public-learning";
+import { AnalyticsFeatureGuide } from "./analytics-feature-guide";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
 
@@ -147,6 +148,7 @@ export function PublicLearningHub({ language }: { language: Language }) {
       </section>
 
       <p className="public-learning-safety"><ShieldCheck size={16} /> {copy.safetyNote}</p>
+      <AnalyticsFeatureGuide language={language} compact />
       <SiteFooter language={language} />
     </main>
   );
@@ -244,6 +246,7 @@ export function PublicLearningArticlePage({
         </div>
       </article>
 
+      <AnalyticsFeatureGuide language={language} compact />
       <SiteFooter language={language} />
     </main>
   );

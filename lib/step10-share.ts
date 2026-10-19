@@ -20,7 +20,7 @@ function chartDetails(analytics: Step10AnalyticsData, bounds: ReportBounds, lang
   const labels: Record<ChartKind, string> = {
     practiced: t("Practiced", "تمرین کردم"),
     attention: t("Needs attention", "نیازمند توجه"),
-    na: t("N/A", "کاربرد ندارد"),
+    na: t("Didn’t come up today", "امروز پیش نیامد"),
     unanswered: t("Not answered", "پاسخ داده نشده"),
   };
   const kinds: ChartKind[] = ["practiced", "attention", "na", "unanswered"];
