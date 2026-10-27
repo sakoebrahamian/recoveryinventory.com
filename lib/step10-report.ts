@@ -2,7 +2,7 @@ import { formatDisplayDate, principleCategories, step10QuestionsForPayload, ques
 import { reflectionFields, type Step10AnalyticsData, type PrincipleAnalytics, type ReflectionField, type WrittenExcerpt, type WrittenWeek } from "@/lib/step10-analytics";
 import type { Step10Data } from "@/components/recovery/step10-inventory";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
-import { sponsorGuidance } from "@/lib/recovery-guidance";
+import { sponsorGuidance, originalFrameworkGuidance } from "@/lib/recovery-guidance";
 import { practiceForPrinciple } from "@/lib/step10-practices";
 import type { ReportBounds } from "@/lib/step10-report-period";
 import { countQuestionDays, questionIdsForPrinciples, reflectionEntries } from "@/lib/step10-detail";
@@ -178,6 +178,7 @@ export function formatStep10Analytics(analytics: Step10AnalyticsData, language: 
     ...(analytics.weekly.length ? analytics.weekly.flatMap((week) => ["", formatStep10Week(week, language, t)]) : [t("No saved entries in these four weeks.", "در این چهار هفته نوشته ذخیره‌شده‌ای وجود ندارد.")]),
     "",
     `${t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}: ${sponsorGuidance(t)}`,
+    originalFrameworkGuidance(t),
     "",
     t("This private summary counts all saved Step 10 selections and shows selected writing from recent weeks. It does not interpret every nuance of your words, analyze Step 4, or provide a diagnosis or clinical assessment.", "این خلاصه خصوصی، همه انتخاب‌های ذخیره‌شده گام ۱۰ را می‌شمارد و نمونه‌هایی از نوشته‌های هفته‌های اخیر را نشان می‌دهد. همه ظرافت‌های نوشته‌های شما را تفسیر نمی‌کند، گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی ارائه نمی‌دهد."),
   ].join("\n").trimEnd();
@@ -239,6 +240,7 @@ export function formatStep10ReportAnalytics(analytics: Step10AnalyticsData, boun
       "",
     ]),
     `${t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}: ${sponsorGuidance(t)}`,
+    originalFrameworkGuidance(t),
     t("This is a summary of your recorded choices, not a diagnosis or a recovery score. Step 4 is not analyzed.", "این خلاصه‌ای از انتخاب‌های ثبت‌شده شماست، نه تشخیص یا نمره بهبودی. گام ۴ تحلیل نمی‌شود."),
   ].join("\n").trimEnd();
 }
@@ -282,5 +284,6 @@ export function formatStep10FocusedReport(analytics: Step10AnalyticsData, bounds
     ]) : [t("No notes selected. No private writing is included.", "هیچ یادداشتی انتخاب نشده است. هیچ نوشته خصوصی در گزارش نیست.")]),
     "",
     `${t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}: ${sponsorGuidance(t)}`,
+    originalFrameworkGuidance(t),
   ].join("\n");
 }

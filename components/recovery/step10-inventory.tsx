@@ -17,6 +17,7 @@ import { calculateStep10Analytics } from "@/lib/step10-analytics";
 import { formatStep10SponsorReport } from "@/lib/step10-report";
 import { copyStep10Report, shareStep10Report } from "@/lib/step10-share";
 import { defaultReportPeriod, reportBounds, type ReportPeriod } from "@/lib/step10-report-period";
+import { step10PracticeGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
 import { ReportPeriodPicker } from "./report-period-picker";
 import { Step10ReportChart } from "./step10-report-chart";
@@ -291,6 +292,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
             <div>
               <h2>{t("Daily inventory", "ترازنامه روزانه")}</h2>
               <p>{t("Notice. Own it. Choose the next right action.", "ببینید، بپذیرید و اقدام درست بعدی را انتخاب کنید.")}</p>
+              <p>{step10PracticeGuidance(t)}</p>
             </div>
           </div>
           <input

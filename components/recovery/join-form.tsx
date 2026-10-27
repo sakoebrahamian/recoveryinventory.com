@@ -139,7 +139,7 @@ export function JoinForm() {
       window.location.assign(result.url);
     } catch (error) {
       setBillingError(error instanceof BillingTimeoutError
-        ? t("This is taking longer than expected. Open your workspace to check your membership before trying again.", "این کار بیش از حد انتظار طول کشیده است. پیش از تلاش دوباره، فضای کاری خود را باز کنید و وضعیت عضویت را بررسی کنید.")
+        ? t("This is taking longer than expected. Open your workspace to check your website subscription before trying again.", "این کار بیش از حد انتظار طول کشیده است. پیش از تلاش دوباره، فضای کاری خود را باز کنید و وضعیت اشتراک وب‌سایت را بررسی کنید.")
         : error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
     } finally {
       setBusy(false);
@@ -155,7 +155,7 @@ export function JoinForm() {
           <p>{t("Enter a 100%-off forever code here to activate without payment or billing details. Other discounts open secure Stripe checkout for the remaining balance.", "برای فعال‌سازی بدون پرداخت یا اطلاعات صورتحساب، کد تخفیف دائمی ۱۰۰٪ را اینجا وارد کنید. تخفیف‌های دیگر برای پرداخت مبلغ باقی‌مانده، پرداخت امن Stripe را باز می‌کنند.")}</p>
         </div>
         {billingError && <p className="form-error" role="alert">{billingError}</p>}
-        <button className="button button-primary button-full" type="button" onClick={beginCheckout} disabled={disabled || busy}><ShieldCheck size={18} />{busy ? (promotionCode.trim() ? t("Applying code…", "در حال اعمال کد…") : t("Opening secure checkout…", "در حال باز کردن پرداخت امن…")) : t("Activate membership", "فعال‌سازی عضویت")}</button>
+        <button className="button button-primary button-full" type="button" onClick={beginCheckout} disabled={disabled || busy}><ShieldCheck size={18} />{busy ? (promotionCode.trim() ? t("Applying code…", "در حال اعمال کد…") : t("Opening secure checkout…", "در حال باز کردن پرداخت امن…")) : t("Activate website subscription", "فعال‌سازی اشتراک وب‌سایت")}</button>
         {!disabled && <p className="auth-switch"><a href="/app">{t("Open your workspace", "فضای کاری خود را باز کنید")}</a></p>}
       </>
     );
@@ -169,7 +169,7 @@ export function JoinForm() {
         <>
           <div className="account-card-header">
             <h2>{t("Choose how to create your account", "روش ایجاد حساب را انتخاب کنید")}</h2>
-            <p>{t("Both options include the same private membership features.", "هر دو گزینه شامل همان امکانات خصوصی عضویت هستند.")}</p>
+            <p>{t("Both options include the same private website subscription features.", "هر دو گزینه شامل همان امکانات خصوصی اشتراک وب‌سایت هستند.")}</p>
           </div>
           <div className="account-method-picker" role="tablist" aria-label={t("Account type", "نوع حساب")}>
             <button type="button" role="tab" aria-selected={method === "anonymous"} className={method === "anonymous" ? "is-active" : ""} onClick={() => chooseMethod("anonymous")}>
@@ -273,7 +273,7 @@ export function JoinForm() {
           <label className="confirmation-check"><input type="checkbox" checked={saved} onChange={(event) => setSaved(event.target.checked)} /><span>{t("I copied or downloaded my recovery code and stored it privately.", "کد بازیابی خود را کپی یا دانلود کردم و در جایی خصوصی نگه داشتم.")}</span></label>
           {message && <p className={message.includes("copied") || message.includes("download") || message.includes("copiad") || message.includes("descargad") || message.includes("کپی") || message.includes("دانلود") ? "form-success" : "form-error"}>{message}</p>}
           {activationControls(!saved)}
-          <p className="fine-print"><ShieldCheck size={14} /> {t("You can add an email later without losing your inventories or membership.", "بعداً می‌توانید بدون از دست دادن ترازنامه‌ها یا عضویت، ایمیل اضافه کنید.")}</p>
+          <p className="fine-print"><ShieldCheck size={14} /> {t("You can add an email later without losing your inventories or website subscription.", "بعداً می‌توانید بدون از دست دادن ترازنامه‌ها یا اشتراک وب‌سایت، ایمیل اضافه کنید.")}</p>
         </>
       )}
 

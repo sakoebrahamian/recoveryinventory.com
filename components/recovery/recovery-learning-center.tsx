@@ -4,6 +4,7 @@ import * as React from "react";
 import { ArrowRight, BookOpenText, Check, ChevronDown, Compass, Search, Sparkles } from "lucide-react";
 import { principleCategories, principles, principleQuestion, principleFollowUpQuestions } from "@/lib/inventory";
 import { characterDefects, localized, principleGuides } from "@/lib/recovery-learning";
+import { originalFrameworkGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
 
 type LearningView = "defects" | "principles";
@@ -55,21 +56,20 @@ export function RecoveryLearningCenter({ demo = false, initialView = "defects" }
         <div>
           <span>{demo ? t("Interactive learning preview", "پیش‌نمایش تعاملی آموزش") : t("Member learning center", "مرکز آموزش اعضا")}</span>
           <h2>{t("Understand the pattern—and practice a different response.", "الگو را بشناسید و پاسخی متفاوت را تمرین کنید.")}</h2>
-          <p>{t(
-            "Explore how character defects can show up as specific shortcomings, which recovery principles counter them, and practical actions that support change.",
-            "ببینید نقص‌های شخصیتی چگونه به شکل کمبودهای رفتاری مشخص ظاهر می‌شوند، کدام اصول بهبودی با آنها مقابله می‌کنند و چه اقدام‌های عملی از تغییر حمایت می‌کنند."
-          )}</p>
+          <p>{t("Explore patterns, examples of behavior, principles to practice, and suggested actions for personal reflection.", "الگوها، نمونه‌های رفتاری، اصول قابل تمرین و اقدام‌های پیشنهادی برای تأمل شخصی را بررسی کنید.")}</p>
         </div>
       </header>
 
+      <p className="learning-safety-note">{originalFrameworkGuidance(t)}</p>
+
       <div className="learning-map" aria-label={t("Learning path", "مسیر یادگیری")}>
-        <span><b>1</b>{t("Character defect", "نقص شخصیتی")}</span>
+        <span><b>1</b>{t("Pattern / character defect", "الگو / نقص شخصیتی")}</span>
         <ArrowRight size={17} aria-hidden="true" />
-        <span><b>2</b>{t("Related shortcomings", "کمبودهای رفتاری مرتبط")}</span>
+        <span><b>2</b>{t("Related behaviors", "رفتارهای مرتبط")}</span>
         <ArrowRight size={17} aria-hidden="true" />
-        <span><b>3</b>{t("Corrective principles", "اصول اصلاحی")}</span>
+        <span><b>3</b>{t("Principles to practice", "اصول قابل تمرین")}</span>
         <ArrowRight size={17} aria-hidden="true" />
-        <span><b>4</b>{t("Recovery actions", "اقدام‌های بهبودی")}</span>
+        <span><b>4</b>{t("Suggested actions", "اقدام‌های پیشنهادی")}</span>
       </div>
 
       <div className="learning-toolbar">
@@ -78,13 +78,13 @@ export function RecoveryLearningCenter({ demo = false, initialView = "defects" }
             <Compass size={17} />{t("Defects & recovery paths", "نقص‌ها و مسیرهای بهبودی")}
           </button>
           <button className={view === "principles" ? "is-active" : ""} type="button" role="tab" aria-selected={view === "principles"} onClick={() => setView("principles")}>
-            <Sparkles size={17} />{t("Step 4 & Step 10 principles", "اصول گام ۴ و گام ۱۰")}
+            <Sparkles size={17} />{t("Principles for personal reflection", "اصول برای تأمل شخصی")}
           </button>
         </div>
         <label className="learning-search">
           <Search size={17} />
           <span className="sr-only">{t("Search the learning center", "جست‌وجو در مرکز آموزش")}</span>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("Search a defect, shortcoming, or principle", "جست‌وجوی نقص، کمبود رفتاری یا اصل")} />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("Search a pattern, behavior, or principle", "جست‌وجوی الگو، رفتار یا اصل")} />
         </label>
       </div>
 
@@ -93,7 +93,7 @@ export function RecoveryLearningCenter({ demo = false, initialView = "defects" }
           {visibleDefects.map((defect, index) => (
             <details className="learning-defect-card" key={defect.id} open={!normalizedQuery && index === 0}>
               <summary>
-                <span><small>{t("Character defect", "نقص شخصیتی")}</small><strong>{localized(defect.name, language)}</strong></span>
+                <span><small>{t("Pattern / character defect", "الگو / نقص شخصیتی")}</small><strong>{localized(defect.name, language)}</strong></span>
                 <ChevronDown size={20} />
               </summary>
               <div className="learning-defect-body">
@@ -103,7 +103,7 @@ export function RecoveryLearningCenter({ demo = false, initialView = "defects" }
                 </section>
 
                 <section>
-                  <div className="learning-section-title"><span>2</span><div><h3>{t("Shortcomings connected to this defect", "کمبودهای رفتاری مرتبط با این نقص")}</h3><p>{t("These are behaviors or reactions the underlying defect can produce.", "اینها رفتارها یا واکنش‌هایی هستند که نقص زیربنایی می‌تواند ایجاد کند.")}</p></div></div>
+                  <div className="learning-section-title"><span>2</span><div><h3>{t("Examples of related behaviors", "نمونه‌هایی از رفتارهای مرتبط")}</h3><p>{t("These examples show how this pattern may appear in everyday actions and reactions.", "این نمونه‌ها نشان می‌دهند این الگو چگونه ممکن است در رفتارها و واکنش‌های روزمره ظاهر شود.")}</p></div></div>
                   <div className="shortcoming-grid">
                     {defect.shortcomings.map((item) => (
                       <article key={localized(item.name, language)}><strong>{localized(item.name, language)}</strong><p>{localized(item.explanation, language)}</p></article>
@@ -112,7 +112,7 @@ export function RecoveryLearningCenter({ demo = false, initialView = "defects" }
                 </section>
 
                 <section>
-                  <div className="learning-section-title"><span>3</span><div><h3>{t("Principles that counter this defect", "اصولی که با این نقص مقابله می‌کنند")}</h3><p>{t("Open any principle to learn what it means and how to practice it.", "هر اصل را باز کنید تا معنای آن و روش تمرینش را بیاموزید.")}</p></div></div>
+                  <div className="learning-section-title"><span>3</span><div><h3>{t("Principles to practice with this pattern", "اصول قابل تمرین در برابر این الگو")}</h3><p>{t("Open any principle to learn what it means and how to practice it.", "هر اصل را باز کنید تا معنای آن و روش تمرینش را بیاموزید.")}</p></div></div>
                   <div className="learning-principle-links">
                     {defect.principleIds.map((id) => {
                       const principle = principleById.get(id);
@@ -123,7 +123,7 @@ export function RecoveryLearningCenter({ demo = false, initialView = "defects" }
                 </section>
 
                 <section>
-                  <div className="learning-section-title"><span>4</span><div><h3>{t("A route to recovery", "مسیر بهبودی")}</h3><p>{t("Small, repeated actions help turn a principle into a lived response.", "اقدام‌های کوچک و تکرارشونده کمک می‌کنند یک اصل به رفتاری عملی تبدیل شود.")}</p></div></div>
+                  <div className="learning-section-title"><span>4</span><div><h3>{t("Suggested actions for reflection", "اقدام‌های پیشنهادی برای تأمل")}</h3><p>{t("Small, repeated actions help turn a principle into a lived response.", "اقدام‌های کوچک و تکرارشونده کمک می‌کنند یک اصل به رفتاری عملی تبدیل شود.")}</p></div></div>
                   <ol className="recovery-path-list">
                     {defect.recoveryPath.map((step, stepIndex) => <li key={localized(step, language)}><span>{stepIndex + 1}</span><p>{localized(step, language)}</p></li>)}
                   </ol>
@@ -167,7 +167,7 @@ export function RecoveryLearningCenter({ demo = false, initialView = "defects" }
       )}
 
       {((view === "defects" && !visibleDefects.length) || (view === "principles" && !visiblePrinciples.length)) && (
-        <div className="learning-empty"><Search size={23} /><h3>{t("No matching learning topic", "موضوع آموزشی مطابقی پیدا نشد")}</h3><p>{t("Try a different defect, shortcoming, or principle.", "نقص، کمبود رفتاری یا اصل دیگری را جست‌وجو کنید.")}</p></div>
+        <div className="learning-empty"><Search size={23} /><h3>{t("No matching learning topic", "موضوع آموزشی مطابقی پیدا نشد")}</h3><p>{t("Try a different pattern, behavior, or principle.", "الگو، رفتار یا اصل دیگری را جست‌وجو کنید.")}</p></div>
       )}
 
       <p className="learning-safety-note">{t(

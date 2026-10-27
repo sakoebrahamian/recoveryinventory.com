@@ -156,9 +156,9 @@ export const step4Types = [
     en: "Defects & patterns",
     fa: "نقص‌های شخصیتی و الگوها",
     es: "Defectos y patrones",
-    descriptionEn: "Connect recurring character defects to their specific shortcomings, consequences, and the principles that can guide change.",
-    descriptionFa: "نقص‌های شخصیتی تکراری را به کمبودهای رفتاری، پیامدها و اصولی که تغییر را هدایت می‌کنند پیوند دهید.",
-    descriptionEs: "Relaciona los defectos de carácter recurrentes con sus limitaciones específicas, consecuencias y los principios que pueden guiar el cambio.",
+    descriptionEn: "Explore recurring patterns, specific behaviors, consequences, and principles that can guide change.",
+    descriptionFa: "الگوهای تکرارشونده، رفتارهای مشخص، پیامدها و اصولی را که می‌توانند راهنمای تغییر باشند بررسی کنید.",
+    descriptionEs: "Explora patrones repetidos, conductas concretas, consecuencias y principios que pueden orientar el cambio.",
   },
   {
     id: "strength",

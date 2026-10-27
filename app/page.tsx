@@ -23,6 +23,7 @@ import {
   Users,
 } from "lucide-react";
 import { SiteHeader } from "@/components/recovery/site-header";
+import { originalFrameworkGuidance, subscriptionGuidance } from "@/lib/recovery-guidance";
 import { AnalyticsFeatureGuide } from "@/components/recovery/analytics-feature-guide";
 import { SiteFooter } from "@/components/recovery/site-footer";
 import { useLanguage } from "@/components/recovery/language-provider";
@@ -59,24 +60,15 @@ export default function Home() {
     },
     {
       question: t("Will I lose my progress if I add email later?", "اگر بعداً ایمیل اضافه کنم، پیشرفتم از بین می‌رود؟"),
-      answer: t(
-        "No. Email is added to the same account. Your Step 10 and Step 4 inventories, analytics, membership, and billing connection remain in place.",
-        "خیر. ایمیل به همان حساب اضافه می‌شود. ترازنامه‌های گام ۱۰ و ۴، تحلیل‌ها، عضویت و اتصال پرداخت شما حفظ می‌شوند."
-      ),
+      answer: t("No. Email is added to the same account. Your Step 10 and Step 4 inventories, analytics, website subscription, and billing connection remain in place.", "خیر. ایمیل به همان حساب اضافه می‌شود. ترازنامه‌های گام ۱۰ و ۴، تحلیل‌ها، اشتراک وب‌سایت و اتصال پرداخت شما حفظ می‌شوند."),
     },
     {
       question: t("Is Step 4 a daily inventory?", "آیا گام چهارم یک ترازنامه روزانه است؟"),
-      answer: t(
-        "No. Step 4 is a reusable workbook you can build over time, save, revisit, edit, and mark complete. You can start another separate Step 4 inventory whenever you choose.",
-        "خیر. گام چهارم یک دفتر قابل ویرایش است که می‌توانید به‌مرور تکمیل، ذخیره، مرور و ویرایش کنید و آن را کامل علامت بزنید. هر زمان خواستید می‌توانید ترازنامه جداگانه دیگری برای گام چهارم آغاز کنید."
-      ),
+      answer: t("No. Our workbook for Step 4 reflection can be developed over time, saved, revisited, and edited. Marking the writing complete records the workbook’s status; review the work with your sponsor and follow your fellowship’s guidance.", "خیر. دفتر ما برای تأمل در گام چهارم را می‌توان به‌مرور نوشت، ذخیره، مرور و ویرایش کرد. علامت تکمیل نوشتن، وضعیت دفتر را ثبت می‌کند؛ نوشته‌ها را با حامی خود مرور کنید و از راهنمایی انجمن خود پیروی کنید."),
     },
     {
       question: t("Can I cancel at any time?", "آیا هر زمان می‌توانم لغو کنم؟"),
-      answer: t(
-        "Yes. Open Membership inside your account and choose Manage billing. Your access continues through the period you already paid for.",
-        "بله. در حساب خود بخش عضویت را باز کرده و مدیریت پرداخت را انتخاب کنید. دسترسی شما تا پایان دوره‌ای که پرداخت کرده‌اید ادامه دارد."
-      ),
+      answer: t("Yes. Open Subscription inside your account and choose Manage or cancel. Your access continues through the period you already paid for.", "بله. در حساب خود بخش اشتراک را باز کرده و «مدیریت یا لغو» را انتخاب کنید. دسترسی شما تا پایان دوره‌ای که پرداخت کرده‌اید ادامه دارد."),
     },
     {
       question: t("Can I share an inventory with my sponsor?", "آیا می‌توانم ترازنامه را با حامی خود به اشتراک بگذارم؟"),
@@ -121,7 +113,7 @@ export default function Home() {
               <span aria-hidden="true">{t("Anonymous username or email", "نام کاربری ناشناس یا ایمیل")}</span>
             </a>
           </div>
-          <div className="ri-hero-trust" aria-label={t("Membership highlights", "ویژگی‌های عضویت")}>
+          <div className="ri-hero-trust" aria-label={t("Website subscription highlights", "ویژگی‌های اشتراک وب‌سایت")}>
             <span><ShieldCheck size={17} />{t("Anonymous username or email account", "حساب با نام کاربری ناشناس یا ایمیل")}</span>
             <span><Globe2 size={17} />{t("English + Farsi + Spanish", "انگلیسی، فارسی و اسپانیایی")}</span>
             <span><CalendarDays size={17} />{t("Your history, year by year", "سابقه شما، سال‌به‌سال")}</span>
@@ -248,7 +240,7 @@ export default function Home() {
 
         <div className="ri-practice-grid">
           <article className="ri-practice-card ri-practice-ten">
-            <div className="ri-practice-topline"><span>{t("Nightly check-in", "مرور شبانه")}</span><b>10</b></div>
+            <div className="ri-practice-topline"><span>{t("Daily reflection", "تأمل روزانه")}</span><b>10</b></div>
             <div className="ri-practice-visual" aria-hidden="true">
               <div className="ri-mini-calendar">
                 {Array.from({ length: 28 }).map((_, index) => <i key={index} className={index < 19 ? "is-filled" : ""} />)}
@@ -270,8 +262,8 @@ export default function Home() {
               <i /><i /><i />
               <span><NotebookPen size={25} /></span>
             </div>
-            <h3>{t("Step 4 Personal Inventory", "ترازنامه شخصی گام چهارم")}</h3>
-            <p>{t("Build one detailed inventory over time. Return to edit it, mark it complete, or begin a separate Step 4 inventory whenever you choose.", "یک ترازنامه کامل را به‌مرور بسازید. برای ویرایش بازگردید، آن را کامل علامت بزنید یا هر زمان خواستید ترازنامه جداگانه‌ای برای گام چهارم آغاز کنید.")}</p>
+            <h3>{t("Our workbook for Step 4 reflection", "دفتر ما برای تأمل در گام چهارم")}</h3>
+            <p>{t("Build a detailed workbook over time. Return to edit it, mark the writing complete, or begin a separate workbook when useful. Review the work with your sponsor.", "دفتر کار را به‌مرور بنویسید. برای ویرایش بازگردید، نوشتن را تکمیل‌شده علامت بزنید یا در صورت نیاز دفتر جداگانه‌ای آغاز کنید. نوشته‌ها را با حامی خود مرور کنید.")}</p>
             <ul>
               <li><Check size={16} />{t("Six detailed, editable sections—not a daily entry", "شش بخش کامل و قابل ویرایش؛ نه یک نوشته روزانه")}</li>
               <li><Check size={16} />{t("Multiple reusable Step 4 workbooks", "چندین دفتر قابل استفاده گام چهارم")}</li>
@@ -286,13 +278,11 @@ export default function Home() {
         <div className="ri-learning-copy">
           <span className="ri-section-label"><BookOpenText size={16} />{t("Recovery learning center", "مرکز آموزش بهبودی")}</span>
           <h2>{t("See the whole path from pattern to principle.", "تمام مسیر از الگو تا اصل را ببینید.")}</h2>
-          <p>{t(
-            "Learn what each Step 4 character defect means, the specific shortcomings it can produce, the Step 4 and Step 10 principles that counter it, and practical actions for living those principles.",
-            "بیاموزید هر نقص شخصیتی در گام چهارم چه معنایی دارد، چه کمبودهای رفتاری مشخصی می‌تواند ایجاد کند، کدام اصول گام چهارم و دهم با آن مقابله می‌کنند و چگونه آن اصول را در عمل زندگی کنید."
-          )}</p>
+          <p>{t("Explore patterns, related behaviors, and principles for personal reflection using Recovery Inventory’s original guides and suggested actions.", "با راهنماهای اصلی و اقدام‌های پیشنهادی Recovery Inventory، الگوها، رفتارهای مرتبط و اصول تأمل شخصی را بررسی کنید.")}</p>
+          <p>{originalFrameworkGuidance(t)}</p>
           <div className="ri-learning-points">
-            <span><Check size={16} />{t("Detailed explanations of defects and related shortcomings", "توضیح کامل نقص‌ها و کمبودهای رفتاری مرتبط")}</span>
-            <span><Check size={16} />{t("All 24 Step 10 principles explained with examples and reflection questions", "توضیح هر ۲۴ اصل گام دهم همراه با مثال‌ها و پرسش‌های تأمل")}</span>
+            <span><Check size={16} />{t("Explanations of patterns and related behaviors", "توضیح الگوها و رفتارهای مرتبط")}</span>
+            <span><Check size={16} />{t("The 24 principles used in this journal, with examples and reflection questions", "۲۴ اصل به‌کاررفته در این دفتر، همراه با مثال‌ها و پرسش‌های تأمل")}</span>
             <span><Check size={16} />{t("Recovery paths you can apply to real situations", "مسیرهای بهبودی قابل اجرا در موقعیت‌های واقعی")}</span>
           </div>
           <a href="/demo?step=learning" className="button button-primary">
@@ -303,11 +293,11 @@ export default function Home() {
         <div className="ri-learning-preview" aria-label={t("Example recovery learning path", "نمونه مسیر آموزش بهبودی")}>
           <div className="ri-learning-preview-head"><span>{t("Example", "نمونه")}</span><strong>{t("Dishonesty", "عدم صداقت")}</strong></div>
           <div className="ri-learning-preview-flow">
-            <article><span>1</span><div><small>{t("Character defect", "نقص شخصیتی")}</small><strong>{t("Dishonesty", "عدم صداقت")}</strong><p>{t("Hiding, changing, or avoiding the truth.", "پنهان کردن، تغییر دادن یا دوری از حقیقت.")}</p></div></article>
+            <article><span>1</span><div><small>{t("Pattern / character defect", "الگو / نقص شخصیتی")}</small><strong>{t("Dishonesty", "عدم صداقت")}</strong><p>{t("Hiding, changing, or avoiding the truth.", "پنهان کردن، تغییر دادن یا دوری از حقیقت.")}</p></div></article>
             <Route size={18} aria-hidden="true" />
-            <article><span>2</span><div><small>{t("Shortcomings", "کمبودهای رفتاری")}</small><strong>{t("Lying · Omission · Denial", "دروغ · حذف حقیقت · انکار")}</strong><p>{t("The behaviors the underlying defect can produce.", "رفتارهایی که نقص زیربنایی می‌تواند ایجاد کند.")}</p></div></article>
+            <article><span>2</span><div><small>{t("Behavioral examples", "نمونه‌های رفتاری")}</small><strong>{t("Lying · Omission · Denial", "دروغ · حذف حقیقت · انکار")}</strong><p>{t("Examples of how this pattern may appear in behavior.", "نمونه‌هایی از چگونگی بروز این الگو در رفتار.")}</p></div></article>
             <Route size={18} aria-hidden="true" />
-            <article><span>3</span><div><small>{t("Corrective principles", "اصول اصلاحی")}</small><strong>{t("Honesty · Integrity · Courage", "صداقت · درستکاری · شجاعت")}</strong><p>{t("A practical route toward a different response.", "مسیری عملی به سوی پاسخی متفاوت.")}</p></div></article>
+            <article><span>3</span><div><small>{t("Principles to practice", "اصول قابل تمرین")}</small><strong>{t("Honesty · Integrity · Courage", "صداقت · درستکاری · شجاعت")}</strong><p>{t("A practical route toward a different response.", "مسیری عملی به سوی پاسخی متفاوت.")}</p></div></article>
           </div>
         </div>
       </section>
@@ -358,20 +348,21 @@ export default function Home() {
 
       <section className="ri-section ri-membership" id="membership">
         <div className="ri-membership-copy">
-          <span>{t("One clear membership", "یک عضویت روشن")}</span>
+          <span>{t("One clear website subscription", "یک اشتراک وب‌سایت روشن")}</span>
           <h2>{t("A full year of reflection for less than 50¢ a week.", "یک سال کامل تأمل، کمتر از ۵۰ سنت در هفته.")}</h2>
           <p>{t("Daily Step 10, reusable Step 4 workbooks, the learning center, your ongoing history, and every sharing option are included. No confusing plans or upgrades.", "گام دهم روزانه، دفترهای قابل استفاده گام چهارم، مرکز آموزش، سابقه مداوم و همه گزینه‌های اشتراک‌گذاری شامل می‌شوند. بدون طرح‌ها یا ارتقاهای گیج‌کننده.")}</p>
           <div className="ri-included">
             <span><NotebookPen size={18} />{t("Daily Step 10 and multiple editable Step 4 workbooks", "گام دهم روزانه و چندین دفتر قابل ویرایش گام چهارم")}</span>
             <span><CalendarDays size={18} />{t("Continuous year-by-year calendar", "تقویم پیوسته سال‌به‌سال")}</span>
             <span><BarChart3 size={18} />{t("Detailed Step 10 analytics for selected dates", "تحلیل کامل گام ۱۰ برای تاریخ‌های انتخاب‌شده")}</span>
-            <span><BookOpenText size={18} />{t("Defects, shortcomings, and principles learning center", "مرکز آموزش نقص‌ها، کمبودهای رفتاری و اصول")}</span>
+            <span><BookOpenText size={18} />{t("Patterns, behaviors, and principles learning center", "مرکز آموزش الگوها، رفتارها و اصول")}</span>
             <span><FileDown size={18} />{t("Share a selected day; export a Sponsor summary, Full journal, or Chart only PDF", "اشتراک روز انتخاب‌شده؛ خروجی PDF «خلاصه برای حامی»، «دفتر کامل» یا «فقط نمودار»")}</span>
             <span><ShieldCheck size={18} />{t("Anonymous username or verified email account", "حساب با نام کاربری ناشناس یا ایمیل تأییدشده")}</span>
           </div>
         </div>
         <div className="ri-price-card">
-          <div className="ri-price-top"><span>{t("Annual membership", "عضویت سالانه")}</span><span>{t("Best value", "بهترین ارزش")}</span></div>
+          <p className="fine-print">{subscriptionGuidance(t)}</p>
+          <div className="ri-price-top"><span>{t("Annual website subscription", "اشتراک وب‌سایت سالانه")}</span><span>{t("Best value", "بهترین ارزش")}</span></div>
           <div className="ri-price"><strong>$25</strong><span>/{t("year", "سال")}</span></div>
           <p>{t("Renews annually until canceled.", "تا زمان لغو، سالانه تمدید می‌شود.")}</p>
           <a href="/join" className="button button-primary button-large button-full">

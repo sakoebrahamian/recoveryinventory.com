@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { BookOpenText, CheckCircle2, Clock3, Plus } from "lucide-react";
 import { formatDisplayDate, step4Types, todayIso } from "@/lib/inventory";
 import { Step4Inventory, type Step4Data, type Step4Entry } from "./step4-inventory";
+import { originalFrameworkGuidance, step4WorkbookGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
 
 type Step4WorkbookRecord = {
@@ -45,9 +46,9 @@ function Step4PrintDocument({ data }: { data: Step4Data | null }) {
     [t("Effect or consequences", "تأثیر یا پیامدها"), entry.effect],
     [t("Feelings", "احساسات"), entry.feelings],
     [t("My responsibility", "مسئولیت من"), entry.myPart],
-    [t("Character defects", "نقص‌های شخصیتی"), entry.defects],
-    [t("Shortcomings", "کمبودهای رفتاری"), entry.shortcomings],
-    [t("Corrective principles", "اصول اصلاحی"), entry.principles],
+    [t("Patterns / character defects", "الگوها / نقص‌های شخصیتی"), entry.defects],
+    [t("Behavioral examples", "نمونه‌های رفتاری"), entry.shortcomings],
+    [t("Principles to practice", "اصول قابل تمرین"), entry.principles],
     [t("Recovery action", "اقدام بهبودی"), entry.nextAction],
   ] as const;
 
@@ -56,11 +57,13 @@ function Step4PrintDocument({ data }: { data: Step4Data | null }) {
       <header className="inventory-print-cover">
         <p>{t("PRIVATE STEP 4 WORKBOOK", "دفتر خصوصی گام چهارم")}</p>
         <h1>{data.title}</h1>
-        <div><span>{formatDisplayDate(data.startedDate, language)}</span><span>{data.status === "complete" ? t("Complete", "کامل") : t("In progress", "در حال انجام")}</span></div>
+        <div><span>{formatDisplayDate(data.startedDate, language)}</span><span>{data.status === "complete" ? t("Writing complete", "نوشتن تکمیل شد") : t("In progress", "در حال انجام")}</span></div>
       </header>
 
       <article className="inventory-print-record">
-        <header className="inventory-print-record-header"><span className="inventory-print-step">4</span><div><p>{t("STEP 4", "گام ۴")}</p><h2>{t("Searching personal inventory", "ترازنامه شخصی جست‌وجوگرانه")}</h2><time>{formatDisplayDate(data.startedDate, language)}</time></div></header>
+        <header className="inventory-print-record-header"><span className="inventory-print-step">4</span><div><p>{t("STEP 4", "گام ۴")}</p><h2>{t("Workbook for Step 4 reflection", "دفتر تأمل در گام چهارم")}</h2><time>{formatDisplayDate(data.startedDate, language)}</time></div></header>
+        <p className="inventory-print-description">{originalFrameworkGuidance(t)}</p>
+        <p className="inventory-print-description">{step4WorkbookGuidance(t)}</p>
         {step4Types.map((type) => {
           const matching = data.entries.filter((entry) => entry.type === type.id);
           if (!matching.length) return null;
@@ -207,7 +210,7 @@ export function Step4Workspace({ onOpenLearning, onDirtyChange }: Step4Workspace
             const fallback = `${t("Step 4 inventory", "ترازنامه گام چهارم")} ${workbooks.length - index}`;
             const entries = Array.isArray(record.payload.entries) ? record.payload.entries.length : 0;
             const complete = record.payload.status === "complete";
-            return <button className={`step4-workbook-card${selectedId === record.id ? " is-active" : ""}`} type="button" role="listitem" key={record.id} onClick={() => selectWorkbook(record.id)}><span className="step4-workbook-card-icon">{complete ? <CheckCircle2 size={18} /> : <BookOpenText size={18} />}</span><span><strong>{workbookTitle(record, fallback)}</strong><small><Clock3 size={13} />{t("Edited", "ویرایش")}: {dateLabel(record.updatedAt)} · {entries} {t("entries", "مورد")}</small></span><em>{complete ? t("Complete", "کامل") : t("In progress", "در حال انجام")}</em></button>;
+            return <button className={`step4-workbook-card${selectedId === record.id ? " is-active" : ""}`} type="button" role="listitem" key={record.id} onClick={() => selectWorkbook(record.id)}><span className="step4-workbook-card-icon">{complete ? <CheckCircle2 size={18} /> : <BookOpenText size={18} />}</span><span><strong>{workbookTitle(record, fallback)}</strong><small><Clock3 size={13} />{t("Edited", "ویرایش")}: {dateLabel(record.updatedAt)} · {entries} {t("entries", "مورد")}</small></span><em>{complete ? t("Writing complete", "نوشتن تکمیل شد") : t("In progress", "در حال انجام")}</em></button>;
           })}
         </div>
       </section>

@@ -40,7 +40,7 @@ export function SiteHeader({
           <a href="/demo">{t("Try the demo", "مشاهده نسخه آزمایشی")}</a>
           <a href={learnHref}>{t("Learn", "یادگیری")}</a>
           <a href="/#inventories">{t("Inventories", "ترازنامه‌ها")}</a>
-          <a href="/#membership">{t("Membership", "عضویت")}</a>
+          <a href="/#membership">{t("Subscription", "اشتراک")}</a>
           <a href="/privacy">{t("Privacy", "حریم خصوصی")}</a>
         </nav>
         <div className="header-actions">

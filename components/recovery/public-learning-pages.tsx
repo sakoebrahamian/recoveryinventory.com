@@ -10,6 +10,8 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import { step10PracticeGuidance, step4WorkbookGuidance } from "@/lib/recovery-guidance";
+import { spanishTranslations } from "@/lib/translations-es";
 import type { Language } from "@/lib/inventory";
 import {
   learningBasePath,
@@ -40,7 +42,7 @@ const articleUi: Record<Language, {
     privateTools: "Put the ideas into practice",
     privateToolsText: "Preview the private Step 10, Step 4, analytics, and member learning tools. Step 10 includes a weekly writing view; members can export a compact Sponsor summary or a Full journal to review with a sponsor.",
     demo: "Try the demo",
-    join: "View membership",
+    join: "View website subscription",
     safety: "Independent educational material · Not professional or crisis care",
   },
   es: {
@@ -50,7 +52,7 @@ const articleUi: Record<Language, {
     privateTools: "Pon las ideas en práctica",
     privateToolsText: "Prueba las herramientas privadas del Paso 10, Paso 4, análisis y aprendizaje. El Paso 10 incluye una vista semanal de textos; los miembros pueden exportar un resumen breve para su padrino o madrina o el diario completo para revisarlo juntos.",
     demo: "Probar la demostración",
-    join: "Ver membresía",
+    join: "Ver suscripción del sitio",
     safety: "Material educativo independiente · No es atención profesional ni apoyo para crisis",
   },
   fa: {
@@ -60,7 +62,7 @@ const articleUi: Record<Language, {
     privateTools: "مفاهیم را تمرین کنید",
     privateToolsText: "ابزارهای خصوصی گام ۱۰، گام ۴، تحلیل و آموزش اعضا را امتحان کنید. گام ۱۰ نمای هفتگی نوشته‌ها را دارد؛ اعضا می‌توانند «خلاصه برای حامی» کوتاه یا «دفتر کامل» را برای مرور با حامی صادر کنند.",
     demo: "مشاهده نسخه آزمایشی",
-    join: "مشاهده عضویت",
+    join: "مشاهده اشتراک وب‌سایت",
     safety: "محتوای آموزشی مستقل · نه مراقبت حرفه‌ای یا پشتیبانی بحران",
   },
 };
@@ -165,6 +167,7 @@ export function PublicLearningArticlePage({
   const ui = articleUi[language];
   const languageRoutes = learningLanguageRoutes(topic.slug);
   const dir = language === "fa" ? "rtl" : "ltr";
+  const t = (english: string, farsi: string) => language === "fa" ? farsi : language === "es" ? spanishTranslations[english] ?? english : english;
   const relatedTopics = publicLearningTopics.filter((candidate) => candidate.id !== topic.id);
 
   return (
@@ -187,6 +190,8 @@ export function PublicLearningArticlePage({
             <section className="public-learning-context">
               <h2>{copy.contextTitle}</h2>
               {copy.contextParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+              {topic.id === "step10" && <p>{step10PracticeGuidance(t)}</p>}
+              {topic.id === "step4" && <p>{step4WorkbookGuidance(t)}</p>}
             </section>
 
             <section className="public-learning-pathway" aria-labelledby="learning-pathway-title">

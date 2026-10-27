@@ -3,7 +3,7 @@
 import type { Language } from "@/lib/inventory";
 import { BrandMark } from "./brand-mark";
 import { translateForLanguage, useLanguage } from "./language-provider";
-import { sponsorGuidance } from "@/lib/recovery-guidance";
+import { sponsorGuidance, originalFrameworkGuidance } from "@/lib/recovery-guidance";
 
 export function SiteFooter({ language: languageOverride }: { language?: Language }) {
   const { language: contextLanguage, t: contextTranslate } = useLanguage();
@@ -27,7 +27,7 @@ export function SiteFooter({ language: languageOverride }: { language?: Language
         <div className="footer-links">
           <a href="/demo">{t("Demo", "نسخه آزمایشی")}</a>
           <a href={learnHref}>{t("Learn", "یادگیری")}</a>
-          <a href="/join">{t("Membership", "عضویت")}</a>
+          <a href="/join">{t("Subscription", "اشتراک")}</a>
           <a href="/privacy">{t("Privacy", "حریم خصوصی")}</a>
           <a href="/terms">{t("Terms", "شرایط استفاده")}</a>
         </div>
@@ -35,6 +35,7 @@ export function SiteFooter({ language: languageOverride }: { language?: Language
       <aside className="footer-guidance">
         <strong>{t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}</strong>
         <p>{sponsorGuidance(t)}</p>
+        <p>{originalFrameworkGuidance(t)}</p>
       </aside>
       <div className="footer-legal">
         <p>

@@ -96,7 +96,7 @@ export function PasswordAccess({
       )}
 
       {!editing && message && <p className={success ? "form-success" : "form-error"} role={success ? "status" : "alert"}>{message}</p>}
-      <p className="fine-print">{t("This adds another secure way to enter the same account. It does not copy, move, or erase inventories, analytics, membership, or billing. Anonymous members should also keep their recovery code copied or downloaded in a private place.", "این یک راه امن دیگر برای ورود به همان حساب اضافه می‌کند. ترازنامه‌ها، تحلیل‌ها، عضویت یا پرداخت را کپی، منتقل یا پاک نمی‌کند. اعضای ناشناس باید کد بازیابی خود را نیز کپی یا دانلود کرده و در جایی خصوصی نگه دارند.")}</p>
+      <p className="fine-print">{t("This adds another secure way to enter the same account. It does not copy, move, or erase inventories, analytics, website subscription, or billing. Anonymous members should also keep their recovery code copied or downloaded in a private place.", "این یک راه امن دیگر برای ورود به همان حساب اضافه می‌کند. ترازنامه‌ها، تحلیل‌ها، اشتراک وب‌سایت یا پرداخت را کپی، منتقل یا پاک نمی‌کند. اعضای ناشناس باید کد بازیابی خود را نیز کپی یا دانلود کرده و در جایی خصوصی نگه دارند.")}</p>
     </section>
   );
 }

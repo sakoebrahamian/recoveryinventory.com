@@ -3,6 +3,7 @@
 import * as React from "react";
 import { BookOpenText, Check, Copy, FileDown, Pencil, Plus, Save, Share2, Trash2, X } from "lucide-react";
 import { formatDisplayDate, step4Types, todayIso } from "@/lib/inventory";
+import { originalFrameworkGuidance, step4WorkbookGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
 
 type Step4Entry = {
@@ -133,9 +134,9 @@ export function Step4Inventory({ demo = false, initialData, onSave, onExport, on
   const labelsForType = React.useCallback((type: string) => {
     const shared = {
       feelings: t("What feelings came up?", "چه احساساتی ایجاد شد؟"),
-      defects: t("What character defects were present?", "چه نقص‌های شخصیتی وجود داشت؟"),
-      shortcomings: t("What specific shortcomings or behaviors came from those defects?", "چه کمبودها یا رفتارهای مشخصی از آن نقص‌ها به وجود آمد؟"),
-      principles: t("What principles can counter those defects?", "چه اصولی می‌توانند با آن نقص‌ها مقابله کنند؟"),
+      defects: t("What patterns or character defects did I notice?", "چه الگوها یا نقص‌های شخصیتی را دیدم؟"),
+      shortcomings: t("What specific actions or reactions did I notice?", "چه رفتارها یا واکنش‌های مشخصی را دیدم؟"),
+      principles: t("What principles could guide a different response?", "چه اصولی می‌توانند راهنمای پاسخی متفاوت باشند؟"),
     };
     if (type === "fear") return {
       subject: t("What am I afraid of?", "از چه چیزی می‌ترسم؟"),
@@ -167,7 +168,7 @@ export function Step4Inventory({ demo = false, initialData, onSave, onExport, on
       effect: t("What consequences does it create in recovery, relationships, work, or self-respect?", "چه پیامدهایی در بهبودی، روابط، کار یا عزت نفس ایجاد می‌کند؟"),
       ...shared,
       myPart: t("How do I feed, excuse, hide, or repeat this pattern?", "چگونه این الگو را تقویت، توجیه، پنهان یا تکرار می‌کنم؟"),
-      nextAction: t("How will I live the corrective principles in specific actions?", "چگونه اصول اصلاحی را در اقدامات مشخص زندگی خواهم کرد؟"),
+      nextAction: t("How will I practice these principles in specific actions?", "چگونه این اصول را در رفتارهای مشخص تمرین خواهم کرد؟"),
     };
     if (type === "strength") return {
       subject: t("Strength, asset, or positive quality", "توانایی، دارایی یا ویژگی مثبت"),
@@ -239,7 +240,7 @@ export function Step4Inventory({ demo = false, initialData, onSave, onExport, on
   }
 
   function summaryText() {
-    const lines = [t("Step 4 Personal Inventory", "ترازنامه شخصی گام چهارم"), data.title, `${t("Started", "آغاز")}: ${formatDisplayDate(data.startedDate, language)}`, `${t("Status", "وضعیت")}: ${data.status === "complete" ? t("Complete", "کامل") : t("In progress", "در حال انجام")}`, ""];
+    const lines = [t("Our workbook for Step 4 reflection", "دفتر ما برای تأمل در گام چهارم"), data.title, `${t("Started", "آغاز")}: ${formatDisplayDate(data.startedDate, language)}`, `${t("Status", "وضعیت")}: ${data.status === "complete" ? t("Writing complete", "نوشتن تکمیل شد") : t("In progress", "در حال انجام")}`, ""];
     if (data.intention) lines.push(`${t("Purpose for this inventory", "هدف این ترازنامه")}: ${data.intention}`, "");
     for (const type of step4Types) {
       const matching = data.entries.filter((entry) => entry.type === type.id);
@@ -255,6 +256,7 @@ export function Step4Inventory({ demo = false, initialData, onSave, onExport, on
     }
     const reviewFields: Array<[string, string]> = [[t("Patterns I can now see", "الگوهایی که اکنون می‌بینم"), data.patternsSummary], [t("Strengths and assets I want to keep building", "توانایی‌ها و دارایی‌هایی که می‌خواهم تقویت کنم"), data.strengthsSummary], [t("Principles I will practice", "اصولی که تمرین خواهم کرد"), data.principlesPlan], [t("Support and guidance I need", "حمایت و راهنمایی مورد نیاز"), data.supportPlan], [t("Additional private notes", "یادداشت‌های خصوصی بیشتر"), data.notes]];
     reviewFields.forEach(([label, value]) => { if (value) lines.push(`${label}: ${value}`); });
+    lines.push("", step4WorkbookGuidance(t), originalFrameworkGuidance(t));
     return lines.join("\n");
   }
 
@@ -298,11 +300,13 @@ export function Step4Inventory({ demo = false, initialData, onSave, onExport, on
     <div className="inventory-layout step4-workbook-editor" data-inventory="step4">
       <section className="inventory-main">
         <header className="inventory-header step4-workbook-header">
-          <div className="inventory-title-block"><span className="step-badge">4</span><div><h2>{t("Searching personal inventory", "ترازنامه شخصی جست‌وجوگرانه")}</h2><p>{t("Work at your own pace. Save, return, revise, and ask for trusted guidance when needed.", "با سرعت خود پیش بروید. ذخیره کنید، بازگردید، ویرایش کنید و در صورت نیاز راهنمایی قابل اعتماد بخواهید.")}</p></div></div>
-          <label className="step4-status-select"><span>{t("Workbook status", "وضعیت دفتر کار")}</span><select value={data.status} onChange={(event) => updateData("status", event.target.value as Step4Data["status"])}><option value="in_progress">{t("In progress", "در حال انجام")}</option><option value="complete">{t("Complete", "کامل")}</option></select></label>
+          <div className="inventory-title-block"><span className="step-badge">4</span><div><h2>{t("Workbook for Step 4 reflection", "دفتر تأمل در گام چهارم")}</h2><p>{t("Work at your own pace. Save, return, revise, and ask for trusted guidance when needed.", "با سرعت خود پیش بروید. ذخیره کنید، بازگردید، ویرایش کنید و در صورت نیاز راهنمایی قابل اعتماد بخواهید.")}</p></div></div>
+          <label className="step4-status-select"><span>{t("Workbook status", "وضعیت دفتر کار")}</span><select value={data.status} onChange={(event) => updateData("status", event.target.value as Step4Data["status"])}><option value="in_progress">{t("In progress", "در حال انجام")}</option><option value="complete">{t("Writing complete", "نوشتن تکمیل شد")}</option></select></label>
         </header>
 
         <div className="inventory-content">
+          <p className="step4-description">{originalFrameworkGuidance(t)}</p>
+          <p className="step4-description">{step4WorkbookGuidance(t)}</p>
           <section className="step4-workbook-intro">
             <label className="form-field full" htmlFor="step4-title"><span>{t("Inventory name", "نام ترازنامه")}</span><input id="step4-title" className="form-input" value={data.title} onChange={(event) => updateData("title", event.target.value)} maxLength={100} /></label>
             <label className="form-field full" htmlFor="step4-intention"><span>{t("What is my purpose for completing this inventory?", "هدف من از تکمیل این ترازنامه چیست؟")}</span><textarea id="step4-intention" className="form-textarea" value={data.intention} onChange={(event) => updateData("intention", event.target.value)} /></label>
@@ -318,17 +322,17 @@ export function Step4Inventory({ demo = false, initialData, onSave, onExport, on
             <button className="button button-primary" type="button" onClick={saveEntry}><Plus size={17} />{editingId ? t("Save entry changes", "ذخیره تغییرات مورد") : t("Add to inventory", "افزودن به ترازنامه")}</button>
           </section>
 
-          <section className="step4-entry-list" aria-live="polite">{visibleEntries.length === 0 ? <div className="step4-description">{t("No entries in this section yet. Add one when you are ready.", "هنوز موردی در این بخش ثبت نشده است. هر زمان آماده بودید یک مورد اضافه کنید.")}</div> : visibleEntries.map((entry) => <article className="step4-entry step4-entry-detailed" key={entry.id}><div><strong>{entry.subject}</strong><p>{entry.event}</p>{entry.defects && <p><b>{t("Character defects", "نقص‌های شخصیتی")}:</b> {entry.defects}</p>}{entry.shortcomings && <p><b>{t("Shortcomings", "کمبودهای رفتاری")}:</b> {entry.shortcomings}</p>}{entry.principles && <p><b>{t("Corrective principles", "اصول اصلاحی")}:</b> {entry.principles}</p>}{entry.nextAction && <p><b>{t("Recovery action", "اقدام بهبودی")}:</b> {entry.nextAction}</p>}</div><div className="step4-entry-actions"><button type="button" className="icon-button" onClick={() => editEntry(entry)} aria-label={t("Edit entry", "ویرایش مورد")}><Pencil size={16} /></button><button type="button" className="icon-button" onClick={() => removeEntry(entry.id)} aria-label={t("Delete entry", "حذف مورد")}><Trash2 size={16} /></button></div></article>)}</section>
+          <section className="step4-entry-list" aria-live="polite">{visibleEntries.length === 0 ? <div className="step4-description">{t("No entries in this section yet. Add one when you are ready.", "هنوز موردی در این بخش ثبت نشده است. هر زمان آماده بودید یک مورد اضافه کنید.")}</div> : visibleEntries.map((entry) => <article className="step4-entry step4-entry-detailed" key={entry.id}><div><strong>{entry.subject}</strong><p>{entry.event}</p>{entry.defects && <p><b>{t("Patterns / character defects", "الگوها / نقص‌های شخصیتی")}:</b> {entry.defects}</p>}{entry.shortcomings && <p><b>{t("Behavioral examples", "نمونه‌های رفتاری")}:</b> {entry.shortcomings}</p>}{entry.principles && <p><b>{t("Principles to practice", "اصول قابل تمرین")}:</b> {entry.principles}</p>}{entry.nextAction && <p><b>{t("Recovery action", "اقدام بهبودی")}:</b> {entry.nextAction}</p>}</div><div className="step4-entry-actions"><button type="button" className="icon-button" onClick={() => editEntry(entry)} aria-label={t("Edit entry", "ویرایش مورد")}><Pencil size={16} /></button><button type="button" className="icon-button" onClick={() => removeEntry(entry.id)} aria-label={t("Delete entry", "حذف مورد")}><Trash2 size={16} /></button></div></article>)}</section>
 
           <section className="step4-review-section">
             <div className="step4-review-heading"><span>{t("Bring the inventory together", "جمع‌بندی ترازنامه")}</span><h3>{t("Patterns, assets, and recovery direction", "الگوها، توانایی‌ها و مسیر بهبودی")}</h3><p>{t("Complete this review as themes become clearer. You can return and revise it at any time.", "با روشن‌تر شدن موضوع‌ها این مرور را تکمیل کنید. هر زمان می‌توانید بازگردید و آن را ویرایش کنید.")}</p></div>
-            <div className="prompt-grid">{([["patternsSummary", t("What repeating patterns or character defects can I now see?", "اکنون چه الگوهای تکراری یا نقص‌های شخصیتی را می‌بینم؟")], ["strengthsSummary", t("What strengths, assets, and healthy choices do I want to keep building?", "چه توانایی‌ها، دارایی‌ها و انتخاب‌های سالمی را می‌خواهم تقویت کنم؟")], ["principlesPlan", t("Which corrective principles will I practice, and what will that look like?", "کدام اصول اصلاحی را تمرین خواهم کرد و این کار چگونه خواهد بود؟")], ["supportPlan", t("What support, sponsor guidance, or professional help may be useful?", "چه حمایت، راهنمایی حامی یا کمک حرفه‌ای می‌تواند مفید باشد؟")], ["notes", t("Additional private notes", "یادداشت‌های خصوصی بیشتر")]] as const).map(([key, label]) => <label className="form-field full" key={key} htmlFor={`step4-review-${key}`}><span>{label}</span><textarea id={`step4-review-${key}`} className="form-textarea" value={data[key]} onChange={(event) => updateData(key, event.target.value)} /></label>)}</div>
+            <div className="prompt-grid">{([["patternsSummary", t("What repeating patterns or character defects can I now see?", "اکنون چه الگوهای تکراری یا نقص‌های شخصیتی را می‌بینم؟")], ["strengthsSummary", t("What strengths, assets, and healthy choices do I want to keep building?", "چه توانایی‌ها، دارایی‌ها و انتخاب‌های سالمی را می‌خواهم تقویت کنم؟")], ["principlesPlan", t("Which principles will I practice, and what will that look like?", "کدام اصول را تمرین خواهم کرد و این کار چگونه خواهد بود؟")], ["supportPlan", t("What support, sponsor guidance, or professional help may be useful?", "چه حمایت، راهنمایی حامی یا کمک حرفه‌ای می‌تواند مفید باشد؟")], ["notes", t("Additional private notes", "یادداشت‌های خصوصی بیشتر")]] as const).map(([key, label]) => <label className="form-field full" key={key} htmlFor={`step4-review-${key}`}><span>{label}</span><textarea id={`step4-review-${key}`} className="form-textarea" value={data[key]} onChange={(event) => updateData(key, event.target.value)} /></label>)}</div>
           </section>
         </div>
       </section>
 
       <aside className="inventory-sidebar">
-        <section className="inventory-sidebar-card"><h3>{t("Workbook overview", "نمای کلی دفتر کار")}</h3><p>{t("Started", "آغاز")}: {formatDisplayDate(data.startedDate, language)}</p><div className="summary-stats"><div className="summary-stat"><strong>{data.entries.length}</strong><span>{t("Total entries", "کل موارد")}</span></div><div className="summary-stat"><strong>{sectionCount}</strong><span>{t("Sections used", "بخش‌های استفاده‌شده")}</span></div></div><span className={`step4-workbook-status is-${data.status}`}>{data.status === "complete" ? t("Marked complete", "کامل‌شده") : t("Work in progress", "در حال انجام")}</span></section>
+        <section className="inventory-sidebar-card"><h3>{t("Workbook overview", "نمای کلی دفتر کار")}</h3><p>{t("Started", "آغاز")}: {formatDisplayDate(data.startedDate, language)}</p><div className="summary-stats"><div className="summary-stat"><strong>{data.entries.length}</strong><span>{t("Total entries", "کل موارد")}</span></div><div className="summary-stat"><strong>{sectionCount}</strong><span>{t("Sections used", "بخش‌های استفاده‌شده")}</span></div></div><span className={`step4-workbook-status is-${data.status}`}>{data.status === "complete" ? t("Writing marked complete", "نوشتن تکمیل‌شده") : t("Work in progress", "در حال انجام")}</span></section>
         <section className="inventory-sidebar-card"><h3>{t("Keep or share", "ذخیره یا اشتراک")}</h3><p>{t("Save before opening another workbook or leaving this page. Share only when you feel ready.", "پیش از باز کردن دفتر دیگر یا ترک صفحه ذخیره کنید. فقط زمانی که آماده هستید به اشتراک بگذارید.")}</p><div className="sidebar-actions"><button className="button button-primary" type="button" onClick={saveInventory} disabled={saving}><Save size={17} />{saving ? t("Saving…", "در حال ذخیره…") : t("Save Step 4 inventory", "ذخیره ترازنامه گام چهارم")}</button><button className="button button-outline" type="button" onClick={shareInventory}><Share2 size={17} />{t("Share with sponsor", "اشتراک با حامی")}</button><button className="button button-outline" type="button" onClick={async () => { await navigator.clipboard.writeText(summaryText()); setMessage(t("Private summary copied.", "خلاصه خصوصی کپی شد.")); }}><Copy size={17} />{t("Copy private summary", "کپی خلاصه خصوصی")}</button><button className="button button-outline" type="button" onClick={() => onExport?.(data)} disabled={!onExport}><FileDown size={17} />{t("Print / Save PDF", "چاپ / ذخیره PDF")}</button></div>{dirty && <p className="step4-unsaved-note">{t("You have unsaved changes.", "تغییرات ذخیره‌نشده دارید.")}</p>}{message && <p className="toast-note" role="status"><Check size={14} /> {message}</p>}</section>
       </aside>
     </div>

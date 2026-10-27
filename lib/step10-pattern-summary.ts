@@ -92,7 +92,7 @@ export function step10PatternSummarySvg(analytics: Step10AnalyticsData, bounds: 
     const fallback = data.savedDays < 3 ? t("More recorded days are needed to identify a repeated pattern.", "برای شناسایی الگوی تکرارشونده، روزهای ثبت‌شده بیشتری لازم است.") : t("No repeated pattern meets this threshold.", "هیچ الگوی تکرارشونده‌ای به این آستانه نرسیده است.");
     lines(data[kind].length ? data[kind].map((row) => name(row.id)).join(" · ") : fallback, x + 20, 360, 692, 20);
   });
-  text(t("All 24 principles", "هر ۲۴ اصل"), 56, 447, 23, 680, true);
+  text(t("24 journal principles", "۲۴ اصل این دفتر"), 56, 447, 23, 680, true);
   text(t("Counts in legend order: + / ! / – / ?", "شمارش به ترتیب راهنما: + / ! / – / ?"), 824, 447, 17, 720);
   data.rows.forEach((row, index) => {
     const column = Math.floor(index / 12);

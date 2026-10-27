@@ -7,7 +7,7 @@ import { formatDisplayDate, principleCategories, step10QuestionsForPayload, prin
 import { reflectionFields, type PrincipleAnalytics, type Step10AnalyticsData } from "@/lib/step10-analytics";
 import { step10ReflectionLabel } from "@/lib/step10-report";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
-import { sponsorGuidance } from "@/lib/recovery-guidance";
+import { sponsorGuidance, originalFrameworkGuidance } from "@/lib/recovery-guidance";
 import { practiceForPrinciple } from "@/lib/step10-practices";
 import { Step10PeriodComparison } from "./step10-analytics-detail";
 import { Step10PatternVisual } from "./step10-pattern-visual";
@@ -270,6 +270,7 @@ function Step10AnalyticsPrint({ analytics, bounds, scopeLabel, brief = false }: 
           <aside className="inventory-print-sponsor-note">
             <h3>{t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}</h3>
             <p>{sponsorGuidance(t)}</p>
+            <p>{originalFrameworkGuidance(t)}</p>
           </aside>
 
           {!brief && !daily && <><div className="inventory-print-analytics-insights">

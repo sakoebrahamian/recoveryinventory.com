@@ -89,7 +89,7 @@ export function AddEmailAccess({
           <button className="text-button" type="button" onClick={() => { setChallengeId(""); setCode(""); setMessage(""); }}><ArrowLeft size={14} />{t("Use a different email", "استفاده از ایمیل دیگر")}</button>
         </form>
       )}
-      <p className="fine-print">{t("Adding email changes only how you log in. Your inventories, analytics, membership, and billing stay attached to this account.", "افزودن ایمیل فقط روش ورود را تغییر می‌دهد. ترازنامه‌ها، تحلیل‌ها، عضویت و پرداخت شما به همین حساب متصل می‌مانند.")}</p>
+      <p className="fine-print">{t("Adding email changes only how you log in. Your inventories, analytics, website subscription, and billing stay attached to this account.", "افزودن ایمیل فقط روش ورود را تغییر می‌دهد. ترازنامه‌ها، تحلیل‌ها، اشتراک وب‌سایت و پرداخت شما به همین حساب متصل می‌مانند.")}</p>
     </section>
   );
 }

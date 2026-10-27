@@ -15,6 +15,7 @@ import { RecoveryLearningCenter } from "./recovery-learning-center";
 import { formatDisplayDate, todayIso } from "@/lib/inventory";
 import { defaultReportPeriod } from "@/lib/step10-report-period";
 import { recordSiteAction } from "@/lib/site-analytics";
+import { subscriptionGuidance } from "@/lib/recovery-guidance";
 import { BillingTimeoutError, requestBilling } from "@/lib/billing-client";
 
 type AccountView = {
@@ -108,7 +109,7 @@ export function MemberDashboard() {
   React.useEffect(() => {
     const search = new URLSearchParams(window.location.search);
     if (search.get("checkout") === "success") {
-      const noticeTimer = window.setTimeout(() => setMessage(t("Payment received. Membership may take a few seconds to activate.", "پرداخت دریافت شد. فعال شدن عضویت ممکن است چند ثانیه طول بکشد.")), 0);
+      const noticeTimer = window.setTimeout(() => setMessage(t("Payment received. Website subscription may take a few seconds to activate.", "پرداخت دریافت شد. فعال شدن اشتراک وب‌سایت ممکن است چند ثانیه طول بکشد.")), 0);
       let attempts = 0;
       const timer = window.setInterval(async () => {
         attempts += 1;
@@ -156,7 +157,7 @@ export function MemberDashboard() {
   }
 
   async function saveInventory(date: string, payload: Step10Data) {
-    if (!account?.membershipActive) throw new Error(t("Renew your membership to save changes.", "برای ذخیره تغییرات، عضویت خود را تمدید کنید."));
+    if (!account?.membershipActive) throw new Error(t("Renew your website subscription to save changes.", "برای ذخیره تغییرات، اشتراک وب‌سایت خود را تمدید کنید."));
     const request = () => fetch("/api/inventories", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -217,7 +218,7 @@ export function MemberDashboard() {
     } catch (error) {
       setBillingRecovery(true);
       setMessage(error instanceof BillingTimeoutError
-        ? t("This is taking longer than expected. Open your workspace to check your membership before trying again.", "این کار بیش از حد انتظار طول کشیده است. پیش از تلاش دوباره، فضای کاری خود را باز کنید و وضعیت عضویت را بررسی کنید.")
+        ? t("This is taking longer than expected. Open your workspace to check your website subscription before trying again.", "این کار بیش از حد انتظار طول کشیده است. پیش از تلاش دوباره، فضای کاری خود را باز کنید و وضعیت اشتراک وب‌سایت را بررسی کنید.")
         : error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
     } finally {
       setBillingBusy(false);
@@ -272,7 +273,7 @@ export function MemberDashboard() {
             {account.analyticsOwner && <a className="button button-small button-outline" href="/app/site-analytics"><BarChart3 size={15} />{t("Website audience report", "گزارش مخاطبان وب‌سایت")}</a>}
             <div className={`membership-status${account.membershipActive ? "" : " inactive"}`}>
               {account.membershipActive ? <ShieldCheck size={16} /> : <CircleDollarSign size={16} />}
-              {account.membershipActive ? t("Membership active", "عضویت فعال") : t("Membership inactive", "عضویت غیرفعال")}
+              {account.membershipActive ? t("Website subscription active", "اشتراک وب‌سایت فعال") : t("Website subscription inactive", "اشتراک وب‌سایت غیرفعال")}
             </div>
           </div>
         </div>
@@ -283,16 +284,17 @@ export function MemberDashboard() {
           <div className="membership-gate-grid">
             <section className="dashboard-card membership-gate-card">
               <div className="membership-gate-icon"><LockKeyhole size={26} /></div>
-              <span>{t("Membership required", "عضویت لازم است")}</span>
-              <h2>{t("Activate your membership to open the private inventory tools.", "برای باز کردن ابزارهای خصوصی ترازنامه، عضویت خود را فعال کنید.")}</h2>
+              <span>{t("Website subscription required", "اشتراک وب‌سایت لازم است")}</span>
+              <h2>{t("Activate your website subscription to open the private inventory tools.", "برای باز کردن ابزارهای خصوصی ترازنامه، اشتراک وب‌سایت خود را فعال کنید.")}</h2>
               <p>{t("Step 10, reusable Step 4 workbooks, analytics, the recovery learning center, saving, sharing, copying, and exporting are available after payment. If checkout is closed without payment, the account remains securely reserved but the tools stay locked.", "گام ۱۰، دفترهای قابل ویرایش گام ۴، تحلیل‌ها، مرکز آموزش بهبودی، ذخیره، اشتراک‌گذاری، کپی و خروجی پس از پرداخت در دسترس هستند. اگر پرداخت را بدون تکمیل ببندید، حساب شما محفوظ می‌ماند اما ابزارها قفل می‌مانند.")}</p>
+              <p className="fine-print">{subscriptionGuidance(t)}</p>
               <div className="membership-price"><strong>$25</strong><span>{t("per year", "در سال")}</span></div>
               <div className="promotion-code-field">
                 <label htmlFor="membership-promotion-code">{t("Promotion code (optional)", "کد تخفیف (اختیاری)")}</label>
                 <input id="membership-promotion-code" className="form-input" value={promotionCode} onChange={(event) => setPromotionCode(event.target.value)} autoComplete="off" placeholder={t("Enter code", "کد را وارد کنید")} />
                 <p>{t("Enter a 100%-off forever code here to activate without payment or billing details. Other discounts open secure Stripe checkout for the remaining balance.", "برای فعال‌سازی بدون پرداخت یا اطلاعات صورتحساب، کد تخفیف دائمی ۱۰۰٪ را اینجا وارد کنید. تخفیف‌های دیگر برای پرداخت مبلغ باقی‌مانده، پرداخت امن Stripe را باز می‌کنند.")}</p>
               </div>
-              <button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={17} />{billingBusy ? (promotionCode.trim() ? t("Applying code…", "در حال اعمال کد…") : t("Opening secure checkout…", "در حال باز کردن پرداخت امن…")) : t("Activate membership", "فعال‌سازی عضویت")}</button>
+              <button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={17} />{billingBusy ? (promotionCode.trim() ? t("Applying code…", "در حال اعمال کد…") : t("Opening secure checkout…", "در حال باز کردن پرداخت امن…")) : t("Activate website subscription", "فعال‌سازی اشتراک وب‌سایت")}</button>
               {account.hasBillingProfile && <button className="button button-outline button-full" type="button" onClick={() => openBilling("portal")} disabled={billingBusy}><RefreshCw size={16} />{t("Manage existing billing", "مدیریت پرداخت موجود")}</button>}
               <p className="fine-print">{t("Renews yearly until canceled. Cancel any time through Stripe.", "تا زمان لغو، سالانه تمدید می‌شود. هر زمان از طریق Stripe لغو کنید.")}</p>
             </section>
@@ -321,13 +323,14 @@ export function MemberDashboard() {
             </section>}
 
             <section className="dashboard-card membership-card">
-              <h3>{t("Membership", "عضویت")}</h3>
+              <h3>{t("Subscription", "اشتراک")}</h3>
               <p>{account.membershipActive ? t("Your inventories can be saved privately.", "ترازنامه‌های شما به‌صورت خصوصی ذخیره می‌شوند.") : t("Saved inventories remain available to review. Renew to save new changes.", "ترازنامه‌های ذخیره‌شده برای مرور در دسترس می‌مانند. برای ذخیره تغییرات جدید، تمدید کنید.")}</p>
+              <p className="fine-print">{subscriptionGuidance(t)}</p>
               <div className="membership-price"><strong>$25</strong><span>{t("per year", "در سال")}</span></div>
               {account.membershipActive || account.hasBillingProfile ? (
                 <button className="button button-outline button-full" type="button" onClick={() => openBilling("portal")} disabled={billingBusy}><RefreshCw size={16} />{t("Manage or cancel", "مدیریت یا لغو")}</button>
               ) : (
-                <button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={16} />{t("Activate membership", "فعال‌سازی عضویت")}</button>
+                <button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={16} />{t("Activate website subscription", "فعال‌سازی اشتراک وب‌سایت")}</button>
               )}
               <p className="fine-print">{t("Auto-renews yearly until canceled. Stripe may retain the billing details required to process payment.", "تا زمان لغو، سالانه به‌طور خودکار تمدید می‌شود. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را نگه دارد.")}</p>
             </section>
