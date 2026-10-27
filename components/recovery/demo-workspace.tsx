@@ -80,10 +80,10 @@ export function DemoWorkspace() {
     <div className="workspace-shell">
       <div className="workspace-tabs" role="tablist" aria-label={t("Choose an inventory", "انتخاب ترازنامه")}>
         <button className={`workspace-tab${activeStep === "10" ? " is-active" : ""}`} type="button" onClick={() => chooseStep("10")} role="tab" aria-selected={activeStep === "10"}>
-          <MoonStar size={17} />{t("Step 10 nightly", "گام ۱۰ شبانه")}
+          <MoonStar size={17} /><span>{t("Step 10 Daily Inventory", "ترازنامه روزانه گام دهم")}</span>
         </button>
         <button className={`workspace-tab${activeStep === "4" ? " is-active" : ""}`} type="button" onClick={() => chooseStep("4")} role="tab" aria-selected={activeStep === "4"}>
-          <BookOpenText size={17} />{t("Step 4 inventory", "ترازنامه گام ۴")}
+          <BookOpenText size={17} /><span>{t("Step 4 Personal Inventory", "ترازنامه شخصی گام چهارم")}</span>
         </button>
         <button className={`workspace-tab${activeStep === "analytics" ? " is-active" : ""}`} type="button" onClick={() => chooseStep("analytics")} role="tab" aria-selected={activeStep === "analytics"}>
           <BarChart3 size={17} />{t("Step 10 analytics", "تحلیل گام ۱۰")}

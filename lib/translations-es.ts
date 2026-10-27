@@ -471,6 +471,7 @@ export const spanishTranslations: Record<string, string> = {
   "Start where you are.": "Comienza donde estás.",
   "Step 10": "Paso 10",
   "Step 10 Daily Inventory": "Inventario diario del Paso 10",
+  "Step 4 Personal Inventory": "Inventario personal del Paso 4",
   "Step 10 nightly": "Paso 10 nocturno",
   "Step 4": "Paso 4",
   "Step 4 inventory": "Inventario del Paso 4",

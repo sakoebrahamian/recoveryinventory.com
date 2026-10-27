@@ -347,8 +347,8 @@ export function MemberDashboard() {
             <div className="member-inventory-tools">
               {activeType === "step10" && <button className="button button-outline inventory-export-trigger" type="button" onClick={() => exportRef.current?.open()}><FileDown size={17} />{t("Export Step 10", "خروجی گام ۱۰")}</button>}
               <div className="workspace-tabs member-workspace-tabs" role="tablist" aria-label={t("Choose a member tool", "انتخاب ابزار اعضا")}>
-                <button className={`workspace-tab${activeType === "step10" ? " is-active" : ""}`} type="button" onClick={() => switchTool("step10")} role="tab" aria-selected={activeType === "step10"}>10 <span>{t("Daily", "روزانه")}</span></button>
-                <button className={`workspace-tab${activeType === "step4" ? " is-active" : ""}`} type="button" onClick={() => switchTool("step4")} role="tab" aria-selected={activeType === "step4"}>4 <span>{t("Workbooks", "دفترها")}</span></button>
+                <button className={`workspace-tab${activeType === "step10" ? " is-active" : ""}`} type="button" onClick={() => switchTool("step10")} role="tab" aria-selected={activeType === "step10"}><span>{t("Step 10 Daily Inventory", "ترازنامه روزانه گام دهم")}</span></button>
+                <button className={`workspace-tab${activeType === "step4" ? " is-active" : ""}`} type="button" onClick={() => switchTool("step4")} role="tab" aria-selected={activeType === "step4"}><span>{t("Step 4 Personal Inventory", "ترازنامه شخصی گام چهارم")}</span></button>
                 <button className={`workspace-tab${activeType === "analytics" ? " is-active" : ""}`} type="button" onClick={() => switchTool("analytics")} role="tab" aria-selected={activeType === "analytics"}><BarChart3 size={16} /><span>{t("Analytics", "تحلیل")}</span></button>
                 <button className={`workspace-tab${activeType === "learning" ? " is-active" : ""}`} type="button" onClick={() => switchTool("learning")} role="tab" aria-selected={activeType === "learning"}><BookOpenText size={16} /><span>{t("Learn", "یادگیری")}</span></button>
               </div>
