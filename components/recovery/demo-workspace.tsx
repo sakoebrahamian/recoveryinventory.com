@@ -21,7 +21,7 @@ declare global {
 }
 
 export function DemoWorkspace() {
-  const { setLanguage, t } = useLanguage();
+  const { language, t } = useLanguage();
   const [activeStep, setActiveStep] = React.useState<"10" | "4" | "analytics" | "learning">("10");
   const [demoDraft, setDemoDraft] = React.useState<Step10Data>(() => createDemoStep10Data(t));
   const [reportPeriod, setReportPeriod] = React.useState(() => defaultReportPeriod(todayIso()));
@@ -39,15 +39,12 @@ export function DemoWorkspace() {
   }, []);
 
   React.useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const language = params.get("lang");
-    if (language === "en" || language === "es" || language === "fa") setLanguage(language);
-    const step = params.get("step");
+    const step = new URLSearchParams(window.location.search).get("step");
     if (step === "4" || step === "10" || step === "analytics" || step === "learning") {
       const timer = window.setTimeout(() => chooseStep(step), 0);
       return () => window.clearTimeout(timer);
     }
-  }, [chooseStep, setLanguage]);
+  }, [chooseStep]);
 
   React.useEffect(() => {
     const context = document.modelContext;
@@ -115,7 +112,7 @@ export function DemoWorkspace() {
           <p><small>{t("Renews annually until canceled.", "تا زمان لغو، سالانه تمدید می‌شود.")}</small></p>
         </header>
         <nav aria-labelledby="demo-membership-title">
-          <a className="button button-primary" href="/join">{t("Start my private journal · $25/year", "شروع دفتر خصوصی من · ۲۵ دلار در سال")}</a>
+          <a className="button button-primary" href={`/join?lang=${language}`}>{t("Start my private journal · $25/year", "شروع دفتر خصوصی من · ۲۵ دلار در سال")}</a>
         </nav>
       </section>
     </div>
