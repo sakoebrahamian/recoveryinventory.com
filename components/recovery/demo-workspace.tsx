@@ -21,7 +21,7 @@ declare global {
 }
 
 export function DemoWorkspace() {
-  const { t } = useLanguage();
+  const { setLanguage, t } = useLanguage();
   const [activeStep, setActiveStep] = React.useState<"10" | "4" | "analytics" | "learning">("10");
   const [demoDraft, setDemoDraft] = React.useState<Step10Data>(() => createDemoStep10Data(t));
   const [reportPeriod, setReportPeriod] = React.useState(() => defaultReportPeriod(todayIso()));
@@ -39,12 +39,15 @@ export function DemoWorkspace() {
   }, []);
 
   React.useEffect(() => {
-    const query = new URLSearchParams(window.location.search).get("step");
-    if (query === "4" || query === "10" || query === "analytics" || query === "learning") {
-      const timer = window.setTimeout(() => chooseStep(query), 0);
+    const params = new URLSearchParams(window.location.search);
+    const language = params.get("lang");
+    if (language === "en" || language === "es" || language === "fa") setLanguage(language);
+    const step = params.get("step");
+    if (step === "4" || step === "10" || step === "analytics" || step === "learning") {
+      const timer = window.setTimeout(() => chooseStep(step), 0);
       return () => window.clearTimeout(timer);
     }
-  }, [chooseStep]);
+  }, [chooseStep, setLanguage]);
 
   React.useEffect(() => {
     const context = document.modelContext;

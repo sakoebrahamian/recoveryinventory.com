@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import type { Language } from "@/lib/inventory";
 import type { LearningInventoryTemplate } from "@/lib/public-learning";
-import { useLanguage } from "./language-provider";
 
 export function Step10InventoryTemplate({
   template,
@@ -13,7 +12,6 @@ export function Step10InventoryTemplate({
   template: LearningInventoryTemplate;
   language: Language;
 }) {
-  const { setLanguage } = useLanguage();
   const [message, setMessage] = useState("");
 
   async function copyTemplate() {
@@ -50,7 +48,7 @@ export function Step10InventoryTemplate({
           </div>
         ))}
       </dl>
-      <a className="button button-primary" href="/demo?step=10" onClick={() => setLanguage(language)}>
+      <a className="button button-primary" href={`/demo?step=10&lang=${language}`}>
         {template.demoLabel}
       </a>
     </section>
