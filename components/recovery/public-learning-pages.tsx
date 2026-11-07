@@ -24,6 +24,7 @@ import {
 import { AnalyticsFeatureGuide } from "./analytics-feature-guide";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
+import { Step10InventoryTemplate } from "./step10-inventory-template";
 
 const articleUi: Record<Language, {
   back: string;
@@ -187,6 +188,10 @@ export function PublicLearningArticlePage({
 
         <div className="public-learning-article-layout">
           <div className="public-learning-article-body">
+            {copy.inventoryTemplate && (
+              <Step10InventoryTemplate template={copy.inventoryTemplate} language={language} />
+            )}
+
             <section className="public-learning-context">
               <h2>{copy.contextTitle}</h2>
               {copy.contextParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}

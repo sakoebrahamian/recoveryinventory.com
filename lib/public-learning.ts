@@ -7,12 +7,23 @@ export type LearningStage = {
   points: string[];
 };
 
+export type LearningInventoryTemplate = {
+  title: string;
+  copyLabel: string;
+  copied: string;
+  copyUnavailable: string;
+  exampleTitle: string;
+  demoLabel: string;
+  rows: { prompt: string; example: string }[];
+};
+
 export type LearningArticleCopy = {
   eyebrow: string;
   title: string;
   description: string;
   summary: string;
   lead: string;
+  inventoryTemplate?: LearningInventoryTemplate;
   contextTitle: string;
   contextParagraphs: string[];
   stagesTitle: string;
@@ -101,10 +112,24 @@ export const publicLearningTopics: PublicLearningTopic[] = [
     copy: {
       en: {
         eyebrow: "Daily reflection guide",
-        title: "Using our journal for Step 10 reflection",
-        description: "A practical guide to reviewing the day, recognizing patterns, practicing recovery principles, and choosing a grounded next action.",
+        title: "Step 10 Daily Inventory Template and Example",
+        description: "Copy a short Step 10 daily inventory template, read a filled-in example, and try the free interactive demo.",
         summary: "Use a short, honest review to notice what happened, own your part, recognize practiced principles, and choose one useful action for tomorrow.",
         lead: "A daily Step 10 inventory is a brief review of the day—not a trial and not a demand for perfection. Its purpose is to notice patterns while they are still fresh, take responsibility where it belongs, and keep helpful principles active in ordinary life.",
+        inventoryTemplate: {
+          title: "A short daily inventory you can copy",
+          copyLabel: "Copy template",
+          copied: "Template copied.",
+          copyUnavailable: "Select the questions and copy them manually.",
+          exampleTitle: "Filled-in example",
+          demoLabel: "Try the free Step 10 demo",
+          rows: [
+            { prompt: "What happened today?", example: "I interrupted a friend while they were telling me about their day." },
+            { prompt: "What did I handle well?", example: "I noticed it, paused, and let them finish." },
+            { prompt: "What needs my attention?", example: "I was thinking about what I wanted to say and had trouble listening." },
+            { prompt: "What is one action I can take next?", example: "Tomorrow I'll check in and acknowledge that I interrupted." },
+          ],
+        },
         contextTitle: "A review, not a verdict",
         contextParagraphs: [
           "The most useful inventory stays specific. Instead of deciding that the whole day was good or bad, look at particular moments: what happened, what you felt, what you did, and what effect followed.",
@@ -132,10 +157,24 @@ export const publicLearningTopics: PublicLearningTopic[] = [
       },
       es: {
         eyebrow: "Guía de reflexión diaria",
-        title: "Cómo usar nuestro diario para reflexionar sobre el Paso 10",
-        description: "Una guía práctica para revisar el día, reconocer patrones, practicar principios de recuperación y elegir una próxima acción realista.",
+        title: "Plantilla y ejemplo de inventario diario del Paso 10",
+        description: "Copia una plantilla breve de inventario diario del Paso 10, lee un ejemplo completo y prueba la demostración interactiva gratuita.",
         summary: "Usa una revisión breve y honesta para observar lo ocurrido, asumir tu parte, reconocer los principios practicados y elegir una acción útil para mañana.",
         lead: "Un inventario diario del Paso 10 es una revisión breve del día, no un juicio ni una exigencia de perfección. Su propósito es observar los patrones mientras están recientes, asumir la responsabilidad que corresponde y mantener activos los principios útiles en la vida cotidiana.",
+        inventoryTemplate: {
+          title: "Una plantilla breve para tu inventario diario",
+          copyLabel: "Copiar plantilla",
+          copied: "Plantilla copiada.",
+          copyUnavailable: "Selecciona las preguntas y cópialas manualmente.",
+          exampleTitle: "Ejemplo completado",
+          demoLabel: "Probar gratis la demostración del Paso 10",
+          rows: [
+            { prompt: "¿Qué ocurrió hoy?", example: "Interrumpí a alguien cercano mientras me contaba cómo le había ido el día." },
+            { prompt: "¿Qué manejé bien?", example: "Me di cuenta, hice una pausa y dejé que terminara." },
+            { prompt: "¿Qué necesita mi atención?", example: "Estaba pensando en lo que quería decir y me costó escuchar." },
+            { prompt: "¿Qué acción puedo tomar ahora?", example: "Mañana hablaré con esa persona y reconoceré que la interrumpí." },
+          ],
+        },
         contextTitle: "Una revisión, no un veredicto",
         contextParagraphs: [
           "El inventario más útil es específico. En vez de decidir que todo el día fue bueno o malo, observa momentos concretos: qué ocurrió, qué sentiste, qué hiciste y qué efecto tuvo.",
@@ -163,10 +202,24 @@ export const publicLearningTopics: PublicLearningTopic[] = [
       },
       fa: {
         eyebrow: "راهنمای تأمل روزانه",
-        title: "استفاده از دفتر ما برای تأمل در گام دهم",
-        description: "راهنمایی عملی برای مرور روز، شناخت الگوها، تمرین اصول بهبودی و انتخاب یک اقدام واقع‌بینانه بعدی.",
+        title: "الگو و نمونهٔ ترازنامه روزانه گام دهم",
+        description: "یک الگوی کوتاه ترازنامه روزانه گام دهم را کپی کنید، نمونهٔ تکمیل‌شده را بخوانید و نسخهٔ آزمایشی رایگان را امتحان کنید.",
         summary: "با یک مرور کوتاه و صادقانه، اتفاق‌های روز و سهم خود را ببینید، اصول تمرین‌شده را بشناسید و یک اقدام مفید برای فردا انتخاب کنید.",
         lead: "ترازنامه روزانه گام دهم مرور کوتاهی از روز است؛ نه محاکمه و نه درخواست کمال. هدف آن دیدن الگوها در زمانی است که هنوز تازه‌اند، پذیرفتن مسئولیت در جای درست و زنده نگه داشتن اصول مفید در زندگی روزمره است.",
+        inventoryTemplate: {
+          title: "یک الگوی کوتاه برای ترازنامه روزانه",
+          copyLabel: "کپی الگو",
+          copied: "الگو کپی شد.",
+          copyUnavailable: "پرسش‌ها را انتخاب و کپی کنید.",
+          exampleTitle: "نمونهٔ تکمیل‌شده",
+          demoLabel: "نسخه آزمایشی رایگان گام دهم را امتحان کنید",
+          rows: [
+            { prompt: "امروز چه اتفاقی افتاد؟", example: "وقتی دوستم از روزش می‌گفت، حرفش را قطع کردم." },
+            { prompt: "چه کاری را خوب انجام دادم؟", example: "متوجه شدم، مکث کردم و گذاشتم حرفش را تمام کند." },
+            { prompt: "چه چیزی نیاز به توجه من دارد؟", example: "به چیزی که می‌خواستم بگویم فکر می‌کردم و خوب گوش نمی‌دادم." },
+            { prompt: "قدم بعدی من چه می‌تواند باشد؟", example: "فردا با دوستم صحبت می‌کنم و می‌پذیرم که حرفش را قطع کردم." },
+          ],
+        },
         contextTitle: "مرور، نه حکم",
         contextParagraphs: [
           "ترازنامه زمانی مفیدتر است که مشخص باشد. به جای خوب یا بد دانستن تمام روز، لحظه‌های معین را ببینید: چه اتفاقی افتاد، چه احساسی داشتید، چه کردید و چه اثری به دنبال داشت.",

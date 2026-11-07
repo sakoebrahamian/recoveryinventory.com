@@ -9631,6 +9631,18 @@ html[dir="rtl"] .ri-learning-preview {
   gap: 0.55rem;
 }
 
+.public-learning-cta.demo-membership-cta {
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.demo-membership-cta .button,
+.public-learning-template .button {
+  max-width: 100%;
+  line-height: 1.25;
+  text-align: center;
+}
+
 .public-learning-safety {
   display: flex;
   align-items: flex-start;
@@ -9837,6 +9849,35 @@ html[dir="rtl"] .ri-learning-preview {
   border-radius: 24px;
   background: #eaf4ef;
   padding: clamp(1.4rem, 4vw, 2rem);
+}
+
+.public-learning-template-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  color: var(--slate);
+}
+
+.public-learning-template h3 {
+  margin: 1.5rem 0 0.7rem;
+  font-size: 1.15rem;
+}
+
+.public-learning-template dl {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0 0 1.25rem;
+}
+
+.public-learning-template dt {
+  font-weight: 700;
+}
+
+.public-learning-template dd {
+  margin: 0.15rem 0 0;
+  color: var(--slate);
 }
 
 .public-learning-reflection {

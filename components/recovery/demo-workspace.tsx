@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BarChart3, BookOpenText, MoonStar } from "lucide-react";
+import { BarChart3, BookOpenText, MoonStar, ShieldCheck } from "lucide-react";
 import { Step10Analytics, createDemoAnalytics } from "./step10-analytics";
 import { Step10Inventory, createDemoStep10Data, type Step10Data } from "./step10-inventory";
 import { Step4Inventory } from "./step4-inventory";
@@ -104,6 +104,17 @@ export function DemoWorkspace() {
         </div>
       </section>}
       {activeStep === "10" ? <Step10Inventory demo initialData={demoDraft} onChange={setDemoDraft} onOpenLearning={() => chooseStep("learning")} reportPeriod={reportPeriod} onReportPeriodChange={setReportPeriod} /> : activeStep === "4" ? <Step4Inventory demo onOpenLearning={() => chooseStep("learning")} /> : activeStep === "analytics" ? <Step10Analytics demo selectedDay={demoDraft.date} onOpenDate={(date) => { const day = createDemoAnalytics(demoDraft, t).days.find((item) => item.date === date); if (day) setDemoDraft({ ...createDemoStep10Data(t), date, states: day.states as Step10Data["states"], attentionNotes: day.notes as Step10Data["attentionNotes"], ...day.reflections }); chooseStep("10"); }} reportInventory={demoDraft} reportPeriod={reportPeriod} onReportPeriodChange={setReportPeriod} /> : <RecoveryLearningCenter demo />}
+      <section className="public-learning-cta demo-membership-cta" aria-labelledby="demo-membership-title">
+        <div aria-hidden="true"><ShieldCheck size={25} /></div>
+        <header>
+          <h2 id="demo-membership-title">{t("Keep a private journal", "دفتر خصوصی خودتان را داشته باشید")}</h2>
+          <p>{t("Save your entries, see patterns over time, and choose what to share with your sponsor.", "نوشته‌های خود را ذخیره کنید، الگوها را در طول زمان ببینید و خودتان انتخاب کنید چه چیزی را با حامی‌تان به اشتراک بگذارید.")}</p>
+          <p><small>{t("Renews annually until canceled.", "تا زمان لغو، سالانه تمدید می‌شود.")}</small></p>
+        </header>
+        <nav aria-labelledby="demo-membership-title">
+          <a className="button button-primary" href="/join">{t("Start my private journal · $25/year", "شروع دفتر خصوصی من · ۲۵ دلار در سال")}</a>
+        </nav>
+      </section>
     </div>
   );
 }
