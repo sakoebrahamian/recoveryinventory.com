@@ -13,6 +13,20 @@ type LanguageContextValue = {
 
 export type LanguageRouteMap = Partial<Record<Language, string>>;
 
+const languagePreferenceKey = "ri-language";
+
+function supportedLanguage(value: string | null): Language | null {
+  return value === "en" || value === "es" || value === "fa" ? value : null;
+}
+
+function readStoredLanguage(): Language | null {
+  try {
+    return supportedLanguage(window.localStorage.getItem(languagePreferenceKey));
+  } catch {
+    return null;
+  }
+}
+
 export function translateForLanguage(language: Language, english: string, farsi: string) {
   return language === "fa"
     ? farsi
@@ -24,31 +38,48 @@ export function translateForLanguage(language: Language, english: string, farsi:
 const LanguageContext = React.createContext<LanguageContextValue | null>(null);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const language = React.useSyncExternalStore(
-    React.useCallback((onChange) => {
-      window.addEventListener("storage", onChange);
-      window.addEventListener("ri-language-change", onChange);
-      return () => {
-        window.removeEventListener("storage", onChange);
-        window.removeEventListener("ri-language-change", onChange);
-      };
-    }, []),
-    React.useCallback(() => {
-      const saved = window.localStorage.getItem("ri-language");
-      return saved === "fa" || saved === "es" ? saved : "en";
-    }, []),
-    React.useCallback(() => "en" as Language, []),
-  );
+  const [language, setCurrentLanguage] = React.useState<Language>("en");
+
+  const setLanguage = React.useCallback((next: Language) => {
+    setCurrentLanguage(next);
+    try {
+      window.localStorage.setItem(languagePreferenceKey, next);
+    } catch {
+      // The active page still supports language changes when storage is unavailable.
+    }
+  }, []);
+
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const { pathname, search } = window.location;
+      const requested = pathname === "/demo" || pathname === "/join"
+        ? supportedLanguage(new URLSearchParams(search).get("lang"))
+        : null;
+
+      if (requested) setLanguage(requested);
+      else {
+        const stored = readStoredLanguage();
+        if (stored) setCurrentLanguage(stored);
+      }
+    }, 0);
+
+    function syncStoredLanguage(event: StorageEvent) {
+      if (event.key === languagePreferenceKey || event.key === null) {
+        setCurrentLanguage(readStoredLanguage() ?? "en");
+      }
+    }
+
+    window.addEventListener("storage", syncStoredLanguage);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("storage", syncStoredLanguage);
+    };
+  }, [setLanguage]);
 
   React.useEffect(() => {
     document.documentElement.lang = language;
     document.documentElement.dir = language === "fa" ? "rtl" : "ltr";
   }, [language]);
-
-  const setLanguage = React.useCallback((next: Language) => {
-    window.localStorage.setItem("ri-language", next);
-    window.dispatchEvent(new Event("ri-language-change"));
-  }, []);
 
   const value = React.useMemo(
     () => ({
@@ -87,10 +118,10 @@ export function LanguageToggle({
   const language = languageOverride ?? contextLanguage;
 
   const chooseLanguage = (next: Language) => {
-    if (next !== language) recordSiteAction(`language_${next}`);
     setLanguage(next);
     const nextRoute = languageRoutes?.[next];
     if (nextRoute) window.location.assign(nextRoute);
+    if (next !== language) recordSiteAction(`language_${next}`);
   };
 
   return (
