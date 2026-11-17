@@ -11,7 +11,7 @@ An English, Farsi, and Spanish recovery inventory website built for Cloudflare W
 - A choice of anonymous accounts or verified email accounts
 - One-time email sign-in codes with no stored passwords
 - In-place conversion from anonymous to email access without moving member data
-- $25/year Stripe subscription flow with automatic renewal and self-service cancellation
+- $4.99/month or $25/year Stripe subscription flow with automatic renewal and self-service cancellation
 - Encrypted private inventory storage in Cloudflare D1
 - Selected-period member analytics with calendar comparisons, expandable question history, weekly/monthly trends, a recorded-day calendar, and searchable reflections
 - Focused sponsor reports with individually selected notes and an exact preview

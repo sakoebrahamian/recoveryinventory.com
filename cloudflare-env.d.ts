@@ -6,6 +6,7 @@ declare namespace Cloudflare {
     DATA_ENCRYPTION_KEY?: string;
     STRIPE_SECRET_KEY?: string;
     STRIPE_PRICE_ID?: string;
+    STRIPE_MONTHLY_PRICE_ID?: string;
     STRIPE_WEBHOOK_SECRET?: string;
     APP_ORIGIN?: string;
     EMAIL_FROM_ADDRESS?: string;

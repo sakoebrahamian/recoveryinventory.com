@@ -1,3 +1,5 @@
+import type { BillingPlan } from "./subscription-plans";
+
 export type BillingPath = "checkout" | "portal";
 
 export type BillingResult = {
@@ -18,7 +20,11 @@ export class BillingTimeoutError extends Error {
 export async function requestBilling(
   path: BillingPath,
   promotionCode?: string,
-  timeoutMs = 30_000,
+  { timeoutMs = 30_000, plan = "yearly", language = "en" }: {
+    timeoutMs?: number;
+    plan?: BillingPlan;
+    language?: "en" | "es" | "fa";
+  } = {},
 ): Promise<{ ok: boolean; result: BillingResult }> {
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -37,7 +43,7 @@ export async function requestBilling(
           signal: controller.signal,
           ...(path === "checkout" ? {
             headers: { "content-type": "application/json" },
-            body: JSON.stringify({ promotionCode: promotionCode?.trim() || undefined }),
+            body: JSON.stringify({ promotionCode: promotionCode?.trim() || undefined, plan, language }),
           } : {}),
         });
         const result = await response.json() as BillingResult;

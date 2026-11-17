@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers";
 import { signatureBytes, utf8 } from "./server-crypto";
+import { subscriptionPricing, type BillingPlan } from "./subscription-plans";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 
@@ -29,8 +30,42 @@ export async function stripeRequest<T>(
   return body;
 }
 
-export function stripePriceId(): string {
-  return secret("STRIPE_PRICE_ID");
+type StripePrice = {
+  id: string;
+  active: boolean;
+  currency: string;
+  unit_amount: number | null;
+  product: string | { id: string };
+  recurring: { interval: string; interval_count: number; usage_type: string } | null;
+};
+
+function validatePrice(price: StripePrice, plan: BillingPlan): void {
+  const interval = plan === "monthly" ? "month" : "year";
+  if (!price.active || price.currency !== "usd" || price.unit_amount !== subscriptionPricing[plan]
+    || price.recurring?.interval !== interval || price.recurring.interval_count !== 1
+    || price.recurring.usage_type !== "licensed") {
+    throw new Error(`The ${plan} subscription price is not configured correctly.`);
+  }
+}
+
+export async function stripePriceId(plan: BillingPlan = "yearly"): Promise<string> {
+  const yearly = await stripeRequest<StripePrice>(`/prices/${encodeURIComponent(secret("STRIPE_PRICE_ID"))}`);
+  validatePrice(yearly, "yearly");
+  if (plan === "yearly") return yearly.id;
+
+  const configured = env.STRIPE_MONTHLY_PRICE_ID?.trim();
+  const monthly = configured
+    ? await stripeRequest<StripePrice>(`/prices/${encodeURIComponent(configured)}`)
+    : (await stripeRequest<{ data: StripePrice[] }>(`/prices?${new URLSearchParams({
+      "lookup_keys[]": subscriptionPricing.monthlyLookupKey, active: "true", limit: "1",
+    })}`)).data[0];
+  if (!monthly) throw new Error("The monthly subscription price is not configured.");
+  validatePrice(monthly, "monthly");
+  const productId = (price: StripePrice) => typeof price.product === "string" ? price.product : price.product.id;
+  if (productId(monthly) !== productId(yearly)) {
+    throw new Error("The monthly and yearly prices must belong to the same website subscription.");
+  }
+  return monthly.id;
 }
 
 export function appOrigin(request: Request): string {

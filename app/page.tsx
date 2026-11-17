@@ -28,12 +28,15 @@ import { AnalyticsFeatureGuide } from "@/components/recovery/analytics-feature-g
 import { SiteFooter } from "@/components/recovery/site-footer";
 import { useLanguage } from "@/components/recovery/language-provider";
 import { questionWithPrinciple, step10Questions } from "@/lib/inventory";
+import { SubscriptionPlanPicker } from "@/components/recovery/subscription-plans";
+import type { BillingPlan } from "@/lib/subscription-plans";
 
 type PreviewMode = "step10" | "step4";
 
 export default function Home() {
   const { language, t } = useLanguage();
   const [previewMode, setPreviewMode] = useState<PreviewMode>("step10");
+  const [billingPlan, setBillingPlan] = useState<BillingPlan>("yearly");
   const arrowClass = language === "fa" ? "rotate-180" : "";
 
   const faqs = [
@@ -348,9 +351,9 @@ export default function Home() {
 
       <section className="ri-section ri-membership" id="membership">
         <div className="ri-membership-copy">
-          <span>{t("One clear website subscription", "یک اشتراک وب‌سایت روشن")}</span>
+          <span>{t("One website subscription, two ways to pay", "یک اشتراک وب‌سایت، دو روش پرداخت")}</span>
           <h2>{t("A full year of reflection for less than 50¢ a week.", "یک سال کامل تأمل، کمتر از ۵۰ سنت در هفته.")}</h2>
-          <p>{t("Daily Step 10, reusable Step 4 workbooks, the learning center, your ongoing history, and every sharing option are included. No confusing plans or upgrades.", "گام دهم روزانه، دفترهای قابل استفاده گام چهارم، مرکز آموزش، سابقه مداوم و همه گزینه‌های اشتراک‌گذاری شامل می‌شوند. بدون طرح‌ها یا ارتقاهای گیج‌کننده.")}</p>
+          <p>{t("Daily Step 10, reusable Step 4 workbooks, the learning center, your ongoing history, and every sharing option are included in both monthly and yearly subscriptions.", "گام دهم روزانه، دفترهای قابل استفاده گام چهارم، مرکز آموزش، سابقه مداوم و همه گزینه‌های اشتراک‌گذاری در هر دو اشتراک ماهانه و سالانه گنجانده شده‌اند.")}</p>
           <div className="ri-included">
             <span><NotebookPen size={18} />{t("Daily Step 10 and multiple editable Step 4 workbooks", "گام دهم روزانه و چندین دفتر قابل ویرایش گام چهارم")}</span>
             <span><CalendarDays size={18} />{t("Continuous year-by-year calendar", "تقویم پیوسته سال‌به‌سال")}</span>
@@ -362,10 +365,8 @@ export default function Home() {
         </div>
         <div className="ri-price-card">
           <p className="fine-print">{subscriptionGuidance(t)}</p>
-          <div className="ri-price-top"><span>{t("Annual website subscription", "اشتراک وب‌سایت سالانه")}</span><span>{t("Best value", "بهترین ارزش")}</span></div>
-          <div className="ri-price"><strong>$25</strong><span>/{t("year", "سال")}</span></div>
-          <p>{t("Renews annually until canceled.", "تا زمان لغو، سالانه تمدید می‌شود.")}</p>
-          <a href="/join" className="button button-primary button-large button-full">
+          <SubscriptionPlanPicker value={billingPlan} onChange={setBillingPlan} />
+          <a href={`/join?lang=${language}&plan=${billingPlan}`} className="button button-primary button-large button-full">
             {t("Choose my account type", "انتخاب نوع حساب من")}
             <ArrowRight className={arrowClass} size={18} />
           </a>

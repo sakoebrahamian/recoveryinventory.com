@@ -18,11 +18,23 @@ type CheckoutSession = {
   customer?: StripeReference;
   subscription?: StripeReference;
   metadata?: { user_id?: string };
+  payment_status?: string;
+};
+type StripeInvoice = {
+  id: string;
+  subscription?: StripeReference;
+  parent?: { type: string; subscription_details?: { subscription?: StripeReference } };
+};
+type StripeRiskObject = {
+  id: string;
+  charge?: StripeReference;
+  payment_intent?: StripeReference;
+  invoice?: StripeReference;
 };
 type StripeEvent = {
   id: string;
   type: string;
-  data: { object: CheckoutSession | StripeSubscription };
+  data: { object: CheckoutSession | StripeSubscription | StripeInvoice | StripeRiskObject };
 };
 
 function referenceId(value: StripeReference | undefined): string | null {
@@ -32,6 +44,54 @@ function referenceId(value: StripeReference | undefined): string | null {
 
 function periodEnd(subscription: StripeSubscription): number | null {
   return subscription.current_period_end ?? subscription.items?.data?.[0]?.current_period_end ?? null;
+}
+
+function invoiceSubscriptionId(invoice: StripeInvoice): string | null {
+  return referenceId(invoice.parent?.type === "subscription_details"
+    ? invoice.parent.subscription_details?.subscription : invoice.subscription);
+}
+
+async function refreshSubscription(id: string, fallbackUserId?: string | null) {
+  const subscription = await stripeRequest<StripeSubscription>(`/subscriptions/${encodeURIComponent(id)}`);
+  await applySubscription(subscription, fallbackUserId);
+}
+
+// Risk notifications are reconciled and recorded for owner review. They do not
+// cancel a customer's subscription or issue a refund automatically.
+async function reconcileRiskEvent(event: StripeEvent) {
+  const object = event.data.object as StripeRiskObject;
+  let paymentIntentId = referenceId(object.payment_intent);
+  let legacyInvoiceId = referenceId(object.invoice);
+  if (!paymentIntentId && referenceId(object.charge)) {
+    const charge = await stripeRequest<StripeRiskObject>(`/charges/${encodeURIComponent(referenceId(object.charge)!)}`);
+    paymentIntentId = referenceId(charge.payment_intent);
+    legacyInvoiceId = referenceId(charge.invoice);
+  }
+  const invoiceIds = new Set<string>(legacyInvoiceId ? [legacyInvoiceId] : []);
+  if (paymentIntentId) {
+    let startingAfter: string | undefined;
+    for (;;) {
+      const query = new URLSearchParams({
+        "payment[type]": "payment_intent", "payment[payment_intent]": paymentIntentId, status: "paid", limit: "100",
+      });
+      if (startingAfter) query.set("starting_after", startingAfter);
+      const page = await stripeRequest<{ data: Array<{ id: string; invoice: StripeReference }>; has_more: boolean }>(`/invoice_payments?${query}`);
+      for (const payment of page.data) {
+        const invoiceId = referenceId(payment.invoice);
+        if (invoiceId) invoiceIds.add(invoiceId);
+      }
+      if (!page.has_more || !page.data.length) break;
+      startingAfter = page.data[page.data.length - 1].id;
+    }
+  }
+  const subscriptionIds = new Set<string>();
+  for (const id of invoiceIds) {
+    const invoice = await stripeRequest<StripeInvoice>(`/invoices/${encodeURIComponent(id)}`);
+    const subscriptionId = invoiceSubscriptionId(invoice);
+    if (subscriptionId) subscriptionIds.add(subscriptionId);
+  }
+  for (const id of subscriptionIds) await refreshSubscription(id);
+  console.warn("Subscription billing event requires review", { eventId: event.id, type: event.type, subscriptionIds: [...subscriptionIds] });
 }
 
 async function applySubscription(subscription: StripeSubscription, fallbackUserId?: string | null) {
@@ -62,8 +122,11 @@ export async function POST(request: Request) {
       .bind(event.id).first<{ id: string }>();
     if (alreadyProcessed) return Response.json({ received: true, duplicate: true });
 
-    if (event.type === "checkout.session.completed") {
+    if (["checkout.session.completed", "checkout.session.async_payment_succeeded"].includes(event.type)) {
       const session = event.data.object as CheckoutSession;
+      if (session.payment_status !== "paid" && session.payment_status !== "no_payment_required") {
+        return Response.json({ received: true, awaitingPayment: true });
+      }
       const subscriptionId = referenceId(session.subscription);
       const userId = session.client_reference_id || session.metadata?.user_id || null;
       const customerId = referenceId(session.customer);
@@ -72,13 +135,19 @@ export async function POST(request: Request) {
           .bind(customerId, Math.floor(Date.now() / 1000), userId).run();
       }
       if (subscriptionId) {
-        const subscription = await stripeRequest<StripeSubscription>(`/subscriptions/${encodeURIComponent(subscriptionId)}`);
-        await applySubscription(subscription, userId);
+        await refreshSubscription(subscriptionId, userId);
       }
     }
 
     if (["customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted"].includes(event.type)) {
-      await applySubscription(event.data.object as StripeSubscription);
+      await refreshSubscription((event.data.object as StripeSubscription).id);
+    }
+    if (["invoice.paid", "invoice.payment_failed"].includes(event.type)) {
+      const subscriptionId = invoiceSubscriptionId(event.data.object as StripeInvoice);
+      if (subscriptionId) await refreshSubscription(subscriptionId);
+    }
+    if (["charge.refunded", "charge.dispute.created", "radar.early_fraud_warning.created"].includes(event.type)) {
+      await reconcileRiskEvent(event);
     }
     await env.DB.prepare(
       "INSERT OR IGNORE INTO billing_events (id, event_type, created_at) VALUES (?, ?, ?)",

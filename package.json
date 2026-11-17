@@ -14,7 +14,7 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "test:password-auth": "node scripts/test-password-auth.mjs",
     "test:step10": "node scripts/test-step10.mjs",
-    "test:billing": "node scripts/test-billing-client.mjs",
+    "test:billing": "node scripts/test-billing-client.mjs && node scripts/test-subscription-billing.mjs",
     "db:generate": "drizzle-kit generate",
     "test:analytics": "node scripts/test-analytics-detail.mjs"
   },

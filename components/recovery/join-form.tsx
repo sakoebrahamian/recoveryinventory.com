@@ -6,6 +6,8 @@ import { useLanguage } from "./language-provider";
 import { translatePasswordError } from "./password-error";
 import { recordSiteAction } from "@/lib/site-analytics";
 import { BillingTimeoutError, requestBilling } from "@/lib/billing-client";
+import { SubscriptionPlanPicker } from "./subscription-plans";
+import { isBillingPlan, type BillingPlan } from "@/lib/subscription-plans";
 
 type JoinMethod = "anonymous" | "email";
 
@@ -28,6 +30,15 @@ export function JoinForm() {
   const [promotionCode, setPromotionCode] = React.useState("");
   const [billingError, setBillingError] = React.useState("");
   const [busy, setBusy] = React.useState(false);
+  const [billingPlan, setBillingPlan] = React.useState<BillingPlan>("yearly");
+
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const plan = new URLSearchParams(window.location.search).get("plan");
+      if (isBillingPlan(plan)) setBillingPlan(plan);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   function chooseMethod(next: JoinMethod) {
     setMethod(next);
@@ -125,7 +136,7 @@ export function JoinForm() {
     setBusy(true);
     setBillingError("");
     try {
-      const { ok, result } = await requestBilling("checkout", promotionCode);
+      const { ok, result } = await requestBilling("checkout", promotionCode, { plan: billingPlan, language });
       if (!ok) throw new Error(result.error || t("Checkout is not available yet.", "پرداخت هنوز در دسترس نیست."));
       if (result.activated) {
         recordSiteAction("membership_activated");
@@ -165,6 +176,7 @@ export function JoinForm() {
 
   return (
     <div className="account-card dashboard-card">
+      <SubscriptionPlanPicker value={billingPlan} onChange={setBillingPlan} disabled={busy} />
       {!accountCreated && (
         <>
           <div className="account-card-header">
@@ -179,7 +191,6 @@ export function JoinForm() {
               <Mail size={20} /><span><strong>{t("Email account", "حساب ایمیلی")}</strong><small>{t("Email verification codes", "کدهای تأیید ایمیلی")}</small></span>
             </button>
           </div>
-          <div className="price-inline"><strong>$25</strong><span>{t("per year · auto-renews", "در سال · تمدید خودکار")}</span></div>
         </>
       )}
 

@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 import { hasActiveMembership, jsonError, requireAccount, type Account } from "@/lib/auth";
 import { appOrigin, stripePriceId, stripeRequest } from "@/lib/stripe";
+import { isBillingPlan, type BillingPlan } from "@/lib/subscription-plans";
 
 type CheckoutSession = { url: string | null };
 type StripeReference = string | { id: string } | null;
@@ -73,7 +74,7 @@ async function customerForAccount(account: Account): Promise<string> {
   return customer.id;
 }
 
-async function activateFreePromotion(account: Account, promotion: PromotionCode): Promise<Response> {
+async function activateFreePromotion(account: Account, promotion: PromotionCode, priceId: string, plan: BillingPlan): Promise<Response> {
   const restrictedCustomer = referenceId(promotion.customer);
   if (restrictedCustomer && restrictedCustomer !== account.stripeCustomerId) {
     throw Response.json({ error: "That promotion code is not available for this account." }, { status: 400 });
@@ -84,12 +85,13 @@ async function activateFreePromotion(account: Account, promotion: PromotionCode)
   try {
     subscription = await stripeRequest<StripeSubscription>("/subscriptions", {
       customer: customerId,
-      "items[0][price]": stripePriceId(),
+      "items[0][price]": priceId,
       "discounts[0][promotion_code]": promotion.id,
       payment_behavior: "error_if_incomplete",
       "metadata[user_id]": account.id,
+      "metadata[billing_plan]": plan,
     }, {
-      idempotencyKey: `ri-free-${account.id}-${promotion.id}-${account.subscriptionStatus}-${account.currentPeriodEnd ?? 0}`,
+      idempotencyKey: `ri-free-${account.id}-${promotion.id}-${plan}-${account.subscriptionStatus}-${account.currentPeriodEnd ?? 0}`,
     });
   } catch (error) {
     console.error("Free promotion activation failed", error instanceof Error ? error.message : "Unknown error");
@@ -113,27 +115,40 @@ export async function POST(request: Request) {
     if (hasActiveMembership(account)) {
       return Response.json({ error: "This account already has an active membership." }, { status: 409 });
     }
-    const body = await request.json().catch(() => ({})) as { promotionCode?: unknown };
+    const body = await request.json().catch(() => ({})) as { promotionCode?: unknown; plan?: unknown; language?: unknown } | null;
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return Response.json({ error: "Invalid billing request." }, { status: 400 });
+    }
+    if (body.plan !== undefined && !isBillingPlan(body.plan)) {
+      return Response.json({ error: "Choose a monthly or yearly billing plan." }, { status: 400 });
+    }
+    const plan = body.plan ?? "yearly";
+    const language = body.language ?? account.preferredLanguage;
+    const priceId = await stripePriceId(plan);
     const promotionCode = typeof body.promotionCode === "string" ? body.promotionCode.trim() : "";
     if (promotionCode.length > 100) {
       return Response.json({ error: "That promotion code is too long." }, { status: 400 });
     }
     const discount = promotionCode ? await promotionDetails(promotionCode) : null;
     if (discount?.coupon.percent_off === 100 && discount.coupon.duration === "forever") {
-      return await activateFreePromotion(account, discount.promotion);
+      return await activateFreePromotion(account, discount.promotion, priceId, plan);
     }
 
     const origin = appOrigin(request);
     const values: Record<string, string> = {
       mode: "subscription",
       payment_method_collection: "if_required",
-      "line_items[0][price]": stripePriceId(),
+      "line_items[0][price]": priceId,
       "line_items[0][quantity]": "1",
       client_reference_id: account.id,
       "metadata[user_id]": account.id,
+      "metadata[billing_plan]": plan,
       "subscription_data[metadata][user_id]": account.id,
+      "subscription_data[metadata][billing_plan]": plan,
+      locale: language === "es" ? "es" : language === "en" ? "en" : "auto",
+      integration_identifier: `ri-subscription-${Array.from(crypto.getRandomValues(new Uint8Array(8)), (n) => String.fromCharCode(97 + n % 26)).join("")}`,
       success_url: `${origin}/app?checkout=success`,
-      cancel_url: `${origin}/app?checkout=cancelled`,
+      cancel_url: `${origin}/app?checkout=cancelled&plan=${plan}`,
     };
     if (discount) values["discounts[0][promotion_code]"] = discount.promotion.id;
     else values.allow_promotion_codes = "true";

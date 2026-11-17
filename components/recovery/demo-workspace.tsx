@@ -109,10 +109,10 @@ export function DemoWorkspace() {
         <header>
           <h2 id="demo-membership-title">{t("Keep a private journal", "دفتر خصوصی خودتان را داشته باشید")}</h2>
           <p>{t("Save your entries, see patterns over time, and choose what to share with your sponsor.", "نوشته‌های خود را ذخیره کنید، الگوها را در طول زمان ببینید و خودتان انتخاب کنید چه چیزی را با حامی‌تان به اشتراک بگذارید.")}</p>
-          <p><small>{t("Renews annually until canceled.", "تا زمان لغو، سالانه تمدید می‌شود.")}</small></p>
+          <p><small>{t("Renews monthly or yearly, according to your choice. Cancel anytime.", "بر اساس انتخاب شما ماهانه یا سالانه تمدید می‌شود. هر زمان می‌توانید لغو کنید.")}</small></p>
         </header>
         <nav aria-labelledby="demo-membership-title">
-          <a className="button button-primary" href={`/join?lang=${language}`}>{t("Start my private journal · $25/year", "شروع دفتر خصوصی من · ۲۵ دلار در سال")}</a>
+          <a className="button button-primary" href={`/join?lang=${language}`}>{t("Start my private journal · $4.99/month or $25/year", "شروع دفتر خصوصی من · ماهانه ۴٫۹۹ دلار یا سالانه ۲۵ دلار")}</a>
         </nav>
       </section>
     </div>

@@ -120,10 +120,12 @@ The email service is used only for transactional account messages. Existing inco
 
 Keep Stripe in **test mode** until the entire checklist at the end works.
 
-### Create the yearly price
+### Create the monthly and yearly prices
 
 1. In Stripe, create a product named `Recovery Inventory Annual Membership`.
 2. Add a recurring price of **$25 USD every year**.
+3. On the same product, add **$4.99 USD every month** and set its lookup key to `standard_monthly`. Both prices must be active, in USD, and billed once per period. Keep the yearly price as the product default.
+4. Use a product name and description that cover both billing intervals, such as “Recovery Inventory Website Subscription.”
 3. Copy the Price ID beginning with `price_`.
 4. Copy your test secret API key beginning with `sk_test_`.
 
@@ -148,6 +150,12 @@ In Stripe’s Customer Portal settings:
    - `customer.subscription.created`
    - `customer.subscription.updated`
    - `customer.subscription.deleted`
+   - `checkout.session.async_payment_succeeded`
+   - `invoice.paid`
+   - `invoice.payment_failed`
+   - `charge.refunded`
+   - `charge.dispute.created`
+   - `radar.early_fraud_warning.created`
 
 3. Copy the webhook signing secret beginning with `whsec_`.
 
@@ -159,6 +167,7 @@ In the Worker’s **Settings → Variables and Secrets** build section, add each
 |---|---|
 | `STRIPE_SECRET_KEY` | Your `sk_test_...` key |
 | `STRIPE_PRICE_ID` | Your yearly `price_...` ID |
+| `STRIPE_MONTHLY_PRICE_ID` (optional) | Your monthly `price_...` ID; otherwise the app resolves lookup key `standard_monthly` in the same Stripe account |
 | `STRIPE_WEBHOOK_SECRET` | Your endpoint’s `whsec_...` secret |
 
 Save the changes and retry the build. The deployment command transfers the values to the live Worker.
@@ -189,7 +198,7 @@ Use an incognito/private browser window and complete these checks:
 - Email login sends a new one-time code and opens the correct member account.
 - An anonymous member can add a verified email from the member page and keep the same inventories, subscription, and history.
 - Closing Stripe Checkout without payment leaves all Step 10, Step 4, analytics, learning, share, copy, and export tools locked.
-- Stripe Checkout opens with the $25 yearly test subscription.
+- Stripe Checkout opens with $25/year when Yearly is selected and $4.99/month when Monthly is selected. The selected plan must survive signup and a canceled checkout.
 - A partial-discount promotion code entered on the member page opens Stripe Checkout and requires payment for the remaining balance.
 - A 100%-off **forever** promotion code entered on the member page activates membership without opening Checkout or requesting payment and billing details.
 - Stripe test card `4242 4242 4242 4242`, any future expiration, and any CVC completes checkout.
@@ -210,7 +219,7 @@ In Stripe, review **Developers → Webhooks → Recent deliveries**. Every deliv
 Only after testing:
 
 1. Activate your Stripe account and complete Stripe’s identity/business requirements.
-2. Create the same $25/year product in **live mode**.
+2. Create the same product with both $25/year and $4.99/month recurring prices in **live mode**, with lookup key `standard_monthly` on the monthly price.
 3. Create a new live webhook endpoint with the same URL and events.
 4. Replace the three Cloudflare Stripe secrets with the live `sk_live_...`, live `price_...`, and live `whsec_...` values.
 5. Deploy and make one real purchase, then refund it from Stripe if appropriate.
@@ -248,7 +257,7 @@ Confirm the D1 schema was run, the binding is named `DB`, and `DATA_ENCRYPTION_K
 
 ### Checkout does not open
 
-Confirm all three Stripe values are from the same mode—either all test or all live—and that the Price is recurring yearly.
+Confirm all three Stripe values are from the same mode—either all test or all live—and that the yearly Price is $25 USD every year. The monthly Price must be $4.99 USD every month on the same product; give it lookup key `standard_monthly` or configure `STRIPE_MONTHLY_PRICE_ID`.
 
 ### Payment succeeds but membership stays inactive
 
@@ -269,3 +278,7 @@ Do not generate a replacement encryption key. Restore the original `DATA_ENCRYPT
 - Stripe Checkout subscriptions: https://docs.stripe.com/payments/checkout/build-subscriptions
 - Stripe Customer Portal: https://docs.stripe.com/customer-management/integrate-customer-portal
 - Stripe webhooks: https://docs.stripe.com/webhooks
+
+### Billing verification
+
+Run `pnpm test:billing` and `node scripts/test-subscription-billing.mjs` before deploying billing changes. The server validates plan, amount, currency, billing interval, and shared product against Stripe. Customer Portal continues to manage cancellations and payment methods. Risk events reconcile current subscription state and are recorded in `billing_events` and Worker logs for owner review; they do not automatically refund or cancel.

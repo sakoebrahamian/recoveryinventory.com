@@ -10658,3 +10658,40 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
   html.pattern-summary-printing .pattern-summary-print-root { display: block !important; position: static; width: 100%; margin: 0; padding: 0; break-inside: avoid; }
   html.pattern-summary-printing .pattern-summary-print-root img { display: block; width: 100%; height: auto; max-height: 190mm; object-fit: contain; margin: 0 auto; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
+/* Shared subscription choice on the public, signup, and activation screens. */
+.subscription-plan-picker {
+  min-width: 0;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border: 0;
+  color: var(--ink, #173f3a);
+  text-align: start;
+}
+.subscription-plan-picker legend { padding: 0; font-size: 1.15rem; font-weight: 700; }
+.subscription-plan-picker .subscription-plan-intro { margin: .65rem 0 1rem; font-size: .88rem; line-height: 1.6; }
+.subscription-plan-options { display: grid; gap: .75rem; }
+.subscription-plan-option {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  padding: 1rem;
+  border: 2px solid #d4d8d0;
+  border-radius: 16px;
+  background: #fffdf9;
+  cursor: pointer;
+}
+.subscription-plan-option.is-selected { border-color: #216457; background: #edf5ef; }
+.subscription-plan-option:focus-within { outline: 3px solid #c89e4f; outline-offset: 3px; }
+.subscription-plan-option input { flex-shrink: 0; width: 1.15rem; height: 1.15rem; margin: .2rem 0 0; accent-color: #216457; }
+.subscription-plan-content { display: grid; gap: .4rem; min-width: 0; width: 100%; }
+.subscription-plan-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+.subscription-value-badge { border-radius: 20px; padding: .25rem .6rem; color: #173f3a; background: #f1dfaf; font-size: .72rem; font-weight: 700; }
+.subscription-plan-price { font-size: 1.85rem; font-weight: 700; line-height: 1.3; }
+.subscription-plan-price small { font-size: .85rem; font-weight: 400; }
+.subscription-plan-detail { font-size: .8rem; line-height: 1.6; }
+.subscription-savings { margin-top: .9rem; padding: 1rem; border-radius: 14px; background: #f4eddb; font-size: .88rem; line-height: 1.6; }
+.subscription-savings strong { display: block; color: #173f3a; }
+.subscription-savings .subscription-calculation { margin: .5rem 0; text-align: start; font-size: .9rem; font-variant-numeric: tabular-nums; }
+.subscription-savings small { display: block; font-size: .73rem; line-height: 1.6; }
+.subscription-plan-picker .subscription-renewal { margin: .8rem 0 0; font-size: .75rem; line-height: 1.7; }
+.subscription-plan-picker:disabled .subscription-plan-option { cursor: wait; opacity: .8; }

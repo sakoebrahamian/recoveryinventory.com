@@ -17,6 +17,8 @@ import { defaultReportPeriod } from "@/lib/step10-report-period";
 import { recordSiteAction } from "@/lib/site-analytics";
 import { subscriptionGuidance } from "@/lib/recovery-guidance";
 import { BillingTimeoutError, requestBilling } from "@/lib/billing-client";
+import { SubscriptionPlanPicker } from "./subscription-plans";
+import { isBillingPlan, type BillingPlan } from "@/lib/subscription-plans";
 
 type AccountView = {
   alias: string;
@@ -56,6 +58,15 @@ export function MemberDashboard() {
   const [billingBusy, setBillingBusy] = React.useState(false);
   const [billingRecovery, setBillingRecovery] = React.useState(false);
   const [promotionCode, setPromotionCode] = React.useState("");
+  const [billingPlan, setBillingPlan] = React.useState<BillingPlan>("yearly");
+
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const plan = new URLSearchParams(window.location.search).get("plan");
+      if (isBillingPlan(plan)) setBillingPlan(plan);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
   const exportRef = React.useRef<InventoryExportHandle>(null);
   const activationRecordedRef = React.useRef(false);
   const inventoriesLoadId = React.useRef(0);
@@ -202,7 +213,7 @@ export function MemberDashboard() {
     setBillingRecovery(false);
     setMessage("");
     try {
-      const { ok, result } = await requestBilling(path, promotionCode);
+      const { ok, result } = await requestBilling(path, promotionCode, { plan: billingPlan, language });
       if (!ok) throw new Error(result.error || t("Billing is not available yet.", "پرداخت هنوز در دسترس نیست."));
       if (result.activated) {
         recordSiteAction("membership_activated");
@@ -288,7 +299,7 @@ export function MemberDashboard() {
               <h2>{t("Activate your website subscription to open the private inventory tools.", "برای باز کردن ابزارهای خصوصی ترازنامه، اشتراک وب‌سایت خود را فعال کنید.")}</h2>
               <p>{t("Step 10, reusable Step 4 workbooks, analytics, the recovery learning center, saving, sharing, copying, and exporting are available after payment. If checkout is closed without payment, the account remains securely reserved but the tools stay locked.", "گام ۱۰، دفترهای قابل ویرایش گام ۴، تحلیل‌ها، مرکز آموزش بهبودی، ذخیره، اشتراک‌گذاری، کپی و خروجی پس از پرداخت در دسترس هستند. اگر پرداخت را بدون تکمیل ببندید، حساب شما محفوظ می‌ماند اما ابزارها قفل می‌مانند.")}</p>
               <p className="fine-print">{subscriptionGuidance(t)}</p>
-              <div className="membership-price"><strong>$25</strong><span>{t("per year", "در سال")}</span></div>
+              <SubscriptionPlanPicker value={billingPlan} onChange={setBillingPlan} disabled={billingBusy} />
               <div className="promotion-code-field">
                 <label htmlFor="membership-promotion-code">{t("Promotion code (optional)", "کد تخفیف (اختیاری)")}</label>
                 <input id="membership-promotion-code" className="form-input" value={promotionCode} onChange={(event) => setPromotionCode(event.target.value)} autoComplete="off" placeholder={t("Enter code", "کد را وارد کنید")} />
@@ -326,13 +337,14 @@ export function MemberDashboard() {
               <h3>{t("Subscription", "اشتراک")}</h3>
               <p>{account.membershipActive ? t("Your inventories can be saved privately.", "ترازنامه‌های شما به‌صورت خصوصی ذخیره می‌شوند.") : t("Saved inventories remain available to review. Renew to save new changes.", "ترازنامه‌های ذخیره‌شده برای مرور در دسترس می‌مانند. برای ذخیره تغییرات جدید، تمدید کنید.")}</p>
               <p className="fine-print">{subscriptionGuidance(t)}</p>
-              <div className="membership-price"><strong>$25</strong><span>{t("per year", "در سال")}</span></div>
+              <p>{t("Available plans: $4.99/month or $25/year.", "اشتراک‌های موجود: ماهانه ۴٫۹۹ دلار یا سالانه ۲۵ دلار.")}</p>
+              <p className="fine-print">{t("View your billing period and next payment in the billing portal.", "دوره پرداخت و پرداخت بعدی خود را در پنل پرداخت ببینید.")}</p>
               {account.membershipActive || account.hasBillingProfile ? (
                 <button className="button button-outline button-full" type="button" onClick={() => openBilling("portal")} disabled={billingBusy}><RefreshCw size={16} />{t("Manage or cancel", "مدیریت یا لغو")}</button>
               ) : (
                 <button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={16} />{t("Activate website subscription", "فعال‌سازی اشتراک وب‌سایت")}</button>
               )}
-              <p className="fine-print">{t("Auto-renews yearly until canceled. Stripe may retain the billing details required to process payment.", "تا زمان لغو، سالانه به‌طور خودکار تمدید می‌شود. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را نگه دارد.")}</p>
+              <p className="fine-print">{t("Renews automatically at your selected billing interval until canceled. Stripe may retain the billing details required to process payment.", "تا زمان لغو، بر اساس دوره پرداخت انتخابی شما به‌طور خودکار تمدید می‌شود. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را نگه دارد.")}</p>
             </section>
             <AddEmailAccess email={account.email} onConnected={(email) => setAccount((current) => current ? { ...current, email, hasEmailLogin: true } : current)} />
             <PasswordAccess username={account.username} onConfigured={(username) => setAccount((current) => current ? { ...current, username, hasPasswordLogin: true } : current)} />
