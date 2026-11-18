@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import type { Language } from "@/lib/inventory";
+import { inventoryGuideAllowance } from "@/lib/inventory-guide";
 import { translateForLanguage, useLanguage } from "./language-provider";
 
 export function InventoryGuideShowcase() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
 
   return (
     <section id="ai-guide" className="ri-section ri-ai-guide-showcase" aria-labelledby="ri-ai-guide-title">
@@ -19,6 +20,7 @@ export function InventoryGuideShowcase() {
           <div><dt>{t("Step 10", "گام ۱۰")}</dt><dd>{t("Review your day, notice progress, and consider a small next step.", "روزتان را مرور کنید، پیشرفت را ببینید و به یک گام کوچک بعدی فکر کنید.")}</dd></div>
         </dl>
         <p>{t("Available in English, Spanish, and Farsi. You choose what to send to AI.", "به زبان‌های انگلیسی، اسپانیایی و فارسی در دسترس است. خودتان انتخاب می‌کنید چه چیزی برای هوش مصنوعی بفرستید.")}</p>
+        <p>{inventoryGuideAllowance(language, t)}</p>
         <div className="ri-ai-guide-actions">
           <a className="button button-primary" href="#membership">{t("See membership plans", "مشاهده طرح‌های عضویت")}</a>
           <a className="text-link" href="/app">{t("Open member workspace", "باز کردن فضای اعضا")}</a>
@@ -72,7 +74,7 @@ function InventoryGuideMockChat() {
 }
 
 export function InventoryGuideNotice({ language, mockChat = false }: { language?: Language; mockChat?: boolean }) {
-  const { t: contextTranslate } = useLanguage();
+  const { language: contextLanguage, t: contextTranslate } = useLanguage();
   const t = language
     ? (english: string, farsi: string) => translateForLanguage(language, english, farsi)
     : contextTranslate;
@@ -83,6 +85,7 @@ export function InventoryGuideNotice({ language, mockChat = false }: { language?
       <div>
         <strong>{t("AI Inventory Guide", "راهنمای ترازنامه با هوش مصنوعی")}</strong>
         <p>{t("Monthly and yearly memberships include optional AI chat and guided questions for Step 4 and Step 10.", "اشتراک‌های ماهانه و سالانه شامل گفت‌وگوی اختیاری با هوش مصنوعی و پرسش‌های هدایت‌شده برای گام ۴ و گام ۱۰ هستند.")}</p>
+        <p>{inventoryGuideAllowance(language ?? contextLanguage, t)}</p>
       </div>
       {mockChat ? (
         <details className="inventory-guide-notice-example">

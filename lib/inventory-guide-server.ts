@@ -1,7 +1,9 @@
 import { z } from "zod";
 import usageSchema from "../cloudflare-d1-inventory-guide-setup.sql?raw";
 import {
+  inventoryGuideDailyMemberLimit,
   inventoryGuideHistoryLimit,
+  inventoryGuideMonthlySiteLimit,
   inventoryGuideNoteLimit,
   inventoryGuideReplyLimit,
   inventoryGuideTopics,
@@ -9,8 +11,6 @@ import {
 import { sha256 } from "./server-crypto";
 
 const requestLimit = 24 * 1024;
-const dailyMemberLimit = 10;
-const monthlySiteLimit = 5000;
 const model = "gpt-6-luna";
 const backupModel = "gpt-5.4-mini";
 const responseUrl = "https://api.openai.com/v1/responses";
@@ -87,7 +87,9 @@ export async function readInventoryGuideRequest(request: Request): Promise<Guide
   }
 }
 
-export async function reserveInventoryGuideRequest(db: D1Database, accountId: string, now = new Date()) {
+type GuideReservation = { allowed: true } | { allowed: false; limit: "daily" | "monthly"; resetAt: Date };
+
+export async function reserveInventoryGuideRequest(db: D1Database, accountId: string, now = new Date()): Promise<GuideReservation> {
   const day = now.toISOString().slice(0, 10);
   const month = day.slice(0, 7);
   const utcDate = new Date(day + "T00:00:00Z");
@@ -112,7 +114,7 @@ export async function reserveInventoryGuideRequest(db: D1Database, accountId: st
 
   const count = async () => db.batch([
     db.prepare("DELETE FROM inventory_guide_usage WHERE expires_at <= ?").bind(now.getTime()),
-    db.prepare(reserveSql).bind(memberBucket, dayEnd, siteBucket, monthEnd.getTime(), dailyMemberLimit, monthlySiteLimit),
+    db.prepare(reserveSql).bind(memberBucket, dayEnd, siteBucket, monthEnd.getTime(), inventoryGuideDailyMemberLimit, inventoryGuideMonthlySiteLimit),
   ]);
   const [, counted] = await count().catch(async (error: unknown) => {
     if (!(error instanceof Error) || !/no such table:\s+(?:main\.)?inventory_guide_usage\b/i.test(error.message)) throw error;
@@ -123,7 +125,13 @@ export async function reserveInventoryGuideRequest(db: D1Database, accountId: st
     return count();
   });
   if (!counted.success) throw new Error("Could not reserve a guide request.");
-  return counted.meta.changes === 2;
+  if (counted.meta.changes === 2) return { allowed: true };
+
+  const monthlyUsage = await db.prepare("SELECT request_count FROM inventory_guide_usage WHERE bucket = ?1")
+    .bind(siteBucket).first<number>("request_count");
+  return (monthlyUsage ?? 0) >= inventoryGuideMonthlySiteLimit
+    ? { allowed: false, limit: "monthly", resetAt: monthEnd }
+    : { allowed: false, limit: "daily", resetAt: new Date(dayEnd) };
 }
 
 type ProviderFailureReference = "AI-KEY" | "AI-ACCESS" | "AI-CREDITS" | "AI-RATE" | "AI-TIMEOUT" | "AI-REPLY" | "AI-CONNECT";

@@ -21,7 +21,10 @@ const db = {
       bind(...values) {
         const bindings = sql.includes("?1") ? [Object.fromEntries(values.map((value, index) => ["?" + (index + 1), value]))] : values;
         return {
-          first: async () => statement.get(...bindings) ?? null,
+          first: async (column) => {
+            const row = statement.get(...bindings);
+            return (column ? row?.[column] : row) ?? null;
+          },
           run: () => ({ success: true, meta: { changes: statement.run(...bindings).changes } }),
         };
       },
@@ -111,15 +114,27 @@ try {
   assert.match(sent[0].instructions, /Reply in Persian/);
   assert.deepEqual(JSON.parse(sent[0].input), { step: "Step 4", topic: "ترس", reflection: input.note });
 
-  sqlite.prepare("UPDATE inventory_guide_usage SET request_count = 9 WHERE bucket LIKE 'day:%'").run();
+  sqlite.prepare("UPDATE inventory_guide_usage SET request_count = 49 WHERE bucket LIKE 'day:%'").run();
   const nearDailyLimit = await Promise.all([ask(input, "member-a"), ask(input, "member-a")]);
   assert.deepEqual(nearDailyLimit.map((response) => response.status).sort(), [200, 429]);
+  const dailyBlocked = nearDailyLimit.find((response) => response.status === 429);
+  const dailyLimit = await dailyBlocked.json();
+  assert.equal(dailyLimit.error, "limit_reached");
+  assert.equal(dailyLimit.limit, "daily");
+  assert.match(dailyLimit.resetAt, /T00:00:00\.000Z$/);
+  assert.equal(dailyBlocked.headers.get("retry-after"), new Date(dailyLimit.resetAt).toUTCString());
+  assert.equal(sqlite.prepare("SELECT request_count FROM inventory_guide_usage WHERE bucket LIKE 'day:%'").get().request_count, 50);
   assert.equal(sqlite.prepare("SELECT request_count FROM inventory_guide_usage WHERE bucket LIKE 'month:%'").get().request_count, 2);
 
   sqlite.prepare("UPDATE inventory_guide_usage SET request_count = 4999 WHERE bucket LIKE 'month:%'").run();
   const step10 = { ...input, step: "step10", topic: "honesty", language: "es", note: "" };
   assert.equal((await ask(step10, "member-b")).status, 200);
-  assert.equal((await ask({ ...step10, language: "en" }, "member-b")).status, 429);
+  const monthlyBlocked = await ask({ ...step10, language: "en" }, "member-b");
+  assert.equal(monthlyBlocked.status, 429);
+  const monthlyLimit = await monthlyBlocked.json();
+  assert.equal(monthlyLimit.limit, "monthly");
+  assert.match(monthlyLimit.resetAt, /-01T00:00:00\.000Z$/);
+  assert.equal(monthlyBlocked.headers.get("retry-after"), new Date(monthlyLimit.resetAt).toUTCString());
   assert.equal(sent.length, 3);
   assert.match(sent[2].instructions, /Reply in Spanish/);
   assert.equal(JSON.parse(sent[2].input).step, "Step 10");

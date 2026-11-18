@@ -1,5 +1,10 @@
 export const spanishTranslations: Record<string, string> = {
   "AI Inventory Guide": "Guía de inventario con IA",
+  "Each member can send up to {daily} AI requests per day across both steps, both guide modes, and all languages. The site has a shared limit of {monthly} requests per month.": "Cada miembro puede enviar hasta {daily} solicitudes a la IA al día en total, entre ambos pasos, los dos modos de la guía y todos los idiomas. El sitio tiene un límite mensual compartido de {monthly} solicitudes.",
+  "The daily allowance resets at midnight UTC. Some failed requests count toward the limit.": "El límite diario se restablece a medianoche (UTC). Algunas solicitudes fallidas cuentan para el límite.",
+  "You’ve reached your daily limit for the AI guide.": "Has alcanzado el límite diario de la guía de IA.",
+  "The AI guide has reached the site’s monthly limit.": "La guía de IA alcanzó el límite mensual del sitio.",
+  "Try again after {time}.": "Vuelve a intentarlo después de {time}.",
   "AI Guide": "Guía de IA",
   "Included with membership": "Incluida con la suscripción",
   "Start a chat about what’s on your mind, or choose a topic in Guided Questions. The guide helps you reflect one question at a time.": "Empieza un chat sobre lo que tienes en mente o elige un tema en Preguntas guiadas. La guía te ayuda a reflexionar con una pregunta a la vez.",
