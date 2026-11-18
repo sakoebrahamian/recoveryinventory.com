@@ -15,3 +15,8 @@ declare namespace Cloudflare {
     ANALYTICS_ADMIN_EMAIL?: string;
   }
 }
+
+declare module "*.sql?raw" {
+  const source: string;
+  export default source;
+}

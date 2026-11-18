@@ -13,7 +13,7 @@ export function InventoryGuideShowcase() {
       <div className="ri-ai-guide-copy">
         <span className="ri-section-label"><Sparkles size={16} aria-hidden="true" />{t("Included with membership", "همراه با اشتراک")}</span>
         <h2 id="ri-ai-guide-title">{t("AI Inventory Guide", "راهنمای ترازنامه با هوش مصنوعی")}</h2>
-        <p>{t("When you’re unsure what to write, get one question to help you reflect. Choose a topic and share a short note if you want.", "اگر نمی‌دانید چه بنویسید، یک پرسش برای شروع تأمل دریافت کنید. موضوعی انتخاب کنید و اگر خواستید یادداشت کوتاهی بنویسید.")}</p>
+        <p>{t("Start a chat about what’s on your mind, or choose a topic in Guided Questions. The guide helps you reflect one question at a time.", "درباره چیزی که در ذهنتان است گفت‌وگو کنید یا در بخش «پرسش‌های هدایت‌شده» موضوعی را انتخاب کنید. راهنما هر بار با یک پرسش به تأمل شما کمک می‌کند.")}</p>
         <dl>
           <div><dt>{t("Step 4", "گام ۴")}</dt><dd>{t("Explore a resentment, fear, or relationship at your own pace.", "رنجش، ترس یا رابطه‌ای را با سرعت خودتان بررسی کنید.")}</dd></div>
           <div><dt>{t("Step 10", "گام ۱۰")}</dt><dd>{t("Review your day, notice progress, and consider a small next step.", "روزتان را مرور کنید، پیشرفت را ببینید و به یک گام کوچک بعدی فکر کنید.")}</dd></div>
@@ -82,7 +82,7 @@ export function InventoryGuideNotice({ language, mockChat = false }: { language?
       <Sparkles size={20} aria-hidden="true" />
       <div>
         <strong>{t("AI Inventory Guide", "راهنمای ترازنامه با هوش مصنوعی")}</strong>
-        <p>{t("Monthly and yearly members can get optional AI journaling prompts for Step 4 and Step 10.", "اعضای ماهانه و سالانه می‌توانند برای نوشتن ترازنامه گام ۴ و گام ۱۰ از پرسش‌های اختیاری هوش مصنوعی استفاده کنند.")}</p>
+        <p>{t("Monthly and yearly memberships include optional AI chat and guided questions for Step 4 and Step 10.", "اشتراک‌های ماهانه و سالانه شامل گفت‌وگوی اختیاری با هوش مصنوعی و پرسش‌های هدایت‌شده برای گام ۴ و گام ۱۰ هستند.")}</p>
       </div>
       {mockChat ? (
         <details className="inventory-guide-notice-example">
