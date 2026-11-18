@@ -2754,6 +2754,98 @@ html[dir="rtl"] .membership-gate-card h2 {
   color: var(--success);
 }
 
+.inventory-guide {
+  margin-block-end: 1rem;
+}
+
+.inventory-guide-form {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 48rem;
+  margin-block-start: 0.65rem;
+  padding: 1rem;
+  border: 1px solid rgba(13, 101, 113, 0.22);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.inventory-guide-form p {
+  margin: 0;
+}
+
+.inventory-guide-form .form-textarea {
+  min-height: 4.75rem;
+}
+
+.inventory-guide-privacy {
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.inventory-guide-privacy a {
+  text-decoration: underline;
+}
+
+.inventory-guide-reply {
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  background: var(--mist);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.inventory-guide-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.65rem 0.9rem;
+  width: min(1120px, calc(100% - 2rem));
+  margin: 1rem auto;
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(13, 101, 113, 0.22);
+  border-radius: 12px;
+  background: var(--mist);
+  color: var(--ink);
+}
+
+.inventory-guide-notice > svg {
+  margin-block-start: 0.12rem;
+  color: var(--ocean);
+}
+
+.inventory-guide-notice > div {
+  flex: 1 1 14rem;
+}
+
+.inventory-guide-notice p {
+  margin: 0.25rem 0 0;
+}
+
+.auth-copy .inventory-guide-notice {
+  width: 100%;
+}
+
+.inventory-guide-notice-example {
+  flex: 1 0 100%;
+}
+
+.inventory-guide-notice-example > summary {
+  color: var(--ocean);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.inventory-guide-notice-example > .ri-ai-guide-example {
+  margin-block-start: 0.75rem;
+}
+
+@media print {
+  .inventory-guide {
+    display: none !important;
+  }
+}
+
 .membership-status {
   display: flex;
   align-items: center;
@@ -4855,6 +4947,120 @@ html[dir="rtl"] .ri-floating-secure {
   padding: 120px 0;
 }
 
+.ri-hero-ai-link {
+  margin-block-start: 1rem;
+}
+
+.ri-ai-guide-showcase {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: clamp(1.5rem, 5vw, 4.5rem);
+  padding-block: clamp(1.75rem, 5vw, 4rem);
+  padding-inline: clamp(1.15rem, 5vw, 4rem);
+  border: 1px solid rgba(23, 63, 58, 0.15);
+  border-radius: 26px;
+  background: #fffdf9;
+  scroll-margin-top: 1.5rem;
+}
+
+.ri-ai-guide-copy {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.ri-ai-guide-copy h2,
+.ri-ai-guide-copy p,
+.ri-ai-guide-copy dl,
+.ri-ai-guide-copy dd,
+.ri-ai-guide-example p {
+  margin: 0;
+}
+
+.ri-ai-guide-copy h2 {
+  font-family: Georgia, serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 500;
+  line-height: 1.12;
+}
+
+.ri-ai-guide-copy dl {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.ri-ai-guide-copy dt {
+  font-weight: 800;
+}
+
+.ri-ai-guide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  align-items: center;
+  margin-block-start: 0.25rem;
+}
+
+.ri-ai-guide-example {
+  display: grid;
+  gap: 0.85rem;
+  min-width: 0;
+  margin: 0;
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border-radius: 18px;
+  background: var(--mist);
+  color: var(--ri-forest-deep);
+}
+
+.ri-ai-guide-example figcaption {
+  font-weight: 800;
+}
+
+.ri-ai-guide-example-options {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ri-ai-guide-example-options button {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid rgba(23, 63, 58, 0.24);
+  border-radius: 999px;
+  background: #fffdf9;
+  color: var(--ri-forest-deep);
+  font: inherit;
+  cursor: pointer;
+}
+
+.ri-ai-guide-example-options button.is-active {
+  background: var(--ri-forest-deep);
+  color: #fff;
+}
+
+.ri-ai-guide-example-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ri-ai-guide-example-exchange {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: #fffdf9;
+}
+
+.ri-ai-guide-example-exchange strong {
+  display: block;
+  margin-block-end: 0.15rem;
+  font-size: 0.84rem;
+}
+
+@media (max-width: 720px) {
+  .ri-ai-guide-showcase {
+    grid-template-columns: 1fr;
+  }
+}
+
 .ri-section-heading {
   max-width: 700px;
 }
@@ -5271,7 +5477,8 @@ html[dir="rtl"] .ri-floating-secure {
   margin-top: 1.5rem;
 }
 
-.ri-included span {
+.ri-included span,
+.ri-included a {
   display: flex;
   align-items: center;
   gap: 0.6rem;

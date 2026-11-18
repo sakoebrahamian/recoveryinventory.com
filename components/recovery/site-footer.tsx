@@ -27,6 +27,7 @@ export function SiteFooter({ language: languageOverride }: { language?: Language
         <div className="footer-links">
           <a href="/demo">{t("Demo", "نسخه آزمایشی")}</a>
           <a href={learnHref}>{t("Learn", "یادگیری")}</a>
+          <a href="/#ai-guide">{t("AI Inventory Guide", "راهنمای ترازنامه با هوش مصنوعی")}</a>
           <a href="/join">{t("Subscription", "اشتراک")}</a>
           <a href="/privacy">{t("Privacy", "حریم خصوصی")}</a>
           <a href="/terms">{t("Terms", "شرایط استفاده")}</a>

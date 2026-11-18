@@ -3,7 +3,7 @@ import { createPublicPageMetadata } from "@/lib/site-metadata";
 export const metadata = createPublicPageMetadata({
   title: "Interactive Demo",
   description:
-    "Preview 39 Step 10 daily questions across 24 principles, separate follow-up answers, principle labels, and matching charts, a reusable Step 4 workbook, personal analytics, and recovery learning guides.",
+    "Preview Step 4 workbooks, Step 10 daily inventories, personal analytics, and see how the AI Inventory Guide helps members reflect one question at a time.",
   path: "/demo",
 });
 

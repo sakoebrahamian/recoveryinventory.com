@@ -4,6 +4,7 @@ declare namespace Cloudflare {
     EMAIL: SendEmail;
     BUCKET?: R2Bucket;
     DATA_ENCRYPTION_KEY?: string;
+    OPENAI_API_KEY?: string;
     STRIPE_SECRET_KEY?: string;
     STRIPE_PRICE_ID?: string;
     STRIPE_MONTHLY_PRICE_ID?: string;

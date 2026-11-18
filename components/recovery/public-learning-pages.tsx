@@ -22,6 +22,7 @@ import {
   type PublicLearningTopic,
 } from "@/lib/public-learning";
 import { AnalyticsFeatureGuide } from "./analytics-feature-guide";
+import { InventoryGuideNotice } from "./inventory-guide-promo";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
 import { Step10InventoryTemplate } from "./step10-inventory-template";
@@ -151,6 +152,7 @@ export function PublicLearningHub({ language }: { language: Language }) {
       </section>
 
       <p className="public-learning-safety"><ShieldCheck size={16} /> {copy.safetyNote}</p>
+      <InventoryGuideNotice language={language} />
       <AnalyticsFeatureGuide language={language} compact />
       <SiteFooter language={language} />
     </main>
@@ -256,6 +258,7 @@ export function PublicLearningArticlePage({
         </div>
       </article>
 
+      {(topic.id === "step4" || topic.id === "step10") && <InventoryGuideNotice language={language} />}
       <AnalyticsFeatureGuide language={language} compact />
       <SiteFooter language={language} />
     </main>

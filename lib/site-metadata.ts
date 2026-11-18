@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const SITE_NAME = "Recovery Inventory";
 export const SITE_URL = "https://recoveryinventory.com";
 export const SITE_DESCRIPTION =
-  "Private, encrypted Step 4 workbooks and 39 Step 10 daily questions across 24 principles, separate follow-up answers, principle labels, matching inventory charts, recovery guidance, and anonymous or verified email membership.";
+  "Private Step 4 workbooks and Step 10 daily inventories with optional AI journaling guidance for members, charts, and sponsor reports in English, Spanish, and Farsi.";
 
 type PageMetadataOptions = {
   title: string;

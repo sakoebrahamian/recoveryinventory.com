@@ -19,6 +19,7 @@ import { subscriptionGuidance } from "@/lib/recovery-guidance";
 import { BillingTimeoutError, requestBilling } from "@/lib/billing-client";
 import { SubscriptionPlanPicker } from "./subscription-plans";
 import { isBillingPlan, type BillingPlan } from "@/lib/subscription-plans";
+import { InventoryGuide } from "./inventory-guide";
 
 type AccountView = {
   alias: string;
@@ -29,6 +30,7 @@ type AccountView = {
   subscriptionStatus: string;
   currentPeriodEnd: number | null;
   membershipActive: boolean;
+  inventoryGuideAvailable: boolean;
   hasBillingProfile: boolean;
   analyticsOwner: boolean;
 };
@@ -374,6 +376,9 @@ export function MemberDashboard() {
                 "پیش از تغییر تاریخ، ترک این صفحه یا باز کردن ابزار دیگری، حتماً ترازنامه خود را ذخیره کنید."
               )}
             </p>
+          )}
+          {account.inventoryGuideAvailable && (activeType === "step10" || activeType === "step4") && (
+            <InventoryGuide key={`${activeType}-${selectedDate}-${language}`} step={activeType} />
           )}
           <InventoryExport
             ref={exportRef}

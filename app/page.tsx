@@ -25,6 +25,7 @@ import {
 import { SiteHeader } from "@/components/recovery/site-header";
 import { originalFrameworkGuidance, subscriptionGuidance } from "@/lib/recovery-guidance";
 import { AnalyticsFeatureGuide } from "@/components/recovery/analytics-feature-guide";
+import { InventoryGuideShowcase } from "@/components/recovery/inventory-guide-promo";
 import { SiteFooter } from "@/components/recovery/site-footer";
 import { useLanguage } from "@/components/recovery/language-provider";
 import { questionWithPrinciple, step10Questions } from "@/lib/inventory";
@@ -68,6 +69,10 @@ export default function Home() {
     {
       question: t("Is Step 4 a daily inventory?", "آیا گام چهارم یک ترازنامه روزانه است؟"),
       answer: t("No. Our workbook for Step 4 reflection can be developed over time, saved, revisited, and edited. Marking the writing complete records the workbook’s status; review the work with your sponsor and follow your fellowship’s guidance.", "خیر. دفتر ما برای تأمل در گام چهارم را می‌توان به‌مرور نوشت، ذخیره، مرور و ویرایش کرد. علامت تکمیل نوشتن، وضعیت دفتر را ثبت می‌کند؛ نوشته‌ها را با حامی خود مرور کنید و از راهنمایی انجمن خود پیروی کنید."),
+    },
+    {
+      question: t("Who can use the AI Inventory Guide?", "چه کسانی می‌توانند از راهنمای ترازنامه با هوش مصنوعی استفاده کنند؟"),
+      answer: t("Both membership plans include the optional guide. Open Step 4 or Step 10 in your member workspace and choose Help me reflect with AI. You can request a question with or without a short note.", "راهنمای اختیاری در هر دو طرح عضویت گنجانده شده است. گام ۴ یا گام ۱۰ را در فضای اعضا باز کنید و «کمک هوش مصنوعی برای تأمل» را انتخاب کنید. می‌توانید با یادداشت کوتاه یا بدون آن پرسشی دریافت کنید."),
     },
     {
       question: t("Can I cancel at any time?", "آیا هر زمان می‌توانم لغو کنم؟"),
@@ -121,6 +126,7 @@ export default function Home() {
             <span><Globe2 size={17} />{t("English + Farsi + Spanish", "انگلیسی، فارسی و اسپانیایی")}</span>
             <span><CalendarDays size={17} />{t("Your history, year by year", "سابقه شما، سال‌به‌سال")}</span>
           </div>
+          <a className="text-link ri-hero-ai-link" href="#ai-guide"><Sparkles size={16} aria-hidden="true" />{t("Explore the AI guide for members", "آشنایی با راهنمای هوش مصنوعی اعضا")}</a>
         </div>
 
         <div className="ri-hero-demo">
@@ -277,6 +283,8 @@ export default function Home() {
         </div>
       </section>
 
+      <InventoryGuideShowcase />
+
       <section className="ri-section ri-learning-showcase" id="learning">
         <div className="ri-learning-copy">
           <span className="ri-section-label"><BookOpenText size={16} />{t("Recovery learning center", "مرکز آموزش بهبودی")}</span>
@@ -356,6 +364,7 @@ export default function Home() {
           <p>{t("Daily Step 10, reusable Step 4 workbooks, the learning center, your ongoing history, and every sharing option are included in both monthly and yearly subscriptions.", "گام دهم روزانه، دفترهای قابل استفاده گام چهارم، مرکز آموزش، سابقه مداوم و همه گزینه‌های اشتراک‌گذاری در هر دو اشتراک ماهانه و سالانه گنجانده شده‌اند.")}</p>
           <div className="ri-included">
             <span><NotebookPen size={18} />{t("Daily Step 10 and multiple editable Step 4 workbooks", "گام دهم روزانه و چندین دفتر قابل ویرایش گام چهارم")}</span>
+            <a href="#ai-guide"><Sparkles size={18} aria-hidden="true" />{t("Optional AI guide for Step 4 and Step 10", "راهنمای اختیاری هوش مصنوعی برای گام ۴ و گام ۱۰")}</a>
             <span><CalendarDays size={18} />{t("Continuous year-by-year calendar", "تقویم پیوسته سال‌به‌سال")}</span>
             <span><BarChart3 size={18} />{t("Detailed Step 10 analytics for selected dates", "تحلیل کامل گام ۱۰ برای تاریخ‌های انتخاب‌شده")}</span>
             <span><BookOpenText size={18} />{t("Patterns, behaviors, and principles learning center", "مرکز آموزش الگوها، رفتارها و اصول")}</span>
