@@ -152,7 +152,29 @@ try {
   assert.equal(blocked.status, 503);
   assert.deepEqual(await blocked.json(), { error: "unavailable", reference: "AI-ACCESS" });
 
-  console.log("Inventory guide checks passed (both modes, membership, consent, chat context, migration recovery, model fallback, provider references, and both request caps).");
+  const followUp = {
+    ...chat,
+    step: "step4",
+    language: "fa",
+    topic: "fear",
+    history: [{ role: "guide", text: "چه قدم کوچکی می‌توانید بردارید؟" }],
+    message: "می‌توانم از یک دوست کمک بگیرم.",
+  };
+  assert.equal((await ask({ ...followUp, topic: "honesty" }, "member-a")).status, 400);
+  assert.equal((await ask({ ...followUp, topic: undefined }, "member-a")).status, 400);
+  assert.equal((await ask({ ...followUp, history: [] }, "member-a")).status, 400);
+  assert.equal((await ask(followUp, "inactive")).status, 403);
+  assert.equal((await ask(followUp, "member-a")).status, 200);
+  assert.match(sent.at(-1).instructions, /Reply in Persian/);
+  assert.deepEqual(JSON.parse(sent.at(-1).input), {
+    step: "Step 4", topic: "ترس", recent_chat: followUp.history, latest_message: followUp.message,
+  });
+
+  const notedFollowUp = { ...followUp, history: [{ role: "member", text: input.note }, ...followUp.history] };
+  assert.equal((await ask(notedFollowUp, "member-a")).status, 200);
+  assert.deepEqual(JSON.parse(sent.at(-1).input).recent_chat, notedFollowUp.history);
+
+  console.log("Inventory guide checks passed (membership, consent, chat and guided follow-ups, migration recovery, provider handling, and both request caps).");
 } finally {
   globalThis.fetch = realFetch;
   delete globalThis.inventoryGuideTestEnv;

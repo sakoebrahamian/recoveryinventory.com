@@ -377,8 +377,8 @@ export function MemberDashboard() {
               )}
             </p>
           )}
-          {account.inventoryGuideAvailable && (activeType === "step10" || activeType === "step4") && (
-            <InventoryGuide key={`${activeType}-${selectedDate}-${language}`} step={activeType} />
+          {account.inventoryGuideAvailable && (
+            <InventoryGuide step={activeType === "step10" || activeType === "step4" ? activeType : null} date={selectedDate} language={language} />
           )}
           <InventoryExport
             ref={exportRef}

@@ -10,94 +10,78 @@ import {
   type InventoryGuideMessage,
   type InventoryGuideStep,
 } from "@/lib/inventory-guide";
-import { useLanguage } from "./language-provider";
+import { translateForLanguage } from "./language-provider";
 
-export function InventoryGuide({ step }: { step: InventoryGuideStep }) {
-  const { t } = useLanguage();
+type GuideMode = "chat" | "guided";
+type GuideTranslation = (english: string, farsi: string) => string;
+type GuideScope = { step: InventoryGuideStep; language: Language };
+
+export function InventoryGuide({ step, date, language }: { step: InventoryGuideStep | null; date: string; language: Language }) {
+  const t: GuideTranslation = (english, farsi) => translateForLanguage(language, english, farsi);
   const [open, setOpen] = React.useState(false);
-  const [mode, setMode] = React.useState<"chat" | "guided">("chat");
+  const [mode, setMode] = React.useState<GuideMode>("chat");
   const panelId = React.useId();
+  const scope = `${step}-${date}-${language}-${open}`;
 
   return (
-    <div className="inventory-guide">
+    <div className="inventory-guide" hidden={step === null} lang={language} dir={language === "fa" ? "rtl" : "ltr"}>
       <button
         type="button"
         className="button button-outline button-small"
         aria-expanded={open}
-        aria-controls={open ? panelId : undefined}
+        aria-controls={panelId}
         onClick={() => setOpen(!open)}
       >
         <Sparkles size={16} aria-hidden="true" />
         {open ? t("Close AI guide", "بستن راهنمای هوش مصنوعی") : t("Help me reflect with AI", "کمک هوش مصنوعی برای تأمل")}
       </button>
-      {open && (
-        <div id={panelId} className="inventory-guide-panel">
-          <div className="inventory-guide-modes" role="group" aria-label={t("AI guide mode", "روش استفاده از راهنمای هوش مصنوعی")}>
-            <button type="button" aria-pressed={mode === "chat"} onClick={() => setMode("chat")}>{t("Chat", "گفت‌وگو")}</button>
-            <button type="button" aria-pressed={mode === "guided"} onClick={() => setMode("guided")}>{t("Guided Questions", "پرسش‌های هدایت‌شده")}</button>
-          </div>
-          <div hidden={mode !== "chat"}><InventoryGuideChat step={step} /></div>
-          <div hidden={mode !== "guided"}><InventoryGuideForm step={step} /></div>
+      <div id={panelId} className="inventory-guide-panel" hidden={!open}>
+        <div className="inventory-guide-modes" role="group" aria-label={t("AI guide mode", "روش استفاده از راهنمای هوش مصنوعی")}>
+          <button type="button" aria-pressed={mode === "chat"} onClick={() => setMode("chat")}>{t("Chat", "گفت‌وگو")}</button>
+          <button type="button" aria-pressed={mode === "guided"} onClick={() => setMode("guided")}>{t("Guided Questions", "پرسش‌های هدایت‌شده")}</button>
         </div>
-      )}
+        <div hidden={mode !== "chat"}>
+          <InventoryGuideConversation step={step ?? "step10"} language={language} scope={scope} mode="chat" t={t} />
+        </div>
+        <div hidden={mode !== "guided"}>
+          <InventoryGuideConversation step={step ?? "step10"} language={language} scope={scope} mode="guided" t={t} />
+        </div>
+      </div>
     </div>
   );
 }
 
-type GuideInput = { step: InventoryGuideStep; language: Language } & (
-  { topic: string; note: string } | { message: string; history: InventoryGuideMessage[] }
+type GuideInput = GuideScope & (
+  { topic: string; note: string } | { message: string; history: InventoryGuideMessage[]; topic?: string }
 );
 type GuideIssue = { kind: "limit" | "unavailable" | "sign_in" | "membership_required" | "invalid_request"; reference?: string };
 
-function useGuideRequest() {
-  const [issue, setIssue] = React.useState<GuideIssue | null>(null);
-  const [busy, setBusy] = React.useState(false);
-  const pending = React.useRef<AbortController | null>(null);
-
-  React.useEffect(() => () => pending.current?.abort(), []);
-
-  async function send(input: GuideInput): Promise<string | null> {
-    if (pending.current) return null;
-
-    const controller = new AbortController();
-    pending.current = controller;
-    setBusy(true);
-    setIssue(null);
-    try {
-      const response = await fetch("/api/inventory-guide", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...input, consent: true }),
-        signal: controller.signal,
-      });
-      const result = await response.json().catch(() => null) as { reply?: unknown; error?: unknown; reference?: unknown } | null;
-      if (controller.signal.aborted) return null;
-      if (!response.ok) {
-        const reference = typeof result?.reference === "string" && /^AI-[A-Z]{2,12}$/.test(result.reference)
-          ? result.reference : undefined;
-        const kind = response.status === 429 ? "limit"
-          : response.status === 401 ? "sign_in"
-          : result?.error === "membership_required" ? "membership_required"
-          : result?.error === "invalid_request" ? "invalid_request" : "unavailable";
-        setIssue({ kind, reference });
-        return null;
-      }
-      if (typeof result?.reply !== "string" || !result.reply.trim()) throw new Error("Guide reply missing");
-      return result.reply;
-    } catch {
-      if (!controller.signal.aborted) setIssue({ kind: "unavailable" });
-      return null;
-    } finally {
-      pending.current = null;
-      if (!controller.signal.aborted) setBusy(false);
+async function requestGuideReply(input: GuideInput, signal: AbortSignal): Promise<{ reply: string } | { issue: GuideIssue }> {
+  try {
+    const response = await fetch("/api/inventory-guide", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...input, consent: true }),
+      signal,
+    });
+    const result = await response.json().catch(() => null) as { reply?: unknown; error?: unknown; reference?: unknown } | null;
+    if (!response.ok) {
+      const reference = typeof result?.reference === "string" && /^AI-[A-Z]{2,12}$/.test(result.reference)
+        ? result.reference : undefined;
+      const kind = response.status === 429 ? "limit"
+        : response.status === 401 ? "sign_in"
+        : result?.error === "membership_required" ? "membership_required"
+        : result?.error === "invalid_request" ? "invalid_request" : "unavailable";
+      return { issue: { kind, reference } };
     }
+    if (typeof result?.reply === "string" && result.reply.trim()) return { reply: result.reply };
+  } catch {
+    // The caller discards canceled requests.
   }
-
-  return { busy, issue, send, clearIssue: () => setIssue(null) };
+  return { issue: { kind: "unavailable" } };
 }
 
-function GuideIssueNotice({ issue }: { issue: GuideIssue | null }) {
-  const { t } = useLanguage();
+function GuideIssueNotice({ issue, t }: { issue: GuideIssue | null; t: GuideTranslation }) {
   if (!issue) return null;
 
   const copy = {
@@ -115,111 +99,105 @@ function GuideIssueNotice({ issue }: { issue: GuideIssue | null }) {
   );
 }
 
-function GuidePrivacyLink() {
-  const { t } = useLanguage();
-  return <a href="/privacy#ai-inventory-guide" target="_blank" rel="noopener noreferrer">{t("Privacy policy", "سیاست حریم خصوصی")}</a>;
+type GuideConversation = {
+  scope: string;
+  topic?: string;
+  draft: string;
+  history: InventoryGuideMessage[];
+  busy: boolean;
+  issue: GuideIssue | null;
+};
+
+function startConversation(scope: string, topic?: string): GuideConversation {
+  return { scope, topic, draft: "", history: [], busy: false, issue: null };
 }
 
-function InventoryGuideForm({ step }: { step: InventoryGuideStep }) {
-  const { language, t } = useLanguage();
+function InventoryGuideConversation({ step, language, scope, mode, t }: GuideScope & { scope: string; mode: GuideMode; t: GuideTranslation }) {
   const id = React.useId();
-  const topics = inventoryGuideTopics(step, language);
-  const [topic, setTopic] = React.useState(() => topics[0].id);
-  const [note, setNote] = React.useState("");
-  const [reply, setReply] = React.useState("");
-  const { busy, issue, send, clearIssue } = useGuideRequest();
-
-  async function askGuide(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (busy) return;
-    setReply("");
-    const question = await send({ step, language, topic, note });
-    if (question) setReply(question);
-  }
-
-  return (
-    <form className="inventory-guide-form" onSubmit={askGuide} aria-busy={busy}>
-      <label className="form-field" htmlFor={id + "-topic"}>
-        <span>{t("What would you like to reflect on?", "دوست دارید درباره چه چیزی تأمل کنید؟")}</span>
-        <select
-          id={id + "-topic"}
-          className="form-input"
-          value={topic}
-          disabled={busy}
-          onChange={(event) => { setTopic(event.target.value); setReply(""); clearIssue(); }}
-        >
-          {topics.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-        </select>
-      </label>
-      <label className="form-field" htmlFor={id + "-note"}>
-        <span>{t("A short note (optional)", "یادداشت کوتاه (اختیاری)")}</span>
-        <textarea
-          id={id + "-note"}
-          className="form-textarea"
-          rows={3}
-          maxLength={inventoryGuideNoteLimit}
-          value={note}
-          disabled={busy}
-          onChange={(event) => setNote(event.target.value)}
-          aria-describedby={id + "-privacy"}
-        />
-      </label>
-      <p id={id + "-privacy"} className="inventory-guide-privacy">
-        {t("When you select Send to AI, OpenAI receives the topic, language, and text in this box. You can leave it blank. Avoid names and identifying details.", "با انتخاب «ارسال به هوش مصنوعی»، موضوع، زبان و متن این کادر به OpenAI فرستاده می‌شود. می‌توانید کادر را خالی بگذارید. از نوشتن نام و اطلاعات هویتی خودداری کنید.")}{" "}
-        <GuidePrivacyLink />
-      </p>
-      <div>
-        <button className="button button-primary button-small" type="submit" disabled={busy}>
-          {busy ? t("Preparing a question…", "در حال آماده کردن پرسش…") : t("Send to AI", "ارسال به هوش مصنوعی")}
-        </button>
-      </div>
-      <div role="status">
-        {reply && <p dir="auto" className="inventory-guide-reply">{reply}</p>}
-      </div>
-      <GuideIssueNotice issue={issue} />
-    </form>
-  );
-}
-
-function InventoryGuideChat({ step }: { step: InventoryGuideStep }) {
-  const { language, t } = useLanguage();
-  const id = React.useId();
-  const [draft, setDraft] = React.useState("");
-  const [history, setHistory] = React.useState<InventoryGuideMessage[]>([]);
-  const { busy, issue, send } = useGuideRequest();
-  const thread = React.useRef<HTMLDivElement>(null);
+  const guided = mode === "guided";
+  const topics = guided ? inventoryGuideTopics(step, language) : [];
+  const [conversation, setConversation] = React.useState(() => startConversation(scope, topics[0]?.id));
+  if (conversation.scope !== scope) setConversation(startConversation(scope, topics[0]?.id));
+  const { topic, draft, history, busy, issue } = conversation;
+  const pending = React.useRef<AbortController | null>(null);
+  React.useLayoutEffect(() => () => {
+    pending.current?.abort();
+    pending.current = null;
+  }, [scope]);
+  const firstGuidedQuestion = topic !== undefined && history.length === 0;
   const starter = step === "step4"
     ? t("What is one experience or pattern you’d like to explore?", "دوست دارید کدام تجربه یا الگو را بررسی کنید؟")
     : t("What moment from today would you like to reflect on?", "دوست دارید به کدام لحظه از امروز فکر کنید؟");
-  const guideLabel = t("Guide", "راهنما");
-  const memberLabel = t("You", "شما");
-
-  React.useEffect(() => {
-    if (thread.current) thread.current.scrollTop = thread.current.scrollHeight;
-  }, [history.length]);
+  const messages: InventoryGuideMessage[] = guided ? history : [{ role: "guide", text: starter }, ...history];
+  const earlier = messages.slice(0, -2);
+  const recent = messages.slice(-2);
+  const messageLabel = firstGuidedQuestion
+    ? t("A short note (optional)", "یادداشت کوتاه (اختیاری)")
+    : guided ? t("Reply to the guide", "پاسخ به راهنما") : t("Your message", "پیام شما");
+  const privacy = firstGuidedQuestion
+    ? t("When you select Send to AI, OpenAI receives the topic, language, and text in this box. You can leave it blank. Avoid names and identifying details.", "با انتخاب «ارسال به هوش مصنوعی»، موضوع، زبان و متن این کادر به OpenAI فرستاده می‌شود. می‌توانید کادر را خالی بگذارید. از نوشتن نام و اطلاعات هویتی خودداری کنید.")
+    : guided
+      ? t("When you select Send to AI, OpenAI receives your reply, topic, recent messages, and language. Avoid names and identifying details.", "با انتخاب «ارسال به هوش مصنوعی»، پاسخ، موضوع، پیام‌های اخیر و زبان شما به OpenAI فرستاده می‌شود. از نوشتن نام و اطلاعات هویتی خودداری کنید.")
+      : t("When you select Send to AI, OpenAI receives your message, recent chat messages, and your language. Avoid names and identifying details.", "با انتخاب «ارسال به هوش مصنوعی»، پیام شما، پیام‌های اخیر گفت‌وگو و زبان شما به OpenAI فرستاده می‌شود. از نوشتن نام و اطلاعات هویتی خودداری کنید.");
 
   async function sendMessage(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const message = draft.trim();
-    if (busy || !message) return;
-    const answer = await send({ step, language, message, history: history.slice(-inventoryGuideHistoryLimit) });
-    if (!answer) return;
-    setHistory((previous) => [...previous, { role: "member", text: message }, { role: "guide", text: answer }]);
-    setDraft("");
+    if (pending.current || (!firstGuidedQuestion && !message)) return;
+
+    const controller = new AbortController();
+    pending.current = controller;
+    setConversation({ ...conversation, busy: true, issue: null });
+    const result = await requestGuideReply(firstGuidedQuestion
+      ? { step, language, topic, note: message }
+      : { step, language, topic, message, history: history.slice(-inventoryGuideHistoryLimit) }, controller.signal);
+    if (pending.current !== controller) return;
+    pending.current = null;
+
+    if ("issue" in result) {
+      setConversation({ ...conversation, busy: false, issue: result.issue });
+      return;
+    }
+    const turn: InventoryGuideMessage[] = [];
+    if (message) turn.push({ role: "member", text: message });
+    turn.push({ role: "guide", text: result.reply });
+    setConversation({ ...conversation, draft: "", history: [...history, ...turn], busy: false, issue: null });
+  }
+
+  function selectTopic(next: string) {
+    setConversation({ ...conversation, topic: next, draft: history.length ? "" : draft, history: [], issue: null });
+  }
+
+  function renderMessage(entry: InventoryGuideMessage, index: number) {
+    return (
+      <div className={"inventory-guide-message " + entry.role} key={index}>
+        <strong>{entry.role === "guide" ? t("Guide", "راهنما") : t("You", "شما")}</strong>
+        <p dir="auto">{entry.text}</p>
+      </div>
+    );
   }
 
   return (
     <form className="inventory-guide-form" onSubmit={sendMessage} aria-busy={busy}>
-      <div className="inventory-guide-thread" role="log" aria-label={t("Reflection chat", "گفت‌وگوی تأمل")} ref={thread}>
-        <div className="inventory-guide-message guide"><strong>{guideLabel}</strong><p dir="auto">{starter}</p></div>
-        {history.map((entry, index) => (
-          <div className={"inventory-guide-message " + entry.role} key={index}>
-            <strong>{entry.role === "guide" ? guideLabel : memberLabel}</strong><p dir="auto">{entry.text}</p>
-          </div>
-        ))}
+      {guided && (
+        <label className="form-field" htmlFor={id + "-topic"}>
+          <span>{t("What would you like to reflect on?", "دوست دارید درباره چه چیزی تأمل کنید؟")}</span>
+          <select id={id + "-topic"} className="form-input" value={topic} disabled={busy} onChange={(event) => selectTopic(event.target.value)}>
+            {topics.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+          </select>
+        </label>
+      )}
+      {earlier.length > 0 && (
+        <details className="inventory-guide-history">
+          <summary>{t("Earlier messages", "پیام‌های قبلی")}</summary>
+          <div className="inventory-guide-thread">{earlier.map(renderMessage)}</div>
+        </details>
+      )}
+      <div className={recent.length ? "inventory-guide-thread" : "sr-only"} role="log" aria-label={t("Reflection chat", "گفت‌وگوی تأمل")}>
+        {recent.map((entry, index) => renderMessage(entry, earlier.length + index))}
       </div>
       <label className="form-field" htmlFor={id + "-message"}>
-        <span>{t("Your message", "پیام شما")}</span>
+        <span>{messageLabel}</span>
         <textarea
           id={id + "-message"}
           className="form-textarea"
@@ -227,20 +205,20 @@ function InventoryGuideChat({ step }: { step: InventoryGuideStep }) {
           maxLength={inventoryGuideNoteLimit}
           value={draft}
           disabled={busy}
-          onChange={(event) => setDraft(event.target.value)}
+          onChange={(event) => setConversation({ ...conversation, draft: event.target.value })}
           aria-describedby={id + "-privacy"}
         />
       </label>
       <p id={id + "-privacy"} className="inventory-guide-privacy">
-        {t("When you select Send to AI, OpenAI receives your message, recent chat messages, and your language. Avoid names and identifying details.", "با انتخاب «ارسال به هوش مصنوعی»، پیام شما، پیام‌های اخیر گفت‌وگو و زبان شما به OpenAI فرستاده می‌شود. از نوشتن نام و اطلاعات هویتی خودداری کنید.")}{" "}
-        <GuidePrivacyLink />
+        {privacy}{" "}
+        <a href="/privacy#ai-inventory-guide" target="_blank" rel="noopener noreferrer">{t("Privacy policy", "سیاست حریم خصوصی")}</a>
       </p>
       <div>
-        <button className="button button-primary button-small" type="submit" disabled={busy || !draft.trim()}>
+        <button className="button button-primary button-small" type="submit" disabled={busy || (!firstGuidedQuestion && !draft.trim())}>
           {busy ? t("Preparing a question…", "در حال آماده کردن پرسش…") : t("Send to AI", "ارسال به هوش مصنوعی")}
         </button>
       </div>
-      <GuideIssueNotice issue={issue} />
+      <GuideIssueNotice issue={issue} t={t} />
     </form>
   );
 }
