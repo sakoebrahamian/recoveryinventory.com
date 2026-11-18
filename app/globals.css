@@ -2787,14 +2787,6 @@ html[dir="rtl"] .membership-gate-card h2 {
   text-decoration: underline;
 }
 
-.inventory-guide-reply {
-  padding: 0.85rem 1rem;
-  border-radius: 10px;
-  background: var(--mist);
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
 .inventory-guide-modes {
   display: flex;
   flex-wrap: wrap;
@@ -2819,10 +2811,19 @@ html[dir="rtl"] .membership-gate-card h2 {
 
 .inventory-guide-thread {
   display: grid;
-  align-content: start;
   gap: 0.6rem;
-  max-height: 23rem;
-  overflow-y: auto;
+}
+
+.inventory-guide-history > summary {
+  width: fit-content;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.inventory-guide-history > .inventory-guide-thread {
+  margin-block-start: 0.6rem;
 }
 
 .inventory-guide-message {
