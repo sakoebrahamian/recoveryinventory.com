@@ -2795,6 +2795,58 @@ html[dir="rtl"] .membership-gate-card h2 {
   overflow-wrap: anywhere;
 }
 
+.inventory-guide-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-block-start: 0.75rem;
+}
+
+.inventory-guide-modes button {
+  padding: 0.45rem 0.85rem;
+  border: 1px solid rgba(23, 63, 58, 0.24);
+  border-radius: 999px;
+  background: #fffdf9;
+  color: var(--ri-forest-deep);
+  font: inherit;
+  cursor: pointer;
+}
+
+.inventory-guide-modes button[aria-pressed="true"] {
+  background: var(--ri-forest-deep);
+  color: #fff;
+}
+
+.inventory-guide-thread {
+  display: grid;
+  align-content: start;
+  gap: 0.6rem;
+  max-height: 23rem;
+  overflow-y: auto;
+}
+
+.inventory-guide-message {
+  justify-self: start;
+  max-width: 92%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 12px;
+  background: var(--mist);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.inventory-guide-message.member {
+  justify-self: end;
+  background: #f3eee4;
+}
+
+.inventory-guide-message strong,
+.inventory-guide-issue small {
+  display: block;
+  margin-block: 0.15rem;
+  font-size: 0.82rem;
+}
+
 .inventory-guide-notice {
   display: flex;
   flex-wrap: wrap;

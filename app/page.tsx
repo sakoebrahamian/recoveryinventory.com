@@ -72,7 +72,7 @@ export default function Home() {
     },
     {
       question: t("Who can use the AI Inventory Guide?", "چه کسانی می‌توانند از راهنمای ترازنامه با هوش مصنوعی استفاده کنند؟"),
-      answer: t("Both membership plans include the optional guide. Open Step 4 or Step 10 in your member workspace and choose Help me reflect with AI. You can request a question with or without a short note.", "راهنمای اختیاری در هر دو طرح عضویت گنجانده شده است. گام ۴ یا گام ۱۰ را در فضای اعضا باز کنید و «کمک هوش مصنوعی برای تأمل» را انتخاب کنید. می‌توانید با یادداشت کوتاه یا بدون آن پرسشی دریافت کنید."),
+      answer: t("Both membership plans include the optional guide. In Step 4 or Step 10, select Help me reflect with AI, then choose Chat or Guided Questions.", "راهنمای اختیاری در هر دو طرح عضویت گنجانده شده است. در گام ۴ یا ۱۰، «کمک هوش مصنوعی برای تأمل» را باز کنید و «گفت‌وگو» یا «پرسش‌های هدایت‌شده» را انتخاب کنید."),
     },
     {
       question: t("Can I cancel at any time?", "آیا هر زمان می‌توانم لغو کنم؟"),
