@@ -4,6 +4,7 @@ import * as React from "react";
 import { Sparkles } from "lucide-react";
 import type { Language } from "@/lib/inventory";
 import {
+  inventoryGuideAllowance,
   inventoryGuideHistoryLimit,
   inventoryGuideNoteLimit,
   inventoryGuideTopics,
@@ -40,6 +41,10 @@ export function InventoryGuide({ step, date, language }: { step: InventoryGuideS
           <button type="button" aria-pressed={mode === "chat"} onClick={() => setMode("chat")}>{t("Chat", "گفت‌وگو")}</button>
           <button type="button" aria-pressed={mode === "guided"} onClick={() => setMode("guided")}>{t("Guided Questions", "پرسش‌های هدایت‌شده")}</button>
         </div>
+        <p className="inventory-guide-privacy mt-2 max-w-3xl">
+          {inventoryGuideAllowance(language, t)}{" "}
+          {t("The daily allowance resets at midnight UTC. Some failed requests count toward the limit.", "سهمیه روزانه در نیمه‌شب به وقت UTC بازنشانی می‌شود. برخی درخواست‌های ناموفق هم از سهمیه کم می‌شوند.")}
+        </p>
         <div hidden={mode !== "chat"}>
           <InventoryGuideConversation step={step ?? "step10"} language={language} scope={scope} mode="chat" t={t} />
         </div>
@@ -54,7 +59,12 @@ export function InventoryGuide({ step, date, language }: { step: InventoryGuideS
 type GuideInput = GuideScope & (
   { topic: string; note: string } | { message: string; history: InventoryGuideMessage[]; topic?: string }
 );
-type GuideIssue = { kind: "limit" | "unavailable" | "sign_in" | "membership_required" | "invalid_request"; reference?: string };
+type GuideIssue = {
+  kind: "limit" | "unavailable" | "sign_in" | "membership_required" | "invalid_request";
+  reference?: string;
+  limit?: "daily" | "monthly";
+  resetAt?: number;
+};
 
 async function requestGuideReply(input: GuideInput, signal: AbortSignal): Promise<{ reply: string } | { issue: GuideIssue }> {
   try {
@@ -64,12 +74,22 @@ async function requestGuideReply(input: GuideInput, signal: AbortSignal): Promis
       body: JSON.stringify({ ...input, consent: true }),
       signal,
     });
-    const result = await response.json().catch(() => null) as { reply?: unknown; error?: unknown; reference?: unknown } | null;
+    const result = await response.json().catch(() => null) as {
+      reply?: unknown;
+      error?: unknown;
+      reference?: unknown;
+      limit?: unknown;
+      resetAt?: unknown;
+    } | null;
+    if (response.status === 429) {
+      const limit = result?.limit === "daily" || result?.limit === "monthly" ? result.limit : undefined;
+      const resetAt = typeof result?.resetAt === "string" ? Date.parse(result.resetAt) : NaN;
+      return { issue: { kind: "limit", limit, resetAt: Number.isFinite(resetAt) ? resetAt : undefined } };
+    }
     if (!response.ok) {
       const reference = typeof result?.reference === "string" && /^AI-[A-Z]{2,12}$/.test(result.reference)
         ? result.reference : undefined;
-      const kind = response.status === 429 ? "limit"
-        : response.status === 401 ? "sign_in"
+      const kind = response.status === 401 ? "sign_in"
         : result?.error === "membership_required" ? "membership_required"
         : result?.error === "invalid_request" ? "invalid_request" : "unavailable";
       return { issue: { kind, reference } };
@@ -81,19 +101,26 @@ async function requestGuideReply(input: GuideInput, signal: AbortSignal): Promis
   return { issue: { kind: "unavailable" } };
 }
 
-function GuideIssueNotice({ issue, t }: { issue: GuideIssue | null; t: GuideTranslation }) {
+function GuideIssueNotice({ issue, language, t }: { issue: GuideIssue | null; language: Language; t: GuideTranslation }) {
   if (!issue) return null;
 
+  const limitCopy = {
+    daily: t("You’ve reached your daily limit for the AI guide.", "به سقف روزانه استفاده از راهنمای هوش مصنوعی رسیده‌اید."),
+    monthly: t("The AI guide has reached the site’s monthly limit.", "راهنمای هوش مصنوعی به سقف ماهانه سایت رسیده است."),
+  };
   const copy = {
-    limit: t("The AI guide has reached a usage limit. You can keep writing and try the guide again later.", "راهنمای هوش مصنوعی به سقف استفاده رسیده است. می‌توانید به نوشتن ادامه دهید و بعداً دوباره راهنما را امتحان کنید."),
+    limit: issue.limit ? limitCopy[issue.limit] : t("The AI guide has reached a usage limit. You can keep writing and try the guide again later.", "راهنمای هوش مصنوعی به سقف استفاده رسیده است. می‌توانید به نوشتن ادامه دهید و بعداً دوباره راهنما را امتحان کنید."),
     unavailable: t("The AI guide couldn’t reply. Try again in a moment.", "راهنمای هوش مصنوعی نتوانست پاسخ دهد. کمی بعد دوباره تلاش کنید."),
     sign_in: t("Please sign in again to use the AI guide.", "برای استفاده از راهنمای هوش مصنوعی، دوباره وارد حساب شوید."),
     membership_required: t("An active membership is needed to use the AI guide.", "برای استفاده از راهنمای هوش مصنوعی به عضویت فعال نیاز دارید."),
     invalid_request: t("Refresh the page and try again.", "صفحه را تازه کنید و دوباره تلاش کنید."),
   };
+  const resetTime = issue.resetAt === undefined ? null
+    : new Intl.DateTimeFormat(language, { dateStyle: "medium", timeStyle: "short" }).format(issue.resetAt);
   return (
     <p className="inventory-guide-issue" role="status">
       {copy[issue.kind]}
+      {resetTime && <small>{t("Try again after {time}.", "پس از {time} دوباره امتحان کنید.").replace("{time}", resetTime)}</small>}
       {issue.reference && <small>{t("Error reference", "کد پیگیری خطا")} <b dir="ltr">{issue.reference}</b></small>}
     </p>
   );
@@ -218,7 +245,7 @@ function InventoryGuideConversation({ step, language, scope, mode, t }: GuideSco
           {busy ? t("Preparing a question…", "در حال آماده کردن پرسش…") : t("Send to AI", "ارسال به هوش مصنوعی")}
         </button>
       </div>
-      <GuideIssueNotice issue={issue} t={t} />
+      <GuideIssueNotice issue={issue} language={language} t={t} />
     </form>
   );
 }

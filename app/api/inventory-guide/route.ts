@@ -31,7 +31,13 @@ export async function POST(request: Request) {
     const input = await readInventoryGuideRequest(request);
     if (!input) return guideError("invalid_request", 400);
     stage = "AI-USAGE";
-    if (!await reserveInventoryGuideRequest(env.DB, account.id)) return guideError("limit_reached", 429);
+    const reservation = await reserveInventoryGuideRequest(env.DB, account.id);
+    if (!reservation.allowed) {
+      return Response.json(
+        { error: "limit_reached", limit: reservation.limit, resetAt: reservation.resetAt.toISOString() },
+        { status: 429, headers: { ...headers, "retry-after": reservation.resetAt.toUTCString() } },
+      );
+    }
 
     stage = "AI-CONNECT";
     const reply = await generateInventoryGuideReply(input, apiKey);
