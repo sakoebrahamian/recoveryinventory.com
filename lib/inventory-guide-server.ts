@@ -160,7 +160,8 @@ async function requestGuideReply(input: GuideRequest, apiKey: string, selectedMo
         ...(selectedModel === model ? { reasoning: { effort: "none" } } : {}),
         store: false,
       }),
-      redirect: "error",
+      // Workers supports manual redirects. Keep the API key on the original request.
+      redirect: "manual",
       signal,
     });
   } catch {
@@ -168,6 +169,9 @@ async function requestGuideReply(input: GuideRequest, apiKey: string, selectedMo
   }
   const requestId = response.headers.get("x-request-id");
   const safeId = requestId && /^req_[a-zA-Z0-9]{8,80}$/.test(requestId) ? requestId : undefined;
+  if (response.status >= 300 && response.status < 400) {
+    throw new InventoryGuideProviderError("AI-CONNECT", response.status, safeId);
+  }
   const result: unknown = await response.json().catch(() => null);
   if (!response.ok) {
     const code = providerErrorCode(result);
