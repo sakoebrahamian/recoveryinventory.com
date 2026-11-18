@@ -2807,13 +2807,13 @@ html[dir="rtl"] .membership-gate-card h2 {
   border: 1px solid rgba(23, 63, 58, 0.24);
   border-radius: 999px;
   background: #fffdf9;
-  color: var(--ri-forest-deep);
+  color: var(--ink);
   font: inherit;
   cursor: pointer;
 }
 
 .inventory-guide-modes button[aria-pressed="true"] {
-  background: var(--ri-forest-deep);
+  background: var(--ocean);
   color: #fff;
 }
 
