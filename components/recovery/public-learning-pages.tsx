@@ -28,6 +28,7 @@ import { SiteHeader } from "./site-header";
 import { Step10InventoryTemplate } from "./step10-inventory-template";
 import { ComparisonLinks } from "./product-comparison-pages";
 import { comparisonUi } from "@/lib/product-comparisons";
+import { step10AppCopy, step10AppRoutes } from "@/lib/step10-app-content";
 
 const articleUi: Record<Language, {
   back: string;
@@ -154,6 +155,7 @@ export function PublicLearningHub({ language }: { language: Language }) {
       </section>
 
       <p className="public-learning-safety"><ShieldCheck size={16} /> {copy.safetyNote}</p>
+      <section className="comparison-learning-links"><h2><a href={step10AppRoutes[language]}>{step10AppCopy[language].title}</a></h2><p>{step10AppCopy[language].description}</p></section>
       <section className="comparison-learning-links"><h2>{comparisonUi.title[language]}</h2><p>{comparisonUi.intro[language]}</p><ComparisonLinks language={language} /></section>
       <InventoryGuideNotice language={language} />
       <AnalyticsFeatureGuide language={language} compact />

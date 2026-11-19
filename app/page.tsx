@@ -36,6 +36,8 @@ import { RECOVERY_APP_STRUCTURED_DATA } from "@/lib/site-metadata";
 import { MemberTestimonial, MemberTestimonials } from "@/components/recovery/member-testimonials";
 import { PatternHistoryExample } from "@/components/recovery/pattern-history-example";
 import { ExternalMentions } from "@/components/recovery/external-mentions";
+import { EarlyCommunityProof } from "@/components/recovery/early-community-proof";
+import { step10AppCopy, step10AppRoutes } from "@/lib/step10-app-content";
 
 type PreviewMode = "step10" | "step4";
 
@@ -48,7 +50,11 @@ export default function Home() {
 
   const faqs = [
     {
-      question: t("Why isn’t Recovery Inventory free?", "چرا Recovery Inventory رایگان نیست؟"),
+      question: t("Who is this journal for?", "این دفتر برای چه کسانی است؟"),
+      answer: t("Built for members working Step 4 and Step 10 with a sponsor or someone experienced in recovery. If you are new to recovery, start with your home group and a sponsor first. This journal supports your writing and conversations; it is not treatment or emergency support.", "برای اعضایی ساخته شده که گام‌های ۴ و ۱۰ را با راهنما یا فردی باتجربه در بهبودی کار می‌کنند. اگر تازه وارد بهبودی شده‌اید، ابتدا از گروه خانگی و یک راهنما شروع کنید. این دفتر به نوشتن و گفت‌وگوی شما کمک می‌کند؛ درمان یا پشتیبانی اضطراری نیست."),
+    },
+    {
+      question: t("Why is there a paid subscription?", "چرا اشتراک پولی وجود دارد؟"),
       answer: t(
         "Your membership supports the ongoing operation of the journal: structured Step 10 questions, editable Step 4 workbooks, encrypted inventory storage, history, charts, and reports you can review with your sponsor. You can explore the free demo before choosing a monthly or yearly subscription.",
         "حق عضویت شما به ادامه کار این دفتر کمک می‌کند: پرسش‌های ساختارمند گام ۱۰، دفترهای قابل ویرایش گام ۴، نگهداری رمزگذاری‌شده ترازنامه‌ها، سابقه، نمودارها و گزارش‌هایی برای مرور با راهنما. پیش از انتخاب اشتراک ماهانه یا سالانه، می‌توانید نسخه آزمایشی رایگان را بررسی کنید."
@@ -110,7 +116,7 @@ export default function Home() {
     },
     {
       question: t("Is there a free trial or a refund guarantee?", "آیا دوره آزمایشی رایگان یا ضمانت بازپرداخت وجود دارد؟"),
-      answer: t("The free demo lets you explore Step 10, Step 4, sample analytics, and learning tools without an account or a card. It is a preview, not a saved-account trial; demo entries are not saved and live AI requires membership. For a shorter paid commitment, choose monthly. Cancel future renewals in the billing portal; access continues through your paid period. There is no money-back guarantee: completed payments are non-refundable except where required by law.", "نسخه آزمایشی رایگان امکان بررسی گام‌های ۱۰ و ۴، تحلیل نمونه و ابزارهای آموزشی را بدون حساب یا کارت می‌دهد. این پیش‌نمایش است، نه دوره آزمایشی حساب ذخیره‌شونده؛ نوشته‌ها ذخیره نمی‌شوند و هوش مصنوعی زنده به اشتراک نیاز دارد. برای تعهد پرداخت کوتاه‌تر، طرح ماهانه را انتخاب کنید. تمدیدهای آینده را در پنل پرداخت لغو کنید؛ دسترسی تا پایان دوره پرداخت‌شده ادامه دارد. ضمانت بازپرداخت وجود ندارد؛ پرداخت‌های تکمیل‌شده به‌جز موارد الزامی قانونی قابل بازپرداخت نیستند."),
+      answer: t("Create a free account with no card. Save up to seven daily Step 10 entries during your first seven days, review your own analytics, and export or share your entries. Your saved Step 10 stays available to read and export afterward. Upgrade the same account whenever you choose for ongoing saving, Step 4 workbooks, and the AI guide. Nothing is charged unless you subscribe. Paid payments are non-refundable except where required by law.", "بدون کارت، حساب رایگان بسازید. در هفت روز اول تا هفت ترازنامه روزانه گام ۱۰ ذخیره کنید، تحلیل خود را مرور کنید و خروجی بگیرید یا به اشتراک بگذارید. گام ۱۰ ذخیره‌شده پس از آن نیز برای خواندن و خروجی گرفتن در دسترس می‌ماند. هر زمان خواستید، برای ذخیره مداوم، دفترهای گام ۴ و راهنمای هوش مصنوعی، همین حساب را ارتقا دهید. تا زمانی که اشتراک نگیرید مبلغی دریافت نمی‌شود. پرداخت‌های پولی به‌جز موارد الزامی قانونی قابل بازپرداخت نیستند."),
     },
     {
       question: t("Can I cancel at any time?", "آیا هر زمان می‌توانم لغو کنم؟"),
@@ -147,9 +153,8 @@ export default function Home() {
             {t("For members of AA, NA and other twelve-step fellowships", "برای اعضای AA، NA و دیگر انجمن‌های دوازده‌قدمی")}
           </div>
           <h1>
-            {t("Make space for an ", "فضایی برای یک ")}
-            <em>{t("honest look", "نگاه صادقانه")}</em>
-            {t(" at today.", " به امروز بسازید.")}
+            {t("A private journal for ", "دفتر خصوصی برای ")}
+            <em>{t("Step 4 and Step 10", "گام‌های ۴ و ۱۰")}</em>.
           </h1>
           <p>
             {t(
@@ -172,11 +177,16 @@ export default function Home() {
             <span><ShieldCheck size={17} />{t("Anonymous username or email account", "حساب با نام کاربری ناشناس یا ایمیل")}</span>
             <span><Globe2 size={17} />{t("English + Farsi + Spanish", "انگلیسی، فارسی و اسپانیایی")}</span>
             <span><CalendarDays size={17} />{t("Your history, year by year", "سابقه شما، سال‌به‌سال")}</span>
+            <a href={aboutLanguageRoutes[language]}><HeartHandshake size={17} />{t("Created by Paul (a pseudonym), 18 years sober", "ساخته پل، با نام مستعار و ۱۸ سال پاکی")}</a>
           </div>
+          <EarlyCommunityProof />
+          <a className="text-link ri-free-week-link" href={`/join?lang=${language}`}>{t("Create a free account and save my first week", "ایجاد حساب رایگان و ذخیره هفته اول من")}</a>
           <a className="text-link ri-hero-ai-link" href="#ai-guide"><Sparkles size={16} aria-hidden="true" />{t("Explore the AI guide for members", "آشنایی با راهنمای هوش مصنوعی اعضا")}</a>
+          <a className="text-link ri-free-week-link" href={step10AppRoutes[language]}>{step10AppCopy[language].title}<ArrowRight className={arrowClass} size={16} aria-hidden="true" /></a>
         </div>
 
-        <div className="ri-hero-demo">
+        <figure className="ri-hero-figure" aria-describedby="hero-preview-description">
+          <div className="ri-hero-demo">
           <div className="ri-demo-aura" aria-hidden="true" />
           <div className="ri-preview-shell">
             <div className="ri-preview-header">
@@ -272,7 +282,9 @@ export default function Home() {
             <Fingerprint size={18} />
             <div><strong>{t("Your choice", "انتخاب شما")}</strong><span>{t("Username, email, or recovery-code access", "ورود با نام کاربری، ایمیل یا کد بازیابی")}</span></div>
           </div>
-        </div>
+          </div>
+          <figcaption id="hero-preview-description" className="ri-preview-description">{previewMode === "step10" ? t("Illustrative Step 10 preview: 18 of 39 questions marked Practiced. Honesty and Gratitude are Practiced; Patience needs attention. Switch tabs to preview Step 4.", "پیش‌نمایش فرضی گام ۱۰: ۱۸ پرسش از ۳۹ پرسش با پاسخ «تمرین کردم». صداقت و قدردانی تمرین شده‌اند؛ صبر نیازمند توجه است. برای پیش‌نمایش گام ۴ زبانه را تغییر دهید.") : t("Illustrative Step 4 workbook preview with sections for resentments, fears, relationship patterns, and strengths. The displayed counts are sample data.", "پیش‌نمایش فرضی دفتر گام ۴ با بخش‌های رنجش‌ها، ترس‌ها، الگوهای رابطه و نقاط قوت. شمارش‌های نمایش‌داده‌شده نمونه هستند.")}</figcaption>
+        </figure>
       </section>
 
       <section className="ri-trust-strip" aria-label={t("Product features", "ویژگی‌های محصول")}>
@@ -384,6 +396,7 @@ export default function Home() {
             );
           })}
         </div>
+        <p className="ri-practice-record">{t("Your history is a record of the work you chose to do. Look back at the days you returned, what you practiced, and the next actions you wrote down.", "سابقه شما، کارهایی را که برای انجام دادن انتخاب کرده‌اید ثبت می‌کند. روزهایی را که برگشتید، اصولی را که تمرین کردید و اقدام‌های بعدی را که نوشتید مرور کنید.")}</p>
       </section>
 
       <section className="ri-section ri-privacy">
@@ -414,6 +427,7 @@ export default function Home() {
         <div className="ri-membership-copy">
           <span>{t("One website subscription, two ways to pay", "یک اشتراک وب‌سایت، دو روش پرداخت")}</span>
           <h2>{t("A full year of reflection for less than 50¢ a week.", "یک سال کامل تأمل، کمتر از ۵۰ سنت در هفته.")}</h2>
+          <p>{t("Start with a free account and a saved week of Step 10. Membership adds ongoing entries, reusable Step 4 workbooks, and optional AI guidance. Your answers stay together, so you can revisit a period, notice what repeats, and bring selected notes to your sponsor.", "با حساب رایگان و یک هفته ذخیره‌شده گام ۱۰ شروع کنید. عضویت، نوشته‌های مداوم، دفترهای قابل استفاده مجدد گام ۴ و راهنمای اختیاری هوش مصنوعی را اضافه می‌کند. پاسخ‌ها کنار هم می‌مانند تا یک دوره را مرور کنید، تکرارها را ببینید و یادداشت‌های منتخب را برای راهنما آماده کنید.")}</p>
           <p>{t("Daily Step 10, reusable Step 4 workbooks, the learning center, your ongoing history, and every sharing option are included in both monthly and yearly subscriptions.", "گام دهم روزانه، دفترهای قابل استفاده گام چهارم، مرکز آموزش، سابقه مداوم و همه گزینه‌های اشتراک‌گذاری در هر دو اشتراک ماهانه و سالانه گنجانده شده‌اند.")}</p>
           <div className="ri-included">
             <span><NotebookPen size={18} />{t("Daily Step 10 and multiple editable Step 4 workbooks", "گام دهم روزانه و چندین دفتر قابل ویرایش گام چهارم")}</span>
@@ -428,8 +442,8 @@ export default function Home() {
         <div className="ri-price-card">
           <p className="fine-print">{subscriptionGuidance(t)}</p>
           <div className="ri-demo-explanation">
-            <a href={`/demo?lang=${language}`}>{t("Explore before you subscribe", "پیش از اشتراک بررسی کنید")}</a>
-            <p>{t("The free demo is our preview instead of a saved-account trial. Try Step 10, Step 4, sample analytics, and learning tools without an account or card. Demo entries are not saved; live AI requires membership.", "نسخه آزمایشی رایگان، پیش‌نمایش ما به‌جای دوره آزمایشی حساب ذخیره‌شونده است. گام‌های ۱۰ و ۴، تحلیل نمونه و آموزش را بدون حساب یا کارت امتحان کنید. نوشته‌های آزمایشی ذخیره نمی‌شوند؛ هوش مصنوعی زنده به اشتراک نیاز دارد.")}</p>
+            <a href={`/join?lang=${language}`}>{t("Create a free account and save my first week", "ایجاد حساب رایگان و ذخیره هفته اول من")}</a>
+            <p>{t("Seven daily Step 10 entries during your first seven days. No card, no automatic charge. Read and export your saved Step 10 afterward, and upgrade this account whenever you choose.", "هفت ترازنامه روزانه گام ۱۰ در هفت روز اول. بدون کارت یا برداشت خودکار. پس از آن گام ۱۰ ذخیره‌شده را بخوانید و خروجی بگیرید و هر زمان خواستید همین حساب را ارتقا دهید.")}</p>
           </div>
           <SubscriptionPlanPicker value={billingPlan} onChange={setBillingPlan} />
           <a href={`/join?lang=${language}&plan=${billingPlan}`} className="button button-primary button-large button-full">

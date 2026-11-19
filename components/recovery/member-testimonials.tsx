@@ -9,7 +9,7 @@ export function MemberTestimonial({ memberId, compact = false }: { memberId: Mem
 
   return (
     <figure className={compact ? "ri-price-testimonial" : "ri-member-testimonial"}>
-      <blockquote><p>{member.quote[language]}</p></blockquote>
+      <blockquote><p>{compact && member.pricingQuote ? member.pricingQuote[language] : member.quote[language]}</p></blockquote>
       <figcaption>
         <strong><bdi>{member.name}</bdi></strong>
         <span>{member.feature[language]}</span>

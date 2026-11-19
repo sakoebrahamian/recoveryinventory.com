@@ -19,7 +19,8 @@ export function GET() {
 
 - $${(subscriptionPricing.monthly / 100).toFixed(2)} USD monthly or $${(subscriptionPricing.yearly / 100).toFixed(2)} USD yearly. Both subscriptions include the same features and renew until canceled. Taxes may apply.
 - Free demo: no account or card needed. Demo entries are not saved. The demo includes inventory tools, sample analytics, learning tools, and public AI examples; it does not include live AI access.
-- No saved-account free trial or money-back guarantee. Payments are non-refundable except where required by law. Cancel future renewals in the billing portal; access continues through the paid period.
+- Free accounts need no card. During the first seven days after signup, an account can save up to seven daily Step 10 entries, review its own Step 10 analytics, and export or share its entries. Saved Step 10 remains readable and exportable after the free week. Upgrade the same account to keep saving and unlock Step 4 workbooks and the AI guide. No automatic charge or automatic paid conversion occurs.
+- Paid payments are non-refundable except where required by law. Cancel future renewals in the billing portal; paid access continues through the paid period. Existing Step 10 remains available to read and export.
 - [Membership plans](${SITE_URL}/#membership)
 - [Payment terms](${SITE_URL}/terms)
 
@@ -35,6 +36,7 @@ export function GET() {
 ## Learning guides
 
 - [Step 10 daily inventory template and example](${SITE_URL}/learn/step-10-daily-inventory)
+- [Step 10 daily inventory app and free-account details](${SITE_URL}/step-10-daily-inventory-app)
 - [Step 4 personal inventory](${SITE_URL}/learn/step-4-personal-inventory)
 - [From dishonesty to honesty](${SITE_URL}/learn/dishonesty-to-honesty)
 - [Spanish learning center](${SITE_URL}/es/learn)

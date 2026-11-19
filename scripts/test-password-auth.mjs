@@ -43,6 +43,9 @@ class Statement {
 
   async first() {
     const query = this.sql;
+    if (query === "SELECT COUNT(*) AS count FROM inventories WHERE user_id = ? AND type = 'step10'") {
+      return { count: state.inventories.filter((item) => item.user_id === this.args[0] && item.type === "step10").length };
+    }
     if (query.includes("FROM sessions s") && query.includes("JOIN users u")) {
       const [id, cutoff] = this.args;
       const session = state.sessions.get(id);
