@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-import { hasActiveMembership, jsonError, requireAccount } from "@/lib/auth";
+import { jsonError, requireAccount } from "@/lib/auth";
 import { todayIso } from "@/lib/inventory";
 import { decryptJson } from "@/lib/server-crypto";
 import { calculateStep10Analytics, calculateStep10PeriodAnalytics, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
@@ -22,9 +22,6 @@ function isIsoCalendarDate(value: string | null): value is string {
 export async function GET(request: Request) {
   try {
     const account = await requireAccount(request);
-    if (!hasActiveMembership(account)) {
-      return Response.json({ error: "An active membership is required to view analytics." }, { status: 403 });
-    }
 
     const search = new URL(request.url).searchParams;
     const requestedThrough = search.get("through");

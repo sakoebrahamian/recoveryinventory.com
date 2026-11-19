@@ -7,6 +7,7 @@ import {
 import { SITE_URL } from "@/lib/site-metadata";
 import { aboutLanguageRoutes } from "@/lib/about-content";
 import { comparisonLanguageRoutes, comparisonReviewedDate, productComparisons } from "@/lib/product-comparisons";
+import { step10AppRoutes } from "@/lib/step10-app-content";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const corePages: MetadataRoute.Sitemap = [
@@ -96,5 +97,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     };
   }));
 
-  return [...corePages, ...learningPages, ...aboutPages, ...comparisonPages];
+  const step10AppPages: MetadataRoute.Sitemap = languages.map(language => ({
+    url: `${SITE_URL}${step10AppRoutes[language]}`, changeFrequency: "monthly", priority: 0.75,
+    alternates: { languages: Object.fromEntries(Object.entries({ ...step10AppRoutes, "x-default": step10AppRoutes.en }).map(([key, path]) => [key, `${SITE_URL}${path}`])) },
+  }));
+  return [...corePages, ...learningPages, ...aboutPages, ...comparisonPages, ...step10AppPages];
 }

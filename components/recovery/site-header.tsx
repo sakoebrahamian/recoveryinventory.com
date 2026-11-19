@@ -5,6 +5,7 @@
 import * as React from "react";
 import type { Language } from "@/lib/inventory";
 import { BrandMark } from "./brand-mark";
+import { aboutLanguageRoutes } from "@/lib/about-content";
 import {
   LanguageToggle,
   type LanguageRouteMap,
@@ -39,6 +40,7 @@ export function SiteHeader({
         <nav className="desktop-nav" aria-label={t("Primary navigation", "ناوبری اصلی")}>
           <a href="/demo">{t("Try the demo", "مشاهده نسخه آزمایشی")}</a>
           <a href={learnHref}>{t("Learn", "یادگیری")}</a>
+          <a href={aboutLanguageRoutes[language]}>{t("Why I built this", "چرا این سایت را ساختم")}</a>
           <a href="/#inventories">{t("Inventories", "ترازنامه‌ها")}</a>
           <a href="/#ai-guide">{t("AI Guide", "راهنمای هوش مصنوعی")}</a>
           <a href="/#membership">{t("Subscription", "اشتراک")}</a>

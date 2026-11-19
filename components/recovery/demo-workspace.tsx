@@ -108,11 +108,11 @@ export function DemoWorkspace() {
         <div aria-hidden="true"><ShieldCheck size={25} /></div>
         <header>
           <h2 id="demo-membership-title">{t("Keep a private journal", "دفتر خصوصی خودتان را داشته باشید")}</h2>
-          <p>{t("Save your entries, see patterns over time, and choose what to share with your sponsor.", "نوشته‌های خود را ذخیره کنید، الگوها را در طول زمان ببینید و خودتان انتخاب کنید چه چیزی را با حامی‌تان به اشتراک بگذارید.")}</p>
-          <p><small>{t("Renews monthly or yearly, according to your choice. Cancel anytime.", "بر اساس انتخاب شما ماهانه یا سالانه تمدید می‌شود. هر زمان می‌توانید لغو کنید.")}</small></p>
+          <p>{t("Create a free account to save up to seven daily Step 10 entries in your first seven days. Review your own patterns, export your entries, and upgrade the same account whenever you choose.", "حساب رایگان بسازید تا در هفت روز اول تا هفت ترازنامه روزانه گام ۱۰ ذخیره کنید. الگوهای خود را مرور کنید، خروجی بگیرید و هر زمان خواستید همان حساب را ارتقا دهید.")}</p>
+          <p><small>{t("Paid plans renew monthly or yearly, according to your choice. Cancel anytime.", "طرح‌های پولی بر اساس انتخاب شما ماهانه یا سالانه تمدید می‌شوند. هر زمان می‌توانید لغو کنید.")}</small></p>
         </header>
         <nav aria-labelledby="demo-membership-title">
-          <a className="button button-primary" href={`/join?lang=${language}`}>{t("Start my private journal · $4.99/month or $25/year", "شروع دفتر خصوصی من · ماهانه ۴٫۹۹ دلار یا سالانه ۲۵ دلار")}</a>
+          <a className="button button-primary" href={`/join?lang=${language}`}>{t("Create a free account and save my first week", "ایجاد حساب رایگان و ذخیره هفته اول من")}</a>
         </nav>
       </section>
     </div>

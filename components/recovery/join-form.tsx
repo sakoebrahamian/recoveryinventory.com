@@ -160,13 +160,18 @@ export function JoinForm() {
   function activationControls(disabled = false) {
     return (
       <>
+        <button className="button button-primary button-full" type="button" disabled={disabled || busy} onClick={() => window.location.assign(`/app?plan=${billingPlan}`)}>{t("Open my free Step 10 journal", "باز کردن دفتر رایگان گام ۱۰ من")}</button>
+        <p className="fine-print">{t("No card needed. Save up to seven daily Step 10 entries in your first seven days, then keep read and export access. Subscribe whenever you choose.", "نیازی به کارت نیست. در هفت روز اول تا هفت ترازنامه روزانه گام ۱۰ ذخیره کنید و پس از آن دسترسی خواندن و خروجی گرفتن را نگه دارید. هر زمان خواستید اشتراک بگیرید.")}</p>
+        <details className="join-optional-subscription"><summary>{t("Or choose a paid subscription", "یا اشتراک پولی انتخاب کنید")}</summary>
+        <SubscriptionPlanPicker value={billingPlan} onChange={setBillingPlan} disabled={busy} />
         <div className="promotion-code-field join-promotion-code">
           <label htmlFor="join-promotion-code">{t("Promotion code (optional)", "کد تخفیف (اختیاری)")}</label>
           <input id="join-promotion-code" className="form-input" value={promotionCode} onChange={(event) => setPromotionCode(event.target.value)} autoComplete="off" placeholder={t("Enter code", "کد را وارد کنید")} />
           <p>{t("Enter a 100%-off forever code here to activate without payment or billing details. Other discounts open secure Stripe checkout for the remaining balance.", "برای فعال‌سازی بدون پرداخت یا اطلاعات صورتحساب، کد تخفیف دائمی ۱۰۰٪ را اینجا وارد کنید. تخفیف‌های دیگر برای پرداخت مبلغ باقی‌مانده، پرداخت امن Stripe را باز می‌کنند.")}</p>
         </div>
         {billingError && <p className="form-error" role="alert">{billingError}</p>}
-        <button className="button button-primary button-full" type="button" onClick={beginCheckout} disabled={disabled || busy}><ShieldCheck size={18} />{busy ? (promotionCode.trim() ? t("Applying code…", "در حال اعمال کد…") : t("Opening secure checkout…", "در حال باز کردن پرداخت امن…")) : t("Activate website subscription", "فعال‌سازی اشتراک وب‌سایت")}</button>
+        <button className="button button-outline button-full" type="button" onClick={beginCheckout} disabled={disabled || busy}><ShieldCheck size={18} />{busy ? (promotionCode.trim() ? t("Applying code…", "در حال اعمال کد…") : t("Opening secure checkout…", "در حال باز کردن پرداخت امن…")) : t("Activate website subscription", "فعال‌سازی اشتراک وب‌سایت")}</button>
+        </details>
         {!disabled && <p className="auth-switch"><a href="/app">{t("Open your workspace", "فضای کاری خود را باز کنید")}</a></p>}
       </>
     );
@@ -176,12 +181,12 @@ export function JoinForm() {
 
   return (
     <div className="account-card dashboard-card">
-      <SubscriptionPlanPicker value={billingPlan} onChange={setBillingPlan} disabled={busy} />
+      <p className="free-signup-note">{t("Create a free account. No card and no automatic subscription.", "حساب رایگان بسازید. بدون کارت و بدون اشتراک خودکار.")}</p>
       {!accountCreated && (
         <>
           <div className="account-card-header">
             <h2>{t("Choose how to create your account", "روش ایجاد حساب را انتخاب کنید")}</h2>
-            <p>{t("Both options include the same private website subscription features.", "هر دو گزینه شامل همان امکانات خصوصی اشتراک وب‌سایت هستند.")}</p>
+            <p>{t("Both sign-in options start with the same free Step 10 account. A paid subscription is optional.", "هر دو روش ورود با همان حساب رایگان گام ۱۰ شروع می‌شوند. اشتراک پولی اختیاری است.")}</p>
           </div>
           <div className="account-method-picker" role="tablist" aria-label={t("Account type", "نوع حساب")}>
             <button type="button" role="tab" aria-selected={method === "anonymous"} className={method === "anonymous" ? "is-active" : ""} onClick={() => chooseMethod("anonymous")}>

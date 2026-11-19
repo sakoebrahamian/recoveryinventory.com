@@ -30,6 +30,11 @@ type AccountView = {
   subscriptionStatus: string;
   currentPeriodEnd: number | null;
   membershipActive: boolean;
+  step10CanSave: boolean;
+  freeWeekActive: boolean;
+  freeWeekEndsAt: number | null;
+  freeEntriesUsed: number;
+  freeEntriesLimit: number;
   inventoryGuideAvailable: boolean;
   hasBillingProfile: boolean;
   analyticsOwner: boolean;
@@ -61,6 +66,7 @@ export function MemberDashboard() {
   const [billingRecovery, setBillingRecovery] = React.useState(false);
   const [promotionCode, setPromotionCode] = React.useState("");
   const [billingPlan, setBillingPlan] = React.useState<BillingPlan>("yearly");
+  const [upgradeOpen, setUpgradeOpen] = React.useState(false);
 
   React.useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -106,7 +112,7 @@ export function MemberDashboard() {
     async function start() {
       try {
         const result = await loadAccount();
-        if (!stopped && result?.membershipActive) await loadInventories(year);
+        if (!stopped && result) await loadInventories(year);
         else if (!stopped) setRecords([]);
       } catch (error) {
         if (!stopped) {
@@ -170,7 +176,7 @@ export function MemberDashboard() {
   }
 
   async function saveInventory(date: string, payload: Step10Data) {
-    if (!account?.membershipActive) throw new Error(t("Renew your website subscription to save changes.", "برای ذخیره تغییرات، اشتراک وب‌سایت خود را تمدید کنید."));
+    if (!account || (!account.membershipActive && !account.step10CanSave)) throw new Error(t("Your free week has ended. Subscribe to save new Step 10 entries; your saved entries remain available to read and export.", "هفته رایگان شما پایان یافته است. برای ذخیره گام ۱۰ جدید، اشتراک انتخاب کنید؛ نوشته‌های ذخیره‌شده برای خواندن و خروجی گرفتن در دسترس می‌مانند."));
     const request = () => fetch("/api/inventories", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -187,7 +193,9 @@ export function MemberDashboard() {
         throw new Error(t("The connection was interrupted. Please try saving again.", "ارتباط قطع شد. لطفاً دوباره برای ذخیره تلاش کنید."));
       }
     }
-    const result = await response.json().catch(() => ({})) as { error?: string };
+    const result = await response.json().catch(() => ({})) as { error?: string; code?: string };
+    if (result.code === "free_entry_limit") throw new Error(t("Your free account includes seven daily entries. Edit a saved date during your free week, or subscribe for more days.", "حساب رایگان شامل هفت ترازنامه روزانه است. در هفته رایگان، یک تاریخ ذخیره‌شده را ویرایش کنید یا برای روزهای بیشتر اشتراک بگیرید."));
+    if (result.code === "subscription_required") throw new Error(t("Your free week has ended. Subscribe to save new Step 10 entries; your saved entries remain available to read and export.", "هفته رایگان شما پایان یافته است. برای ذخیره گام ۱۰ جدید، اشتراک انتخاب کنید؛ نوشته‌های ذخیره‌شده برای خواندن و خروجی گرفتن در دسترس می‌مانند."));
     if (!response.ok) throw new Error(result.error || t("Could not save this inventory.", "این ترازنامه ذخیره نشد."));
     const savedYear = Number(date.slice(0, 4));
     if (savedYear !== year) {
@@ -208,6 +216,7 @@ export function MemberDashboard() {
     }
     setSelectedDate(date);
     setAnalyticsVersion((value) => value + 1);
+    await loadAccount().catch(() => null);
   }
 
   async function openBilling(path: "checkout" | "portal") {
@@ -286,37 +295,20 @@ export function MemberDashboard() {
             {account.analyticsOwner && <a className="button button-small button-outline" href="/app/site-analytics"><BarChart3 size={15} />{t("Website audience report", "گزارش مخاطبان وب‌سایت")}</a>}
             <div className={`membership-status${account.membershipActive ? "" : " inactive"}`}>
               {account.membershipActive ? <ShieldCheck size={16} /> : <CircleDollarSign size={16} />}
-              {account.membershipActive ? t("Website subscription active", "اشتراک وب‌سایت فعال") : t("Website subscription inactive", "اشتراک وب‌سایت غیرفعال")}
+              {account.membershipActive ? t("Website subscription active", "اشتراک وب‌سایت فعال") : t("Free account", "حساب رایگان")}
             </div>
           </div>
         </div>
         {message && <p className="dashboard-message" role="status">{message}</p>}
         {billingRecovery && <p className="auth-switch"><a href="/app">{t("Open your workspace", "فضای کاری خود را باز کنید")}</a></p>}
 
-        {!account.membershipActive ? (
-          <div className="membership-gate-grid">
-            <section className="dashboard-card membership-gate-card">
-              <div className="membership-gate-icon"><LockKeyhole size={26} /></div>
-              <span>{t("Website subscription required", "اشتراک وب‌سایت لازم است")}</span>
-              <h2>{t("Activate your website subscription to open the private inventory tools.", "برای باز کردن ابزارهای خصوصی ترازنامه، اشتراک وب‌سایت خود را فعال کنید.")}</h2>
-              <p>{t("Step 10, reusable Step 4 workbooks, analytics, the recovery learning center, saving, sharing, copying, and exporting are available after payment. If checkout is closed without payment, the account remains securely reserved but the tools stay locked.", "گام ۱۰، دفترهای قابل ویرایش گام ۴، تحلیل‌ها، مرکز آموزش بهبودی، ذخیره، اشتراک‌گذاری، کپی و خروجی پس از پرداخت در دسترس هستند. اگر پرداخت را بدون تکمیل ببندید، حساب شما محفوظ می‌ماند اما ابزارها قفل می‌مانند.")}</p>
-              <p className="fine-print">{subscriptionGuidance(t)}</p>
-              <SubscriptionPlanPicker value={billingPlan} onChange={setBillingPlan} disabled={billingBusy} />
-              <div className="promotion-code-field">
-                <label htmlFor="membership-promotion-code">{t("Promotion code (optional)", "کد تخفیف (اختیاری)")}</label>
-                <input id="membership-promotion-code" className="form-input" value={promotionCode} onChange={(event) => setPromotionCode(event.target.value)} autoComplete="off" placeholder={t("Enter code", "کد را وارد کنید")} />
-                <p>{t("Enter a 100%-off forever code here to activate without payment or billing details. Other discounts open secure Stripe checkout for the remaining balance.", "برای فعال‌سازی بدون پرداخت یا اطلاعات صورتحساب، کد تخفیف دائمی ۱۰۰٪ را اینجا وارد کنید. تخفیف‌های دیگر برای پرداخت مبلغ باقی‌مانده، پرداخت امن Stripe را باز می‌کنند.")}</p>
-              </div>
-              <button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={17} />{billingBusy ? (promotionCode.trim() ? t("Applying code…", "در حال اعمال کد…") : t("Opening secure checkout…", "در حال باز کردن پرداخت امن…")) : t("Activate website subscription", "فعال‌سازی اشتراک وب‌سایت")}</button>
-              {account.hasBillingProfile && <button className="button button-outline button-full" type="button" onClick={() => openBilling("portal")} disabled={billingBusy}><RefreshCw size={16} />{t("Manage existing billing", "مدیریت پرداخت موجود")}</button>}
-              <p className="fine-print">{t("Renews yearly until canceled. Cancel any time through Stripe.", "تا زمان لغو، سالانه تمدید می‌شود. هر زمان از طریق Stripe لغو کنید.")}</p>
-            </section>
-            <div className="account-access-stack">
-              <PasswordAccess username={account.username} onConfigured={(username) => setAccount((current) => current ? { ...current, username, hasPasswordLogin: true } : current)} />
-              <AddEmailAccess email={account.email} onConnected={(email) => setAccount((current) => current ? { ...current, email, hasEmailLogin: true } : current)} />
-            </div>
-          </div>
-        ) : (
+        {!account.membershipActive && <section className="free-account-notice">
+          <h2>{account.freeWeekActive ? t("Your free Step 10 week is open", "هفته رایگان گام ۱۰ شما باز است") : t("Your free account keeps your saved Step 10", "حساب رایگان، گام ۱۰ ذخیره‌شده شما را نگه می‌دارد")}</h2>
+          <p>{account.freeWeekActive ? t("Save up to seven daily Step 10 entries during the first seven days after signup. Review your own analytics and choose what to export or share. No card and no automatic charge.", "در هفت روز اول پس از ثبت‌نام، تا هفت ترازنامه روزانه گام ۱۰ ذخیره کنید. تحلیل خود را مرور کنید و خروجی یا اشتراک‌گذاری را خودتان انتخاب کنید. بدون کارت یا برداشت خودکار.") : t("Read and export your saved Step 10 entries at any time. Subscribe when you want to save new days or use Step 4 and the AI guide.", "نوشته‌های گام ۱۰ ذخیره‌شده را هر زمان بخوانید و خروجی بگیرید. برای ذخیره روزهای جدید یا استفاده از گام ۴ و راهنمای هوش مصنوعی، اشتراک انتخاب کنید.")}</p>
+          {account.freeWeekActive && account.freeWeekEndsAt && <p>{t("Free-week saving ends:", "پایان ذخیره‌سازی هفته رایگان:")} <time dateTime={new Date(account.freeWeekEndsAt * 1000).toISOString()}>{new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(account.freeWeekEndsAt * 1000))}</time> · {account.freeEntriesUsed}/{account.freeEntriesLimit} {t("daily entries saved", "ترازنامه روزانه ذخیره‌شده")}</p>}
+          <a href="#upgrade-options" onClick={() => setUpgradeOpen(true)}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a>
+        </section>}
+
         <div className={`dashboard-workspace dashboard-workspace-${activeType}`}>
           <aside className="dashboard-sidebar">
             {activeType === "step10" && <section className="dashboard-card compact-calendar-card">
@@ -337,16 +329,15 @@ export function MemberDashboard() {
 
             <section className="dashboard-card membership-card">
               <h3>{t("Subscription", "اشتراک")}</h3>
-              <p>{account.membershipActive ? t("Your inventories can be saved privately.", "ترازنامه‌های شما به‌صورت خصوصی ذخیره می‌شوند.") : t("Saved inventories remain available to review. Renew to save new changes.", "ترازنامه‌های ذخیره‌شده برای مرور در دسترس می‌مانند. برای ذخیره تغییرات جدید، تمدید کنید.")}</p>
+              <p>{account.membershipActive ? t("Your inventories can be saved privately.", "ترازنامه‌های شما به‌صورت خصوصی ذخیره می‌شوند.") : t("Your free account and saved Step 10 entries stay with you. Upgrade in this same account whenever you choose.", "حساب رایگان و نوشته‌های گام ۱۰ ذخیره‌شده با شما می‌مانند. هر زمان خواستید، در همین حساب ارتقا دهید.")}</p>
+              {!account.membershipActive && <details id="upgrade-options" open={upgradeOpen} onToggle={event => setUpgradeOpen(event.currentTarget.open)}><summary>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</summary><p>{t("Both paid plans add ongoing Step 10 saving, Step 4 workbooks, and the optional AI guide. Existing entries stay in this account.", "هر دو طرح پولی، ذخیره مداوم گام ۱۰، دفترهای گام ۴ و راهنمای اختیاری هوش مصنوعی را اضافه می‌کنند. نوشته‌های موجود در همین حساب می‌مانند.")}</p><SubscriptionPlanPicker value={billingPlan} onChange={setBillingPlan} disabled={billingBusy} /><div className="promotion-code-field"><label htmlFor="membership-promotion-code">{t("Promotion code (optional)", "کد تخفیف (اختیاری)")}</label><input id="membership-promotion-code" className="form-input" value={promotionCode} onChange={event => setPromotionCode(event.target.value)} autoComplete="off" /></div><button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}>{billingBusy ? t("Opening secure checkout…", "در حال باز کردن پرداخت امن…") : t("Upgrade my account", "ارتقای حساب من")}</button></details>}
               <p className="fine-print">{subscriptionGuidance(t)}</p>
               <p>{t("Available plans: $4.99/month or $25/year.", "اشتراک‌های موجود: ماهانه ۴٫۹۹ دلار یا سالانه ۲۵ دلار.")}</p>
               <p className="fine-print">{t("View your billing period and next payment in the billing portal.", "دوره پرداخت و پرداخت بعدی خود را در پنل پرداخت ببینید.")}</p>
               {account.membershipActive || account.hasBillingProfile ? (
                 <button className="button button-outline button-full" type="button" onClick={() => openBilling("portal")} disabled={billingBusy}><RefreshCw size={16} />{t("Manage or cancel", "مدیریت یا لغو")}</button>
-              ) : (
-                <button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}><CircleDollarSign size={16} />{t("Activate website subscription", "فعال‌سازی اشتراک وب‌سایت")}</button>
-              )}
-              <p className="fine-print">{t("Renews automatically at your selected billing interval until canceled. Stripe may retain the billing details required to process payment.", "تا زمان لغو، بر اساس دوره پرداخت انتخابی شما به‌طور خودکار تمدید می‌شود. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را نگه دارد.")}</p>
+              ) : null}
+              <p className="fine-print">{t("Paid subscriptions renew automatically at your selected billing interval until canceled. Stripe may retain the billing details required to process payment.", "اشتراک‌های پولی تا زمان لغو، بر اساس دوره پرداخت انتخابی شما به‌طور خودکار تمدید می‌شوند. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را نگه دارد.")}</p>
             </section>
             <AddEmailAccess email={account.email} onConnected={(email) => setAccount((current) => current ? { ...current, email, hasEmailLogin: true } : current)} />
             <PasswordAccess username={account.username} onConfigured={(username) => setAccount((current) => current ? { ...current, username, hasPasswordLogin: true } : current)} />
@@ -368,7 +359,7 @@ export function MemberDashboard() {
               </div>
             </div>
           </div>
-          {activeType === "step10" && (
+          {activeType === "step10" && (account.membershipActive || account.step10CanSave) && (
             <p className="inventory-save-reminder" role="note">
               <Save size={17} aria-hidden="true" />
               {t(
@@ -390,7 +381,7 @@ export function MemberDashboard() {
             refreshKey={analyticsVersion}
           />
           {activeType === "step10" ? (
-            recordsLoading ? <div className="loading-panel" role="status">{t("Loading inventories…", "در حال بارگذاری ترازنامه‌ها…")}</div> : <Step10Inventory
+            recordsLoading ? <div className="loading-panel" role="status">{t("Loading inventories…", "در حال بارگذاری ترازنامه‌ها…")}</div> : <fieldset className="inventory-access-fieldset" disabled={!account.membershipActive && !account.step10CanSave}><Step10Inventory
               key={`step10-${selectedDate}-${language}`}
               initialData={(selectedStep10?.payload as Step10Data | undefined) ?? { date: selectedDate }}
               onSave={(data) => saveInventory(data.date, data)}
@@ -400,9 +391,9 @@ export function MemberDashboard() {
               reportPeriod={reportPeriod}
               onReportPeriodChange={setReportPeriod}
               refreshKey={analyticsVersion}
-            />
+            /></fieldset>
           ) : activeType === "step4" ? (
-            <Step4Workspace onOpenLearning={() => switchTool("learning")} onDirtyChange={setStep4Dirty} />
+            account.membershipActive ? <Step4Workspace onOpenLearning={() => switchTool("learning")} onDirtyChange={setStep4Dirty} /> : <section className="dashboard-card"><LockKeyhole size={24} /><h3>{t("Step 4 is included with a paid subscription", "گام ۴ همراه با اشتراک پولی است")}</h3><p>{t("Your free account includes a first week of Step 10. Choose a paid plan to save Step 4 workbooks and use the AI guide.", "حساب رایگان شامل هفته اول گام ۱۰ است. برای ذخیره دفترهای گام ۴ و استفاده از راهنمای هوش مصنوعی، طرح پولی انتخاب کنید.")}</p><a href="#upgrade-options" className="button button-outline" onClick={() => setUpgradeOpen(true)}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a><a className="text-link" href="/demo?step=4">{t("Try Step 4", "گام چهارم را امتحان کنید")}</a></section>
           ) : activeType === "analytics" ? (
             <Step10Analytics
               refreshKey={analyticsVersion}
@@ -419,7 +410,6 @@ export function MemberDashboard() {
           )}
           </section>
         </div>
-        )}
       </div>
       <SiteFooter />
     </main>

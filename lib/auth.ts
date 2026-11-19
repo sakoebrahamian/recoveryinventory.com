@@ -14,6 +14,7 @@ export type Account = {
   subscriptionStatus: string;
   currentPeriodEnd: number | null;
   preferredLanguage: string;
+  createdAt: number;
 };
 
 type UserRow = {
@@ -26,6 +27,7 @@ type UserRow = {
   subscription_status: string;
   current_period_end: number | null;
   preferred_language: string;
+  created_at: number;
 };
 
 function cookieValue(request: Request, name: string): string | null {
@@ -66,7 +68,7 @@ export async function getAccount(request: Request): Promise<Account | null> {
   const now = Math.floor(Date.now() / 1000);
   const row = await env.DB.prepare(
     `SELECT u.id, u.alias, u.stripe_customer_id, u.subscription_status,
-      u.current_period_end, u.preferred_language, ea.email,
+      u.current_period_end, u.preferred_language, u.created_at, ea.email,
       ea.verified_at AS email_verified_at, pa.username_display
      FROM sessions s
      JOIN users u ON u.id = s.user_id
@@ -85,6 +87,7 @@ export async function getAccount(request: Request): Promise<Account | null> {
     subscriptionStatus: row.subscription_status,
     currentPeriodEnd: row.current_period_end,
     preferredLanguage: row.preferred_language,
+    createdAt: Number(row.created_at ?? 0),
   };
 }
 
