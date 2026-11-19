@@ -6,6 +6,7 @@ import {
 } from "@/lib/public-learning";
 import { SITE_URL } from "@/lib/site-metadata";
 import { aboutLanguageRoutes } from "@/lib/about-content";
+import { comparisonLanguageRoutes, comparisonReviewedDate, productComparisons } from "@/lib/product-comparisons";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const corePages: MetadataRoute.Sitemap = [
@@ -79,5 +80,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   }));
 
-  return [...corePages, ...learningPages, ...aboutPages];
+  const comparisonPages: MetadataRoute.Sitemap = languages.flatMap(language => [undefined, ...productComparisons.map(item => item.slug)].map(slug => {
+    const routes = comparisonLanguageRoutes(slug);
+    return {
+      url: `${SITE_URL}${routes[language]}`,
+      lastModified: comparisonReviewedDate,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+      alternates: { languages: {
+        en: `${SITE_URL}${routes.en}`,
+        es: `${SITE_URL}${routes.es}`,
+        fa: `${SITE_URL}${routes.fa}`,
+        "x-default": `${SITE_URL}${routes.en}`,
+      } },
+    };
+  }));
+
+  return [...corePages, ...learningPages, ...aboutPages, ...comparisonPages];
 }

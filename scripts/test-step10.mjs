@@ -5,7 +5,7 @@ import { createServer } from "vite";
 const server = await createServer({
   configFile: false,
   appType: "custom",
-  server: { middlewareMode: true, hmr: false },
+  server: { middlewareMode: true, hmr: false, watch: null },
   resolve: { alias: { "@": path.resolve(".") } },
 });
 

@@ -26,6 +26,8 @@ import { InventoryGuideNotice } from "./inventory-guide-promo";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
 import { Step10InventoryTemplate } from "./step10-inventory-template";
+import { ComparisonLinks } from "./product-comparison-pages";
+import { comparisonUi } from "@/lib/product-comparisons";
 
 const articleUi: Record<Language, {
   back: string;
@@ -152,6 +154,7 @@ export function PublicLearningHub({ language }: { language: Language }) {
       </section>
 
       <p className="public-learning-safety"><ShieldCheck size={16} /> {copy.safetyNote}</p>
+      <section className="comparison-learning-links"><h2>{comparisonUi.title[language]}</h2><p>{comparisonUi.intro[language]}</p><ComparisonLinks language={language} /></section>
       <InventoryGuideNotice language={language} />
       <AnalyticsFeatureGuide language={language} compact />
       <SiteFooter language={language} />

@@ -1,6 +1,6 @@
 # Recovery Inventory: website audit baseline and initial release
 
-Audit reviewed on November 19, 2026. These are the audit's original scores, not new scores assigned by this implementation. This record describes the initial audit improvements approved for publication; the original scores are retained for comparison when the audit is rerun.
+Audit reviewed on November 19, 2026. These are the audit's original scores, not new scores assigned by this implementation. This record describes the initial release and the completion batch requested by the owner; the original scores are retained for comparison when the audit is rerun. The first-batch table below is historical; the completion section records the remaining work.
 
 ## Baseline dimensions
 
@@ -70,9 +70,45 @@ The owner supplied feedback and explicit publication permission for Francis, Nan
 
 Francis's new-user qualification is retained. Nancy and Red Dot discuss analytics and sponsor sharing. Lucy's membership duration is not presented as the age or duration of use of the AI feature. No review scores, photos, sobriety histories, or claims of typical or guaranteed results were added.
 
-## Remaining input and later work
+## Completion batch
 
-- An optional ongoing adoption counter and genuine external recognition, if any.
-- Any decision to introduce refunds or a trial; implement billing, access, and policy changes together only after that decision.
-- Competitor comparison research and any clearly labeled illustrative analytics visualization.
-- The creator remains anonymous under the disclosed pseudonym. No real name, photo, sobriety date, credentials, or personal contact address was inferred or added.
+The owner requested completion of the remaining work. The audit's alternative to a new guarantee/trial was used: make the free demo and monthly commitment clear, and state existing cancellation, paid-access, and refund terms beside the purchase decision. No refund entitlement, trial billing, free account tier, price, or existing member access was changed.
+
+### Completion change log
+
+- D1.4 (was 2/3): added a trial/refund FAQ, purchase explanations, and sourced comparison pages (`app/page.tsx`, `lib/translations-es.ts`, comparison pages).
+- D1.5 (was 2/3): added an interactive six-month pattern example between analytics and how-it-works, with three principles, visible sample counts, and a sponsor reflection question (`components/recovery/pattern-history-example.tsx`).
+- D2.5 (was 2/4): corrected low-contrast text reported by the mobile performance audit and checked new content at 375 × 812, including Farsi name isolation and stacked comparison rows (`app/globals.css`, comparison components).
+- D3.2 (was 0/5): added the audit's longer-term visual example, prominently labeled as made-up sample data rather than a member result; the four permissioned testimonials remain separate (`components/recovery/pattern-history-example.tsx`).
+- D3.4 (was 3/4): placed the monthly option, cancellation/access explanation, existing non-refundable-payment statement, and terms link beside the membership CTA (`app/page.tsx`, `lib/translations-es.ts`).
+- D3.5 (was 0/3): prepared a dated external-mentions component for the homepage and About pages; it renders nothing until a genuine source is supplied (`lib/external-mentions.ts`, `components/recovery/external-mentions.tsx`). This finding remains dependent on real third-party evidence.
+- D4.2 (was 3/4): made the free path visible at the plan decision and distinguished an unsaved demo from a saved-account trial, including the live-AI limitation (`app/page.tsx`, `lib/translations-es.ts`).
+- D4.4 (was 3.5/4): explained the demo/monthly approach and compared current competitor entry prices and free-access models without changing existing billing (`lib/product-comparisons.ts`, homepage pricing copy).
+- D5.3 (was 3/4): added comparisons with 12 Steps Online, InnerAscent, and pen and paper in English, Spanish, and Farsi, with footer/learning-center links, canonical URLs, hreflang, dated official sources, and 12 new sitemap entries (`app/**/vs`, `lib/product-comparisons.ts`, comparison components, `app/sitemap.ts`).
+- D5.4 (was 2/3): measured the deployed initial release using PageSpeed Insights mobile Lighthouse: 100 performance, 1.1 s FCP/LCP, 0 ms blocking time, 0 layout shift, and 268 KiB total network payload. The color-contrast finding was addressed in this completion batch. These are lab observations, not field-data or future-performance guarantees.
+- D5.5 (was 1.5/3): generated FAQPage JSON-LD from the same localized question/answer list shown on the homepage and added a text/plain `/llms.txt` route with product facts, live price constants, terms, and learning links (`app/page.tsx`, `app/llms.txt/route.ts`). Existing SoftwareApplication offers are retained. No Google rich-result or ranking benefit is promised.
+
+### Sources checked
+
+Official pages were checked November 19, 2026, rather than copying older assumptions from the audit:
+
+- <https://12steps.io/index.php>: all-step writing, journals, analytics/progress, browser support, 14-day trial, and listed monthly/yearly prices. Its pricing block uses a dollar symbol without labeling the currency; the comparison says to confirm the currency at checkout.
+- <https://12steps.io/terms-conditions>: new-account trial and subscription requirement after the trial.
+- <https://innerascent.app/>: current iOS/Android availability, no web app, free core tools, 30-day trial, and current USD monthly price. Older cached pages mention an annual price and iOS coming soon; the comparison uses the current homepage and does not repeat those stale claims.
+- <https://innerascent.app/faq>: named languages, anonymity, and consent-based sponsor sharing.
+
+Published comparisons describe the linked sources and are not represented as hands-on competitor tests or independent endorsements. They acknowledge when the other option may suit a reader better. Illustrative analytics do not claim typical outcomes or a recovery score.
+
+### Completion verification
+
+- Production build and TypeScript check passed; no dependency change was required.
+- Existing billing, Step 10, analytics, AI-guide, and password-account suites passed. File watching was disabled in three one-shot test harnesses after the workspace watcher limit interrupted their initial runs; assertions were retained and the affected suites passed on rerun.
+- Browser checks covered all nine comparison articles at 375px, one h1 per page, correct language/canonical URLs, Farsi RTL, stacked comparison rows, and no horizontal overflow. The Farsi product names are isolated to keep Latin text in order.
+- Homepage demo CTA stayed within the first 812px in all three languages. New sample controls exceed 44px; monthly/yearly cards remain stacked on phones.
+- Verified the interactive sample changes its values/caption/reflection, localized pricing explanations, 13 visible FAQs and matching schema entries, all 12 comparison sitemap URLs (31 total URLs), text discovery content, and an unknown comparison's 404 page.
+- The temporary phone-viewport harness was removed before release. No production account or paid Stripe transaction was used for testing.
+- Baseline mobile report: <https://pagespeed.web.dev/analysis/https-recoveryinventory-com/0wemtz1ipu?form_factor=mobile>. There was no real-user field dataset available; lab scores may vary.
+
+### Only external dependency
+
+A real, dated third-party listing, article, review, or community mention is still needed for D3.5. A paid private audit is not an endorsement, and an unverified badge or quote will not be invented. The empty source list and render-nothing component are ready for that evidence. No outside message or listing submission was sent. The creator remains anonymous under the disclosed pseudonym.
