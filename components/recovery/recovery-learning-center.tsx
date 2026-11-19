@@ -1,5 +1,9 @@
 "use client";
 
+import { localizedText } from "@/lib/localization";
+
+import { languageLocale } from "@/lib/languages";
+
 import * as React from "react";
 import { ArrowRight, BookOpenText, Check, ChevronDown, Compass, Search, Sparkles } from "lucide-react";
 import { principleCategories, principles, principleQuestion, principleFollowUpQuestions } from "@/lib/inventory";
@@ -18,7 +22,7 @@ export function RecoveryLearningCenter({ demo = false, initialView = "defects" }
   const { language, t } = useLanguage();
   const [view, setView] = React.useState<LearningView>(initialView);
   const [query, setQuery] = React.useState("");
-  const normalizedQuery = query.trim().toLocaleLowerCase(language === "fa" ? "fa-IR" : language === "es" ? "es" : "en");
+  const normalizedQuery = query.trim().toLocaleLowerCase(languageLocale(language));
 
   const principleById = React.useMemo(() => new Map(principles.map((principle) => [principle.id, principle])), []);
   const guideById = React.useMemo(() => new Map(principleGuides.map((guide) => [guide.id, guide])), []);
@@ -31,9 +35,9 @@ export function RecoveryLearningCenter({ demo = false, initialView = "defects" }
       ...defect.shortcomings.flatMap((item) => [localized(item.name, language), localized(item.explanation, language)]),
       ...defect.principleIds.map((id) => {
         const principle = principleById.get(id);
-        return principle ? (language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en) : "";
+        return principle ? (localizedText(principle, language)) : "";
       }),
-    ].join(" ").toLocaleLowerCase(language === "fa" ? "fa-IR" : language === "es" ? "es" : "en");
+    ].join(" ").toLocaleLowerCase(languageLocale(language));
     return searchable.includes(normalizedQuery);
   }), [language, normalizedQuery, principleById]);
 
@@ -41,11 +45,11 @@ export function RecoveryLearningCenter({ demo = false, initialView = "defects" }
     if (!normalizedQuery) return true;
     const guide = guideById.get(principle.id);
     const searchable = [
-      language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en,
-      language === "fa" ? principle.promptFa : language === "es" ? principle.promptEs : principle.promptEn,
+      localizedText(principle, language),
+      localizedText({ en: principle.promptEn, es: principle.promptEs, fa: principle.promptFa }, language),
       guide ? localized(guide.definition, language) : "",
       ...(guide?.practices.map((practice) => localized(practice, language)) ?? []),
-    ].join(" ").toLocaleLowerCase(language === "fa" ? "fa-IR" : language === "es" ? "es" : "en");
+    ].join(" ").toLocaleLowerCase(languageLocale(language));
     return searchable.includes(normalizedQuery);
   }), [guideById, language, normalizedQuery]);
 
@@ -117,7 +121,7 @@ export function RecoveryLearningCenter({ demo = false, initialView = "defects" }
                     {defect.principleIds.map((id) => {
                       const principle = principleById.get(id);
                       if (!principle) return null;
-                      return <button type="button" key={id} onClick={() => { setView("principles"); setQuery(language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en); window.requestAnimationFrame(() => document.querySelector("[data-learning-center]")?.scrollIntoView({ behavior: "smooth", block: "start" })); }}>{language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en}<ArrowRight size={14} /></button>;
+                      return <button type="button" key={id} onClick={() => { setView("principles"); setQuery(localizedText(principle, language)); window.requestAnimationFrame(() => document.querySelector("[data-learning-center]")?.scrollIntoView({ behavior: "smooth", block: "start" })); }}>{localizedText(principle, language)}<ArrowRight size={14} /></button>;
                     })}
                   </div>
                 </section>
@@ -139,12 +143,12 @@ export function RecoveryLearningCenter({ demo = false, initialView = "defects" }
             if (!group.length) return null;
             return (
               <section key={category.id}>
-                <div className="learning-group-title"><span>{language === "fa" ? category.fa : language === "es" ? category.es : category.en}</span><b>{group.length}</b></div>
+                <div className="learning-group-title"><span>{localizedText(category, language)}</span><b>{group.length}</b></div>
                 <div className="learning-principle-grid">
                   {group.map((principle) => {
                     const guide = guideById.get(principle.id);
                     if (!guide) return null;
-                    const name = language === "fa" ? principle.fa : language === "es" ? principle.es : principle.en;
+                    const name = localizedText(principle, language);
                     const prompt = principleQuestion(principle.id, language);
                     return (
                       <details className="learning-principle-card" key={principle.id} open={Boolean(normalizedQuery)}>

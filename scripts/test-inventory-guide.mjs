@@ -189,7 +189,16 @@ try {
   assert.equal((await ask(notedFollowUp, "member-a")).status, 200);
   assert.deepEqual(JSON.parse(sent.at(-1).input).recent_chat, notedFollowUp.history);
 
-  console.log("Inventory guide checks passed (membership, consent, chat and guided follow-ups, migration recovery, provider handling, and both request caps).");
+  const { replyLanguageNames } = await server.ssrLoadModule("/lib/languages.ts");
+  for (const language of ["fr", "pt-BR", "ar", "de", "hy", "it", "el"]) {
+    const response = await ask({ ...input, language, note: "Synthetic language check" }, "member-b");
+    assert.equal(response.status, 200);
+    assert.ok(sent.at(-1).instructions.includes(`Reply in ${replyLanguageNames[language]}.`));
+    assert.notEqual(JSON.parse(sent.at(-1).input).topic, "Fear");
+    assert.equal((await ask({ ...chat, language }, "member-b")).status, 200);
+    assert.ok(sent.at(-1).instructions.includes(`Reply in ${replyLanguageNames[language]}.`));
+  }
+  console.log("Inventory guide checks passed (all ten target languages, membership, consent, chat and guided follow-ups, migration recovery, provider handling, and both request caps).");
 } finally {
   globalThis.fetch = realFetch;
   delete globalThis.inventoryGuideTestEnv;

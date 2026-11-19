@@ -1,3 +1,6 @@
+import { languages, languageNames } from "@/lib/languages";
+
+import { isRtlLanguage } from "@/lib/languages";
 import { ShieldCheck } from "lucide-react";
 import { aboutCopy, aboutLanguageRoutes } from "@/lib/about-content";
 import type { Language } from "@/lib/inventory";
@@ -9,7 +12,7 @@ export function AboutPage({ language }: { language: Language }) {
   const copy = aboutCopy[language];
 
   return (
-    <main className="about-page" lang={language} dir={language === "fa" ? "rtl" : "ltr"}>
+    <main className="about-page" lang={language} dir={isRtlLanguage(language) ? "rtl" : "ltr"}>
       <SiteHeader language={language} languageRoutes={aboutLanguageRoutes} />
       <article className="about-story">
         <header className="about-story-header">
@@ -19,9 +22,7 @@ export function AboutPage({ language }: { language: Language }) {
           <p className="about-story-byline">{copy.byline}</p>
           <p className="about-story-anonymity"><ShieldCheck size={19} aria-hidden="true" />{copy.anonymity}</p>
           <nav className="about-story-languages" aria-label={copy.languageLabel}>
-            <a href={aboutLanguageRoutes.en} hrefLang="en" lang="en" aria-current={language === "en" ? "page" : undefined}>English</a>
-            <a href={aboutLanguageRoutes.es} hrefLang="es" lang="es" aria-current={language === "es" ? "page" : undefined}>Español</a>
-            <a href={aboutLanguageRoutes.fa} hrefLang="fa" lang="fa" aria-current={language === "fa" ? "page" : undefined}>فارسی</a>
+            {languages.map((value) => <a key={value} href={aboutLanguageRoutes[value]} lang={value} hrefLang={value} aria-current={language === value ? "page" : undefined}>{languageNames[value]}</a>)}
           </nav>
         </header>
         <div className="about-story-body">

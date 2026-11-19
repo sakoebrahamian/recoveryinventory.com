@@ -1,5 +1,5 @@
-export const FREE_STEP10_DAYS = 7;
-export const FREE_STEP10_ENTRIES = 7;
+export const FREE_STEP10_DAYS = 30;
+export const FREE_STEP10_ENTRIES = 30;
 
 export function freeAccountWindow(createdAt: number | undefined, now = Math.floor(Date.now() / 1000)) {
   const valid = typeof createdAt === "number" && Number.isFinite(createdAt) && createdAt > 0;
@@ -14,7 +14,7 @@ export function isIsoCalendarDate(value: unknown): value is string {
 }
 
 // One atomic SQLite statement enforces the date limit across simultaneous tabs.
-// Existing dates may be edited during the free week without using another slot.
+// Existing dates may be edited during the 30-day free period without using another slot.
 export const FREE_STEP10_INSERT = `INSERT INTO inventories
   (id, user_id, type, entry_date, encrypted_payload, created_at, updated_at)
   SELECT ?, ?, 'step10', ?, ?, ?, ?

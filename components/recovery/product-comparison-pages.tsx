@@ -1,3 +1,7 @@
+import { translateForLanguage } from "@/lib/localization";
+import { languages, languageNames } from "@/lib/languages";
+
+import { isRtlLanguage } from "@/lib/languages";
 import type { Language } from "@/lib/inventory";
 import { comparisonLanguageRoutes, comparisonPath, comparisonReviewedDate, comparisonUi, productComparisons, type ProductComparison } from "@/lib/product-comparisons";
 import { SiteHeader } from "./site-header";
@@ -9,10 +13,8 @@ function ComparisonTitle({ text }: { text: string }) {
 
 function LanguageLinks({ language, slug }: { language: Language; slug?: string }) {
   const routes = comparisonLanguageRoutes(slug);
-  return <nav className="about-story-languages" aria-label={language === "fa" ? "انتخاب زبان" : language === "es" ? "Seleccionar idioma" : "Choose language"}>
-    <a href={routes.en} lang="en" hrefLang="en" aria-current={language === "en" ? "page" : undefined}>English</a>
-    <a href={routes.es} lang="es" hrefLang="es" aria-current={language === "es" ? "page" : undefined}>Español</a>
-    <a href={routes.fa} lang="fa" hrefLang="fa" aria-current={language === "fa" ? "page" : undefined}>فارسی</a>
+  return <nav className="about-story-languages" aria-label={translateForLanguage(language, "Choose language", "انتخاب زبان")}>
+    {languages.map((value) => <a key={value} href={routes[value]} lang={value} hrefLang={value} aria-current={language === value ? "page" : undefined}>{languageNames[value]}</a>)}
   </nav>;
 }
 
@@ -26,7 +28,7 @@ export function ComparisonLinks({ language, exclude, headingLevel = 3 }: { langu
 
 export function ComparisonHub({ language }: { language: Language }) {
   const ui = comparisonUi;
-  return <main className="inner-page comparison-page" lang={language} dir={language === "fa" ? "rtl" : "ltr"}>
+  return <main className="inner-page comparison-page" lang={language} dir={isRtlLanguage(language) ? "rtl" : "ltr"}>
     <SiteHeader language={language} languageRoutes={comparisonLanguageRoutes()} />
     <article className="comparison-shell">
       <header className="comparison-header"><span className="eyebrow">{ui.eyebrow[language]}</span><h1>{ui.title[language]}</h1><p>{ui.intro[language]}</p><LanguageLinks language={language} /></header>
@@ -39,7 +41,7 @@ export function ComparisonHub({ language }: { language: Language }) {
 
 export function ProductComparisonPage({ language, comparison }: { language: Language; comparison: ProductComparison }) {
   const ui = comparisonUi;
-  return <main className="inner-page comparison-page" lang={language} dir={language === "fa" ? "rtl" : "ltr"}>
+  return <main className="inner-page comparison-page" lang={language} dir={isRtlLanguage(language) ? "rtl" : "ltr"}>
     <SiteHeader language={language} languageRoutes={comparisonLanguageRoutes(comparison.slug)} />
     <article className="comparison-shell">
       <a className="text-link" href={comparisonPath(language)}>{ui.back[language]}</a>

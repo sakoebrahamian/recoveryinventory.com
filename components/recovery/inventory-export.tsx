@@ -1,5 +1,11 @@
 "use client";
 
+import { dateTimeFormat } from "@/lib/languages";
+
+import { localizedText } from "@/lib/localization";
+
+import { isRtlLanguage, languageLocale } from "@/lib/languages";
+
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { CalendarRange, FileDown, RefreshCw, X } from "lucide-react";
@@ -99,7 +105,7 @@ function Step10Print({ data }: { data: Step10Data }) {
         if (!matching.length) return null;
         return (
           <section className="inventory-print-section" key={category.id}>
-            <h3>{language === "fa" ? category.fa : language === "es" ? category.es : category.en}</h3>
+            <h3>{localizedText(category, language)}</h3>
             <div className="inventory-print-principles">
               {matching.map((principle) => {
                 const state = data.states[principle.id];
@@ -179,8 +185,8 @@ function Step4Print({ data }: { data: Step4Data }) {
         if (!matching.length) return null;
         return (
           <section className="inventory-print-section" key={type.id}>
-            <h3>{language === "fa" ? type.fa : language === "es" ? type.es : type.en}</h3>
-            <p className="inventory-print-description">{language === "fa" ? type.descriptionFa : language === "es" ? type.descriptionEs : type.descriptionEn}</p>
+            <h3>{localizedText(type, language)}</h3>
+            <p className="inventory-print-description">{localizedText({ en: type.descriptionEn, es: type.descriptionEs, fa: type.descriptionFa }, language)}</p>
             <div className="inventory-print-step4-list">
               {matching.map((entry, index) => <Step4EntryPrint entry={entry} index={index} key={entry.id} />)}
             </div>
@@ -193,7 +199,7 @@ function Step4Print({ data }: { data: Step4Data }) {
 
 function Step10AnalyticsPrint({ analytics, bounds, scopeLabel, brief = false }: { analytics: Step10AnalyticsData; bounds: ReportBounds; scopeLabel: string; brief?: boolean }) {
   const { language, t } = useLanguage();
-  const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
+  const locale = languageLocale(language);
   const monthLocale = language === "fa" ? "fa-IR-u-ca-gregory" : locale;
   const number = (value: number) => new Intl.NumberFormat(locale).format(value);
   const principleName = (item: PrincipleAnalytics) => questionWithPrinciple(item.id, language);
@@ -291,7 +297,7 @@ function Step10AnalyticsPrint({ analytics, bounds, scopeLabel, brief = false }: 
             <ul className="inventory-print-analytics-areas">
               {analytics.categories.map((category) => (
                 <li key={category.id}>
-                  <strong>{principleCategories.find((item) => item.id === category.id)?.[language] ?? category.id}</strong>
+                  <strong>{(() => { const item = principleCategories.find((item) => item.id === category.id); return item ? localizedText(item, language) : category.id; })()}</strong>
                   <span>{number(category.practiceRate)}% · {number(category.answered)} {t("scored selections", "انتخاب امتیازدار")}</span>
                 </li>
               ))}
@@ -305,7 +311,7 @@ function Step10AnalyticsPrint({ analytics, bounds, scopeLabel, brief = false }: 
               <thead><tr><th>{t("Month", "ماه")}</th><th>{t("Saved inventories", "ترازنامه‌های ذخیره‌شده")}</th><th>{t("Practiced", "تمرین کردم")}</th><th>{t("Needs attention", "نیازمند توجه")}</th><th>{t("Practiced share", "سهم تمرین‌شده")}</th></tr></thead>
               <tbody>{analytics.allMonths.map((month) => (
                 <tr key={month.month}>
-                  <th>{new Intl.DateTimeFormat(monthLocale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${month.month}-01T12:00:00Z`))}</th>
+                  <th>{dateTimeFormat(monthLocale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${month.month}-01T12:00:00Z`))}</th>
                   <td>{number(month.entries)}</td><td>{number(month.practiced)}</td><td>{number(month.attention)}</td><td>{number(month.practiceRate)}%</td>
                 </tr>
               ))}</tbody>
@@ -328,11 +334,11 @@ function PrintDocument({ records, scopeLabel, analytics, bounds, format }: { rec
   }), [records]);
 
   return (
-    <div className="inventory-print-root" aria-hidden="true" dir={language === "fa" ? "rtl" : "ltr"}>
+    <div className="inventory-print-root" aria-hidden="true" dir={isRtlLanguage(language) ? "rtl" : "ltr"}>
       <header className="inventory-print-cover">
         <p>{format === "summary" ? t("PRIVATE SPONSOR SUMMARY", "خلاصه خصوصی برای حامی") : format === "chart" ? t("PRIVATE PRINCIPLE CHART", "نمودار خصوصی اصول") : t("PRIVATE INVENTORY EXPORT", "خروجی خصوصی ترازنامه")}</p>
         <h1>{t("Recovery Inventory", "ترازنامه بهبودی")}</h1>
-        <div><span>{scopeLabel}</span><span>{format === "summary" || format === "chart" ? `${analytics?.totalEntries ?? 0} ${t("saved Step 10 inventories", "ترازنامه ذخیره‌شده گام ۱۰")}` : language === "es" ? `${sorted.length} ${sorted.length === 1 ? "inventario guardado" : "inventarios guardados"}` : t(`${sorted.length} saved ${sorted.length === 1 ? "inventory" : "inventories"}`, `${sorted.length} ترازنامه ذخیره‌شده`)}</span></div>
+        <div><span>{scopeLabel}</span><span>{format === "summary" || format === "chart" ? `${analytics?.totalEntries ?? 0} ${t("saved Step 10 inventories", "ترازنامه ذخیره‌شده گام ۱۰")}` : `${new Intl.NumberFormat(language).format(sorted.length)} ${t("saved inventories", "ترازنامه ذخیره‌شده")}`}</span></div>
       </header>
 
       {format === "summary" || format === "chart" ? null : sorted.length === 0 ? (
@@ -474,9 +480,9 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
     if (scope === "month") {
       if (!/^\d{4}-\d{2}$/.test(month)) return t("Choose a month", "یک ماه انتخاب کنید");
       const [monthYear, monthNumber] = month.split("-").map(Number);
-      return new Intl.DateTimeFormat(language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(monthYear, monthNumber - 1, 1)));
+      return dateTimeFormat(languageLocale(language), { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(monthYear, monthNumber - 1, 1)));
     }
-    return new Intl.NumberFormat(language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US", { useGrouping: false }).format(year);
+    return new Intl.NumberFormat(languageLocale(language), { useGrouping: false }).format(year);
   })();
 
   const dateCount = new Set(filteredRecords.map((record) => record.date)).size;
@@ -551,7 +557,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
               {(scope === "day" || scope === "week") && <label><span>{t("Day", "روز")}</span><input type="date" min={firstDayOfYear(year)} max={lastDayOfYear(year)} value={day} onChange={(event) => setDay(event.target.value)} /></label>}
               {scope === "range" && <><label><span>{t("From", "از")}</span><input type="date" min={firstDayOfYear(year)} max={lastDayOfYear(year)} value={rangeStart} onChange={(event) => setRangeStart(event.target.value)} /></label><label><span>{t("Through", "تا")}</span><input type="date" min={firstDayOfYear(year)} max={lastDayOfYear(year)} value={rangeEnd} onChange={(event) => setRangeEnd(event.target.value)} /></label></>}
               {scope === "month" && <label><span>{t("Month", "ماه")}</span><input type="month" min={`${year}-01`} max={`${year}-12`} value={month} onChange={(event) => setMonth(event.target.value)} /></label>}
-              {scope === "year" && <div className="inventory-export-year"><span>{t("Calendar year", "سال تقویم")}</span><strong>{new Intl.NumberFormat(language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US", { useGrouping: false }).format(year)}</strong></div>}
+              {scope === "year" && <div className="inventory-export-year"><span>{t("Calendar year", "سال تقویم")}</span><strong>{new Intl.NumberFormat(languageLocale(language), { useGrouping: false }).format(year)}</strong></div>}
             </div>
           </fieldset>}
 

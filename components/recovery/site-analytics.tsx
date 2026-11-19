@@ -1,4 +1,5 @@
 "use client";
+import { supportedLanguage } from "@/lib/languages";
 
 import * as React from "react";
 import { useLanguage } from "./language-provider";
@@ -6,7 +7,7 @@ import { analyticsLanguage, recordSiteAction, recordSitePage } from "@/lib/site-
 import type { SiteAnalyticsAction, SiteAnalyticsPage } from "@/lib/site-analytics-config";
 
 function pageFromPath(pathname: string): SiteAnalyticsPage | null {
-  const normalized = pathname.replace(/^\/(es|fa)(?=\/learn(?:\/|$))/, "").replace(/\/$/, "") || "/";
+  const normalized = pathname.replace(/^\/(es|fa|fr|pt-br|ar|de|hy|it|el)(?=\/learn(?:\/|$))/i, "").replace(/\/$/, "") || "/";
   if (normalized === "/") return "home";
   if (normalized === "/demo") return "demo";
   if (normalized === "/join") return "join";
@@ -25,7 +26,7 @@ function actionFromLink(url: URL): SiteAnalyticsAction | null {
   if (url.pathname === "/demo") return "demo_open";
   if (url.pathname === "/join") return "join_open";
   if ((url.pathname === "/" || url.pathname === "") && url.hash === "#membership") return "membership_view";
-  if (/^\/(?:es\/|fa\/)?learn(?:\/|$)/.test(url.pathname)) return "learn_open";
+  if (/^\/(?:(?:es|fa|fr|pt-br|ar|de|hy|it|el)\/)?learn(?:\/|$)/i.test(url.pathname)) return "learn_open";
   return null;
 }
 
@@ -34,11 +35,7 @@ export function SiteAnalytics() {
 
   React.useEffect(() => {
     const page = pageFromPath(window.location.pathname);
-    const routeLanguage = window.location.pathname.startsWith("/fa/learn")
-      ? "fa"
-      : window.location.pathname.startsWith("/es/learn")
-        ? "es"
-        : analyticsLanguage(language);
+    const routeLanguage = supportedLanguage(window.location.pathname.split("/")[1]) ?? analyticsLanguage(language);
     if (page) recordSitePage(page, routeLanguage);
   }, [language]);
 

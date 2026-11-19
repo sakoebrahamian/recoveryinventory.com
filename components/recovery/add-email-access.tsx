@@ -30,7 +30,7 @@ export function AddEmailAccess({
         body: JSON.stringify({ purpose: "add_email", email: address, language }),
       });
       const result = await response.json() as { challengeId?: string; maskedEmail?: string; error?: string };
-      if (!response.ok || !result.challengeId) throw new Error(result.error || t("The verification email could not be sent.", "ایمیل تأیید ارسال نشد."));
+      if (!response.ok || !result.challengeId) throw new Error(t(result.error || "The verification email could not be sent.", "ایمیل تأیید ارسال نشد."));
       setChallengeId(result.challengeId);
       setMaskedEmail(result.maskedEmail || address);
       setMessage(t("We sent a six-digit code.", "یک کد شش‌رقمی فرستادیم."));
@@ -52,7 +52,7 @@ export function AddEmailAccess({
         body: JSON.stringify({ challengeId, code }),
       });
       const result = await response.json() as { email?: string; error?: string };
-      if (!response.ok || !result.email) throw new Error(result.error || t("That code was not recognized.", "این کد شناخته نشد."));
+      if (!response.ok || !result.email) throw new Error(t(result.error || "That code was not recognized.", "این کد شناخته نشد."));
       onConnected(result.email);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));

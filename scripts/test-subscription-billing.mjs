@@ -31,10 +31,11 @@ async function load(path, imports = {}) {
   for (const [name, url] of Object.entries(imports)) code = code.replaceAll(`from "${name}"`, `from "${url}"`);
   return data(code);
 }
+const languagesUrl = await load("lib/languages.ts");
 const plansUrl = await load("lib/subscription-plans.ts");
 const cryptoUrl = await load("lib/server-crypto.ts", { "cloudflare:workers": envModule });
 const stripeUrl = await load("lib/stripe.ts", { "cloudflare:workers": envModule, "./server-crypto": cryptoUrl, "./subscription-plans": plansUrl });
-const routeImports = { "cloudflare:workers": envModule, "@/lib/auth": authModule, "@/lib/stripe": stripeUrl, "@/lib/subscription-plans": plansUrl };
+const routeImports = { "@/lib/languages": languagesUrl, "cloudflare:workers": envModule, "@/lib/auth": authModule, "@/lib/stripe": stripeUrl, "@/lib/subscription-plans": plansUrl };
 const { POST: checkout } = await import(await load("app/api/billing/checkout/route.ts", routeImports));
 const { POST: webhook } = await import(await load("app/api/billing/webhook/route.ts", routeImports));
 const { yearlySavings, yearlySavingsPercent } = await import(plansUrl);
@@ -83,6 +84,11 @@ try {
     assert.equal(session.mode, "subscription");
     assert.match(session.cancel_url, new RegExp(`plan=${plan ?? "yearly"}$`));
     assert.equal(session["subscription_data[metadata][billing_plan]"], plan ?? "yearly");
+  }
+  for (const [language, locale] of [["fr", "fr"], ["pt-br", "pt-BR"], ["ar", "auto"], ["de", "de"], ["hy", "auto"], ["it", "it"], ["el", "el"], ["fa", "auto"]]) {
+    reset();
+    assert.equal((await checkout(request({ plan: "monthly", language }))).status, 200);
+    assert.equal(state.requests.find((item) => item.path === "/checkout/sessions").values.locale, locale);
   }
   reset();
   assert.equal((await checkout(request({ plan: "monthly", language: "fa", promotionCode: "FREE" }))).status, 200);
@@ -136,7 +142,7 @@ try {
   state.duplicate = true;
   assert.equal((await (await sendEvent("invoice.paid", {})).json()).duplicate, true);
   assert.equal(state.requests.length, 0);
-  console.log("Subscription billing checks passed: both plans, correct amounts/currency/interval/product, legacy default, promotions, invalid input, active-member guard, signed paid/unpaid checkout, renewals, failed payments, cancellation, risk reconciliation, and duplicate events.");
+  console.log("Subscription billing checks passed: ten-language checkout mapping, both plans, correct amounts/currency/interval/product, legacy default, promotions, invalid input, active-member guard, signed paid/unpaid checkout, renewals, failed payments, cancellation, risk reconciliation, and duplicate events.");
 } finally {
   globalThis.fetch = originalFetch;
   console.warn = originalWarn;

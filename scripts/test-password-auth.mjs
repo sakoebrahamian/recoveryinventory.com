@@ -302,11 +302,30 @@ try {
   ));
   assert.equal(response.status, 200, "the required recovery code must remain a working backup login");
 
+  const { loadTranslations } = await server.ssrLoadModule("/lib/localization.ts");
+  const { emailCopy } = await server.ssrLoadModule("/lib/email-auth.ts");
+  for (const language of ["fr", "pt-BR", "ar", "de", "hy", "it", "el"]) {
+    const username = `locale-${language}`;
+    const response = await createRoute.POST(postRequest("http://test/api/account/create", { alias: "Locale fixture", username, password: "Test-only-resilient-93!", language }));
+    assert.equal(response.status, 201);
+    const row = [...state.passwords.values()].find(row => row.username === username.toLowerCase());
+    assert.equal(state.users.get(row.user_id).preferred_language, language);
+    await loadTranslations(language);
+    for (const purpose of ["signup", "login", "add_email"]) {
+      const email = emailCopy(language, "123456", purpose);
+      assert.notEqual(email.subject, "Your Recovery Inventory verification code");
+      assert.ok(email.text.includes("123456"));
+      assert.ok(email.html.includes(`lang="${language}"`));
+      assert.ok(email.html.includes(`dir="${language === "ar" ? "rtl" : "ltr"}"`));
+      assert.ok(!email.text.includes("This code expires"));
+    }
+  }
   console.log("Password account integration checks passed:");
   console.log("- existing anonymous and email accounts retained their account IDs and saved data");
   console.log("- username uniqueness, failed-attempt tracking, login, and session creation work");
   console.log("- repeated failed logins trigger the temporary account lock");
   console.log("- anonymous signup creates username/password plus a working recovery code");
+  console.log("- all seven new account languages persist and verification email templates are localized without sending email");
 } finally {
   await server.close();
 }

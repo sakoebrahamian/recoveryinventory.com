@@ -18,7 +18,8 @@
     "test:billing": "node scripts/test-billing-client.mjs && node scripts/test-subscription-billing.mjs",
     "db:generate": "drizzle-kit generate",
     "test:analytics": "node scripts/test-analytics-detail.mjs",
-    "test:free-accounts": "node scripts/test-free-accounts.mjs"
+    "test:free-accounts": "node scripts/test-free-accounts.mjs",
+    "test:localization": "node scripts/test-localization.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

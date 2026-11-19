@@ -1,12 +1,14 @@
 "use client";
 
+import { languageLocale } from "@/lib/languages";
+
 import { useId } from "react";
 import { useLanguage } from "./language-provider";
 import { subscriptionPricing, yearlySavings, yearlySavingsPercent, type BillingPlan } from "@/lib/subscription-plans";
 
 export function SubscriptionSavings() {
   const { language, t } = useLanguage();
-  const money = (cents: number) => new Intl.NumberFormat(language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US", {
+  const money = (cents: number) => new Intl.NumberFormat(languageLocale(language), {
     style: "currency", currency: "USD",
   }).format(cents / 100);
   return (

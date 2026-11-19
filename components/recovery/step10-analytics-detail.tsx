@@ -1,5 +1,10 @@
 "use client";
 
+import { dateTimeFormat } from "@/lib/languages";
+import { localizedText } from "@/lib/localization";
+
+import { isRtlLanguage, languageLocale } from "@/lib/languages";
+
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { formatDisplayDate, principles, step10Questions, principleQuestion, type Language } from "@/lib/inventory";
@@ -71,7 +76,7 @@ export function Step10AnalyticsDetail({ analytics, bounds, demo = false, onOpenD
   const firstWeekday = (monthDate.getUTCDay() + 6) % 7;
   const currentDay = analytics.days.find((item) => item.date === selectedDay);
   const dayAction = (date: string) => onOpenDate && <button type="button" className="button button-outline button-small" onClick={() => onOpenDate(date)}>{t("Open this inventory", "باز کردن این ترازنامه")}</button>;
-  const locale = language === "fa" ? "fa-IR-u-ca-gregory" : language === "es" ? "es-US" : "en-US";
+  const locale = languageLocale(language, true);
 
   async function copyReport() {
     try { await navigator.clipboard.writeText(report); setCopyMessage(t("Selected report copied.", "گزارش انتخاب‌شده کپی شد.")); }
@@ -90,17 +95,17 @@ export function Step10AnalyticsDetail({ analytics, bounds, demo = false, onOpenD
     <section className="analytics-panel">
       <h3>{t("Explore your principles", "بررسی اصول شما")}</h3>
       <p>{t("Choose principles to follow in the trend and detailed history. With none selected, all 24 are included. Main questions and follow-ups keep their own answers.", "اصول مورد نظر را برای بررسی روند و سابقه جزئی انتخاب کنید. اگر هیچ اصلی انتخاب نشود، هر ۲۴ اصل نمایش داده می‌شوند. پرسش‌های اصلی و تکمیلی پاسخ‌های جداگانه دارند.")}</p>
-      <details className="analytics-principle-chooser"><summary>{t("Choose principles", "انتخاب اصول")} ({chosen.length || principles.length})</summary><fieldset><legend>{t("Principles to follow", "اصول مورد نظر")}</legend><div className="analytics-checkbox-grid">{principles.map((item) => <label key={item.id}><input type="checkbox" checked={chosen.includes(item.id)} onChange={() => togglePrinciple(item.id)} />{item[language]}</label>)}</div><button type="button" className="button button-outline button-small" onClick={() => { setChosen([]); setPreview(false); }}>{t("Show all principles", "نمایش همه اصول")}</button></fieldset></details>
+      <details className="analytics-principle-chooser"><summary>{t("Choose principles", "انتخاب اصول")} ({chosen.length || principles.length})</summary><fieldset><legend>{t("Principles to follow", "اصول مورد نظر")}</legend><div className="analytics-checkbox-grid">{principles.map((item) => <label key={item.id}><input type="checkbox" checked={chosen.includes(item.id)} onChange={() => togglePrinciple(item.id)} />{localizedText(item, language)}</label>)}</div><button type="button" className="button button-outline button-small" onClick={() => { setChosen([]); setPreview(false); }}>{t("Show all principles", "نمایش همه اصول")}</button></fieldset></details>
       <div className="analytics-filter-row"><label>{t("Group trend by", "گروه‌بندی روند بر اساس")}<select value={interval} onChange={(event) => setInterval(event.target.value as "week" | "month")}><option value="week">{t("Calendar week", "هفته تقویمی")}</option><option value="month">{t("Calendar month", "ماه تقویمی")}</option></select></label></div>
       <div className="analytics-table-scroll"><table className="analytics-data-table"><caption>{t("Trend for selected principles", "روند اصول انتخاب‌شده")}</caption><thead><tr><th>{t("Period", "بازه")}</th><th>{t("Saved days", "روزهای ذخیره‌شده")}</th><th>{t("Practiced", "تمرین کردم")}</th><th>{t("Needs attention", "نیازمند توجه")}</th><th>{t("Didn’t come up today", "امروز پیش نیامد")}</th><th>{t("Not answered", "پاسخ داده نشده")}</th><th>{t("Practiced share", "سهم تمرین‌شده")}</th></tr></thead><tbody>{trends.map((item) => <tr key={item.from}><th scope="row">{dateRange(item, language)}</th><td>{item.savedDays}</td><td>{item.practiced}</td><td>{item.attention}</td><td>{item.na}</td><td>{item.unanswered}</td><td><span className="analytics-mini-bar" aria-hidden="true"><i style={{ width: `${item.rate ?? 0}%` }} /></span>{item.rate === null ? "—" : `${item.rate}%`} <small>({item.practiced}/{item.answered})</small></td></tr>)}</tbody></table></div>
       <p>{t("Counts are question answers, not numbers of principles or days. A dash means there were no Practiced or Needs attention answers.", "شمارش‌ها تعداد پاسخ‌های پرسش‌ها هستند، نه تعداد اصول یا روزها. خط تیره یعنی هیچ پاسخ «تمرین کردم» یا «نیازمند توجه» ثبت نشده است.")}</p>
       <div className="analytics-principle-details">{principles.filter((item) => !chosen.length || chosen.includes(item.id)).map((principle) => <details key={principle.id} open={expanded === principle.id} onToggle={(event) => { if (event.currentTarget.open) setExpanded(principle.id); else setExpanded((value) => value === principle.id ? "" : value); }}>
-        <summary>{principle[language]} <span>{t("Questions, answers, and notes", "پرسش‌ها، پاسخ‌ها و یادداشت‌ها")}</span></summary>
+        <summary>{localizedText(principle, language)} <span>{t("Questions, answers, and notes", "پرسش‌ها، پاسخ‌ها و یادداشت‌ها")}</span></summary>
         {expanded === principle.id && step10Questions.filter((item) => item.principleId === principle.id).map((question) => {
           const totals = countQuestionDays(analytics.days, [question.id]);
           const previous = analytics.comparison?.principles.find((item) => item.id === question.id);
           return <article className="analytics-question-history" key={question.id}>
-            <h4>{question[language]}</h4>{question.followUp && <small>{t("Follow-up question", "پرسش تکمیلی")}</small>}
+            <h4>{localizedText(question, language)}</h4>{question.followUp && <small>{t("Follow-up question", "پرسش تکمیلی")}</small>}
             <p>{totals.practiced}/{totals.answered} {t("answers marked Practiced", "پاسخ با برچسب تمرین کردم")} · {totals.attention} {t("Needs attention", "نیازمند توجه")} · {totals.na} {t("Didn’t come up today", "امروز پیش نیامد")} · {totals.unanswered} {t("Not answered", "پاسخ داده نشده")}</p>
             <p>{t("Previous period", "بازه پیشین")}: {previous?.answered ? `${previous.practiced}/${previous.answered} (${previous.practiceRate}%)` : "—"}</p>
             <details><summary>{t("View dated answers", "نمایش پاسخ‌های تاریخ‌دار")}</summary><ul className="analytics-answer-history">{[...analytics.days].reverse().map((day) => <li key={day.date}><time>{formatDisplayDate(day.date, language)}</time><span className={`analytics-answer-state is-${answerForDay(day, question.id)}`}>{stateLabel(answerForDay(day, question.id), t)}</span>{day.states[question.id] === "attention" && day.notes[question.id] && <blockquote dir="auto">{day.notes[question.id]}</blockquote>}{dayAction(day.date)}</li>)}</ul></details>
@@ -111,8 +116,8 @@ export function Step10AnalyticsDetail({ analytics, bounds, demo = false, onOpenD
 
     <section className="analytics-panel">
       <h3>{t("Recorded-day calendar", "تقویم روزهای ثبت‌شده")}</h3><p>{t("A marked day has a saved inventory. An unmarked day means no inventory was saved, not a negative answer.", "روز علامت‌دار ترازنامه ذخیره‌شده دارد. روز بدون علامت یعنی ترازنامه‌ای ذخیره نشده، نه اینکه پاسخ منفی بوده است.")}</p>
-      <div className="analytics-calendar-layout"><div><div className="analytics-calendar-heading"><button type="button" className="button button-outline button-small" disabled={month <= bounds.from.slice(0, 7)} onClick={() => moveMonth(-1)}>{t("Previous month", "ماه پیشین")}</button><strong>{new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(monthDate)}</strong><button type="button" className="button button-outline button-small" disabled={month >= bounds.through.slice(0, 7)} onClick={() => moveMonth(1)}>{t("Next month", "ماه بعد")}</button></div>
-        <div className="analytics-calendar-weekdays">{Array.from({ length: 7 }, (_, index) => <span key={index}>{new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 9, 19 + index)))}</span>)}</div>
+      <div className="analytics-calendar-layout"><div><div className="analytics-calendar-heading"><button type="button" className="button button-outline button-small" disabled={month <= bounds.from.slice(0, 7)} onClick={() => moveMonth(-1)}>{t("Previous month", "ماه پیشین")}</button><strong>{dateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(monthDate)}</strong><button type="button" className="button button-outline button-small" disabled={month >= bounds.through.slice(0, 7)} onClick={() => moveMonth(1)}>{t("Next month", "ماه بعد")}</button></div>
+        <div className="analytics-calendar-weekdays">{Array.from({ length: 7 }, (_, index) => <span key={index}>{dateTimeFormat(locale, { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 9, 19 + index)))}</span>)}</div>
         <div className="analytics-calendar-grid">{Array.from({ length: firstWeekday }, (_, index) => <span key={`blank-${index}`} />)}{Array.from({ length: lastDay }, (_, index) => {
           const date = `${month}-${String(index + 1).padStart(2, "0")}`;
           const saved = analytics.days.some((item) => item.date === date);
@@ -131,6 +136,6 @@ export function Step10AnalyticsDetail({ analytics, bounds, demo = false, onOpenD
 
     <section className="analytics-panel analytics-focused-report"><h3>{t("Focused sponsor report", "گزارش منتخب برای حامی")}</h3><p>{t("Includes the selected dates, comparisons for your chosen principles, and only the notes you select. Preview it before copying or saving a PDF. No individual inventory pages are included.", "شامل تاریخ‌های انتخاب‌شده، مقایسه اصول مورد نظر و فقط یادداشت‌هایی است که انتخاب می‌کنید. پیش از کپی یا ذخیره PDF آن را بررسی کنید. صفحه‌های ترازنامه روزانه در این گزارش نیستند.")}</p><p>{chosen.length || principles.length} {t("principles included", "اصل در گزارش")} · {selectedNotes.length} {t("notes selected", "یادداشت انتخاب‌شده")}</p><button type="button" className="button button-primary" disabled={!analytics.totalEntries} onClick={() => setPreview(true)}>{t("Preview selected report", "پیش‌نمایش گزارش منتخب")}</button>{preview && <><label className="analytics-report-text">{t("Report preview", "پیش‌نمایش گزارش")}<textarea readOnly value={report} rows={16} dir="auto" /></label><div className="analytics-report-actions"><button type="button" className="button button-outline" onClick={() => void copyReport()}>{t("Copy selected report", "کپی گزارش منتخب")}</button><button type="button" className="button button-outline" onClick={printReport}>{t("Print / Save PDF", "چاپ / ذخیره PDF")}</button></div><p role="status">{copyMessage}</p></>}
     </section>
-    {domReady && createPortal(<div className="focused-print-root" dir={language === "fa" ? "rtl" : "ltr"} lang={language}><pre>{report}</pre></div>, document.body)}
+    {domReady && createPortal(<div className="focused-print-root" dir={isRtlLanguage(language) ? "rtl" : "ltr"} lang={language}><pre>{report}</pre></div>, document.body)}
   </div>;
 }

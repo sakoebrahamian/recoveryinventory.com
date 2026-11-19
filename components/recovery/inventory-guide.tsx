@@ -1,5 +1,9 @@
 "use client";
 
+import { dateTimeFormat } from "@/lib/languages";
+
+import { isRtlLanguage, languageLocale } from "@/lib/languages";
+
 import * as React from "react";
 import { Sparkles } from "lucide-react";
 import type { Language } from "@/lib/inventory";
@@ -22,10 +26,10 @@ export function InventoryGuide({ step, date, language }: { step: InventoryGuideS
   const [open, setOpen] = React.useState(false);
   const [mode, setMode] = React.useState<GuideMode>("chat");
   const panelId = React.useId();
-  const scope = `${step}-${date}-${language}-${open}`;
+  const scope = `${step}-${date}-${open}`;
 
   return (
-    <div className="inventory-guide" hidden={step === null} lang={language} dir={language === "fa" ? "rtl" : "ltr"}>
+    <div className="inventory-guide" hidden={step === null} lang={language} dir={isRtlLanguage(language) ? "rtl" : "ltr"}>
       <button
         type="button"
         className="button button-outline button-small"
@@ -116,7 +120,7 @@ function GuideIssueNotice({ issue, language, t }: { issue: GuideIssue | null; la
     invalid_request: t("Refresh the page and try again.", "صفحه را تازه کنید و دوباره تلاش کنید."),
   };
   const resetTime = issue.resetAt === undefined ? null
-    : new Intl.DateTimeFormat(language, { dateStyle: "medium", timeStyle: "short" }).format(issue.resetAt);
+    : dateTimeFormat(languageLocale(language), { dateStyle: "medium", timeStyle: "short" }).format(issue.resetAt);
   return (
     <p className="inventory-guide-issue" role="status">
       {copy[issue.kind]}

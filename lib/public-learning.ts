@@ -1,3 +1,6 @@
+import { localizedPath, languageRoutes } from "./languages";
+
+import { expandLocalizedRecord } from "@/lib/localization";
 import type { Language } from "@/lib/inventory";
 
 export type LearningStage = {
@@ -57,7 +60,7 @@ export const learningHubCopy: Record<Language, {
   demoLabel: string;
   joinLabel: string;
   safetyNote: string;
-}> = {
+}> = expandLocalizedRecord({
   en: {
     eyebrow: "Public learning center",
     title: "Understand the pattern. Practice the principle.",
@@ -103,13 +106,13 @@ export const learningHubCopy: Record<Language, {
     joinLabel: "مشاهده گزینه‌های اشتراک وب‌سایت",
     safetyNote: "این راهنماها برای تأمل شخصی هستند و تشخیص، درمان، پشتیبانی بحران یا جایگزین مراقبت حرفه‌ای و راهنمایی قابل اعتماد در بهبودی نیستند.",
   },
-};
+});
 
 export const publicLearningTopics: PublicLearningTopic[] = [
   {
     id: "step10",
     slug: "step-10-daily-inventory",
-    copy: {
+    copy: expandLocalizedRecord({
       en: {
         eyebrow: "Daily reflection guide",
         title: "Step 10 Daily Inventory Template and Example",
@@ -245,12 +248,12 @@ export const publicLearningTopics: PublicLearningTopic[] = [
         closingTitle: "چه زمانی مکث کنیم",
         closing: "اگر تأمل طاقت‌فرسا شد، موقعیتی ناامن را آشکار کرد یا پرسشی فراتر از ترازنامه شخصی پیش آورد، مکث کنید و کمک مناسب بگیرید. مرور نوشته‌شده باید از مراقبت و مسئولیت حمایت کند و جایگزین خدمات بحران، مراقبت پزشکی، درمان، مشاوره حقوقی یا راهنمایی قابل اعتماد در بهبودی نیست.",
       },
-    },
+    }),
   },
   {
     id: "step4",
     slug: "step-4-personal-inventory",
-    copy: {
+    copy: expandLocalizedRecord({
       en: {
         eyebrow: "Personal inventory guide",
         title: "How to build a Step 4 inventory over time",
@@ -344,12 +347,12 @@ export const publicLearningTopics: PublicLearningTopic[] = [
         closingTitle: "کامل کردن به معنای بی‌نقص بودن نیست",
         closing: "ترازنامه کامل به این معنا نیست که هر خاطره حل شده یا هر پاسخ نهایی است. یعنی برای این مرحله از کار، گزارشی صادقانه و مفید ساخته‌اید. می‌توانید همین دفتر را ویرایش یا بعداً ترازنامه جداگانه‌ای آغاز کنید. وقتی موضوع شامل آسیب روانی، سوءاستفاده، خطر، مسئله حقوقی یا نیاز سلامت روان است از راهنمایی حرفه‌ای یا بهبودی قابل اعتماد کمک بگیرید.",
       },
-    },
+    }),
   },
   {
     id: "dishonesty",
     slug: "dishonesty-to-honesty",
-    copy: {
+    copy: expandLocalizedRecord({
       en: {
         eyebrow: "Pattern → behavior → principle",
         title: "Dishonesty, related behaviors, and practicing honesty",
@@ -443,12 +446,12 @@ export const publicLearningTopics: PublicLearningTopic[] = [
         closingTitle: "پیشرفت یعنی هماهنگی تکرارشونده",
         closing: "یک گفته صادقانه الگویی را پاک نمی‌کند و یک پاسخ ناصادقانه تمام یک فرد را تعریف نمی‌کند. تغییر با تمرین پیوسته صداقت، درستکاری، پاسخ‌گویی و شجاعت رشد می‌کند. اگر حقیقت شامل خطر، سوءاستفاده، پیامد حقوقی، آسیب روانی یا نگرانی جدی سلامت روان است، پیش از اقدام راهنمایی تخصصی بگیرید.",
       },
-    },
+    }),
   },
 ];
 
 export function learningBasePath(language: Language): `/${string}` {
-  return language === "en" ? "/learn" : `/${language}/learn`;
+  return localizedPath(language, "/learn");
 }
 
 export function learningTopicPath(language: Language, slug: string): `/${string}` {
@@ -456,11 +459,7 @@ export function learningTopicPath(language: Language, slug: string): `/${string}
 }
 
 export function learningLanguageRoutes(slug?: string) {
-  return {
-    en: slug ? learningTopicPath("en", slug) : learningBasePath("en"),
-    es: slug ? learningTopicPath("es", slug) : learningBasePath("es"),
-    fa: slug ? learningTopicPath("fa", slug) : learningBasePath("fa"),
-  } satisfies Record<Language, string>;
+  return languageRoutes(slug ? `/learn/${slug}` : "/learn");
 }
 
 export function findLearningTopic(slug: string) {

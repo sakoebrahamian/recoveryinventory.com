@@ -1,5 +1,10 @@
 "use client";
 
+import { dateTimeFormat } from "@/lib/languages";
+import { localizedText } from "@/lib/localization";
+
+import { isRtlLanguage, languageLocale } from "@/lib/languages";
+
 import * as React from "react";
 import { formatDisplayDate, principles, step10Questions, type Language } from "@/lib/inventory";
 import type { Step10AnalyticsData } from "@/lib/step10-analytics";
@@ -34,8 +39,8 @@ export function Step10PatternVisual({ analytics, bounds, onOpenDate, print = fal
   const [selected, setSelected] = React.useState<{ id: string; index: number } | null>(null);
   const data = React.useMemo(() => buildStep10Patterns(analytics, bounds), [analytics, bounds.from, bounds.through]);
   const bucketLabels = React.useMemo(() => data.buckets.map((bucket) => rangeLabel(bucket, language)), [data.buckets, language]);
-  const headingDate = new Intl.DateTimeFormat(language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US", { ...(data.interval === "month" ? { year: "2-digit" as const } : { day: "numeric" as const }), month: "short", timeZone: "UTC" });
-  const name = (id: string) => principles.find((item) => item.id === id)?.[language] ?? id;
+  const headingDate = dateTimeFormat(languageLocale(language), { ...(data.interval === "month" ? { year: "2-digit" as const } : { day: "numeric" as const }), month: "short", timeZone: "UTC" });
+  const name = (id: string) => (() => { const item = principles.find((item) => item.id === id); return item ? localizedText(item, language) : id; })();
   const ordered = [...data.rows].sort((a, b) => sort === "principle" ? name(a.id).localeCompare(name(b.id), language) : b[sort] - a[sort] || b.scoredDays - a.scoredDays || name(a.id).localeCompare(name(b.id), language));
   const selectedRow = selected ? data.rows.find((row) => row.id === selected.id) : undefined;
   const selectedCell = selectedRow && selected ? selectedRow.cells[selected.index] : undefined;
@@ -49,8 +54,8 @@ export function Step10PatternVisual({ analytics, bounds, onOpenDate, print = fal
     const wrapped = getComputedStyle(event.currentTarget.closest("tr")!).display === "grid";
     if (event.key === "ArrowUp") { if (wrapped) column -= 7; else row -= 1; }
     if (event.key === "ArrowDown") { if (wrapped) column += 7; else row += 1; }
-    if (event.key === "ArrowLeft") column += language === "fa" ? 1 : -1;
-    if (event.key === "ArrowRight") column += language === "fa" ? -1 : 1;
+    if (event.key === "ArrowLeft") column += isRtlLanguage(language) ? 1 : -1;
+    if (event.key === "ArrowRight") column += isRtlLanguage(language) ? -1 : 1;
     if (event.key === "Home") column = 0;
     if (event.key === "End") column = data.buckets.length - 1;
     row = Math.max(0, Math.min(data.rows.length - 1, row));
@@ -89,7 +94,7 @@ export function Step10PatternVisual({ analytics, bounds, onOpenDate, print = fal
     {selectedDays.map((day) => <div className="pattern-evidence-day" key={day.date}>
       <strong>{formatDisplayDate(day.date, language)}</strong>
       <ul>{step10Questions.filter((question) => question.principleId === selectedRow.id && day.questionIds.includes(question.id)).map((question) => <li key={question.id}>
-        <span>{question[language]}</span>
+        <span>{localizedText(question, language)}</span>
         <strong>{day.states[question.id] === "practiced" ? t("Practiced", "تمرین کردم") : day.states[question.id] === "attention" ? t("Needs attention", "نیازمند توجه") : day.states[question.id] === "na" ? t("Didn’t come up today", "امروز پیش نیامد") : t("Not answered", "پاسخ داده نشده")}</strong>
         {day.states[question.id] === "attention" && day.notes[question.id] && <blockquote dir="auto">{day.notes[question.id]}</blockquote>}
       </li>)}</ul>

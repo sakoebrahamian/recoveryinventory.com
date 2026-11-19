@@ -1,3 +1,4 @@
+import { localizedText } from "./localization";
 import { formatDisplayDate, principleCategories, step10QuestionsForPayload, questionWithPrinciple, reflectionPrincipleNames, type Language } from "@/lib/inventory";
 import { reflectionFields, type Step10AnalyticsData, type PrincipleAnalytics, type ReflectionField, type WrittenExcerpt, type WrittenWeek } from "@/lib/step10-analytics";
 import type { Step10Data } from "@/components/recovery/step10-inventory";
@@ -10,7 +11,7 @@ import { countQuestionDays, questionIdsForPrinciples, reflectionEntries } from "
 type Translate = (english: string, farsi: string) => string;
 
 function localized(item: { en: string; es: string; fa: string }, language: Language) {
-  return item[language];
+  return localizedText(item, language);
 }
 
 export function step10ReflectionLabel(field: ReflectionField, t: Translate) {

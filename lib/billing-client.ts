@@ -1,3 +1,4 @@
+import type { Language } from "./languages";
 import type { BillingPlan } from "./subscription-plans";
 
 export type BillingPath = "checkout" | "portal";
@@ -23,7 +24,7 @@ export async function requestBilling(
   { timeoutMs = 30_000, plan = "yearly", language = "en" }: {
     timeoutMs?: number;
     plan?: BillingPlan;
-    language?: "en" | "es" | "fa";
+    language?: Language;
   } = {},
 ): Promise<{ ok: boolean; result: BillingResult }> {
   const controller = new AbortController();

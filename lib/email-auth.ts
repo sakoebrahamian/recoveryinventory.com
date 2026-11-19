@@ -1,3 +1,5 @@
+import { supportedLanguage, isRtlLanguage } from "./languages";
+import { loadTranslations, translateForLanguage } from "./localization";
 import { env } from "cloudflare:workers";
 import { sha256 } from "./server-crypto";
 
@@ -31,40 +33,43 @@ export async function hashEmailCode(challengeId: string, code: string): Promise<
   return sha256(`recovery-inventory-email-code-v1:${secret}:${challengeId}:${code}`);
 }
 
-function emailCopy(language: string, code: string, purpose: EmailPurpose) {
+export function emailCopy(languageValue: string, code: string, purpose: EmailPurpose) {
+  const language = supportedLanguage(languageValue) ?? "en";
+  const t = (english: string, farsi: string) => translateForLanguage(language, english, farsi);
   const isFarsi = language === "fa";
   const isSpanish = language === "es";
-  const action = purpose === "signup"
+  const originalAction = purpose === "signup"
     ? (isFarsi ? "تأیید و ایجاد حساب" : isSpanish ? "verificar y crear tu cuenta" : "verify and create your account")
     : purpose === "add_email"
       ? (isFarsi ? "افزودن ایمیل به حساب" : isSpanish ? "añadir acceso por correo electrónico a tu cuenta" : "add email access to your account")
       : (isFarsi ? "ورود به حساب" : isSpanish ? "iniciar sesión en tu cuenta" : "sign in to your account");
+  const action = t(originalAction, originalAction);
   const subject = isFarsi
     ? "کد تأیید Recovery Inventory"
     : isSpanish
       ? "Tu código de verificación de Recovery Inventory"
-      : "Your Recovery Inventory verification code";
-  const heading = isFarsi ? "کد تأیید شما" : isSpanish ? "Tu código de verificación" : "Your verification code";
+      : t("Your Recovery Inventory verification code", "کد تأیید Recovery Inventory");
+  const heading = isFarsi ? "کد تأیید شما" : isSpanish ? "Tu código de verificación" : t("Your verification code", "کد تأیید شما");
   const instruction = isFarsi
     ? `برای ${action} این کد را وارد کنید.`
     : isSpanish
       ? `Introduce este código para ${action}.`
-      : `Enter this code to ${action}.`;
+      : language === "en" ? `Enter this code to ${action}.` : action;
   const expiry = isFarsi
     ? "این کد تا ۱۰ دقیقه معتبر است و فقط یک بار قابل استفاده است."
     : isSpanish
       ? "Este código vence en 10 minutos y solo puede usarse una vez."
-      : "This code expires in 10 minutes and can be used only once.";
+      : t("This code expires in 10 minutes and can be used only once.", "این کد تا ۱۰ دقیقه معتبر است و فقط یک بار قابل استفاده است.");
   const warning = isFarsi
     ? "اگر شما این درخواست را نداده‌اید، می‌توانید این پیام را نادیده بگیرید."
     : isSpanish
       ? "Si no solicitaste este código, puedes ignorar este correo con tranquilidad."
-      : "If you did not request this code, you can safely ignore this email.";
+      : t("If you did not request this code, you can safely ignore this email.", "اگر شما این درخواست را نداده‌اید، می‌توانید این پیام را نادیده بگیرید.");
 
   return {
     subject,
     text: `${heading}\n\n${instruction}\n\n${code}\n\n${expiry}\n\n${warning}`,
-    html: `<!doctype html><html lang="${isFarsi ? "fa" : isSpanish ? "es" : "en"}" dir="${isFarsi ? "rtl" : "ltr"}"><body style="margin:0;background:#f6f3ec;color:#173f39;font-family:Arial,sans-serif"><div style="max-width:560px;margin:0 auto;padding:40px 20px"><div style="background:#ffffff;border:1px solid #d9e1db;border-radius:20px;padding:32px"><p style="margin:0 0 8px;color:#cc654c;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">Recovery Inventory</p><h1 style="margin:0 0 18px;font-size:27px">${heading}</h1><p style="margin:0 0 22px;line-height:1.6;color:#526b67">${instruction}</p><div style="margin:0 0 22px;padding:18px;text-align:center;background:#edf5ef;border-radius:14px;font-size:34px;font-weight:700;letter-spacing:8px;color:#173f39" dir="ltr">${code}</div><p style="margin:0 0 12px;line-height:1.6;color:#526b67">${expiry}</p><p style="margin:0;line-height:1.6;color:#71837f;font-size:13px">${warning}</p></div></div></body></html>`,
+    html: `<!doctype html><html lang="${language}" dir="${isRtlLanguage(language) ? "rtl" : "ltr"}"><body style="margin:0;background:#f6f3ec;color:#173f39;font-family:Arial,sans-serif"><div style="max-width:560px;margin:0 auto;padding:40px 20px"><div style="background:#ffffff;border:1px solid #d9e1db;border-radius:20px;padding:32px"><p style="margin:0 0 8px;color:#cc654c;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">Recovery Inventory</p><h1 style="margin:0 0 18px;font-size:27px">${heading}</h1><p style="margin:0 0 22px;line-height:1.6;color:#526b67">${instruction}</p><div style="margin:0 0 22px;padding:18px;text-align:center;background:#edf5ef;border-radius:14px;font-size:34px;font-weight:700;letter-spacing:8px;color:#173f39" dir="ltr">${code}</div><p style="margin:0 0 12px;line-height:1.6;color:#526b67">${expiry}</p><p style="margin:0;line-height:1.6;color:#71837f;font-size:13px">${warning}</p></div></div></body></html>`,
   };
 }
 
@@ -75,6 +80,7 @@ export async function sendEmailCode(
   purpose: EmailPurpose,
 ): Promise<void> {
   if (!env.EMAIL) throw new Error("Cloudflare Email Sending is not configured.");
+  await loadTranslations(supportedLanguage(language) ?? "en");
   const copy = emailCopy(language, code, purpose);
   await env.EMAIL.send({
     to: email,

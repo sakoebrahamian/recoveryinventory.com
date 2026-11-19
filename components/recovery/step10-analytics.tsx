@@ -1,5 +1,10 @@
 "use client";
 
+import { dateTimeFormat } from "@/lib/languages";
+import { localizedText } from "@/lib/localization";
+
+import { languageLocale } from "@/lib/languages";
+
 import * as React from "react";
 import { BarChart3, CalendarCheck2, Copy, FileDown, Flame, RefreshCw, Share2, ShieldCheck, Target, UsersRound } from "lucide-react";
 import { formatDisplayDate, principleCategories, step10Questions, step10QuestionSetVersion, questionWithPrinciple, todayIso } from "@/lib/inventory";
@@ -89,7 +94,7 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
   const loading = !demo && scoped.loading;
   const error = scoped.error;
   const draftDay = false;
-  const locale = language === "fa" ? "fa-IR-u-ca-gregory" : language === "es" ? "es-US" : "en-US";
+  const locale = languageLocale(language, true);
 
   const principleName = React.useCallback((item: PrincipleAnalytics) => {
     return questionWithPrinciple(item.id, language);
@@ -270,8 +275,8 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
               const definition = principleCategories.find((candidate) => candidate.id === category.id);
               return (
                 <div key={category.id}>
-                  <div><strong>{definition?.[language] ?? category.id}</strong><span>{category.answered ? `${category.practiceRate}%` : "—"}</span></div>
-                  <div className="analytics-progress" role="progressbar" aria-label={definition?.[language] ?? category.id} aria-valuemin={0} aria-valuemax={100} aria-valuenow={category.practiceRate}>
+                  <div><strong>{definition ? localizedText(definition, language) : category.id}</strong><span>{category.answered ? `${category.practiceRate}%` : "—"}</span></div>
+                  <div className="analytics-progress" role="progressbar" aria-label={definition ? localizedText(definition, language) : category.id} aria-valuemin={0} aria-valuemax={100} aria-valuenow={category.practiceRate}>
                     <i style={{ width: `${category.answered ? `${category.practiceRate}%` : "—"}` }} />
                   </div>
                   <small>{category.answered} {t("scored selections", "انتخاب امتیازدار")}</small>
@@ -285,7 +290,7 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
           <div className="analytics-panel-heading"><div><h3>{t("Activity over time", "فعالیت در طول زمان")}</h3><p>{t("Saved Step 10 inventories by month.", "ترازنامه‌های ذخیره‌شده گام ۱۰ بر اساس ماه.")}</p></div></div>
           <div className="analytics-months">
             {analytics.months.map((month) => {
-              const monthLabel = new Intl.DateTimeFormat(locale, { month: "short", year: "2-digit", timeZone: "UTC" }).format(new Date(`${month.month}-01T12:00:00Z`));
+              const monthLabel = dateTimeFormat(locale, { month: "short", year: "2-digit", timeZone: "UTC" }).format(new Date(`${month.month}-01T12:00:00Z`));
               const height = Math.max(12, Math.round((month.entries / maxMonthlyEntries) * 100));
               return (
                 <div key={month.month} title={`${monthLabel}: ${month.entries}`}>

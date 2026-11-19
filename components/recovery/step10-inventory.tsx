@@ -1,5 +1,7 @@
 "use client";
 
+import { localizedText } from "@/lib/localization";
+
 import * as React from "react";
 import { BarChart3, BookOpenText, Copy, FileDown, MoreHorizontal, RotateCcw, Save, Share2 } from "lucide-react";
 import {
@@ -321,7 +323,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
           {principleCategories.map((category) => (
             <section className="principle-category" key={category.id}>
               <div className="principle-category-heading">
-                {language === "fa" ? category.fa : language === "es" ? category.es : category.en}
+                {localizedText(category, language)}
               </div>
               <div className="principle-grid">
                 {step10Questions.filter((item) => item.category === category.id).map((item) => {

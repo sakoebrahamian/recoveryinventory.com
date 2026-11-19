@@ -1,3 +1,5 @@
+
+import { isRtlLanguage } from "@/lib/languages";
 import type { Language } from "@/lib/inventory";
 import { findLearningTopic, learningTopicPath } from "@/lib/public-learning";
 import { step10AppCopy, step10AppRoutes } from "@/lib/step10-app-content";
@@ -8,7 +10,7 @@ import { Step10InventoryTemplate } from "./step10-inventory-template";
 export function Step10AppPage({ language }: { language: Language }) {
   const copy = step10AppCopy[language];
   const template = findLearningTopic("step-10-daily-inventory")?.copy[language].inventoryTemplate;
-  return <main className="inner-page public-learning-page" lang={language} dir={language === "fa" ? "rtl" : "ltr"}>
+  return <main className="inner-page public-learning-page" lang={language} dir={isRtlLanguage(language) ? "rtl" : "ltr"}>
     <SiteHeader language={language} languageRoutes={step10AppRoutes} />
     <section className="public-learning-hero"><div className="public-learning-hero-copy">
       <span className="public-learning-eyebrow">{copy.eyebrow}</span><h1>{copy.title}</h1><p>{copy.description}</p>

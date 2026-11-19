@@ -1,3 +1,4 @@
+import { supportedLanguage } from "@/lib/languages";
 import { env } from "cloudflare:workers";
 import { getAccount, jsonError } from "@/lib/auth";
 import {
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
     };
     const email = normalizeEmail(body.email);
     const alias = cleanAlias(body.alias);
-    const language = body.language === "fa" || body.language === "es" ? body.language : "en";
+    const language = supportedLanguage(body.language) ?? "en";
     if (!validPurpose(body.purpose)) {
       return Response.json({ error: "Choose a valid account action." }, { status: 400 });
     }

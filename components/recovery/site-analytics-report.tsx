@@ -1,7 +1,15 @@
 "use client";
 
+import { dateTimeFormat } from "@/lib/languages";
+import { languageNames, supportedLanguage } from "@/lib/languages";
+
+import { languageLocale } from "@/lib/languages";
+
+import { expandLocalizedRecord, translateForLanguage } from "@/lib/localization";
+
 import * as React from "react";
 import { ArrowLeft, BarChart3, Eye, MousePointerClick, RefreshCw, ShieldCheck, UserPlus, WalletCards } from "lucide-react";
+import { LanguageAvailability } from "./language-availability";
 import { BrandMark } from "./brand-mark";
 import { SiteFooter } from "./site-footer";
 import { LanguageToggle, useLanguage } from "./language-provider";
@@ -26,7 +34,7 @@ type Report = {
   daily: Array<{ day: string; pageViews: number; entries: number; accounts: number; activations: number }>;
 };
 
-const COPY = {
+const COPY = expandLocalizedRecord({
   en: {
     eyebrow: "Owner-only report",
     title: "Website audience",
@@ -141,9 +149,9 @@ const COPY = {
     privateText: "بدون کوکی، شناسه بازدیدکننده، نشانی IP، مکان دقیق، پیکسل تبلیغاتی یا ردیابی فضای خصوصی اعضا. درخواست‌های Global Privacy Control و Do Not Track رعایت می‌شوند. مجموع‌ها حداکثر ۱۳ ماه نگهداری می‌شوند.",
     through: "تا",
   },
-} as const;
+});
 
-const LABELS: Record<Language, Record<string, string>> = {
+const LABELS: Record<Language, Record<string, string>> = expandLocalizedRecord({
   en: {
     home: "Home", demo: "Demo", join: "Join", recover: "Log in", privacy: "Privacy", terms: "Terms", learn_hub: "Learning center", learn_step10: "Step 10 guide", learn_step4: "Step 4 guide", learn_honesty: "Honesty guide",
     en: "English", es: "Spanish", fa: "Farsi",
@@ -162,7 +170,7 @@ const LABELS: Record<Language, Record<string, string>> = {
     direct: "مستقیم", google: "گوگل", bing: "بینگ", facebook: "فیسبوک", instagram: "اینستاگرام", reddit: "ردیت", youtube: "یوتیوب", linkedin: "لینکدین", tiktok: "تیک‌تاک", newsletter: "خبرنامه", recovery_partner: "همکار بهبودی", other: "سایر",
     demo_open: "نمونه باز شد", join_open: "صفحه اشتراک باز شد", membership_view: "اشتراک دیده شد", learn_open: "راهنما باز شد", demo_step10: "نمونه گام ۱۰", demo_step4: "نمونه گام ۴", demo_analytics: "تحلیل نمونه", demo_learning: "آموزش نمونه", account_created: "حساب ساخته شد", checkout_started: "پرداخت آغاز شد", membership_activated: "عضویت فعال شد", language_en: "انگلیسی انتخاب شد", language_es: "اسپانیایی انتخاب شد", language_fa: "فارسی انتخاب شد",
   },
-};
+});
 
 function localDay(): string {
   const now = new Date();
@@ -174,7 +182,7 @@ function ranked(values: Record<string, number>) {
 }
 
 function formatDay(day: string, language: Language) {
-  return new Intl.DateTimeFormat(language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US", {
+  return dateTimeFormat(languageLocale(language), {
     month: "short",
     day: "numeric",
     timeZone: "UTC",
@@ -196,7 +204,7 @@ export function SiteAnalyticsReport() {
     fetch(`/api/site-analytics/report?days=${days}&through=${localDay()}`, { cache: "no-store" })
       .then(async (response) => {
         const result = await response.json() as Report & { error?: string };
-        if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? copy.denied : result.error || copy.failed);
+        if (!response.ok) throw new Error(response.status === 401 || response.status === 403 ? copy.denied : result.error ? translateForLanguage(language, result.error, copy.failed) : copy.failed);
         if (!stopped) setReport(result);
       })
       .catch((caught: unknown) => {
@@ -243,7 +251,7 @@ export function SiteAnalyticsReport() {
   return (
     <main className="member-page site-analytics-page">
       <header className="member-header">
-        <div className="member-topbar"><BrandMark /><LanguageToggle /></div>
+        <div className="member-topbar"><BrandMark /><LanguageToggle /></div><LanguageAvailability />
       </header>
       <div className="site-report-shell">
         <a className="site-report-back" href="/app"><ArrowLeft size={16} />{copy.back}</a>
@@ -261,7 +269,7 @@ export function SiteAnalyticsReport() {
           <>
             <p className="site-report-through">{copy.through} {formatDay(report.range.through, language)}</p>
             <section className="site-report-stats" aria-label={copy.title}>
-              {statCards.map(({ label, value, icon: Icon }) => <article key={label}><Icon size={18} /><strong>{value.toLocaleString(language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US")}</strong><span>{label}</span></article>)}
+              {statCards.map(({ label, value, icon: Icon }) => <article key={label}><Icon size={18} /><strong>{value.toLocaleString(languageLocale(language))}</strong><span>{label}</span></article>)}
             </section>
 
             <section className="dashboard-card site-report-trend">
@@ -283,7 +291,7 @@ export function SiteAnalyticsReport() {
               {([[copy.pages, report.pages], [copy.languages, report.languages], [copy.actions, report.actions]] as const).map(([title, values]) => (
                 <section className="dashboard-card site-report-list" key={title}>
                   <h2>{title}</h2>
-                  {ranked(values).length === 0 ? <p className="site-report-empty">{copy.noData}</p> : <ol>{ranked(values).map(([label, count]) => <li key={label}><span>{labels[label] ?? label}</span><strong>{count.toLocaleString()}</strong></li>)}</ol>}
+                  {ranked(values).length === 0 ? <p className="site-report-empty">{copy.noData}</p> : <ol>{ranked(values).map(([label, count]) => <li key={label}><span>{labels[label] ?? (supportedLanguage(label.replace(/^language_/, "")) ? languageNames[supportedLanguage(label.replace(/^language_/, ""))!] : label)}</span><strong>{count.toLocaleString()}</strong></li>)}</ol>}
                 </section>
               ))}
             </div>

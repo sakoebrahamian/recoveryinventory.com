@@ -1,4 +1,8 @@
-export type Language = "en" | "fa" | "es";
+
+import { dateTimeFormat } from "@/lib/languages";
+import { type Language, languageLocale } from "./languages";
+import { localizedText } from "./localization";
+export type { Language } from "./languages";
 
 export type PrincipleState = "practiced" | "attention" | "na";
 
@@ -73,7 +77,8 @@ export function step10QuestionsForPayload(payload: unknown): Step10Question[] {
 
 /** The same question labels an inventory item, its chart bar, and its reports. */
 export function principleQuestion(id: string, language: Language) {
-  return step10Questions.find((question) => question.id === id)?.[language] ?? id;
+  const question = step10Questions.find((question) => question.id === id);
+  return question ? localizedText(question, language) : id;
 }
 
 export function principleForQuestion(id: string) {
@@ -82,7 +87,8 @@ export function principleForQuestion(id: string) {
 }
 
 export function questionPrincipleName(id: string, language: Language) {
-  return principleForQuestion(id)?.[language] ?? id;
+  const principle = principleForQuestion(id);
+  return principle ? localizedText(principle, language) : id;
 }
 
 export function questionWithPrinciple(id: string, language: Language) {
@@ -91,7 +97,7 @@ export function questionWithPrinciple(id: string, language: Language) {
 
 /** The learning center also presents each principle's additional reflection questions. */
 export function principleFollowUpQuestions(id: string, language: Language) {
-  return principles.find((item) => item.id === id)?.followUpQuestions?.map((question) => question[language]) ?? [];
+  return principles.find((item) => item.id === id)?.followUpQuestions?.map((question) => localizedText(question, language)) ?? [];
 }
 
 const step10ReflectionPrinciples = {
@@ -184,7 +190,7 @@ export function todayIso() {
 
 export function formatDisplayDate(value: string, language: Language) {
   const date = new Date(`${value}T12:00:00`);
-  return new Intl.DateTimeFormat(language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US", {
+  return dateTimeFormat(languageLocale(language), {
     year: "numeric",
     month: "long",
     day: "numeric",

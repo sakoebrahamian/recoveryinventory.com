@@ -5,12 +5,8 @@
 import { useLanguage } from "./language-provider";
 
 export function BrandMark({ linked = true }: { linked?: boolean }) {
-  const { language } = useLanguage();
-  const homeLabel = language === "fa"
-    ? "صفحه اصلی Recovery Inventory"
-    : language === "es"
-      ? "Inicio de Recovery Inventory"
-      : "Recovery Inventory home";
+  const { t } = useLanguage();
+  const homeLabel = t("Recovery Inventory home", "صفحه اصلی Recovery Inventory");
   const mark = (
     <span className="brand-lockup">
       <svg className="brand-logo-icon" viewBox="0 0 160 160" aria-hidden="true" focusable="false">

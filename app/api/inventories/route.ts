@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "Inventory type or date is invalid." }, { status: 400 });
     }
     if (!paid && (body.type !== "step10" || !freeAccountWindow(account.createdAt).active)) {
-      return Response.json({ error: "Your free week is over or this tool requires membership. You can still read and export your saved Step 10 entries. Subscribe to save more.", code: "subscription_required" }, { status: 403 });
+      return Response.json({ error: "Your 30-day free period is over or this tool requires membership. You can still read and export your saved Step 10 entries. Subscribe to save more.", code: "subscription_required" }, { status: 403 });
     }
     const latestLocalDay = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
     if (!paid && body.date > latestLocalDay) return Response.json({ error: "Choose today or an earlier date." }, { status: 400 });
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     const id = crypto.randomUUID();
     if (!paid) {
       const result = await env.DB.prepare(FREE_STEP10_INSERT).bind(id, account.id, body.date, encrypted, now, now, account.id, account.id, body.date).run();
-      if (Number(result.meta?.changes ?? 0) === 0) return Response.json({ error: `Your free account includes ${FREE_STEP10_ENTRIES} daily Step 10 entries. You can edit those dates during your free week or subscribe to add more.`, code: "free_entry_limit" }, { status: 403 });
+      if (Number(result.meta?.changes ?? 0) === 0) return Response.json({ error: `Your free account includes ${FREE_STEP10_ENTRIES} daily Step 10 entries. You can edit those dates during your 30-day free period or subscribe to add more.`, code: "free_entry_limit" }, { status: 403 });
       return Response.json({ ok: true, date: body.date, type: body.type });
     }
     await env.DB.prepare(

@@ -1,5 +1,11 @@
 "use client";
 
+import { dateTimeFormat } from "@/lib/languages";
+
+import { localizedText } from "@/lib/localization";
+
+import { isRtlLanguage, languageLocale } from "@/lib/languages";
+
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { BookOpenText, CheckCircle2, Clock3, Plus } from "lucide-react";
@@ -53,7 +59,7 @@ function Step4PrintDocument({ data }: { data: Step4Data | null }) {
   ] as const;
 
   return (
-    <div className="inventory-print-root" aria-hidden="true" dir={language === "fa" ? "rtl" : "ltr"}>
+    <div className="inventory-print-root" aria-hidden="true" dir={isRtlLanguage(language) ? "rtl" : "ltr"}>
       <header className="inventory-print-cover">
         <p>{t("PRIVATE STEP 4 WORKBOOK", "دفتر خصوصی گام چهارم")}</p>
         <h1>{data.title}</h1>
@@ -69,8 +75,8 @@ function Step4PrintDocument({ data }: { data: Step4Data | null }) {
           if (!matching.length) return null;
           return (
             <section className="inventory-print-section" key={type.id}>
-              <h3>{language === "fa" ? type.fa : language === "es" ? type.es : type.en}</h3>
-              <p className="inventory-print-description">{language === "fa" ? type.descriptionFa : language === "es" ? type.descriptionEs : type.descriptionEn}</p>
+              <h3>{localizedText(type, language)}</h3>
+              <p className="inventory-print-description">{localizedText({ en: type.descriptionEn, es: type.descriptionEs, fa: type.descriptionFa }, language)}</p>
               <div className="inventory-print-step4-list">{matching.map((entry, index) => <article className="inventory-print-step4-entry" key={entry.id}><div className="inventory-print-entry-title"><span>{index + 1}</span><h4>{entry.subject || "—"}</h4></div><dl>{entryFields(entry).map(([label, value]) => value?.trim() ? <div key={label}><dt>{label}</dt><dd>{value}</dd></div> : null)}</dl></article>)}</div>
             </section>
           );
@@ -84,6 +90,8 @@ function Step4PrintDocument({ data }: { data: Step4Data | null }) {
 
 export function Step4Workspace({ onOpenLearning, onDirtyChange }: Step4WorkspaceProps) {
   const { language, t } = useLanguage();
+  const translation = React.useRef(t);
+  translation.current = t;
   const [workbooks, setWorkbooks] = React.useState<Step4WorkbookRecord[]>([]);
   const [selectedId, setSelectedId] = React.useState<string>("new");
   const [newDraft, setNewDraft] = React.useState<Partial<Step4Data>>({ startedDate: todayIso() });
@@ -105,20 +113,20 @@ export function Step4Workspace({ onOpenLearning, onDirtyChange }: Step4Workspace
       try {
         const response = await fetch("/api/step4-workbooks", { cache: "no-store" });
         const result = await response.json() as { workbooks?: Step4WorkbookRecord[]; error?: string };
-        if (!response.ok) throw new Error(result.error || t("Could not load Step 4 inventories.", "ترازنامه‌های گام چهارم بارگذاری نشد."));
+        if (!response.ok) throw new Error(translation.current(result.error || "Could not load Step 4 inventories.", "ترازنامه‌های گام چهارم بارگذاری نشد."));
         if (stopped) return;
         const next = result.workbooks ?? [];
         setWorkbooks(next);
         if (next.length) setSelectedId(next[0].id);
       } catch (loadError) {
-        if (!stopped) setError(loadError instanceof Error ? loadError.message : t("Could not load Step 4 inventories.", "ترازنامه‌های گام چهارم بارگذاری نشد."));
+        if (!stopped) setError(loadError instanceof Error ? loadError.message : translation.current("Could not load Step 4 inventories.", "ترازنامه‌های گام چهارم بارگذاری نشد."));
       } finally {
         if (!stopped) setLoading(false);
       }
     }
     void load();
     return () => { stopped = true; };
-  }, [t]);
+  }, []);
 
   React.useEffect(() => {
     function beforeUnload(event: BeforeUnloadEvent) {
@@ -169,7 +177,7 @@ export function Step4Workspace({ onOpenLearning, onDirtyChange }: Step4Workspace
       body: JSON.stringify({ id: selectedId === "new" ? undefined : selectedId, payload }),
     });
     const result = await response.json() as { id?: string; createdAt?: number; updatedAt?: number; error?: string };
-    if (!response.ok || !result.id) throw new Error(result.error || t("Could not save this Step 4 inventory.", "این ترازنامه گام چهارم ذخیره نشد."));
+    if (!response.ok || !result.id) throw new Error(t(result.error || "Could not save this Step 4 inventory.", "این ترازنامه گام چهارم ذخیره نشد."));
     const now = Math.floor(Date.now() / 1000);
     const saved: Step4WorkbookRecord = {
       id: result.id,
@@ -195,7 +203,7 @@ export function Step4Workspace({ onOpenLearning, onDirtyChange }: Step4Workspace
     window.setTimeout(() => window.print(), 50);
   }
 
-  const dateLabel = (timestamp: number) => new Intl.DateTimeFormat(language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US", { year: "numeric", month: "short", day: "numeric" }).format(new Date(timestamp * 1000));
+  const dateLabel = (timestamp: number) => dateTimeFormat(languageLocale(language), { year: "numeric", month: "short", day: "numeric" }).format(new Date(timestamp * 1000));
 
   if (loading) return <div className="step4-workbook-loading"><div className="spinner" /><p>{t("Opening your Step 4 workbooks…", "در حال باز کردن دفترهای گام چهارم…")}</p></div>;
   if (error) return <div className="step4-workbook-error"><BookOpenText size={24} /><h3>{t("Step 4 workbooks are unavailable", "دفترهای گام چهارم در دسترس نیستند")}</h3><p>{error}</p></div>;
