@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/components/recovery/language-provider";
 import { SiteAnalytics } from "@/components/recovery/site-analytics";
+import { MarketingAnalyticsNotice } from "@/components/recovery/marketing-analytics-choices";
 import { ThemeProvider } from "@/components/recovery/theme-provider";
 import { journalThemeStyles, journalThemeBootstrap } from "@/lib/journal-themes";
 import {
@@ -75,6 +76,7 @@ export default function RootLayout({
           <ThemeProvider>
             {children}
             <SiteAnalytics />
+            <MarketingAnalyticsNotice />
           </ThemeProvider>
         </LanguageProvider>
       </body>

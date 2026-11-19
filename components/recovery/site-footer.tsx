@@ -36,6 +36,7 @@ export function SiteFooter({ language: languageOverride }: { language?: Language
           <a href="/#ai-guide">{t("AI Inventory Guide", "راهنمای ترازنامه با هوش مصنوعی")}</a>
           <a href="/join">{t("Subscription", "اشتراک")}</a>
           <a href="/privacy">{t("Privacy", "حریم خصوصی")}</a>
+          <a href="/privacy#analytics-choices">{t("Analytics choices", "انتخاب‌های آمارگیری")}</a>
           <a href="/terms">{t("Terms", "شرایط استفاده")}</a>
         </div>
       </div>

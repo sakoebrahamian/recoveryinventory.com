@@ -2082,5 +2082,19 @@
   "Warm amber": "كهرماني دافئ",
   "Deep plum": "برقوقي داكن",
   "Terracotta": "لون الطين",
-  "Slate gray": "رمادي أردوازي"
+  "Slate gray": "رمادي أردوازي",
+  "Optional website analytics": "تحليلات اختيارية للموقع",
+  "Allow HeyCatch to measure public-page visits and clicks using random browser identifiers? Private journals, account forms and AI conversations are excluded.": "هل تسمح لـ HeyCatch بقياس الزيارات والنقرات على الصفحات العامة باستخدام معرّفات عشوائية للمتصفح؟ تُستثنى اليوميات الخاصة ونماذج الحساب ومحادثات الذكاء الاصطناعي.",
+  "Allow analytics": "السماح بالتحليلات",
+  "No thanks": "لا، شكرًا",
+  "Analytics choices": "خيارات التحليلات",
+  "Your choice applies in this browser. You can change it here at any time.": "يسري اختيارك في هذا المتصفح. يمكنك تغييره هنا في أي وقت.",
+  "Analytics are off because your browser requests privacy.": "التحليلات معطلة لأن متصفحك يطلب الخصوصية.",
+  "Optional analytics: on": "التحليلات الاختيارية: مفعلة",
+  "Optional analytics: off": "التحليلات الاختيارية: معطلة",
+  "Turn off analytics": "إيقاف التحليلات",
+  "Optional public-page analytics (HeyCatch)": "تحليلات اختيارية للصفحات العامة (HeyCatch)",
+  "HeyCatch privacy details": "تفاصيل خصوصية HeyCatch",
+  "With your permission, HeyCatch measures visits and clicks on approved public pages using random browser/session identifiers and screen dimensions. It does not run on journals, the demo, sign-in, signup or member pages. Stored IP collection is off. We mask element text and attributes, remove URL queries and fragments, and do not send account identities, journal text, AI conversations or payment details. Global Privacy Control and Do Not Track disable this optional tracking. Our own signup and payment totals remain in the separate aggregate report.": "بإذنك، يقيس HeyCatch الزيارات والنقرات على الصفحات العامة المسموح بها باستخدام معرّفات عشوائية للمتصفح والجلسة وأبعاد الشاشة. لا يعمل في اليوميات أو العرض التجريبي أو تسجيل الدخول أو إنشاء الحساب أو صفحات الأعضاء. تخزين عناوين IP معطل. نخفي نصوص العناصر وسماتها ونزيل معاملات الروابط وأجزاءها، ولا نرسل هويات الحسابات أو نصوص اليوميات أو محادثات الذكاء الاصطناعي أو تفاصيل الدفع. تعمل إشارتا Global Privacy Control وDo Not Track على تعطيل هذا التتبع الاختياري. تبقى أعداد التسجيلات والمدفوعات لدينا في التقرير المجمع المنفصل.",
+  "To understand which public pages, languages, and broad referral categories are useful, we keep daily aggregate counts of public page views and selected account milestones, such as opening the demo or website subscription page, creating an account, starting checkout, or activating a website subscription. Our own aggregate reporting does not use analytics cookies, visitor IDs, IP addresses, precise locations, full referring URLs, search terms, or advertising pixels. Analytics does not record inventory content, notes, inventory dates, recovery codes, account or payment identifiers, or how members use the private inventory tools. Global Privacy Control and Do Not Track requests are respected. Aggregate website analytics are kept for up to 13 months.": "لفهم الصفحات العامة واللغات وفئات الإحالة العامة المفيدة، نحتفظ بأعداد يومية مجمعة لمشاهدات الصفحات العامة وبعض محطات الحساب، مثل فتح العرض أو صفحة اشتراك الموقع أو إنشاء حساب أو بدء الدفع أو تفعيل الاشتراك. لا تستخدم تقاريرنا المجمعة الخاصة ملفات ارتباط للتحليلات أو معرّفات زوار أو عناوين IP أو مواقع دقيقة أو روابط إحالة كاملة أو عبارات بحث أو وحدات بكسل إعلانية. لا تسجل التحليلات محتوى الجرد أو الملاحظات أو تواريخ الجرد أو رموز الاستعادة أو معرّفات الحساب أو الدفع أو كيفية استخدام الأعضاء لأدوات الجرد الخاصة. نحترم طلبات Global Privacy Control وDo Not Track. تُحفظ تحليلات الموقع المجمعة حتى 13 شهرًا."
 }

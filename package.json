@@ -20,10 +20,12 @@
     "test:analytics": "node scripts/test-analytics-detail.mjs",
     "test:free-accounts": "node scripts/test-free-accounts.mjs",
     "test:localization": "node scripts/test-localization.mjs",
-    "test:themes": "node scripts/test-journal-themes.mjs"
+    "test:themes": "node scripts/test-journal-themes.mjs",
+    "test:heycatch": "node scripts/test-heycatch-analytics.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
+    "@heycatch/sdk": "0.8.5",
     "@hookform/resolvers": "^5.7.1",
     "@shadcn/react": "^0.3.0",
     "class-variance-authority": "0.7.1",
