@@ -65,6 +65,8 @@ export default defineConfig(async () => {
       vinext(),
       sites({ mockAuth: !managedLinux }),
       cloudflare({
+        // Managed previews emulate bindings locally; no live email service is needed.
+        remoteBindings: !managedLinux,
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
         inspectorPort: false,
         config: localBindingConfig,

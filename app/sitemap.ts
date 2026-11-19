@@ -5,6 +5,7 @@ import {
   publicLearningTopics,
 } from "@/lib/public-learning";
 import { SITE_URL } from "@/lib/site-metadata";
+import { aboutLanguageRoutes } from "@/lib/about-content";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const corePages: MetadataRoute.Sitemap = [
@@ -64,5 +65,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }),
   ]);
 
-  return [...corePages, ...learningPages];
+  const aboutPages: MetadataRoute.Sitemap = languages.map((language) => ({
+    url: `${SITE_URL}${aboutLanguageRoutes[language]}`,
+    changeFrequency: "monthly",
+    priority: 0.5,
+    alternates: {
+      languages: {
+        en: `${SITE_URL}${aboutLanguageRoutes.en}`,
+        es: `${SITE_URL}${aboutLanguageRoutes.es}`,
+        fa: `${SITE_URL}${aboutLanguageRoutes.fa}`,
+        "x-default": `${SITE_URL}${aboutLanguageRoutes.en}`,
+      },
+    },
+  }));
+
+  return [...corePages, ...learningPages, ...aboutPages];
 }

@@ -14,7 +14,8 @@ export function InventoryGuideShowcase() {
       <div className="ri-ai-guide-copy">
         <span className="ri-section-label"><Sparkles size={16} aria-hidden="true" />{t("Included with membership", "همراه با اشتراک")}</span>
         <h2 id="ri-ai-guide-title">{t("AI Inventory Guide", "راهنمای ترازنامه با هوش مصنوعی")}</h2>
-        <p>{t("Start a chat about what’s on your mind, or choose a topic in Guided Questions. The guide helps you reflect one question at a time.", "درباره چیزی که در ذهنتان است گفت‌وگو کنید یا در بخش «پرسش‌های هدایت‌شده» موضوعی را انتخاب کنید. راهنما هر بار با یک پرسش به تأمل شما کمک می‌کند.")}</p>
+        <p>{t("Use the optional AI guide when you want help putting a reflection into words. Close your day with Step 10, or explore a Step 4 resentment, fear, or relationship, one question at a time.", "هر زمان برای بیان تأملاتتان کمک می‌خواهید، از راهنمای اختیاری هوش مصنوعی استفاده کنید. روزتان را با گام ۱۰ مرور کنید یا رنجش، ترس یا رابطه‌ای را در گام ۴، هر بار با یک پرسش، بررسی کنید.")}</p>
+        <p>{t("Your sponsor and fellowship remain your guides for step work. AI is a writing aid, not a sponsor or a group.", "راهنما و انجمن شما همچنان راهنمای کار کردن قدم‌ها هستند. هوش مصنوعی کمک‌نویس است، نه اسپانسر یا گروه.")}</p>
         <dl>
           <div><dt>{t("Step 4", "گام ۴")}</dt><dd>{t("Explore a resentment, fear, or relationship at your own pace.", "رنجش، ترس یا رابطه‌ای را با سرعت خودتان بررسی کنید.")}</dd></div>
           <div><dt>{t("Step 10", "گام ۱۰")}</dt><dd>{t("Review your day, notice progress, and consider a small next step.", "روزتان را مرور کنید، پیشرفت را ببینید و به یک گام کوچک بعدی فکر کنید.")}</dd></div>

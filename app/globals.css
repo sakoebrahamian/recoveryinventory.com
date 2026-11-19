@@ -10955,3 +10955,58 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
 .subscription-savings small { display: block; font-size: .73rem; line-height: 1.6; }
 .subscription-plan-picker .subscription-renewal { margin: .8rem 0 0; font-size: .75rem; line-height: 1.7; }
 .subscription-plan-picker:disabled .subscription-plan-option { cursor: wait; opacity: .8; }
+
+/* Founder story: a disclosed pseudonym, with no invented member endorsements. */
+.about-page { min-height: 100vh; background: #f6f2ea; }
+.about-story { width: min(820px, calc(100% - 48px)); margin: 3rem auto 5rem; }
+.about-story-header { padding-bottom: 2rem; border-bottom: 1px solid rgba(23, 63, 58, .16); }
+.about-story-header > .eyebrow { color: #72523f; font-size: .9rem; font-weight: 700; }
+.about-story h1 { max-width: 15ch; margin: 1rem 0; color: #173f3a; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.35rem, 6vw, 4rem); font-weight: 500; line-height: 1.12; }
+.about-story-description { max-width: 55ch; color: #485e57; font-size: 1.15rem; line-height: 1.7; }
+.about-story-byline { margin-top: 1.5rem; color: #173f3a; font-size: 1rem; font-weight: 700; }
+.about-story-anonymity { display: flex; align-items: flex-start; gap: .65rem; max-width: 65ch; margin-top: .85rem; padding: 1rem; border-radius: 12px; background: #e9eee6; color: #344d44; font-size: .9375rem; line-height: 1.7; }
+.about-story-anonymity svg { flex: 0 0 auto; margin-top: .2rem; }
+.about-story-languages { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.5rem; }
+.about-story-languages a { display: inline-flex; align-items: center; min-height: 44px; padding: .5rem .85rem; border: 1px solid rgba(23, 63, 58, .2); border-radius: 8px; color: #173f3a; font-size: .9375rem; text-decoration: none; }
+.about-story-languages a[aria-current="page"] { border-color: #173f3a; background: #173f3a; color: #fff; }
+.about-story-body { max-width: 70ch; padding-block: 1.5rem; }
+.about-story-body p { margin: 0 0 1.35rem; color: #34483f; font-size: 1.075rem; line-height: 1.95; }
+.about-story-contact { padding: 1.75rem; border: 1px solid rgba(23, 63, 58, .12); border-radius: 18px; background: #fffdf9; }
+.about-story-contact h2 { margin: 0 0 .75rem; color: #173f3a; font-size: 1.25rem; }
+.about-story-contact p { color: #485e57; font-size: 1rem; line-height: 1.8; }
+.about-story-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.25rem; }
+.about-story-actions .button { min-height: 44px; white-space: normal; text-align: center; }
+.about-page[dir="rtl"] .about-story h1 { max-width: none; font-family: Tahoma, "Segoe UI", Arial, sans-serif; line-height: 1.6; }
+.ri-hero-copy > p.ri-hero-demo-note { margin-top: 1rem; color: #485e57; font-size: 1rem; line-height: 1.6; }
+.ri-founder-note { margin-top: 1.75rem; padding-inline-start: 1rem; border-inline-start: 3px solid #d97757; }
+.ri-founder-note > strong { color: #173f3a; font-size: .9375rem; }
+.ri-founder-note > p { margin: .5rem 0 .75rem; color: #485e57; font-size: 1rem; line-height: 1.8; }
+.ri-founder-note > a { display: inline-flex; align-items: center; min-height: 44px; font-size: 1rem; }
+@media (max-width: 520px) {
+  .about-story { width: calc(100% - 32px); margin-block: 2rem 3rem; }
+  .about-story-contact { padding: 1.25rem; }
+  .about-story-actions { flex-direction: column; }
+}
+@media (max-width: 760px) {
+  .site-header .header-actions .button-small { min-height: 44px; font-size: .875rem; }
+  .site-header .language-toggle { height: auto; min-height: 44px; }
+  .site-header .language-toggle select { min-height: 44px; font-size: .875rem; }
+  .site-header .language-toggle:focus-within { outline: 2px solid #173f3a; outline-offset: 3px; }
+}
+
+.ri-testimonials { padding-block: 4rem; }
+.ri-testimonial-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+.ri-member-testimonial { display: flex; flex-direction: column; min-width: 0; margin: 0; padding: clamp(1.4rem, 3vw, 2rem); border: 1px solid rgba(23, 63, 58, .15); border-radius: 20px; background: #fffdf9; }
+.ri-member-testimonial blockquote, .ri-price-testimonial blockquote { margin: 0; }
+.ri-member-testimonial blockquote p { margin: 0; color: #34483f; font-size: 1.0625rem; line-height: 1.85; }
+.ri-member-testimonial figcaption { display: grid; gap: .25rem; margin-top: auto; padding-top: 1.5rem; }
+.ri-member-testimonial figcaption strong, .ri-price-testimonial figcaption strong { color: #173f3a; font-size: 1rem; }
+.ri-member-testimonial figcaption span, .ri-price-testimonial figcaption span { color: #52665d; font-size: .9375rem; line-height: 1.6; }
+.ri-member-testimonial .ri-testimonial-translation, .ri-price-testimonial .ri-testimonial-translation { margin: .65rem 0 0; color: #52665d; font-size: .875rem; line-height: 1.7; }
+.ri-price-testimonial { margin: 1.5rem 0 0; padding-block-start: 1.25rem; border-top: 1px solid rgba(23, 63, 58, .15); text-align: start; }
+.ri-price-testimonial blockquote p { margin: 0; color: #34483f; font-size: 1rem; line-height: 1.8; }
+.ri-price-testimonial figcaption { display: grid; gap: .15rem; margin-top: .8rem; }
+@media (max-width: 760px) {
+  .ri-testimonial-grid { grid-template-columns: minmax(0, 1fr); }
+  .ri-testimonials { padding-block: 3rem; }
+}
