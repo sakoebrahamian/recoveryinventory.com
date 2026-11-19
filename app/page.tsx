@@ -31,6 +31,9 @@ import { useLanguage } from "@/components/recovery/language-provider";
 import { questionWithPrinciple, step10Questions } from "@/lib/inventory";
 import { SubscriptionPlanPicker } from "@/components/recovery/subscription-plans";
 import type { BillingPlan } from "@/lib/subscription-plans";
+import { aboutCopy, aboutLanguageRoutes } from "@/lib/about-content";
+import { RECOVERY_APP_STRUCTURED_DATA } from "@/lib/site-metadata";
+import { MemberTestimonial, MemberTestimonials } from "@/components/recovery/member-testimonials";
 
 type PreviewMode = "step10" | "step4";
 
@@ -39,8 +42,37 @@ export default function Home() {
   const [previewMode, setPreviewMode] = useState<PreviewMode>("step10");
   const [billingPlan, setBillingPlan] = useState<BillingPlan>("yearly");
   const arrowClass = language === "fa" ? "rotate-180" : "";
+  const founder = aboutCopy[language];
 
   const faqs = [
+    {
+      question: t("Why isn’t Recovery Inventory free?", "چرا Recovery Inventory رایگان نیست؟"),
+      answer: t(
+        "Your membership supports the ongoing operation of the journal: structured Step 10 questions, editable Step 4 workbooks, encrypted inventory storage, history, charts, and reports you can review with your sponsor. You can explore the free demo before choosing a monthly or yearly subscription.",
+        "حق عضویت شما به ادامه کار این دفتر کمک می‌کند: پرسش‌های ساختارمند گام ۱۰، دفترهای قابل ویرایش گام ۴، نگهداری رمزگذاری‌شده ترازنامه‌ها، سابقه، نمودارها و گزارش‌هایی برای مرور با راهنما. پیش از انتخاب اشتراک ماهانه یا سالانه، می‌توانید نسخه آزمایشی رایگان را بررسی کنید."
+      ),
+    },
+    {
+      question: t("What can I try in the free demo?", "در نسخه آزمایشی رایگان چه چیزهایی را می‌توانم امتحان کنم؟"),
+      answer: t(
+        "Explore Step 10, Step 4, sample charts, and the learning tools without creating an account. Demo entries are not saved to an account. The live AI guide is included with membership; its public examples show the kind of questions it can ask.",
+        "بدون ساخت حساب، گام ۱۰، گام ۴، نمودارهای نمونه و ابزارهای آموزشی را بررسی کنید. نوشته‌های نسخه آزمایشی در حسابی ذخیره نمی‌شوند. استفاده از راهنمای هوش مصنوعی همراه با اشتراک است؛ نمونه‌های عمومی، نوع پرسش‌هایی را که می‌تواند بپرسد نشان می‌دهند."
+      ),
+    },
+    {
+      question: t("Is the AI guide a sponsor?", "آیا راهنمای هوش مصنوعی نقش راهنما یا اسپانسر را دارد؟"),
+      answer: t(
+        "No. Your sponsor and fellowship guide your step work. AI offers optional questions to help you put a reflection into words; it does not sponsor you or replace a group. You choose whether to use it and what to send.",
+        "خیر. راهنما و انجمن شما، راهنمای کار کردن قدم‌ها هستند. هوش مصنوعی پرسش‌های اختیاری برای بیان تأملات شما پیشنهاد می‌کند؛ اسپانسر شما نیست و جای گروه را نمی‌گیرد. خودتان انتخاب می‌کنید از آن استفاده کنید یا نه و چه چیزی بفرستید."
+      ),
+    },
+    {
+      question: t("Can my sponsor read a report without an account?", "آیا راهنمای من می‌تواند بدون حساب گزارش را بخواند؟"),
+      answer: t(
+        "Yes. You can choose principles and individual notes for a focused sponsor report, review the preview, and export or copy it. Your sponsor does not need an account to read the report you send. Nothing is sent automatically; agree together on what is helpful to share.",
+        "بله. می‌توانید اصول و یادداشت‌های جداگانه را برای گزارش منتخب راهنما انتخاب کنید، پیش‌نمایش را مرور کنید و خروجی بگیرید یا آن را کپی کنید. راهنمای شما برای خواندن گزارشی که می‌فرستید به حساب نیاز ندارد. هیچ‌چیز خودکار فرستاده نمی‌شود؛ با هم درباره آنچه اشتراک‌گذاری‌اش مفید است توافق کنید."
+      ),
+    },
     {
       question: t("How do the Step 10 questions work?", "پرسش‌های گام دهم چگونه کار می‌کنند؟"),
       answer: t(
@@ -90,6 +122,10 @@ export default function Home() {
   return (
     <main className="landing-page landing-v2">
       <SiteHeader />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(RECOVERY_APP_STRUCTURED_DATA).replace(/</g, "\\u003c") }}
+      />
 
       <section className="ri-hero">
         <div className="ri-hero-shape ri-hero-shape-one" aria-hidden="true" />
@@ -98,7 +134,7 @@ export default function Home() {
         <div className="ri-hero-copy">
           <div className="ri-eyebrow">
             <span className="ri-eyebrow-dot" aria-hidden="true" />
-            {t("Private recovery reflection", "تأمل خصوصی در مسیر بهبودی")}
+            {t("For members of AA, NA and other twelve-step fellowships", "برای اعضای AA، NA و دیگر انجمن‌های دوازده‌قدمی")}
           </div>
           <h1>
             {t("Make space for an ", "فضایی برای یک ")}
@@ -107,8 +143,8 @@ export default function Home() {
           </h1>
           <p>
             {t(
-              "A calm, guided home for Step 10 and Step 4 inventories—designed to help you notice patterns, practice principles, and move forward one day at a time.",
-              "فضایی آرام و هدایت‌شده برای ترازنامه‌های گام دهم و گام چهارم؛ برای دیدن الگوها، تمرین اصول و ادامه مسیر، فقط برای امروز."
+              "An online journal for Step 10 daily inventories and Step 4 workbooks. Review your patterns over time and prepare reflections to discuss with your sponsor, one day at a time.",
+              "دفتری آنلاین برای ترازنامه‌های روزانه گام دهم و دفترهای گام چهارم. الگوهایتان را در گذر زمان مرور کنید و تأملاتی برای گفت‌وگو با راهنما آماده کنید؛ فقط برای امروز."
             )}
           </p>
           <div className="ri-hero-actions">
@@ -121,6 +157,7 @@ export default function Home() {
               <span aria-hidden="true">{t("Anonymous username or email", "نام کاربری ناشناس یا ایمیل")}</span>
             </a>
           </div>
+          <p className="ri-hero-demo-note">{t("Try the inventory tools free. No account needed; demo entries are not saved.", "ابزارهای ترازنامه را رایگان امتحان کنید. نیازی به حساب نیست؛ نوشته‌های آزمایشی ذخیره نمی‌شوند.")}</p>
           <div className="ri-hero-trust" aria-label={t("Website subscription highlights", "ویژگی‌های اشتراک وب‌سایت")}>
             <span><ShieldCheck size={17} />{t("Anonymous username or email account", "حساب با نام کاربری ناشناس یا ایمیل")}</span>
             <span><Globe2 size={17} />{t("English + Farsi + Spanish", "انگلیسی، فارسی و اسپانیایی")}</span>
@@ -348,6 +385,11 @@ export default function Home() {
             <span><Check size={16} />{t("Add email later without losing progress", "افزودن ایمیل در آینده بدون از دست دادن پیشرفت")}</span>
             <span><Check size={16} />{t("You control every export", "کنترل کامل هر خروجی")}</span>
           </div>
+          <aside className="ri-founder-note" aria-label={founder.eyebrow}>
+            <strong>{founder.eyebrow}</strong>
+            <p>{founder.excerpt}</p>
+            <a href={aboutLanguageRoutes[language]} className="text-link">{founder.storyLink}</a>
+          </aside>
         </div>
         <div className="ri-privacy-card">
           <div className="ri-lock-orbit"><LockKeyhole size={30} /></div>
@@ -380,8 +422,11 @@ export default function Home() {
             <ArrowRight className={arrowClass} size={18} />
           </a>
           <small><LockKeyhole size={13} />{t("Secure payment · Cancel anytime", "پرداخت امن · لغو در هر زمان")}</small>
+          <MemberTestimonial memberId="nancy" compact />
         </div>
       </section>
+
+      <MemberTestimonials />
 
       <section className="ri-section ri-faq">
         <div className="ri-section-heading">
