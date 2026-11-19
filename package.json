@@ -19,7 +19,8 @@
     "db:generate": "drizzle-kit generate",
     "test:analytics": "node scripts/test-analytics-detail.mjs",
     "test:free-accounts": "node scripts/test-free-accounts.mjs",
-    "test:localization": "node scripts/test-localization.mjs"
+    "test:localization": "node scripts/test-localization.mjs",
+    "test:themes": "node scripts/test-journal-themes.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

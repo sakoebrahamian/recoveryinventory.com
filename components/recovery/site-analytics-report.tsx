@@ -13,6 +13,7 @@ import { LanguageAvailability } from "./language-availability";
 import { BrandMark } from "./brand-mark";
 import { SiteFooter } from "./site-footer";
 import { LanguageToggle, useLanguage } from "./language-provider";
+import { ThemePicker } from "./theme-picker";
 import type { Language } from "@/lib/inventory";
 
 type Report = {
@@ -251,7 +252,7 @@ export function SiteAnalyticsReport() {
   return (
     <main className="member-page site-analytics-page">
       <header className="member-header">
-        <div className="member-topbar"><BrandMark /><LanguageToggle /></div><LanguageAvailability />
+        <div className="member-topbar"><BrandMark /><div className="member-header-actions"><LanguageToggle /><ThemePicker /></div></div><LanguageAvailability />
       </header>
       <div className="site-report-shell">
         <a className="site-report-back" href="/app"><ArrowLeft size={16} />{copy.back}</a>

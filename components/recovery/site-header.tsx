@@ -7,6 +7,7 @@ import { localizedPath } from "@/lib/languages";
 import * as React from "react";
 import type { Language } from "@/lib/inventory";
 import { LanguageAvailability } from "./language-availability";
+import { ThemePicker } from "./theme-picker";
 import { BrandMark } from "./brand-mark";
 import { aboutLanguageRoutes } from "@/lib/about-content";
 import {
@@ -51,6 +52,7 @@ export function SiteHeader({
         </nav>
         <div className="header-actions">
           <LanguageToggle languageOverride={languageOverride} languageRoutes={languageRoutes} />
+          <ThemePicker language={language} />
           <a href="/recover" className="button button-small button-outline header-login">
             {t("Log in", "ورود")}
           </a>

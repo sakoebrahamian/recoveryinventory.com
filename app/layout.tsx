@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { LanguageProvider } from "@/components/recovery/language-provider";
 import { SiteAnalytics } from "@/components/recovery/site-analytics";
+import { ThemeProvider } from "@/components/recovery/theme-provider";
+import { journalThemeStyles, journalThemeBootstrap } from "@/lib/journal-themes";
 import {
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -57,6 +59,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <style id="journal-color-themes">{journalThemeStyles}</style>
+        <script id="journal-theme-preference" dangerouslySetInnerHTML={{ __html: journalThemeBootstrap }} />
+      </head>
       <body>
         <script
           id="site-structured-data"
@@ -66,8 +72,10 @@ export default function RootLayout({
           }}
         />
         <LanguageProvider>
-          {children}
-          <SiteAnalytics />
+          <ThemeProvider>
+            {children}
+            <SiteAnalytics />
+          </ThemeProvider>
         </LanguageProvider>
       </body>
     </html>
