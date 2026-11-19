@@ -9,6 +9,7 @@ import { BarChart3, BookOpenText, CalendarDays, ChevronLeft, ChevronRight, Circl
 import { AddEmailAccess } from "./add-email-access";
 import { PasswordAccess } from "./password-access";
 import { LanguageAvailability } from "./language-availability";
+import { ThemePicker } from "./theme-picker";
 import { BrandMark } from "./brand-mark";
 import { SiteFooter } from "./site-footer";
 import { InventoryExport, type InventoryExportHandle, type InventoryRecord } from "./inventory-export";
@@ -273,7 +274,7 @@ export function MemberDashboard() {
   if (!account) {
     return (
       <main className="inner-page">
-        <div className="member-topbar"><BrandMark /><LanguageToggle /></div><LanguageAvailability />
+        <div className="member-topbar"><BrandMark /><div className="member-header-actions"><LanguageToggle /><ThemePicker /></div></div><LanguageAvailability />
         <section className="member-locked"><div><div className="member-locked-icon"><ShieldCheck /></div><h1>{t("Your account is private", "حساب شما خصوصی است")}</h1><p>{t("Log in with a username and password, an emailed code, or a private recovery code. Anonymous members can use a private username without providing a real name or email.", "با نام کاربری و رمز عبور، کد ایمیلی یا کد بازیابی خصوصی وارد شوید. اعضای ناشناس می‌توانند بدون ارائه نام واقعی یا ایمیل از نام کاربری خصوصی استفاده کنند.")}</p><div className="hero-actions"><a className="button button-primary" href="/recover">{t("Log in", "ورود")}</a><a className="button button-outline" href="/join">{t("Create account", "ایجاد حساب")}</a></div></div></section>
         <SiteFooter />
       </main>
@@ -291,6 +292,7 @@ export function MemberDashboard() {
           <BrandMark />
           <div className="member-header-actions">
             <LanguageToggle />
+            <ThemePicker />
             <button className="button button-small button-outline" type="button" onClick={logout}><LogOut size={15} />{t("Sign out", "خروج")}</button>
           </div>
         </div>

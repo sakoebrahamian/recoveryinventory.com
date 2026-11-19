@@ -165,16 +165,15 @@ export default function Home() {
             )}
           </p>
           <div className="ri-hero-actions">
-            <a href="/demo" className="button button-primary button-large">
-              {t("Explore the free demo", "مشاهده نسخه آزمایشی رایگان")}
-              <ArrowRight className={arrowClass} size={18} />
+            <a href={`/join?lang=${language}`} className="button button-primary button-large ri-free-month-cta">
+              <CalendarDays size={18} aria-hidden="true" />
+              {t("Start my free month", "شروع ماه رایگان من")}
             </a>
-            <a href="/join" className="ri-text-cta">
-              {t("Choose my account", "انتخاب حساب من")}
-              <span aria-hidden="true">{t("Anonymous username or email", "نام کاربری ناشناس یا ایمیل")}</span>
+            <a href={`/demo?lang=${language}`} className="button button-outline button-large">
+              {t("Explore the free demo", "مشاهده نسخه آزمایشی رایگان")}
             </a>
           </div>
-          <p className="ri-hero-demo-note">{t("Try the inventory tools free. No account needed; demo entries are not saved.", "ابزارهای ترازنامه را رایگان امتحان کنید. نیازی به حساب نیست؛ نوشته‌های آزمایشی ذخیره نمی‌شوند.")}</p>
+          <p className="ri-hero-demo-note">{t("Create a free account. No card and no automatic subscription.", "حساب رایگان بسازید. بدون کارت و بدون اشتراک خودکار.")}</p>
           <div className="ri-hero-trust" aria-label={t("Website subscription highlights", "ویژگی‌های اشتراک وب‌سایت")}>
             <span><ShieldCheck size={17} />{t("Anonymous username or email account", "حساب با نام کاربری ناشناس یا ایمیل")}</span>
             <span><Globe2 size={17} />{t("Available in 10 languages", "در دسترس به ۱۰ زبان")}</span>
@@ -182,7 +181,6 @@ export default function Home() {
             <a href={aboutLanguageRoutes[language]}><HeartHandshake size={17} />{t("Created by Paul (a pseudonym), 18 years sober", "ساخته پل، با نام مستعار و ۱۸ سال پاکی")}</a>
           </div>
           <EarlyCommunityProof />
-          <a className="text-link ri-free-week-link" href={`/join?lang=${language}`}>{t("Start my free month", "شروع ماه رایگان من")}</a>
           <a className="text-link ri-hero-ai-link" href="#ai-guide"><Sparkles size={16} aria-hidden="true" />{t("Explore the AI guide for members", "آشنایی با راهنمای هوش مصنوعی اعضا")}</a>
           <a className="text-link ri-free-week-link" href={step10AppRoutes[language]}>{step10AppCopy[language].title}<ArrowRight className={arrowClass} size={16} aria-hidden="true" /></a>
         </div>
@@ -444,7 +442,7 @@ export default function Home() {
         <div className="ri-price-card">
           <p className="fine-print">{subscriptionGuidance(t)}</p>
           <div className="ri-demo-explanation">
-            <a href={`/join?lang=${language}`}>{t("Start my free month", "شروع ماه رایگان من")}</a>
+            <a className="button button-primary button-large button-full" href={`/join?lang=${language}`}><CalendarDays size={18} aria-hidden="true" />{t("Start my free month", "شروع ماه رایگان من")}</a>
             <p>{t("30 daily Step 10 entries during your first 30 days. No card, no automatic charge. Read and export your saved Step 10 afterward, and upgrade this account whenever you choose.", "۳۰ ترازنامه روزانه گام ۱۰ در ۳۰ روز اول. بدون کارت یا برداشت خودکار. پس از آن گام ۱۰ ذخیره‌شده را بخوانید و خروجی بگیرید و هر زمان خواستید همین حساب را ارتقا دهید.")}</p>
           </div>
           <SubscriptionPlanPicker value={billingPlan} onChange={setBillingPlan} />

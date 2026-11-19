@@ -35,3 +35,18 @@ Run `node --run test:localization`, `test:free-accounts`, `test:password-auth`, 
 The development-only fixture in `scripts/fixtures/language-qa-sandbox.tsx` mocks every API call and uses synthetic account and journal text. It is not an application route. Browser checks verified both AI modes across all ten languages, preserving typed drafts, previous messages and the selected guided topic. Captured request bodies used the newly selected language and retained the original conversation text. A mocked usage-limit response stayed localized after switching languages. Step 10 and Step 4 unsaved member drafts also survived all ten language switches. The member header's expanded language notice listed all ten native names.
 
 Armenian calendar labels have a small local fallback for browsers that lack Armenian ICU data, so month and weekday names do not silently revert to English. Tests exercise that fallback explicitly.
+
+
+## Desktop selector and free-month button follow-up
+
+A live report exposed a wider desktop breakpoint above 1400 CSS pixels where the single-row navigation squeezed the native language select to zero width. Desktop headers now keep navigation on a separate row at every desktop width and reserve space for the selector. Browser checks covered all ten languages at 1497 and 2022 CSS pixels, plus a 337-pixel mobile check.
+
+“Start my free month” is now the large primary button in the homepage hero, beside a secondary demo button, with the no-card/no-automatic-subscription explanation directly below. The pricing card also uses a full-width button for the free month instead of a text link. Both buttons keep the selected language and open the existing free signup flow.
+
+## Ten color themes
+
+Public and member headers now include a localized “Color theme” chooser with ten labeled swatches: original sage, ocean blue, lavender, soft rose, forest green, clear sky, warm amber, deep plum, terracotta and slate gray. The original palette is the default. Color tokens change the page backgrounds, journal cards and controls without changing answer-state or chart-legend colors.
+
+The choice is stored only in this browser, applies before the page paints, follows public/member navigation, and synchronizes across tabs. It is separate from account access, AI request language and journal storage. Invalid or blocked browser storage falls back safely to sage; a blocked write still permits changing the active page. The chooser supports keyboard focus, Escape, outside-click dismissal, right-to-left layouts and smaller screens. Its copy and palette names are translated in all ten languages.
+
+`test:themes` checks text/button contrast for all ten palettes, preference restoration before paint, invalid/blocked storage and translated labels. Browser checks covered every theme, persistence after reload and navigation to free signup, all ten chooser languages at 1497/337 CSS pixels, the wide 2022-pixel desktop selector, and synthetic member Step 4/Step 10 drafts plus AI history/drafts across all ten palettes. A combined Arabic language/theme switch retained Step 4 writing. The synthetic harness is kept only under `scripts/fixtures`; it is removed from application routes before release.

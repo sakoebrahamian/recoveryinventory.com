@@ -3,6 +3,7 @@ import * as React from "react";
 import { MemberDashboard } from "@/components/recovery/member-dashboard";
 import { InventoryGuide } from "@/components/recovery/inventory-guide";
 import { LanguageToggle, useLanguage } from "@/components/recovery/language-provider";
+import { ThemePicker } from "@/components/recovery/theme-picker";
 
 export default function LanguageQA() {
   const { language, t } = useLanguage();
@@ -30,5 +31,5 @@ export default function LanguageQA() {
     setMockReady(true);
     return () => { window.fetch = original; };
   }, []);
-  return <main style={{ maxWidth: 800, padding: 24, margin: "auto" }}><h1>Synthetic AI language test</h1><p>This development-only harness never calls the AI provider.</p><LanguageToggle /><label><input type="checkbox" checked={memberView} onChange={event=>setMemberView(event.target.checked)} />Preview member workspace</label><label>Test step<select aria-label="Test step" value={step} onChange={event=>setStep(event.target.value as typeof step)}><option value="step10">Step 10</option><option value="step4">Step 4</option></select></label><label>Test response<select aria-label="Test response" value={status} onChange={event=>setStatus(Number(event.target.value))}><option value={200}>Success</option><option value={429}>Daily limit</option></select></label>{mockReady && (memberView ? <MemberDashboard /> : <InventoryGuide step={step} date="2026-11-19" language={language} />)}<h2>Recorded synthetic requests</h2><pre id="qa-requests">{JSON.stringify(requests,null,2)}</pre></main>;
+  return <main style={{ maxWidth: 800, padding: 24, margin: "auto" }}><h1>Synthetic AI language test</h1><p>This development-only harness never calls the AI provider.</p><LanguageToggle /><ThemePicker /><label><input type="checkbox" checked={memberView} onChange={event=>setMemberView(event.target.checked)} />Preview member workspace</label><label>Test step<select aria-label="Test step" value={step} onChange={event=>setStep(event.target.value as typeof step)}><option value="step10">Step 10</option><option value="step4">Step 4</option></select></label><label>Test response<select aria-label="Test response" value={status} onChange={event=>setStatus(Number(event.target.value))}><option value={200}>Success</option><option value={429}>Daily limit</option></select></label>{mockReady && (memberView ? <MemberDashboard /> : <InventoryGuide step={step} date="2026-11-19" language={language} />)}<h2>Recorded synthetic requests</h2><pre id="qa-requests">{JSON.stringify(requests,null,2)}</pre></main>;
 }
