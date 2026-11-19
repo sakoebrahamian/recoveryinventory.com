@@ -6,7 +6,7 @@ import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createServer } from "vite";
 
-const server = await createServer({ configFile: false, appType: "custom", server: { middlewareMode: true, hmr: false }, resolve: { alias: { "@": path.resolve(".") } } });
+const server = await createServer({ configFile: false, appType: "custom", server: { middlewareMode: true, hmr: false, watch: null }, resolve: { alias: { "@": path.resolve(".") } } });
 try {
   const [period, model, detail, reports, translations, inventory] = await Promise.all([
     "/lib/step10-report-period.ts", "/lib/step10-analytics.ts", "/lib/step10-detail.ts", "/lib/step10-report.ts", "/lib/translations-es.ts", "/lib/inventory.ts",

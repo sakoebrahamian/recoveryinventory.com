@@ -34,6 +34,8 @@ import type { BillingPlan } from "@/lib/subscription-plans";
 import { aboutCopy, aboutLanguageRoutes } from "@/lib/about-content";
 import { RECOVERY_APP_STRUCTURED_DATA } from "@/lib/site-metadata";
 import { MemberTestimonial, MemberTestimonials } from "@/components/recovery/member-testimonials";
+import { PatternHistoryExample } from "@/components/recovery/pattern-history-example";
+import { ExternalMentions } from "@/components/recovery/external-mentions";
 
 type PreviewMode = "step10" | "step4";
 
@@ -107,6 +109,10 @@ export default function Home() {
       answer: t("Both membership plans include the optional guide. In Step 4 or Step 10, select Help me reflect with AI, then choose Chat or Guided Questions.", "راهنمای اختیاری در هر دو طرح عضویت گنجانده شده است. در گام ۴ یا ۱۰، «کمک هوش مصنوعی برای تأمل» را باز کنید و «گفت‌وگو» یا «پرسش‌های هدایت‌شده» را انتخاب کنید."),
     },
     {
+      question: t("Is there a free trial or a refund guarantee?", "آیا دوره آزمایشی رایگان یا ضمانت بازپرداخت وجود دارد؟"),
+      answer: t("The free demo lets you explore Step 10, Step 4, sample analytics, and learning tools without an account or a card. It is a preview, not a saved-account trial; demo entries are not saved and live AI requires membership. For a shorter paid commitment, choose monthly. Cancel future renewals in the billing portal; access continues through your paid period. There is no money-back guarantee: completed payments are non-refundable except where required by law.", "نسخه آزمایشی رایگان امکان بررسی گام‌های ۱۰ و ۴، تحلیل نمونه و ابزارهای آموزشی را بدون حساب یا کارت می‌دهد. این پیش‌نمایش است، نه دوره آزمایشی حساب ذخیره‌شونده؛ نوشته‌ها ذخیره نمی‌شوند و هوش مصنوعی زنده به اشتراک نیاز دارد. برای تعهد پرداخت کوتاه‌تر، طرح ماهانه را انتخاب کنید. تمدیدهای آینده را در پنل پرداخت لغو کنید؛ دسترسی تا پایان دوره پرداخت‌شده ادامه دارد. ضمانت بازپرداخت وجود ندارد؛ پرداخت‌های تکمیل‌شده به‌جز موارد الزامی قانونی قابل بازپرداخت نیستند."),
+    },
+    {
       question: t("Can I cancel at any time?", "آیا هر زمان می‌توانم لغو کنم؟"),
       answer: t("Yes. Open Subscription inside your account and choose Manage or cancel. Your access continues through the period you already paid for.", "بله. در حساب خود بخش اشتراک را باز کرده و «مدیریت یا لغو» را انتخاب کنید. دسترسی شما تا پایان دوره‌ای که پرداخت کرده‌اید ادامه دارد."),
     },
@@ -126,6 +132,10 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(RECOVERY_APP_STRUCTURED_DATA).replace(/</g, "\\u003c") }}
       />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org", "@type": "FAQPage", "@id": "https://recoveryinventory.com/#faq", inLanguage: language,
+        mainEntity: faqs.map(item => ({ "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer } })),
+      }).replace(/</g, "\\u003c") }} />
 
       <section className="ri-hero">
         <div className="ri-hero-shape ri-hero-shape-one" aria-hidden="true" />
@@ -351,6 +361,7 @@ export default function Home() {
       </section>
 
       <AnalyticsFeatureGuide />
+      <PatternHistoryExample />
 
       <section className="ri-section ri-how">
         <div className="ri-section-heading ri-heading-light">
@@ -416,19 +427,25 @@ export default function Home() {
         </div>
         <div className="ri-price-card">
           <p className="fine-print">{subscriptionGuidance(t)}</p>
+          <div className="ri-demo-explanation">
+            <a href={`/demo?lang=${language}`}>{t("Explore before you subscribe", "پیش از اشتراک بررسی کنید")}</a>
+            <p>{t("The free demo is our preview instead of a saved-account trial. Try Step 10, Step 4, sample analytics, and learning tools without an account or card. Demo entries are not saved; live AI requires membership.", "نسخه آزمایشی رایگان، پیش‌نمایش ما به‌جای دوره آزمایشی حساب ذخیره‌شونده است. گام‌های ۱۰ و ۴، تحلیل نمونه و آموزش را بدون حساب یا کارت امتحان کنید. نوشته‌های آزمایشی ذخیره نمی‌شوند؛ هوش مصنوعی زنده به اشتراک نیاز دارد.")}</p>
+          </div>
           <SubscriptionPlanPicker value={billingPlan} onChange={setBillingPlan} />
           <a href={`/join?lang=${language}&plan=${billingPlan}`} className="button button-primary button-large button-full">
             {t("Choose my account type", "انتخاب نوع حساب من")}
             <ArrowRight className={arrowClass} size={18} />
           </a>
           <small><LockKeyhole size={13} />{t("Secure payment · Cancel anytime", "پرداخت امن · لغو در هر زمان")}</small>
+          <div className="ri-purchase-notes"><p>{t("Prefer a shorter commitment? Choose monthly. Cancel future renewals anytime; access continues through the period you paid for.", "تعهد کوتاه‌تر می‌خواهید؟ طرح ماهانه را انتخاب کنید. تمدیدهای آینده را هر زمان لغو کنید؛ دسترسی تا پایان دوره پرداخت‌شده ادامه دارد.")}</p><p>{t("Payments are non-refundable except where required by law.", "پرداخت‌ها به‌جز موارد الزامی قانونی قابل بازپرداخت نیستند.")} <a href="/terms">{t("Read payment terms", "مطالعه شرایط پرداخت")}</a></p></div>
           <MemberTestimonial memberId="nancy" compact />
         </div>
       </section>
 
       <MemberTestimonials />
+      <ExternalMentions />
 
-      <section className="ri-section ri-faq">
+      <section className="ri-section ri-faq" id="faq">
         <div className="ri-section-heading">
           <span>{t("Good to know", "خوب است بدانید")}</span>
           <h2>{t("Clear answers, before you begin.", "پاسخ‌های روشن، پیش از شروع.")}</h2>

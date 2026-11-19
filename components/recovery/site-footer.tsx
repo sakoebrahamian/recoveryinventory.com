@@ -2,6 +2,7 @@
 
 import type { Language } from "@/lib/inventory";
 import { aboutLanguageRoutes } from "@/lib/about-content";
+import { comparisonBasePath } from "@/lib/product-comparisons";
 import { BrandMark } from "./brand-mark";
 import { translateForLanguage, useLanguage } from "./language-provider";
 import { sponsorGuidance, originalFrameworkGuidance } from "@/lib/recovery-guidance";
@@ -29,6 +30,7 @@ export function SiteFooter({ language: languageOverride }: { language?: Language
           <a href="/demo">{t("Demo", "نسخه آزمایشی")}</a>
           <a href={learnHref}>{t("Learn", "یادگیری")}</a>
           <a href={aboutLanguageRoutes[language]}>{t("About", "درباره ما")}</a>
+          <a href={comparisonBasePath(language)}>{t("Compare options", "مقایسه گزینه‌ها")}</a>
           <a href="/#ai-guide">{t("AI Inventory Guide", "راهنمای ترازنامه با هوش مصنوعی")}</a>
           <a href="/join">{t("Subscription", "اشتراک")}</a>
           <a href="/privacy">{t("Privacy", "حریم خصوصی")}</a>

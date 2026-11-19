@@ -11006,6 +11006,93 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
 .ri-price-testimonial { margin: 1.5rem 0 0; padding-block-start: 1.25rem; border-top: 1px solid rgba(23, 63, 58, .15); text-align: start; }
 .ri-price-testimonial blockquote p { margin: 0; color: #34483f; font-size: 1rem; line-height: 1.8; }
 .ri-price-testimonial figcaption { display: grid; gap: .15rem; margin-top: .8rem; }
+
+/* D2.5: keep the existing palette while making reported low-contrast text readable. */
+.landing-v2 .site-header .brand-words span { color: #465e55; }
+.ri-hero-copy h1 em { color: #9c4931; }
+.ri-section-heading > span, .ri-membership-copy > span, .ri-section-label,
+.ri-learning-preview-head > span, .ri-learning-preview-flow small { color: #9c4931; }
+.ri-heading-light > span { color: #e7be73; }
+.ri-hero-trust, .ri-section-heading > p, .ri-practice-topline > span,
+.ri-practice-card > p, .ri-privacy-copy > p, .ri-privacy-card > span,
+.ri-privacy-card > p, .ri-membership-copy > p, .ri-price-card > .fine-print,
+.ri-price-card > small, .ri-faq-list p { color: #405b52; }
+.ri-how-grid article > div span { color: #dbe8df; }
+.ri-final-cta h2, .ri-final-cta > div > span { color: #11342e; }
+
+.ri-demo-explanation, .ri-purchase-notes { position: relative; z-index: 2; text-align: start; }
+.ri-demo-explanation { margin-block: 1rem; padding: 1rem; border: 1px solid #cfddd0; border-radius: 14px; background: #f2f6ee; }
+.ri-demo-explanation a, .ri-purchase-notes a { color: #173f3a; font-weight: 700; text-decoration: underline; text-underline-offset: .2em; }
+.ri-demo-explanation p, .ri-purchase-notes p { color: #405b52; font-size: .9375rem; line-height: 1.7; margin: .5rem 0 0; }
+.ri-purchase-notes { margin-top: 1rem; }
+
+.comparison-shell { width: min(1160px, calc(100% - 3rem)); margin: 2.5rem auto 4rem; color: #173f3a; }
+.comparison-header { max-width: 900px; margin-block: 2rem; }
+.comparison-header .eyebrow { color: #274f3c; background: #e1eadc; border-color: #b9cbb8; }
+.comparison-shell > .text-link { color: #9c4931; }
+.comparison-header h1 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.15rem, 5vw, 3.6rem); line-height: 1.15; overflow-wrap: anywhere; margin: .7rem 0 1rem; }
+.comparison-product-name { white-space: nowrap; }
+.comparison-page[dir="rtl"] .comparison-header h1 { font-family: Tahoma, "Segoe UI", Arial, sans-serif; font-size: clamp(1.8rem, 4.5vw, 3rem); line-height: 1.6; }
+.comparison-header > p { font-size: 1.125rem; line-height: 1.8; color: #405b52; }
+.comparison-shell h2, .comparison-learning-links > h2 { font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.35; margin: 1.7rem 0 1rem; }
+.comparison-link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 1rem; }
+.comparison-link-grid article { min-width: 0; padding: 1.5rem; border: 1px solid #cfddd0; border-radius: 18px; background: #fffdf9; }
+.comparison-link-grid h3, .comparison-link-grid h2 { font-size: 1.25rem; line-height: 1.4; margin: 0 0 .8rem; overflow-wrap: anywhere; }
+.comparison-link-grid a { color: #173f3a; text-decoration: underline; text-underline-offset: .2em; }
+.comparison-link-grid p, .comparison-fit-grid p, .comparison-sources p, .comparison-cta p, .comparison-learning-links > p { color: #405b52; font-size: 1rem; line-height: 1.8; margin: .6rem 0; }
+.comparison-rows { overflow: hidden; border: 1px solid #c5d4c8; border-radius: 18px; background: #fffdf9; }
+.comparison-column-head, .comparison-row { display: grid; grid-template-columns: minmax(120px, .5fr) minmax(0, 1fr) minmax(0, 1fr); }
+.comparison-column-head { background: #173f3a; color: #fff; font-size: 1rem; font-weight: 700; }
+.comparison-column-head > *, .comparison-row > * { padding: 1.25rem; min-width: 0; }
+.comparison-row { border-top: 1px solid #d4dfd5; }
+.comparison-row h3 { font-size: 1rem; margin: 0; line-height: 1.6; }
+.comparison-row p { color: #344e44; font-size: 1rem; line-height: 1.8; margin: 0; overflow-wrap: anywhere; }
+.comparison-row > div:nth-child(2) { background: #f2f6ee; }
+.comparison-mobile-label { display: none; }
+.comparison-fit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; margin-block: 2rem; }
+.comparison-sources { margin-block: 2rem; padding: 1.5rem; background: #edf3e9; border-radius: 18px; }
+.comparison-sources time, .comparison-disclosure { color: #465e55; font-size: .9375rem; line-height: 1.7; }
+.comparison-sources ul { padding-inline-start: 1.25rem; }
+.comparison-sources li { margin-block: .6rem; overflow-wrap: anywhere; }
+.comparison-sources a { color: #173f3a; text-decoration: underline; text-underline-offset: .2em; }
+.comparison-cta { border-block: 1px solid #cfddd0; margin-block: 2rem; padding-block: 1rem 2rem; }
+.comparison-learning-links { width: min(1200px, calc(100% - 3rem)); margin: 3rem auto; }
+.comparison-page a:focus-visible, .pattern-history-controls button:focus-visible { outline: 3px solid #9c4931; outline-offset: 4px; }
+
+.pattern-history-panel { border: 1px solid #c5d4c8; border-radius: 24px; background: #fffdf9; padding: clamp(1rem, 3vw, 2rem); }
+.pattern-history-controls { display: flex; flex-wrap: wrap; gap: .6rem; margin-bottom: 1rem; }
+.pattern-history-controls button { min-height: 44px; padding: .65rem 1rem; border: 1px solid #7d9688; border-radius: 999px; background: #fffdf9; color: #173f3a; font-size: 1rem; font-weight: 600; cursor: pointer; }
+.pattern-history-controls button[aria-pressed="true"] { background: #173f3a; color: #fff; }
+.pattern-history-table { width: 100%; border-collapse: collapse; table-layout: fixed; color: #173f3a; }
+.pattern-history-table caption { padding-block: .7rem 1rem; color: #405b52; font-size: 1rem; line-height: 1.7; text-align: start; }
+.pattern-history-table th, .pattern-history-table td { padding: .85rem .5rem; text-align: start; border-bottom: 1px solid #d4dfd5; font-size: 1rem; overflow-wrap: anywhere; }
+.pattern-history-table th:nth-child(1) { width: 17%; }
+.pattern-history-table th:nth-child(2) { width: 33%; }
+.pattern-history-table th:nth-child(3) { width: 50%; }
+.pattern-history-table thead th { color: #405b52; font-size: .875rem; line-height: 1.5; }
+.pattern-history-bar { display: flex; align-items: center; gap: .7rem; }
+.pattern-history-bar > span { display: block; flex: 1; min-width: 0; height: 14px; background: #e0e8db; border-radius: 4px; overflow: hidden; }
+.pattern-history-bar i { display: block; height: 100%; background: #326c4f; }
+.pattern-history-bar strong { min-width: 3.5ch; font-size: .9375rem; font-variant-numeric: tabular-nums; }
+.pattern-history-meaning, .pattern-history-reflection p { color: #405b52; font-size: 1rem; line-height: 1.8; }
+.pattern-history-reflection { padding: 1rem 1.25rem; border-inline-start: 4px solid #9c4931; margin-block: 1.25rem; background: #f4eee3; }
+.pattern-history-reflection h3 { margin: 0; font-size: 1.125rem; }
+.pattern-history-reflection p { margin-bottom: 0; }
+.external-mentions { width: min(1160px, calc(100% - 3rem)); margin: 2rem auto; padding: 1.5rem; border: 1px solid #cfddd0; border-radius: 18px; color: #173f3a; }
+.external-mentions h2 { font-size: 1.25rem; }
+.external-mentions li { font-size: 1rem; line-height: 1.8; margin-block: .7rem; }
+.external-mentions time { display: block; font-size: .875rem; color: #405b52; }
+@media (max-width: 700px) {
+  .comparison-shell, .comparison-learning-links { width: calc(100% - 2rem); }
+  .comparison-column-head { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .comparison-row, .comparison-fit-grid { grid-template-columns: minmax(0, 1fr); }
+  .comparison-row h3 { background: #e1eadc; }
+  .comparison-row > * { padding: 1rem; }
+  .comparison-mobile-label { display: block; font-size: .875rem; font-weight: 700; color: #173f3a; margin-bottom: .4rem; }
+  .comparison-fit-grid { gap: .5rem; }
+  .pattern-history-table th, .pattern-history-table td { padding-inline: .3rem; }
+  .pattern-history-bar { gap: .35rem; }
+}
 @media (max-width: 760px) {
   .ri-testimonial-grid { grid-template-columns: minmax(0, 1fr); }
   .ri-testimonials { padding-block: 3rem; }

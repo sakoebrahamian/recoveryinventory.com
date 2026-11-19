@@ -3,6 +3,7 @@ import { aboutCopy, aboutLanguageRoutes } from "@/lib/about-content";
 import type { Language } from "@/lib/inventory";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
+import { ExternalMentions } from "./external-mentions";
 
 export function AboutPage({ language }: { language: Language }) {
   const copy = aboutCopy[language];
@@ -26,6 +27,7 @@ export function AboutPage({ language }: { language: Language }) {
         <div className="about-story-body">
           {copy.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         </div>
+        <ExternalMentions language={language} />
         <footer className="about-story-contact">
           <h2>{copy.contactHeading}</h2>
           <p>{copy.contactText}</p>
