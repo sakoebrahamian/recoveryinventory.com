@@ -39,7 +39,7 @@ export function RecoverForm() {
         body: JSON.stringify({ recoveryCode: code }),
       });
       const result = await response.json() as { error?: string };
-      if (!response.ok) throw new Error(result.error || t("That code was not recognized.", "این کد شناخته نشد."));
+      if (!response.ok) throw new Error(t(result.error || "That code was not recognized.", "این کد شناخته نشد."));
       // Native navigation avoids the production Vinext client-router interception error.
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.assign("/app");
@@ -80,7 +80,7 @@ export function RecoverForm() {
         body: JSON.stringify({ purpose: "login", email, language }),
       });
       const result = await response.json() as { challengeId?: string; maskedEmail?: string; error?: string };
-      if (!response.ok || !result.challengeId) throw new Error(result.error || t("The sign-in email could not be sent.", "ایمیل ورود ارسال نشد."));
+      if (!response.ok || !result.challengeId) throw new Error(t(result.error || "The sign-in email could not be sent.", "ایمیل ورود ارسال نشد."));
       setChallengeId(result.challengeId);
       setMaskedEmail(result.maskedEmail || email);
       setMessage(t("We sent a six-digit sign-in code.", "یک کد ورود شش‌رقمی فرستادیم."));
@@ -102,7 +102,7 @@ export function RecoverForm() {
         body: JSON.stringify({ challengeId, code: emailCode }),
       });
       const result = await response.json() as { error?: string };
-      if (!response.ok) throw new Error(result.error || t("That code was not recognized.", "این کد شناخته نشد."));
+      if (!response.ok) throw new Error(t(result.error || "That code was not recognized.", "این کد شناخته نشد."));
       // Native navigation avoids the production Vinext client-router interception error.
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.assign("/app");

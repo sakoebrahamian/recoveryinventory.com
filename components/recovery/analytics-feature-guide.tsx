@@ -1,9 +1,13 @@
 "use client";
 
+import { isRtlLanguage } from "@/lib/languages";
+
+import { expandLocalizedRecord } from "@/lib/localization";
+
 import type { Language } from "@/lib/inventory";
 import { useLanguage } from "./language-provider";
 
-const copy = {
+const copy = expandLocalizedRecord({
   en: {
     title: "Understand your patterns, one recorded day at a time.",
     intro: "Member analytics brings your saved Step 10 answers and writing together. Choose a day, week, month, year, or custom range; every summary follows those dates.",
@@ -61,7 +65,7 @@ const copy = {
     footnote: "۴/۵ یعنی چهار پاسخ «تمرین کردم» از پنج پاسخ «تمرین کردم» یا «نیازمند توجه». پرسش‌های تکمیلی پاسخ‌های جداگانه دارند. ترازنامه‌های قدیمی مجموعه پرسش‌های اصلی خود را حفظ می‌کنند.",
     demo: "مشاهده نمونه تحلیل اعضا", compact: "تحلیل اعضا چگونه کار می‌کند",
   },
-} as const;
+});
 
 export function AnalyticsFeatureGuide({ language: explicitLanguage, compact = false }: { language?: Language; compact?: boolean }) {
   const { language: currentLanguage } = useLanguage();
@@ -73,5 +77,5 @@ export function AnalyticsFeatureGuide({ language: explicitLanguage, compact = fa
     <aside className="analytics-public-label"><strong>{text.label}</strong><p>{text.explanation}</p></aside>
     <div className="analytics-table-scroll"><table className="analytics-data-table"><caption>{text.sample}</caption><thead><tr><th>{text.principle}</th><th>{text.previous}</th><th>{text.selected}</th></tr></thead><tbody>{text.names.map((name, index) => <tr key={name}><th scope="row">{name}</th><td>{["3/5 · 60%", "2/5 · 40%", "4/5 · 80%"][index]}</td><td>{["4/5 · 80%", "3/5 · 60%", "4/5 · 80%"][index]}</td></tr>)}</tbody></table></div><p>{text.footnote}</p><a href="/demo?step=analytics" className="button button-primary">{text.demo}</a>
   </>;
-  return <section className="analytics-public-guide" lang={language} dir={language === "fa" ? "rtl" : "ltr"}>{compact ? <details><summary>{text.compact}</summary>{content}</details> : content}</section>;
+  return <section className="analytics-public-guide" lang={language} dir={isRtlLanguage(language) ? "rtl" : "ltr"}>{compact ? <details><summary>{text.compact}</summary>{content}</details> : content}</section>;
 }

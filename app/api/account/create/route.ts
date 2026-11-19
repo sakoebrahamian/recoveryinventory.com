@@ -1,3 +1,4 @@
+import { supportedLanguage } from "@/lib/languages";
 import { env } from "cloudflare:workers";
 import { createSession, jsonError } from "@/lib/auth";
 import { createRecoveryCode, sha256 } from "@/lib/server-crypto";
@@ -7,7 +8,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json() as { alias?: unknown; language?: unknown; username?: unknown; password?: unknown };
     const alias = typeof body.alias === "string" ? body.alias.trim().replace(/[\u0000-\u001f]/g, "") : "";
-    const language = body.language === "fa" || body.language === "es" ? body.language : "en";
+    const language = supportedLanguage(body.language) ?? "en";
     if (alias.length < 2 || alias.length > 40) {
       return Response.json({ error: "Choose an alias between 2 and 40 characters." }, { status: 400 });
     }

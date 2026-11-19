@@ -1,10 +1,9 @@
+import { languageRoutes } from "./languages";
+
+import { expandLocalizedRecord } from "@/lib/localization";
 import type { Language } from "./inventory";
 
-export const aboutLanguageRoutes: Record<Language, string> = {
-  en: "/about",
-  es: "/es/about",
-  fa: "/fa/about",
-};
+export const aboutLanguageRoutes = languageRoutes("/about");
 
 type AboutCopy = {
   eyebrow: string;
@@ -22,7 +21,7 @@ type AboutCopy = {
   languageLabel: string;
 };
 
-export const aboutCopy: Record<Language, AboutCopy> = {
+export const aboutCopy: Record<Language, AboutCopy> = expandLocalizedRecord({
   en: {
     eyebrow: "From the creator",
     title: "Why I created Recovery Inventory",
@@ -92,4 +91,4 @@ export const aboutCopy: Record<Language, AboutCopy> = {
     contactLabel: "ارسال ایمیل به Recovery Inventory",
     languageLabel: "این داستان را به این زبان بخوانید",
   },
-};
+});

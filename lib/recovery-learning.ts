@@ -1,3 +1,6 @@
+import { localizedText } from "./localization";
+
+import { expandLocalizedRecord } from "@/lib/localization";
 import type { Language } from "@/lib/inventory";
 
 export type LocalizedText = {
@@ -27,11 +30,11 @@ export type CharacterDefectGuide = {
   recoveryPath: LocalizedText[];
 };
 
-const text = (en: string, fa: string, es: string): LocalizedText => ({ en, fa, es });
+const text = (en: string, fa: string, es: string): LocalizedText => (expandLocalizedRecord({ en, fa, es }));
 const shortcoming = (name: LocalizedText, explanation: LocalizedText): ShortcomingGuide => ({ name, explanation });
 
 export function localized(value: LocalizedText, language: Language) {
-  return value[language];
+  return localizedText(value, language);
 }
 
 export const principleGuides: PrincipleGuide[] = [

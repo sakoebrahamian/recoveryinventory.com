@@ -9,7 +9,7 @@ export function GET() {
 ## Product facts
 
 - Web app for phone, tablet, and computer browsers; an internet connection is required.
-- English, Spanish, and Farsi, with right-to-left Farsi support.
+- English, Spanish, Farsi, French, Brazilian Portuguese, Arabic, German, Armenian, Italian, and Greek, with right-to-left Farsi and Arabic support.
 - Step 10 has 39 questions across 24 principles. Step 4 has six editable workbook sections. These are Recovery Inventory's original reflection framework, not official fellowship literature.
 - Members can save inventories, review date-filtered analytics, and choose notes and principles for reports they preview, copy, print, or export. Nothing is shared automatically.
 - Anonymous username/password accounts with a recovery code, or verified email accounts.
@@ -19,7 +19,7 @@ export function GET() {
 
 - $${(subscriptionPricing.monthly / 100).toFixed(2)} USD monthly or $${(subscriptionPricing.yearly / 100).toFixed(2)} USD yearly. Both subscriptions include the same features and renew until canceled. Taxes may apply.
 - Free demo: no account or card needed. Demo entries are not saved. The demo includes inventory tools, sample analytics, learning tools, and public AI examples; it does not include live AI access.
-- Free accounts need no card. During the first seven days after signup, an account can save up to seven daily Step 10 entries, review its own Step 10 analytics, and export or share its entries. Saved Step 10 remains readable and exportable after the free week. Upgrade the same account to keep saving and unlock Step 4 workbooks and the AI guide. No automatic charge or automatic paid conversion occurs.
+- Free accounts need no card. During the first 30 days after signup, an account can save up to 30 daily Step 10 entries, review its own Step 10 analytics, and export or share its entries. Saved Step 10 remains readable and exportable after the 30-day free period. Upgrade the same account to keep saving and unlock Step 4 workbooks and the AI guide. No automatic charge or automatic paid conversion occurs.
 - Paid payments are non-refundable except where required by law. Cancel future renewals in the billing portal; paid access continues through the paid period. Existing Step 10 remains available to read and export.
 - [Membership plans](${SITE_URL}/#membership)
 - [Payment terms](${SITE_URL}/terms)

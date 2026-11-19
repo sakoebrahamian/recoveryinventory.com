@@ -1,3 +1,4 @@
+import { supportedLanguage } from "./languages";
 "use client";
 
 import type { Language } from "@/lib/inventory";
@@ -104,5 +105,5 @@ export function recordSiteAction(action: SiteAnalyticsAction): void {
 }
 
 export function analyticsLanguage(language: Language): SiteAnalyticsLanguage {
-  return language === "fa" || language === "es" ? language : "en";
+  return supportedLanguage(language) ?? "en";
 }

@@ -1,3 +1,4 @@
+import { localizedText } from "./localization";
 import { principles, principleForQuestion, type Language } from "@/lib/inventory";
 
 type Practice = { companion: string; en: string; es: string; fa: string };
@@ -34,7 +35,8 @@ export function practiceForPrinciple(id: string, language: Language) {
   const principle = principleForQuestion(id);
   const practice = practices[principle?.id ?? id];
   if (!practice) return null;
-  const primary = principle?.[language] ?? id;
-  const companion = principles.find((principle) => principle.id === practice.companion)?.[language] ?? practice.companion;
-  return { primary, companion, action: practice[language] };
+  const primary = principle ? localizedText(principle, language) : id;
+  const companionPrinciple = principles.find((principle) => principle.id === practice.companion);
+  const companion = companionPrinciple ? localizedText(companionPrinciple, language) : practice.companion;
+  return { primary, companion, action: localizedText(practice, language) };
 }

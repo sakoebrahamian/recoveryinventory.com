@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import type { Language } from "@/lib/inventory";
+import { languages } from "@/lib/languages";
 import {
   learningLanguageRoutes,
   publicLearningTopics,
@@ -33,7 +33,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const languages: Language[] = ["en", "es", "fa"];
   const hubRoutes = learningLanguageRoutes();
   const learningPages: MetadataRoute.Sitemap = languages.flatMap((language) => [
     {
@@ -42,9 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.75,
       alternates: {
         languages: {
-          en: `${SITE_URL}${hubRoutes.en}`,
-          es: `${SITE_URL}${hubRoutes.es}`,
-          fa: `${SITE_URL}${hubRoutes.fa}`,
+          ...Object.fromEntries(languages.map(language => [language, `${SITE_URL}${hubRoutes[language]}`])),
           "x-default": `${SITE_URL}${hubRoutes.en}`,
         },
       },
@@ -57,9 +54,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.65,
         alternates: {
           languages: {
-            en: `${SITE_URL}${routes.en}`,
-            es: `${SITE_URL}${routes.es}`,
-            fa: `${SITE_URL}${routes.fa}`,
+            ...Object.fromEntries(languages.map(language => [language, `${SITE_URL}${routes[language]}`])),
             "x-default": `${SITE_URL}${routes.en}`,
           },
         },
@@ -73,9 +68,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.5,
     alternates: {
       languages: {
-        en: `${SITE_URL}${aboutLanguageRoutes.en}`,
-        es: `${SITE_URL}${aboutLanguageRoutes.es}`,
-        fa: `${SITE_URL}${aboutLanguageRoutes.fa}`,
+        ...Object.fromEntries(languages.map(language => [language, `${SITE_URL}${aboutLanguageRoutes[language]}`])),
         "x-default": `${SITE_URL}${aboutLanguageRoutes.en}`,
       },
     },
@@ -89,9 +82,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.6,
       alternates: { languages: {
-        en: `${SITE_URL}${routes.en}`,
-        es: `${SITE_URL}${routes.es}`,
-        fa: `${SITE_URL}${routes.fa}`,
+        ...Object.fromEntries(languages.map(language => [language, `${SITE_URL}${routes[language]}`])),
         "x-default": `${SITE_URL}${routes.en}`,
       } },
     };

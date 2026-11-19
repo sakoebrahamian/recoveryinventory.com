@@ -21,6 +21,11 @@ declare global {
 }
 
 export function DemoWorkspace() {
+  const { ready } = useLanguage();
+  return ready ? <ReadyDemoWorkspace /> : <p role="status">Recovery Inventory…</p>;
+}
+
+function ReadyDemoWorkspace() {
   const { language, t } = useLanguage();
   const [activeStep, setActiveStep] = React.useState<"10" | "4" | "analytics" | "learning">("10");
   const [demoDraft, setDemoDraft] = React.useState<Step10Data>(() => createDemoStep10Data(t));
@@ -108,11 +113,11 @@ export function DemoWorkspace() {
         <div aria-hidden="true"><ShieldCheck size={25} /></div>
         <header>
           <h2 id="demo-membership-title">{t("Keep a private journal", "دفتر خصوصی خودتان را داشته باشید")}</h2>
-          <p>{t("Create a free account to save up to seven daily Step 10 entries in your first seven days. Review your own patterns, export your entries, and upgrade the same account whenever you choose.", "حساب رایگان بسازید تا در هفت روز اول تا هفت ترازنامه روزانه گام ۱۰ ذخیره کنید. الگوهای خود را مرور کنید، خروجی بگیرید و هر زمان خواستید همان حساب را ارتقا دهید.")}</p>
+          <p>{t("Create a free account to save up to 30 daily Step 10 entries in your first 30 days. Review your own patterns, export your entries, and upgrade the same account whenever you choose.", "حساب رایگان بسازید تا در ۳۰ روز اول تا ۳۰ ترازنامه روزانه گام ۱۰ ذخیره کنید. الگوهای خود را مرور کنید، خروجی بگیرید و هر زمان خواستید همان حساب را ارتقا دهید.")}</p>
           <p><small>{t("Paid plans renew monthly or yearly, according to your choice. Cancel anytime.", "طرح‌های پولی بر اساس انتخاب شما ماهانه یا سالانه تمدید می‌شوند. هر زمان می‌توانید لغو کنید.")}</small></p>
         </header>
         <nav aria-labelledby="demo-membership-title">
-          <a className="button button-primary" href={`/join?lang=${language}`}>{t("Create a free account and save my first week", "ایجاد حساب رایگان و ذخیره هفته اول من")}</a>
+          <a className="button button-primary" href={`/join?lang=${language}`}>{t("Start my free month", "شروع ماه رایگان من")}</a>
         </nav>
       </section>
     </div>

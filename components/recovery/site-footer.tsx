@@ -1,5 +1,7 @@
 "use client";
 
+import { localizedPath } from "@/lib/languages";
+
 import type { Language } from "@/lib/inventory";
 import { aboutLanguageRoutes } from "@/lib/about-content";
 import { comparisonBasePath } from "@/lib/product-comparisons";
@@ -13,7 +15,7 @@ export function SiteFooter({ language: languageOverride }: { language?: Language
   const t = languageOverride
     ? (english: string, farsi: string) => translateForLanguage(language, english, farsi)
     : contextTranslate;
-  const learnHref = language === "es" ? "/es/learn" : language === "fa" ? "/fa/learn" : "/learn";
+  const learnHref = localizedPath(language, "/learn");
   return (
     <footer className="site-footer">
       <div className="footer-grid">

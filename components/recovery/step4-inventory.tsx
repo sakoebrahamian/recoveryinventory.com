@@ -1,5 +1,7 @@
 "use client";
 
+import { localizedText } from "@/lib/localization";
+
 import * as React from "react";
 import { BookOpenText, Check, Copy, FileDown, Pencil, Plus, Save, Share2, Trash2, X } from "lucide-react";
 import { formatDisplayDate, step4Types, todayIso } from "@/lib/inventory";
@@ -245,7 +247,7 @@ export function Step4Inventory({ demo = false, initialData, onSave, onExport, on
     for (const type of step4Types) {
       const matching = data.entries.filter((entry) => entry.type === type.id);
       if (!matching.length) continue;
-      lines.push(language === "fa" ? type.fa : language === "es" ? type.es : type.en);
+      lines.push(localizedText(type, language));
       matching.forEach((entry, index) => {
         const entryLabels = labelsForType(entry.type);
         lines.push(`${index + 1}. ${entry.subject}`);
@@ -312,9 +314,9 @@ export function Step4Inventory({ demo = false, initialData, onSave, onExport, on
             <label className="form-field full" htmlFor="step4-intention"><span>{t("What is my purpose for completing this inventory?", "هدف من از تکمیل این ترازنامه چیست؟")}</span><textarea id="step4-intention" className="form-textarea" value={data.intention} onChange={(event) => updateData("intention", event.target.value)} /></label>
           </section>
 
-          <div className="step4-type-tabs" role="tablist" aria-label={t("Inventory sections", "بخش‌های ترازنامه")}>{step4Types.map((type) => <button key={type.id} type="button" className={activeType === type.id ? "is-active" : ""} onClick={() => { setActiveType(type.id); cancelEdit(); }}>{language === "fa" ? type.fa : language === "es" ? type.es : type.en}<span> ({data.entries.filter((entry) => entry.type === type.id).length})</span></button>)}</div>
+          <div className="step4-type-tabs" role="tablist" aria-label={t("Inventory sections", "بخش‌های ترازنامه")}>{step4Types.map((type) => <button key={type.id} type="button" className={activeType === type.id ? "is-active" : ""} onClick={() => { setActiveType(type.id); cancelEdit(); }}>{localizedText(type, language)}<span> ({data.entries.filter((entry) => entry.type === type.id).length})</span></button>)}</div>
 
-          <div className="step4-section-guide"><div><strong>{language === "fa" ? selectedType.fa : language === "es" ? selectedType.es : selectedType.en}</strong><p>{language === "fa" ? selectedType.descriptionFa : language === "es" ? selectedType.descriptionEs : selectedType.descriptionEn}</p></div>{onOpenLearning && <button className="button button-outline button-small" type="button" onClick={onOpenLearning}><BookOpenText size={16} />{t("Learn about defects and principles", "یادگیری درباره نقص‌ها و اصول")}</button>}</div>
+          <div className="step4-section-guide"><div><strong>{localizedText(selectedType, language)}</strong><p>{localizedText({ en: selectedType.descriptionEn, es: selectedType.descriptionEs, fa: selectedType.descriptionFa }, language)}</p></div>{onOpenLearning && <button className="button button-outline button-small" type="button" onClick={onOpenLearning}><BookOpenText size={16} />{t("Learn about defects and principles", "یادگیری درباره نقص‌ها و اصول")}</button>}</div>
 
           <section className={`step4-form${editingId ? " is-editing" : ""}`}>
             <div className="step4-form-heading"><div><span>{editingId ? t("Editing saved entry", "ویرایش مورد ذخیره‌شده") : t("New entry", "مورد جدید")}</span><h3>{editingId ? t("Update this entry", "به‌روزرسانی این مورد") : t("Add a detailed entry", "افزودن مورد کامل")}</h3></div>{editingId && <button className="button button-quiet button-small" type="button" onClick={cancelEdit}><X size={15} />{t("Cancel edit", "لغو ویرایش")}</button>}</div>

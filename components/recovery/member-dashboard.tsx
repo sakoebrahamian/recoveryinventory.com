@@ -1,9 +1,14 @@
 "use client";
 
+import { dateTimeFormat } from "@/lib/languages";
+
+import { languageLocale } from "@/lib/languages";
+
 import * as React from "react";
 import { BarChart3, BookOpenText, CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LockKeyhole, LogOut, RefreshCw, Save, ShieldCheck } from "lucide-react";
 import { AddEmailAccess } from "./add-email-access";
 import { PasswordAccess } from "./password-access";
+import { LanguageAvailability } from "./language-availability";
 import { BrandMark } from "./brand-mark";
 import { SiteFooter } from "./site-footer";
 import { InventoryExport, type InventoryExportHandle, type InventoryRecord } from "./inventory-export";
@@ -49,6 +54,8 @@ function dateForYear(year: number): string {
 
 export function MemberDashboard() {
   const { language, t } = useLanguage();
+  const translation = React.useRef(t);
+  translation.current = t;
   const currentYear = Number(todayIso().slice(0, 4));
   const [account, setAccount] = React.useState<AccountView | null>(null);
   const [loading, setLoading] = React.useState(true);
@@ -87,11 +94,11 @@ export function MemberDashboard() {
       return null;
     }
     const result = await response.json() as AccountView & { error?: string };
-    if (!response.ok) throw new Error(result.error || t("Could not open your account.", "حساب باز نشد."));
+    if (!response.ok) throw new Error(translation.current(result.error || "Could not open your account.", "حساب باز نشد."));
     setAccount(result);
     setLoading(false);
     return result;
-  }, [t]);
+  }, []);
 
   const loadInventories = React.useCallback(async (requestedYear: number) => {
     const loadId = ++inventoriesLoadId.current;
@@ -100,12 +107,12 @@ export function MemberDashboard() {
       const response = await fetch(`/api/inventories?year=${requestedYear}&type=step10`, { cache: "no-store" });
       const result = await response.json() as { inventories?: InventoryRecord[]; error?: string };
       if (response.status === 401) return;
-      if (!response.ok) throw new Error(result.error || t("Could not load this year.", "این سال بارگذاری نشد."));
+      if (!response.ok) throw new Error(translation.current(result.error || "Could not load this year.", "این سال بارگذاری نشد."));
       if (loadId === inventoriesLoadId.current) setRecords(result.inventories ?? []);
     } finally {
       if (loadId === inventoriesLoadId.current) setRecordsLoading(false);
     }
-  }, [t]);
+  }, []);
 
   React.useEffect(() => {
     let stopped = false;
@@ -116,19 +123,19 @@ export function MemberDashboard() {
         else if (!stopped) setRecords([]);
       } catch (error) {
         if (!stopped) {
-          setMessage(error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
+          setMessage(error instanceof Error ? error.message : translation.current("Please try again.", "لطفاً دوباره تلاش کنید."));
           setLoading(false);
         }
       }
     }
     void start();
     return () => { stopped = true; };
-  }, [loadAccount, loadInventories, t, year]);
+  }, [loadAccount, loadInventories, year]);
 
   React.useEffect(() => {
     const search = new URLSearchParams(window.location.search);
     if (search.get("checkout") === "success") {
-      const noticeTimer = window.setTimeout(() => setMessage(t("Payment received. Website subscription may take a few seconds to activate.", "پرداخت دریافت شد. فعال شدن اشتراک وب‌سایت ممکن است چند ثانیه طول بکشد.")), 0);
+      const noticeTimer = window.setTimeout(() => setMessage(translation.current("Payment received. Website subscription may take a few seconds to activate.", "پرداخت دریافت شد. فعال شدن اشتراک وب‌سایت ممکن است چند ثانیه طول بکشد.")), 0);
       let attempts = 0;
       const timer = window.setInterval(async () => {
         attempts += 1;
@@ -148,11 +155,11 @@ export function MemberDashboard() {
       return () => { window.clearInterval(timer); window.clearTimeout(noticeTimer); };
     }
     if (search.get("checkout") === "cancelled") {
-      const noticeTimer = window.setTimeout(() => setMessage(t("Checkout was canceled. Nothing was charged.", "پرداخت لغو شد. مبلغی دریافت نشد.")), 0);
+      const noticeTimer = window.setTimeout(() => setMessage(translation.current("Checkout was canceled. Nothing was charged.", "پرداخت لغو شد. مبلغی دریافت نشد.")), 0);
       window.history.replaceState({}, "", "/app");
       return () => window.clearTimeout(noticeTimer);
     }
-  }, [loadAccount, loadInventories, t, year]);
+  }, [loadAccount, loadInventories, year]);
 
   function chooseYear(next: number) {
     if (!Number.isInteger(next) || next < 1 || next > 9999) return;
@@ -176,7 +183,7 @@ export function MemberDashboard() {
   }
 
   async function saveInventory(date: string, payload: Step10Data) {
-    if (!account || (!account.membershipActive && !account.step10CanSave)) throw new Error(t("Your free week has ended. Subscribe to save new Step 10 entries; your saved entries remain available to read and export.", "هفته رایگان شما پایان یافته است. برای ذخیره گام ۱۰ جدید، اشتراک انتخاب کنید؛ نوشته‌های ذخیره‌شده برای خواندن و خروجی گرفتن در دسترس می‌مانند."));
+    if (!account || (!account.membershipActive && !account.step10CanSave)) throw new Error(t("Your 30-day free period has ended. Subscribe to save new Step 10 entries; your saved entries remain available to read and export.", "دوره رایگان ۳۰ روزه شما پایان یافته است. برای ذخیره گام ۱۰ جدید، اشتراک انتخاب کنید؛ نوشته‌های ذخیره‌شده برای خواندن و خروجی گرفتن در دسترس می‌مانند."));
     const request = () => fetch("/api/inventories", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -194,9 +201,9 @@ export function MemberDashboard() {
       }
     }
     const result = await response.json().catch(() => ({})) as { error?: string; code?: string };
-    if (result.code === "free_entry_limit") throw new Error(t("Your free account includes seven daily entries. Edit a saved date during your free week, or subscribe for more days.", "حساب رایگان شامل هفت ترازنامه روزانه است. در هفته رایگان، یک تاریخ ذخیره‌شده را ویرایش کنید یا برای روزهای بیشتر اشتراک بگیرید."));
-    if (result.code === "subscription_required") throw new Error(t("Your free week has ended. Subscribe to save new Step 10 entries; your saved entries remain available to read and export.", "هفته رایگان شما پایان یافته است. برای ذخیره گام ۱۰ جدید، اشتراک انتخاب کنید؛ نوشته‌های ذخیره‌شده برای خواندن و خروجی گرفتن در دسترس می‌مانند."));
-    if (!response.ok) throw new Error(result.error || t("Could not save this inventory.", "این ترازنامه ذخیره نشد."));
+    if (result.code === "free_entry_limit") throw new Error(t("Your free account includes 30 daily entries. Edit a saved date during your 30-day free period, or subscribe for more days.", "حساب رایگان شامل ۳۰ ترازنامه روزانه است. در دوره رایگان ۳۰ روزه، یک تاریخ ذخیره‌شده را ویرایش کنید یا برای روزهای بیشتر اشتراک بگیرید."));
+    if (result.code === "subscription_required") throw new Error(t("Your 30-day free period has ended. Subscribe to save new Step 10 entries; your saved entries remain available to read and export.", "دوره رایگان ۳۰ روزه شما پایان یافته است. برای ذخیره گام ۱۰ جدید، اشتراک انتخاب کنید؛ نوشته‌های ذخیره‌شده برای خواندن و خروجی گرفتن در دسترس می‌مانند."));
+    if (!response.ok) throw new Error(translation.current(result.error || "Could not save this inventory.", "این ترازنامه ذخیره نشد."));
     const savedYear = Number(date.slice(0, 4));
     if (savedYear !== year) {
       chooseYear(savedYear);
@@ -225,7 +232,7 @@ export function MemberDashboard() {
     setMessage("");
     try {
       const { ok, result } = await requestBilling(path, promotionCode, { plan: billingPlan, language });
-      if (!ok) throw new Error(result.error || t("Billing is not available yet.", "پرداخت هنوز در دسترس نیست."));
+      if (!ok) throw new Error(translation.current(result.error || "Billing is not available yet.", "پرداخت هنوز در دسترس نیست."));
       if (result.activated) {
         recordSiteAction("membership_activated");
         // Open a fresh workspace without keeping the billing button busy
@@ -240,8 +247,8 @@ export function MemberDashboard() {
     } catch (error) {
       setBillingRecovery(true);
       setMessage(error instanceof BillingTimeoutError
-        ? t("This is taking longer than expected. Open your workspace to check your website subscription before trying again.", "این کار بیش از حد انتظار طول کشیده است. پیش از تلاش دوباره، فضای کاری خود را باز کنید و وضعیت اشتراک وب‌سایت را بررسی کنید.")
-        : error instanceof Error ? error.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
+        ? translation.current("This is taking longer than expected. Open your workspace to check your website subscription before trying again.", "این کار بیش از حد انتظار طول کشیده است. پیش از تلاش دوباره، فضای کاری خود را باز کنید و وضعیت اشتراک وب‌سایت را بررسی کنید.")
+        : error instanceof Error ? error.message : translation.current("Please try again.", "لطفاً دوباره تلاش کنید."));
     } finally {
       setBillingBusy(false);
     }
@@ -266,7 +273,7 @@ export function MemberDashboard() {
   if (!account) {
     return (
       <main className="inner-page">
-        <div className="member-topbar"><BrandMark /><LanguageToggle /></div>
+        <div className="member-topbar"><BrandMark /><LanguageToggle /></div><LanguageAvailability />
         <section className="member-locked"><div><div className="member-locked-icon"><ShieldCheck /></div><h1>{t("Your account is private", "حساب شما خصوصی است")}</h1><p>{t("Log in with a username and password, an emailed code, or a private recovery code. Anonymous members can use a private username without providing a real name or email.", "با نام کاربری و رمز عبور، کد ایمیلی یا کد بازیابی خصوصی وارد شوید. اعضای ناشناس می‌توانند بدون ارائه نام واقعی یا ایمیل از نام کاربری خصوصی استفاده کنند.")}</p><div className="hero-actions"><a className="button button-primary" href="/recover">{t("Log in", "ورود")}</a><a className="button button-outline" href="/join">{t("Create account", "ایجاد حساب")}</a></div></div></section>
         <SiteFooter />
       </main>
@@ -275,7 +282,7 @@ export function MemberDashboard() {
 
   const selectedStep10 = records.find((record) => record.type === "step10" && record.date === selectedDate);
   const sponsorInventory = selectedStep10 ?? records.filter((record) => record.type === "step10").at(-1);
-  const locale = language === "fa" ? "fa-IR" : language === "es" ? "es-US" : "en-US";
+  const locale = languageLocale(language);
 
   return (
     <main className="member-page">
@@ -287,6 +294,7 @@ export function MemberDashboard() {
             <button className="button button-small button-outline" type="button" onClick={logout}><LogOut size={15} />{t("Sign out", "خروج")}</button>
           </div>
         </div>
+        <LanguageAvailability />
       </header>
       <div className="dashboard-shell">
         <div className="dashboard-heading">
@@ -303,9 +311,9 @@ export function MemberDashboard() {
         {billingRecovery && <p className="auth-switch"><a href="/app">{t("Open your workspace", "فضای کاری خود را باز کنید")}</a></p>}
 
         {!account.membershipActive && <section className="free-account-notice">
-          <h2>{account.freeWeekActive ? t("Your free Step 10 week is open", "هفته رایگان گام ۱۰ شما باز است") : t("Your free account keeps your saved Step 10", "حساب رایگان، گام ۱۰ ذخیره‌شده شما را نگه می‌دارد")}</h2>
-          <p>{account.freeWeekActive ? t("Save up to seven daily Step 10 entries during the first seven days after signup. Review your own analytics and choose what to export or share. No card and no automatic charge.", "در هفت روز اول پس از ثبت‌نام، تا هفت ترازنامه روزانه گام ۱۰ ذخیره کنید. تحلیل خود را مرور کنید و خروجی یا اشتراک‌گذاری را خودتان انتخاب کنید. بدون کارت یا برداشت خودکار.") : t("Read and export your saved Step 10 entries at any time. Subscribe when you want to save new days or use Step 4 and the AI guide.", "نوشته‌های گام ۱۰ ذخیره‌شده را هر زمان بخوانید و خروجی بگیرید. برای ذخیره روزهای جدید یا استفاده از گام ۴ و راهنمای هوش مصنوعی، اشتراک انتخاب کنید.")}</p>
-          {account.freeWeekActive && account.freeWeekEndsAt && <p>{t("Free-week saving ends:", "پایان ذخیره‌سازی هفته رایگان:")} <time dateTime={new Date(account.freeWeekEndsAt * 1000).toISOString()}>{new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(account.freeWeekEndsAt * 1000))}</time> · {account.freeEntriesUsed}/{account.freeEntriesLimit} {t("daily entries saved", "ترازنامه روزانه ذخیره‌شده")}</p>}
+          <h2>{account.freeWeekActive ? t("Your 30-day Step 10 trial is open", "دوره رایگان ۳۰ روزه گام ۱۰ شما فعال است") : t("Your free account keeps your saved Step 10", "حساب رایگان، گام ۱۰ ذخیره‌شده شما را نگه می‌دارد")}</h2>
+          <p>{account.freeWeekActive ? t("Save up to 30 daily Step 10 entries during the first 30 days after signup. Review your own analytics and choose what to export or share. No card and no automatic charge.", "در ۳۰ روز اول پس از ثبت‌نام، تا ۳۰ ترازنامه روزانه گام ۱۰ ذخیره کنید. تحلیل خود را مرور کنید و خروجی یا اشتراک‌گذاری را خودتان انتخاب کنید. بدون کارت یا برداشت خودکار.") : t("Read and export your saved Step 10 entries at any time. Subscribe when you want to save new days or use Step 4 and the AI guide.", "نوشته‌های گام ۱۰ ذخیره‌شده را هر زمان بخوانید و خروجی بگیرید. برای ذخیره روزهای جدید یا استفاده از گام ۴ و راهنمای هوش مصنوعی، اشتراک انتخاب کنید.")}</p>
+          {account.freeWeekActive && account.freeWeekEndsAt && <p>{t("Free saving ends:", "پایان ذخیره‌سازی دوره رایگان ۳۰ روزه:")} <time dateTime={new Date(account.freeWeekEndsAt * 1000).toISOString()}>{dateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(account.freeWeekEndsAt * 1000))}</time> · {account.freeEntriesUsed}/{account.freeEntriesLimit} {t("daily entries saved", "ترازنامه روزانه ذخیره‌شده")}</p>}
           <a href="#upgrade-options" onClick={() => setUpgradeOpen(true)}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a>
         </section>}
 
@@ -315,7 +323,7 @@ export function MemberDashboard() {
               <div className="compact-calendar-header">
                 <button type="button" onClick={() => moveMonth(-1)} aria-label={t("Previous month", "ماه قبل")}><ChevronLeft size={18} /></button>
                 <div>
-                  <strong>{new Intl.DateTimeFormat(locale, { month: "long", timeZone: "UTC" }).format(new Date(`${selectedDate}T12:00:00Z`))}</strong>
+                  <strong>{dateTimeFormat(locale, { month: "long", timeZone: "UTC" }).format(new Date(`${selectedDate}T12:00:00Z`))}</strong>
                   <label className="compact-year-input"><CalendarDays size={14} /><input type="number" value={yearDraft} onChange={(event) => setYearDraft(event.target.value)} onBlur={() => chooseYear(Number(yearDraft))} onKeyDown={(event) => { if (event.key === "Enter") chooseYear(Number(yearDraft)); }} aria-label={t("Calendar year", "سال تقویم")} /></label>
                 </div>
                 <button type="button" onClick={() => moveMonth(1)} aria-label={t("Next month", "ماه بعد")}><ChevronRight size={18} /></button>
@@ -382,7 +390,7 @@ export function MemberDashboard() {
           />
           {activeType === "step10" ? (
             recordsLoading ? <div className="loading-panel" role="status">{t("Loading inventories…", "در حال بارگذاری ترازنامه‌ها…")}</div> : <fieldset className="inventory-access-fieldset" disabled={!account.membershipActive && !account.step10CanSave}><Step10Inventory
-              key={`step10-${selectedDate}-${language}`}
+              key={`step10-${selectedDate}`}
               initialData={(selectedStep10?.payload as Step10Data | undefined) ?? { date: selectedDate }}
               onSave={(data) => saveInventory(data.date, data)}
               onExport={() => exportRef.current?.open({ type: "step10", format: "archive" })}
@@ -393,7 +401,7 @@ export function MemberDashboard() {
               refreshKey={analyticsVersion}
             /></fieldset>
           ) : activeType === "step4" ? (
-            account.membershipActive ? <Step4Workspace onOpenLearning={() => switchTool("learning")} onDirtyChange={setStep4Dirty} /> : <section className="dashboard-card"><LockKeyhole size={24} /><h3>{t("Step 4 is included with a paid subscription", "گام ۴ همراه با اشتراک پولی است")}</h3><p>{t("Your free account includes a first week of Step 10. Choose a paid plan to save Step 4 workbooks and use the AI guide.", "حساب رایگان شامل هفته اول گام ۱۰ است. برای ذخیره دفترهای گام ۴ و استفاده از راهنمای هوش مصنوعی، طرح پولی انتخاب کنید.")}</p><a href="#upgrade-options" className="button button-outline" onClick={() => setUpgradeOpen(true)}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a><a className="text-link" href="/demo?step=4">{t("Try Step 4", "گام چهارم را امتحان کنید")}</a></section>
+            account.membershipActive ? <Step4Workspace onOpenLearning={() => switchTool("learning")} onDirtyChange={setStep4Dirty} /> : <section className="dashboard-card"><LockKeyhole size={24} /><h3>{t("Step 4 is included with a paid subscription", "گام ۴ همراه با اشتراک پولی است")}</h3><p>{t("Your free account includes 30 free days of Step 10. Choose a paid plan to save Step 4 workbooks and use the AI guide.", "حساب رایگان شامل ۳۰ روز رایگان گام ۱۰ است. برای ذخیره دفترهای گام ۴ و استفاده از راهنمای هوش مصنوعی، طرح پولی انتخاب کنید.")}</p><a href="#upgrade-options" className="button button-outline" onClick={() => setUpgradeOpen(true)}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a><a className="text-link" href="/demo?step=4">{t("Try Step 4", "گام چهارم را امتحان کنید")}</a></section>
           ) : activeType === "analytics" ? (
             <Step10Analytics
               refreshKey={analyticsVersion}
@@ -431,7 +439,7 @@ function CompactCalendar({
 }) {
   const [year, monthNumber] = selectedDate.split("-").map(Number);
   const month = monthNumber - 1;
-  const weekdays = Array.from({ length: 7 }, (_, day) => new Intl.DateTimeFormat(locale, { weekday: "narrow", timeZone: "UTC" }).format(new Date(Date.UTC(2024, 0, 7 + day))));
+  const weekdays = Array.from({ length: 7 }, (_, day) => dateTimeFormat(locale, { weekday: "narrow", timeZone: "UTC" }).format(new Date(Date.UTC(2024, 0, 7 + day))));
   const recordMap = React.useMemo(() => {
     const map = new Map<string, Set<string>>();
     for (const record of records) {

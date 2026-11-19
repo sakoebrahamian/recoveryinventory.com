@@ -83,7 +83,7 @@ export function JoinForm() {
         body: JSON.stringify({ purpose: "signup", alias, email, language }),
       });
       const result = await response.json() as { challengeId?: string; maskedEmail?: string; error?: string };
-      if (!response.ok || !result.challengeId) throw new Error(result.error || t("The verification email could not be sent.", "ایمیل تأیید ارسال نشد."));
+      if (!response.ok || !result.challengeId) throw new Error(t(result.error || "The verification email could not be sent.", "ایمیل تأیید ارسال نشد."));
       setChallengeId(result.challengeId);
       setMaskedEmail(result.maskedEmail || email);
       setMessage(t("We sent a six-digit code to your email.", "یک کد شش‌رقمی به ایمیل شما فرستادیم."));
@@ -105,7 +105,7 @@ export function JoinForm() {
         body: JSON.stringify({ challengeId, code: emailCode }),
       });
       const result = await response.json() as { error?: string };
-      if (!response.ok) throw new Error(result.error || t("That code was not recognized.", "این کد شناخته نشد."));
+      if (!response.ok) throw new Error(t(result.error || "That code was not recognized.", "این کد شناخته نشد."));
       recordSiteAction("account_created");
       setEmailVerified(true);
       setMessage(t("Your email account is ready.", "حساب ایمیلی شما آماده است."));
@@ -137,7 +137,7 @@ export function JoinForm() {
     setBillingError("");
     try {
       const { ok, result } = await requestBilling("checkout", promotionCode, { plan: billingPlan, language });
-      if (!ok) throw new Error(result.error || t("Checkout is not available yet.", "پرداخت هنوز در دسترس نیست."));
+      if (!ok) throw new Error(t(result.error || "Checkout is not available yet.", "پرداخت هنوز در دسترس نیست."));
       if (result.activated) {
         recordSiteAction("membership_activated");
         // Native navigation avoids the production Vinext client-router interception error.
@@ -161,7 +161,7 @@ export function JoinForm() {
     return (
       <>
         <button className="button button-primary button-full" type="button" disabled={disabled || busy} onClick={() => window.location.assign(`/app?plan=${billingPlan}`)}>{t("Open my free Step 10 journal", "باز کردن دفتر رایگان گام ۱۰ من")}</button>
-        <p className="fine-print">{t("No card needed. Save up to seven daily Step 10 entries in your first seven days, then keep read and export access. Subscribe whenever you choose.", "نیازی به کارت نیست. در هفت روز اول تا هفت ترازنامه روزانه گام ۱۰ ذخیره کنید و پس از آن دسترسی خواندن و خروجی گرفتن را نگه دارید. هر زمان خواستید اشتراک بگیرید.")}</p>
+        <p className="fine-print">{t("No card needed. Save up to 30 daily Step 10 entries in your first 30 days, then keep read and export access. Subscribe whenever you choose.", "نیازی به کارت نیست. در ۳۰ روز اول تا ۳۰ ترازنامه روزانه گام ۱۰ ذخیره کنید و پس از آن دسترسی خواندن و خروجی گرفتن را نگه دارید. هر زمان خواستید اشتراک بگیرید.")}</p>
         <details className="join-optional-subscription"><summary>{t("Or choose a paid subscription", "یا اشتراک پولی انتخاب کنید")}</summary>
         <SubscriptionPlanPicker value={billingPlan} onChange={setBillingPlan} disabled={busy} />
         <div className="promotion-code-field join-promotion-code">

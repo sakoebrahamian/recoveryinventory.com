@@ -1,3 +1,4 @@
+import { supportedLanguage } from "@/lib/languages";
 import { env } from "cloudflare:workers";
 import { hasActiveMembership, jsonError, requireAccount, type Account } from "@/lib/auth";
 import { appOrigin, stripePriceId, stripeRequest } from "@/lib/stripe";
@@ -123,7 +124,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "Choose a monthly or yearly billing plan." }, { status: 400 });
     }
     const plan = body.plan ?? "yearly";
-    const language = body.language ?? account.preferredLanguage;
+    const language = supportedLanguage(body.language) ?? supportedLanguage(account.preferredLanguage) ?? "en";
     const priceId = await stripePriceId(plan);
     const promotionCode = typeof body.promotionCode === "string" ? body.promotionCode.trim() : "";
     if (promotionCode.length > 100) {
@@ -145,7 +146,7 @@ export async function POST(request: Request) {
       "metadata[billing_plan]": plan,
       "subscription_data[metadata][user_id]": account.id,
       "subscription_data[metadata][billing_plan]": plan,
-      locale: language === "es" ? "es" : language === "en" ? "en" : "auto",
+      locale: ["en", "es", "fr", "pt-BR", "de", "it", "el"].includes(language) ? language : "auto",
       integration_identifier: `ri-subscription-${Array.from(crypto.getRandomValues(new Uint8Array(8)), (n) => String.fromCharCode(97 + n % 26)).join("")}`,
       success_url: `${origin}/app?checkout=success`,
       cancel_url: `${origin}/app?checkout=cancelled&plan=${plan}`,

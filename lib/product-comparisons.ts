@@ -1,10 +1,10 @@
+import { localizedPath, languageRoutes } from "./languages";
+
+import { expandLocalizedRecord } from "@/lib/localization";
 import type { Language } from "./inventory";
-import { subscriptionPricing } from "./subscription-plans";
 
 type Copy = Record<Language, string>;
-const text = (en: string, es: string, fa: string): Copy => ({ en, es, fa });
-const monthly = (subscriptionPricing.monthly / 100).toFixed(2);
-const yearly = (subscriptionPricing.yearly / 100).toFixed(0);
+const text = (en: string, es: string, fa: string): Copy => (expandLocalizedRecord({ en, es, fa }));
 
 export const comparisonReviewedDate = "2026-11-19";
 export const comparisonUi = {
@@ -42,9 +42,9 @@ const ours = {
   patterns: text("Date-filtered Step 10 charts, a pattern map, and saved reflections you can revisit alongside your answers.", "Gráficos del Paso 10 por fechas, un mapa de patrones y reflexiones guardadas para revisar junto con tus respuestas.", "نمودارهای گام ۱۰ بر اساس تاریخ، نقشه الگوها و نوشته‌های ذخیره‌شده برای مرور در کنار پاسخ‌ها."),
   sharing: text("Choose individual notes and principles for a sponsor report. Preview, copy, or export a PDF; the reader does not need an account.", "Elige notas y principios para un informe. Revisa, copia o exporta un PDF; quien lo lea no necesita cuenta.", "اصول و یادداشت‌های دلخواه را برای گزارش راهنما انتخاب کنید. پیش‌نمایش، کپی یا خروجی PDF؛ خواننده به حساب نیاز ندارد."),
   access: text("A web app for a phone, tablet, or computer browser. No app-store installation is needed. An internet connection is required.", "Una aplicación web para el navegador del teléfono, tableta u ordenador. No requiere instalación desde una tienda. Necesita conexión a internet.", "وب‌اپ در مرورگر تلفن، تبلت یا رایانه؛ بدون نصب از فروشگاه برنامه. اتصال اینترنت لازم است."),
-  language: text("English, Spanish, and Farsi, including right-to-left Farsi. Anonymous username accounts or verified email access.", "Inglés, español y farsi, con escritura de derecha a izquierda. Cuentas con usuario anónimo o correo verificado.", "انگلیسی، اسپانیایی و فارسی با نوشتار راست‌به‌چپ. حساب با نام کاربری ناشناس یا ایمیل تأییدشده."),
-  free: text("Create a free account with no card: save up to seven daily Step 10 entries in the first seven days, then retain read and export access. A no-account sample demo is also available. Live AI and Step 4 saving require membership.", "Crea una cuenta gratuita sin tarjeta: guarda hasta siete inventarios diarios del Paso 10 en los primeros siete días y conserva el acceso de lectura y exportación después. También hay una demostración sin cuenta. La IA en vivo y guardar el Paso 4 requieren suscripción.", "بدون کارت حساب رایگان بسازید: در هفت روز اول تا هفت ترازنامه روزانه گام ۱۰ ذخیره کنید و پس از آن دسترسی خواندن و خروجی گرفتن را نگه دارید. نمونه بدون حساب نیز هست. هوش مصنوعی زنده و ذخیره گام ۴ به اشتراک نیاز دارند."),
-  price: text(`$${monthly} USD monthly or $${yearly} USD yearly, with the same features. Recurring billing until canceled.`, `$${monthly} USD al mes o $${yearly} USD al año, con las mismas funciones. Renovación automática hasta cancelar.`, `${monthly} دلار آمریکا ماهانه یا ${yearly} دلار آمریکا سالانه با امکانات یکسان؛ تمدید خودکار تا زمان لغو.`),
+  language: text("Available in 10 languages", "Disponible en 10 idiomas", "در دسترس به ۱۰ زبان"),
+  free: text("Create a free account with no card: save up to 30 daily Step 10 entries in the first 30 days, then retain read and export access. A no-account sample demo is also available. Live AI and Step 4 saving require membership.", "Crea una cuenta gratuita sin tarjeta: guarda hasta 30 inventarios diarios del Paso 10 en los primeros 30 días y conserva el acceso de lectura y exportación después. También hay una demostración sin cuenta. La IA en vivo y guardar el Paso 4 requieren suscripción.", "بدون کارت حساب رایگان بسازید: در ۳۰ روز اول تا ۳۰ ترازنامه روزانه گام ۱۰ ذخیره کنید و پس از آن دسترسی خواندن و خروجی گرفتن را نگه دارید. نمونه بدون حساب نیز هست. هوش مصنوعی زنده و ذخیره گام ۴ به اشتراک نیاز دارند."),
+  price: text("$4.99 monthly or $25 yearly; cancel any time.", "$4.99 al mes o $25 al año; cancela cuando quieras.", "ماهانه ۴٫۹۹ یا سالانه ۲۵ دلار؛ هر زمان می‌توانید لغو کنید."),
 };
 
 export type ProductComparison = {
@@ -115,7 +115,7 @@ export const productComparisons: ProductComparison[] = [
 ];
 
 export function comparisonBasePath(language: Language): `/${string}` {
-  return language === "en" ? "/vs" : `/${language}/vs`;
+  return localizedPath(language, "/vs");
 }
 
 export function comparisonPath(language: Language, slug?: string): `/${string}` {
@@ -123,7 +123,7 @@ export function comparisonPath(language: Language, slug?: string): `/${string}` 
 }
 
 export function comparisonLanguageRoutes(slug?: string) {
-  return { en: comparisonPath("en", slug), es: comparisonPath("es", slug), fa: comparisonPath("fa", slug) };
+  return languageRoutes(slug ? `/vs/${slug}` : "/vs");
 }
 
 export function findProductComparison(slug: string) {

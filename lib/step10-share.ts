@@ -1,3 +1,5 @@
+
+import { isRtlLanguage } from "@/lib/languages";
 import { formatDisplayDate, principleQuestion, questionPrincipleName, type Language } from "@/lib/inventory";
 import type { Step10AnalyticsData } from "@/lib/step10-analytics";
 import type { ReportBounds } from "@/lib/step10-report-period";
@@ -52,7 +54,7 @@ export function step10RichReport(text: string, analytics: Step10AnalyticsData, b
     const state = chart.kinds.find((kind) => row.counts[kind]) ?? "unanswered";
     return `<tr><th style="text-align:start;padding:6px;border-bottom:1px solid #e5e9e6">${escapeHtml(row.name)}<small style="display:block;font-weight:normal;color:#62716b;margin-top:3px">${escapeHtml(row.principle)}</small></th><td style="padding:6px;border-bottom:1px solid #e5e9e6">${bar(row.counts, row.total)}</td><td style="padding:6px;border-bottom:1px solid #e5e9e6;text-align:end">${chart.daily ? `<span style="color:${state === "unanswered" ? "#62716b" : colors[state]};font-weight:bold">${escapeHtml(chart.labels[state])}</span>` : `${row.counts.practiced}/${row.answered} ${escapeHtml(chart.labels.practiced)} · ${row.counts.na} ${escapeHtml(chart.labels.na)}`}</td></tr>`;
   }).join("");
-  return `<div dir="${language === "fa" ? "rtl" : "ltr"}" style="font-family:Arial,sans-serif;color:#173f3a"><h2>${escapeHtml(chart.title)}</h2><p>${escapeHtml(t("Analytics period", "بازه تحلیل"))}: ${escapeHtml(chart.period)}</p>${empty ? `<p>${escapeHtml(t("No saved Step 10 inventories in this period.", "هیچ ترازنامه ذخیره‌شده گام ۱۰ در این بازه وجود ندارد."))}</p>` : `${bar(chart.counts, chart.total)}<p>${legend}</p><table style="width:100%;border-collapse:collapse;font-size:13px"><tbody>${rows}</tbody></table>`}<hr><div style="white-space:pre-wrap;line-height:1.5">${escapeHtml(text).replace(/\n/g, "<br>")}</div></div>`;
+  return `<div dir="${isRtlLanguage(language) ? "rtl" : "ltr"}" style="font-family:Arial,sans-serif;color:#173f3a"><h2>${escapeHtml(chart.title)}</h2><p>${escapeHtml(t("Analytics period", "بازه تحلیل"))}: ${escapeHtml(chart.period)}</p>${empty ? `<p>${escapeHtml(t("No saved Step 10 inventories in this period.", "هیچ ترازنامه ذخیره‌شده گام ۱۰ در این بازه وجود ندارد."))}</p>` : `${bar(chart.counts, chart.total)}<p>${legend}</p><table style="width:100%;border-collapse:collapse;font-size:13px"><tbody>${rows}</tbody></table>`}<hr><div style="white-space:pre-wrap;line-height:1.5">${escapeHtml(text).replace(/\n/g, "<br>")}</div></div>`;
 }
 
 /** A PNG chart accompanies the full text in native sharing apps that support file sharing. */
@@ -80,9 +82,9 @@ function step10ChartPng(analytics: Step10AnalyticsData, bounds: ReportBounds, la
   context.fillStyle = "#fff";
   context.fillRect(0, 0, canvas.width, canvas.height);
   context.textBaseline = "middle";
-  context.direction = language === "fa" ? "rtl" : "ltr";
-  context.textAlign = language === "fa" ? "right" : "left";
-  const titleX = language === "fa" ? 1155 : 45;
+  context.direction = isRtlLanguage(language) ? "rtl" : "ltr";
+  context.textAlign = isRtlLanguage(language) ? "right" : "left";
+  const titleX = isRtlLanguage(language) ? 1155 : 45;
   context.fillStyle = "#173f3a";
   context.font = "bold 30px Arial, sans-serif";
   context.fillText(chart.title, titleX, 48, 1110);
@@ -121,19 +123,19 @@ function step10ChartPng(analytics: Step10AnalyticsData, bounds: ReportBounds, la
     context.fillStyle = "#edf0ee";
     context.fillRect(45, rowTop + row.height - 3, 1110, 1);
     context.fillStyle = "#173f3a";
-    context.direction = language === "fa" ? "rtl" : "ltr";
-    context.textAlign = language === "fa" ? "right" : "left";
+    context.direction = isRtlLanguage(language) ? "rtl" : "ltr";
+    context.textAlign = isRtlLanguage(language) ? "right" : "left";
     context.font = "17px Arial, sans-serif";
-    row.lines.forEach((line, index) => context.fillText(line, language === "fa" ? 405 : 45, rowTop + 18 + index * 22));
+    row.lines.forEach((line, index) => context.fillText(line, isRtlLanguage(language) ? 405 : 45, rowTop + 18 + index * 22));
     context.font = "14px Arial, sans-serif";
     context.fillStyle = "#62716b";
-    context.fillText(row.principle, language === "fa" ? 405 : 45, rowTop + 18 + row.lines.length * 22, 360);
+    context.fillText(row.principle, isRtlLanguage(language) ? 405 : 45, rowTop + 18 + row.lines.length * 22, 360);
     context.font = "17px Arial, sans-serif";
     paintBar(row.counts, row.total, 465, y - 7, 410, 15);
     if (chart.daily) {
       const state = chart.kinds.find((kind) => row.counts[kind]) ?? "unanswered";
       context.fillStyle = colors[state] === colors.unanswered ? "#62716b" : colors[state];
-      context.fillText(chart.labels[state], language === "fa" ? 1150 : 900, y, 250);
+      context.fillText(chart.labels[state], isRtlLanguage(language) ? 1150 : 900, y, 250);
     } else {
       context.fillStyle = "#173f3a";
       context.direction = "ltr";

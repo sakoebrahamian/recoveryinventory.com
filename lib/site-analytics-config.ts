@@ -1,3 +1,4 @@
+import { languages } from "./languages";
 export const SITE_ANALYTICS_PAGES = [
   "home",
   "demo",
@@ -11,7 +12,7 @@ export const SITE_ANALYTICS_PAGES = [
   "learn_honesty",
 ] as const;
 
-export const SITE_ANALYTICS_LANGUAGES = ["en", "es", "fa"] as const;
+export const SITE_ANALYTICS_LANGUAGES = languages;
 
 export const SITE_ANALYTICS_SOURCES = [
   "direct",
@@ -43,6 +44,7 @@ export const SITE_ANALYTICS_ACTIONS = [
   "language_en",
   "language_es",
   "language_fa",
+  "language_fr", "language_pt-BR", "language_ar", "language_de", "language_hy", "language_it", "language_el",
 ] as const;
 
 export type SiteAnalyticsPage = (typeof SITE_ANALYTICS_PAGES)[number];

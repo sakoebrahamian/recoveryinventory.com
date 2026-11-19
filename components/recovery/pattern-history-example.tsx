@@ -1,15 +1,17 @@
 "use client";
 
+import { expandLocalizedRecord } from "@/lib/localization";
+
 import { useState } from "react";
 import { useLanguage } from "./language-provider";
 
 const samples = [
-  { id: "patience", names: { en: "Patience", es: "Paciencia", fa: "صبر" }, practiced: [8, 12, 10, 16, 15, 19] },
-  { id: "acceptance", names: { en: "Acceptance", es: "Aceptación", fa: "پذیرش" }, practiced: [9, 11, 10, 14, 16, 17] },
-  { id: "honesty", names: { en: "Honesty", es: "Honestidad", fa: "صداقت" }, practiced: [13, 15, 16, 18, 18, 22] },
+  { id: "patience", names: expandLocalizedRecord({ en: "Patience", es: "Paciencia", fa: "صبر" }), practiced: [8, 12, 10, 16, 15, 19] },
+  { id: "acceptance", names: expandLocalizedRecord({ en: "Acceptance", es: "Aceptación", fa: "پذیرش" }), practiced: [9, 11, 10, 14, 16, 17] },
+  { id: "honesty", names: expandLocalizedRecord({ en: "Honesty", es: "Honestidad", fa: "صداقت" }), practiced: [13, 15, 16, 18, 18, 22] },
 ] as const;
 const recorded = [18, 20, 19, 23, 22, 25];
-const copy = {
+const copy = expandLocalizedRecord({
   en: {
     eyebrow: "Illustrative example · six months",
     title: "See what repeats beyond a single day.",
@@ -46,7 +48,7 @@ const copy = {
     meaning: "نوارها پاسخ‌های ثبت‌شده را توصیف می‌کنند. درصد فقط پاسخ‌های «تمرین کردم» و «نیازمند توجه» را حساب می‌کند؛ روزهای بدون ثبت و «امروز پیش نیامد» کنار گذاشته می‌شوند. نوار بالاتر نمره بهبودی نیست و تغییر همیشه مسیر مستقیمی ندارد.",
     demo: "مشاهده نمونه تعاملی تحلیل",
   },
-};
+});
 
 export function PatternHistoryExample() {
   const { language } = useLanguage();

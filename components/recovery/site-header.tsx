@@ -1,9 +1,12 @@
 "use client";
 
+import { localizedPath } from "@/lib/languages";
+
 /* eslint-disable @next/next/no-html-link-for-pages -- Native navigation avoids a production client-router interception issue. */
 
 import * as React from "react";
 import type { Language } from "@/lib/inventory";
+import { LanguageAvailability } from "./language-availability";
 import { BrandMark } from "./brand-mark";
 import { aboutLanguageRoutes } from "@/lib/about-content";
 import {
@@ -27,10 +30,10 @@ export function SiteHeader({
   const t = languageOverride
     ? (english: string, farsi: string) => translateForLanguage(language, english, farsi)
     : contextTranslate;
-  const learnHref = language === "es" ? "/es/learn" : language === "fa" ? "/fa/learn" : "/learn";
+  const learnHref = localizedPath(language, "/learn");
 
   React.useEffect(() => {
-    if (languageOverride && contextLanguage !== languageOverride) setLanguage(languageOverride);
+    if (languageOverride && contextLanguage !== languageOverride) void setLanguage(languageOverride).catch(() => {});
   }, [contextLanguage, languageOverride, setLanguage]);
 
   return (
@@ -56,6 +59,7 @@ export function SiteHeader({
           </a>
         </div>
       </div>
+      <LanguageAvailability language={language} />
     </header>
   );
 }

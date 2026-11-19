@@ -20,7 +20,7 @@ export function InventoryGuideShowcase() {
           <div><dt>{t("Step 4", "گام ۴")}</dt><dd>{t("Explore a resentment, fear, or relationship at your own pace.", "رنجش، ترس یا رابطه‌ای را با سرعت خودتان بررسی کنید.")}</dd></div>
           <div><dt>{t("Step 10", "گام ۱۰")}</dt><dd>{t("Review your day, notice progress, and consider a small next step.", "روزتان را مرور کنید، پیشرفت را ببینید و به یک گام کوچک بعدی فکر کنید.")}</dd></div>
         </dl>
-        <p>{t("Available in English, Spanish, and Farsi. You choose what to send to AI.", "به زبان‌های انگلیسی، اسپانیایی و فارسی در دسترس است. خودتان انتخاب می‌کنید چه چیزی برای هوش مصنوعی بفرستید.")}</p>
+        <p>{t("Available in all 10 site languages. You choose what to send to AI.", "به هر ۱۰ زبان سایت در دسترس است. خودتان انتخاب می‌کنید چه چیزی برای هوش مصنوعی بفرستید.")}</p>
         <p>{inventoryGuideAllowance(language, t)}</p>
         <div className="ri-ai-guide-actions">
           <a className="button button-primary" href="#membership">{t("See membership plans", "مشاهده طرح‌های عضویت")}</a>

@@ -1,3 +1,8 @@
+import { languages, languageNames } from "@/lib/languages";
+
+import { isRtlLanguage } from "@/lib/languages";
+
+import { expandLocalizedRecord } from "@/lib/localization";
 import {
   ArrowLeft,
   ArrowRight,
@@ -11,7 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { step10PracticeGuidance, step4WorkbookGuidance } from "@/lib/recovery-guidance";
-import { spanishTranslations } from "@/lib/translations-es";
+import { translateForLanguage } from "@/lib/localization";
 import type { Language } from "@/lib/inventory";
 import {
   learningBasePath,
@@ -39,7 +44,7 @@ const articleUi: Record<Language, {
   demo: string;
   join: string;
   safety: string;
-}> = {
+}> = expandLocalizedRecord({
   en: {
     back: "Learning center",
     pathway: "A practical pathway",
@@ -70,10 +75,10 @@ const articleUi: Record<Language, {
     join: "مشاهده اشتراک وب‌سایت",
     safety: "محتوای آموزشی مستقل · نه مراقبت حرفه‌ای یا پشتیبانی بحران",
   },
-};
+});
 
 function DirectionalArrow({ language }: { language: Language }) {
-  return language === "fa" ? <ArrowLeft size={17} /> : <ArrowRight size={17} />;
+  return isRtlLanguage(language) ? <ArrowLeft size={17} /> : <ArrowRight size={17} />;
 }
 
 function TopicIcon({ topic }: { topic: PublicLearningTopic }) {
@@ -89,9 +94,7 @@ function LanguageLinks({ language, slug }: { language: Language; slug?: string }
     <nav className="public-learning-languages" aria-label={label}>
       <span>{label}</span>
       <div>
-        <a href={routes.en} hrefLang="en" aria-current={language === "en" ? "page" : undefined}>English</a>
-        <a href={routes.es} hrefLang="es" aria-current={language === "es" ? "page" : undefined}>Español</a>
-        <a href={routes.fa} hrefLang="fa" aria-current={language === "fa" ? "page" : undefined}>فارسی</a>
+        {languages.map((value) => <a key={value} href={routes[value]} lang={value} hrefLang={value} aria-current={language === value ? "page" : undefined}>{languageNames[value]}</a>)}
       </div>
     </nav>
   );
@@ -100,7 +103,7 @@ function LanguageLinks({ language, slug }: { language: Language; slug?: string }
 export function PublicLearningHub({ language }: { language: Language }) {
   const copy = learningHubCopy[language];
   const languageRoutes = learningLanguageRoutes();
-  const dir = language === "fa" ? "rtl" : "ltr";
+  const dir = isRtlLanguage(language) ? "rtl" : "ltr";
 
   return (
     <main className="inner-page public-learning-page" lang={language} dir={dir}>
@@ -174,8 +177,8 @@ export function PublicLearningArticlePage({
   const copy = topic.copy[language];
   const ui = articleUi[language];
   const languageRoutes = learningLanguageRoutes(topic.slug);
-  const dir = language === "fa" ? "rtl" : "ltr";
-  const t = (english: string, farsi: string) => language === "fa" ? farsi : language === "es" ? spanishTranslations[english] ?? english : english;
+  const dir = isRtlLanguage(language) ? "rtl" : "ltr";
+  const t = (english: string, farsi: string) => translateForLanguage(language, english, farsi);
   const relatedTopics = publicLearningTopics.filter((candidate) => candidate.id !== topic.id);
 
   return (
@@ -185,7 +188,7 @@ export function PublicLearningArticlePage({
       <article className="public-learning-article">
         <header className={`public-learning-article-hero public-learning-article-${topic.id}`}>
           <a className="public-learning-back" href={learningBasePath(language)}>
-            {language === "fa" ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}{ui.back}
+            {isRtlLanguage(language) ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}{ui.back}
           </a>
           <span className="public-learning-eyebrow">{copy.eyebrow}</span>
           <h1>{copy.title}</h1>

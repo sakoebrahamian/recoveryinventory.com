@@ -1,3 +1,8 @@
+
+import { dateTimeFormat } from "@/lib/languages";
+import { localizedText } from "./localization";
+
+import { isRtlLanguage, languageLocale } from "@/lib/languages";
 import { formatDisplayDate, principles, type Language } from "@/lib/inventory";
 import type { Step10AnalyticsData } from "@/lib/step10-analytics";
 import { buildStep10Patterns } from "@/lib/step10-patterns";
@@ -34,10 +39,10 @@ export function patternSummaryData(analytics: Step10AnalyticsData, bounds: Repor
 
 export function step10PatternSummarySvg(analytics: Step10AnalyticsData, bounds: ReportBounds, language: Language, t: Translate, demo = false) {
   const data = patternSummaryData(analytics, bounds);
-  const rtl = language === "fa";
-  const locale = rtl ? "fa-IR" : language === "es" ? "es-US" : "en-US";
+  const rtl = isRtlLanguage(language);
+  const locale = languageLocale(language);
   const number = (value: number) => new Intl.NumberFormat(locale).format(value);
-  const name = (id: string) => principles.find((p) => p.id === id)?.[language] ?? id;
+  const name = (id: string) => (() => { const item = principles.find((p) => p.id === id); return item ? localizedText(item, language) : id; })();
   const labels = { practiced: t("Practiced", "تمرین کردم"), attention: t("Needs attention", "نیازمند توجه"), na: t("Didn’t come up today", "امروز پیش نیامد"), unanswered: t("Not answered", "پاسخ داده نشده") };
   const title = t("One-page pattern summary", "خلاصه یک‌صفحه‌ای الگوها");
   const range = bounds.from === bounds.through ? formatDisplayDate(bounds.from, language) : `${formatDisplayDate(bounds.from, language)} – ${formatDisplayDate(bounds.through, language)}`;
@@ -106,7 +111,7 @@ export function step10PatternSummarySvg(analytics: Step10AnalyticsData, bounds: 
   text(t("Answers across the selected dates", "پاسخ‌ها در تاریخ‌های انتخاب‌شده"), 56, 865, 22, 1488, true);
   const step = 1488 / Math.max(1, data.timeline.length);
   const tickEvery = Math.max(1, Math.ceil(data.timeline.length / 15));
-  const shortDate = new Intl.DateTimeFormat(locale, { month: "numeric", day: "numeric", ...(data.calendarDays > 366 ? { year: "2-digit" as const } : {}), timeZone: "UTC" });
+  const shortDate = dateTimeFormat(locale, { month: "numeric", day: "numeric", ...(data.calendarDays > 366 ? { year: "2-digit" as const } : {}), timeZone: "UTC" });
   data.timeline.forEach((point, index) => {
     const x = 56 + (rtl ? data.timeline.length - index - 1 : index) * step;
     const total = kinds.reduce((sum, kind) => sum + point[kind], 0);

@@ -1,3 +1,5 @@
+import { loadTranslations } from "./localization";
+import { languages, replyLanguageNames } from "./languages";
 import { z } from "zod";
 import usageSchema from "../cloudflare-d1-inventory-guide-setup.sql?raw";
 import {
@@ -17,7 +19,7 @@ const responseUrl = "https://api.openai.com/v1/responses";
 
 const sharedRequestFields = {
   step: z.enum(["step4", "step10"]),
-  language: z.enum(["en", "es", "fa"]),
+  language: z.enum(languages),
   consent: z.literal(true),
 };
 const topicId = z.string().min(1).max(80);
@@ -44,7 +46,7 @@ const requestSchema = z.union([guideRequestSchema, chatRequestSchema]);
 type GuideRequest = (z.infer<typeof guideRequestSchema> & { topicLabel: string })
   | (z.infer<typeof chatRequestSchema> & { topicLabel?: string });
 
-const replyLanguages = { en: "English", es: "Spanish", fa: "Persian (Farsi)" };
+const replyLanguages = replyLanguageNames;
 
 const instructions = [
   "You help people journal for a 12-step recovery inventory. Use plain, warm, nonjudgmental language.",
@@ -78,6 +80,7 @@ export async function readInventoryGuideRequest(request: Request): Promise<Guide
     }
     const input = requestSchema.parse(JSON.parse(body + decoder.decode()));
     if ("message" in input && input.topic === undefined) return input;
+    await loadTranslations(input.language);
     const topic = inventoryGuideTopics(input.step, input.language).find(({ id }) => id === input.topic);
     return topic ? { ...input, topicLabel: topic.label } : null;
   } catch {
