@@ -12,7 +12,7 @@ export function MemberTestimonial({ memberId, compact = false }: { memberId: Mem
       <blockquote><p>{compact && member.pricingQuote ? member.pricingQuote[language] : member.quote[language]}</p></blockquote>
       <figcaption>
         <strong><bdi>{member.name}</bdi></strong>
-        <span>{member.feature[language]}</span>
+        <span>{compact ? member.feature[language] : member.context[language]}</span>
       </figcaption>
       {language !== "en" && <p className="ri-testimonial-translation">{memberFeedbackCopy[language].translationNote}</p>}
     </figure>

@@ -160,8 +160,8 @@ export default function Home() {
           </h1>
           <p>
             {t(
-              "An online journal for Step 10 daily inventories and Step 4 workbooks. Review your patterns over time and prepare reflections to discuss with your sponsor, one day at a time.",
-              "دفتری آنلاین برای ترازنامه‌های روزانه گام دهم و دفترهای گام چهارم. الگوهایتان را در گذر زمان مرور کنید و تأملاتی برای گفت‌وگو با راهنما آماده کنید؛ فقط برای امروز."
+              "Notice your patterns, one honest evening at a time. Bring a reflection from your Step 10 journal or Step 4 workbook to your next conversation with your sponsor.",
+              "هر شب با صداقت به خودتان نگاه کنید و الگوهایتان را بشناسید. تأملی از دفتر گام ۱۰ یا دفتر کار گام ۴ خود برای گفت‌وگوی بعدی با راهنمایتان آماده کنید."
             )}
           </p>
           <div className="ri-hero-actions">
@@ -181,8 +181,6 @@ export default function Home() {
             <a href={aboutLanguageRoutes[language]}><HeartHandshake size={17} />{t("Created by Paul (a pseudonym), 18 years sober", "ساخته پل، با نام مستعار و ۱۸ سال پاکی")}</a>
           </div>
           <EarlyCommunityProof />
-          <a className="text-link ri-hero-ai-link" href="#ai-guide"><Sparkles size={16} aria-hidden="true" />{t("Explore the AI guide for members", "آشنایی با راهنمای هوش مصنوعی اعضا")}</a>
-          <a className="text-link ri-free-week-link" href={step10AppRoutes[language]}>{step10AppCopy[language].title}<ArrowRight className={arrowClass} size={16} aria-hidden="true" /></a>
         </div>
 
         <figure className="ri-hero-figure" aria-describedby="hero-preview-description">
@@ -299,6 +297,12 @@ export default function Home() {
         })}
       </section>
 
+      <aside className="ri-founder-note" aria-label={founder.eyebrow}>
+        <strong>{founder.eyebrow}</strong>
+        <blockquote>{founder.excerpt}</blockquote>
+        <a href={aboutLanguageRoutes[language]} className="text-link">{founder.storyLink}</a>
+      </aside>
+
       <section className="ri-section ri-practices" id="inventories">
         <div className="ri-section-heading">
           <span>{t("Two practices, one private place", "دو تمرین، یک فضای خصوصی")}</span>
@@ -321,7 +325,10 @@ export default function Home() {
               <li><Check size={16} />{t("A calendar that continues every year", "تقویمی که هر سال ادامه دارد")}</li>
               <li><Check size={16} />{t("Private analytics across your Step 10 history", "تحلیل خصوصی در سراسر سابقه گام ۱۰ شما")}</li>
             </ul>
-            <a href="/demo?step=10">{t("Try Step 10", "آزمایش گام دهم")}<ArrowRight className={arrowClass} size={17} /></a>
+            <div className="ri-practice-links">
+              <a href="/demo?step=10">{t("Try Step 10", "آزمایش گام دهم")}<ArrowRight className={arrowClass} size={17} aria-hidden="true" /></a>
+              <a href={step10AppRoutes[language]}>{step10AppCopy[language].title}<ArrowRight className={arrowClass} size={16} aria-hidden="true" /></a>
+            </div>
           </article>
 
           <article className="ri-practice-card ri-practice-four">
@@ -409,11 +416,6 @@ export default function Home() {
             <span><Check size={16} />{t("Add email later without losing progress", "افزودن ایمیل در آینده بدون از دست دادن پیشرفت")}</span>
             <span><Check size={16} />{t("You control every export", "کنترل کامل هر خروجی")}</span>
           </div>
-          <aside className="ri-founder-note" aria-label={founder.eyebrow}>
-            <strong>{founder.eyebrow}</strong>
-            <p>{founder.excerpt}</p>
-            <a href={aboutLanguageRoutes[language]} className="text-link">{founder.storyLink}</a>
-          </aside>
         </div>
         <div className="ri-privacy-card">
           <div className="ri-lock-orbit"><LockKeyhole size={30} /></div>

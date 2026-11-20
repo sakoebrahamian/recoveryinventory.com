@@ -8,6 +8,7 @@ export type MemberFeedbackId = (typeof memberFeedbackIds)[number];
 type MemberFeedback = {
   name: string;
   feature: Record<Language, string>;
+  context: Record<Language, string>;
   quote: Record<Language, string>;
   pricingQuote?: Record<Language, string>;
 };
@@ -18,6 +19,7 @@ export const memberFeedback: Record<MemberFeedbackId, MemberFeedback> = {
   benAddict: {
     name: "Ben Addict",
     feature: expandLocalizedRecord({ en: "Patterns and group conversations", es: "Patrones y conversaciones en el grupo", fa: "الگوها و گفت‌وگو در گروه" }),
+    context: expandLocalizedRecord({ en: "Looks for patterns to discuss at group meetings", es: "Busca patrones para conversar en las reuniones del grupo", fa: "الگوهایی را پیدا می‌کند تا در جلسه‌های گروه درباره‌شان صحبت کند" }),
     quote: expandLocalizedRecord({
       en: "It gives me exactly what I need to spot my patterns, which makes it much easier to walk into my group meetings and talk about my progress and successes.",
       es: "Me da justo lo que necesito para reconocer mis patrones, lo que me facilita mucho llegar a las reuniones de mi grupo y hablar de mis avances y logros.",
@@ -27,6 +29,7 @@ export const memberFeedback: Record<MemberFeedbackId, MemberFeedback> = {
   soberDan: {
     name: "Sober Dan",
     feature: expandLocalizedRecord({ en: "Step 10 and AI guidance", es: "Paso 10 y guía con IA", fa: "گام ۱۰ و راهنمای هوش مصنوعی" }),
+    context: expandLocalizedRecord({ en: "Uses AI prompts while writing Step 10", es: "Usa preguntas de la IA al escribir el Paso 10", fa: "هنگام نوشتن گام ۱۰ از پرسش‌های هوش مصنوعی استفاده می‌کند" }),
     quote: expandLocalizedRecord({
       en: "I really appreciate how straightforward and uncomplicated the Step 10 journal is to use. On top of that, having the AI option has been a big help when I’m trying to figure out what to really answer for each defect—it takes the guesswork out of digging a little deeper into my entries.",
       es: "Valoro mucho lo sencillo y directo que es usar el diario del Paso 10. Además, la opción de IA me ha ayudado mucho a decidir qué responder realmente sobre cada defecto; me ayuda a profundizar un poco más en mis entradas sin tener que adivinar por dónde empezar.",
@@ -36,6 +39,7 @@ export const memberFeedback: Record<MemberFeedbackId, MemberFeedback> = {
   francis: {
     name: "Francis",
     feature: expandLocalizedRecord({ en: "Private journaling", es: "Diario privado", fa: "روزانه‌نویسی خصوصی" }),
+    context: expandLocalizedRecord({ en: "New to the journal", es: "Acaba de empezar a usar el diario", fa: "تازه شروع به استفاده از دفتر کرده است" }),
     quote: expandLocalizedRecord({
       en: "I just started using the site, so I’m still exploring and getting the hang of everything, but so far it has been really helpful. Having a clean, private space dedicated specifically to doing my inventory makes it a lot easier to sit down and get my thoughts out without feeling overwhelmed.",
       es: "Acabo de empezar a usar el sitio, así que todavía estoy explorando y aprendiendo cómo funciona todo, pero hasta ahora me ha resultado muy útil. Tener un espacio claro y privado dedicado específicamente a hacer mi inventario me facilita mucho sentarme y expresar lo que pienso sin sentir que todo me supera.",
@@ -45,6 +49,7 @@ export const memberFeedback: Record<MemberFeedbackId, MemberFeedback> = {
   nancy: {
     name: "Nancy",
     feature: expandLocalizedRecord({ en: "Analytics", es: "Análisis de patrones", fa: "تحلیل الگوها" }),
+    context: expandLocalizedRecord({ en: "Shared feedback after about a month with the journal", es: "Compartió su opinión después de usar el diario cerca de un mes", fa: "پس از حدود یک ماه استفاده از دفتر، بازخوردش را در میان گذاشت" }),
     quote: expandLocalizedRecord({
       en: "I’ve been using the site for about a month now, and the Analytics feature has been by far the most helpful part for me. Being able to look back over a few weeks and actually see patterns in my behavior and reactions has given me a much clearer perspective than just looking at a single day on its own.",
       es: "Llevo aproximadamente un mes usando el sitio y la función de análisis ha sido, con diferencia, lo más útil para mí. Poder revisar varias semanas y ver patrones en mi conducta y mis reacciones me ha dado una perspectiva mucho más clara que mirar un solo día de forma aislada.",
@@ -59,6 +64,7 @@ export const memberFeedback: Record<MemberFeedbackId, MemberFeedback> = {
   redDot: {
     name: "Red Dot",
     feature: expandLocalizedRecord({ en: "Sharing with a sponsor", es: "Compartir con mi padrino o madrina", fa: "اشتراک‌گذاری با راهنما" }),
+    context: expandLocalizedRecord({ en: "Shared feedback after two weeks with the journal", es: "Compartió su opinión después de dos semanas usando el diario", fa: "پس از دو هفته استفاده از دفتر، بازخوردش را در میان گذاشت" }),
     quote: expandLocalizedRecord({
       en: "I've been on the site for two weeks now, and the \"share with sponsor\" feature has been a huge help for my journaling. It makes the whole process of getting my entries over to my sponsor seamless, which keeps me much more consistent and accountable with writing things down regularly.",
       es: "Llevo dos semanas en el sitio y la función de compartir con mi padrino o madrina me ha ayudado mucho con el diario. Facilita mucho compartir mis entradas, lo que me ayuda a escribir con mucha más constancia y responsabilidad.",
@@ -68,6 +74,7 @@ export const memberFeedback: Record<MemberFeedbackId, MemberFeedback> = {
   lucy: {
     name: "Lucy",
     feature: expandLocalizedRecord({ en: "AI Inventory Guide", es: "Guía de inventario con IA", fa: "راهنمای ترازنامه با هوش مصنوعی" }),
+    context: expandLocalizedRecord({ en: "Uses the AI guide when stuck on what to write", es: "Usa la guía de IA cuando no sabe qué escribir", fa: "وقتی نمی‌داند چه بنویسد از راهنمای هوش مصنوعی کمک می‌گیرد" }),
     quote: expandLocalizedRecord({
       en: "Whenever I get stuck or have trouble deciding what to focus on in certain areas of my journaling, it helps me get past that mental block and figure out what to write.",
       es: "Cuando me atasco o no sé en qué centrarme en alguna parte de mi diario, me ayuda a superar ese bloqueo y a decidir qué escribir.",
