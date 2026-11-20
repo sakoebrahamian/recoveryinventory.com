@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Check, Palette, X } from "lucide-react";
-import { journalThemeGroups, journalThemes, type JournalThemeGroup } from "@/lib/journal-themes";
+import { journalThemes } from "@/lib/journal-themes";
 import type { Language } from "@/lib/languages";
 import { translateForLanguage, useLanguage } from "./language-provider";
 import { useTheme } from "./theme-provider";
@@ -12,16 +12,12 @@ export function ThemePicker({ language: override }: { language?: Language }) {
   const { theme, chooseTheme } = useTheme();
   const t = (english: string, farsi: string) => translateForLanguage(override ?? language, english, farsi);
   const current = journalThemes.find(item => item.id === theme)!;
-  const [group, setGroup] = React.useState<JournalThemeGroup>(current.group);
   const dialog = React.useRef<HTMLDialogElement>(null);
   const titleId = React.useId();
 
   return (
     <div className="theme-picker">
-      <button className="theme-picker-trigger" type="button" aria-haspopup="dialog" title={t(current.label, current.fa)} onClick={() => {
-        setGroup(current.group);
-        dialog.current?.showModal();
-      }}>
+      <button className="theme-picker-trigger" type="button" aria-haspopup="dialog" title={t(current.label, current.fa)} onClick={() => dialog.current?.showModal()}>
         <Palette size={17} aria-hidden="true" />
         <span>{t("Color theme", "رنگ‌بندی")}</span>
       </button>
@@ -35,21 +31,13 @@ export function ThemePicker({ language: override }: { language?: Language }) {
               <X size={20} aria-hidden="true" />
             </button>
           </div>
-          <p>{t("Anyone can choose any theme.", "همه می‌توانند هر رنگ‌بندی را انتخاب کنند.")}</p>
-          <div className="theme-picker-groups" role="group" aria-label={t("Theme collections", "مجموعه‌های رنگ‌بندی")}>
-            {journalThemeGroups.map(collection => (
-              <button type="button" key={collection.id} aria-pressed={collection.id === group} onClick={() => setGroup(collection.id)}>
-                {t(collection.label, collection.fa)}
-              </button>
-            ))}
-          </div>
           <div className="theme-picker-grid">
-            {journalThemes.filter(item => item.group === group).map(item => (
+            {journalThemes.map(item => (
               <button type="button" key={item.id} className="theme-choice" aria-pressed={theme === item.id} onClick={() => {
                 chooseTheme(item.id);
                 dialog.current?.close();
               }}>
-                <span className="theme-choice-art" data-group={item.group} aria-hidden="true" style={{
+                <span className="theme-choice-art" data-pattern={item.pattern} aria-hidden="true" style={{
                   "--preview-ink": item.ink,
                   "--preview-accent": item.accent,
                   "--preview-tint": item.tint,
