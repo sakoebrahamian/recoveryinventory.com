@@ -27,6 +27,15 @@ try {
   assert.equal(clean.properties.$referrer, "https://youtube.com/");
   assert.equal(clean.properties.$process_person_profile, false);
   assert.ok(!JSON.stringify(clean).includes("PRIVATE_"), "No raw queries, hashes, names, input text, account data or future SDK fields may pass");
+  const timestamp = new Date("2026-11-19T23:00:00.000Z");
+  const capture = policy.sanitizeMarketingEvent({ ...event, uuid: identifier, timestamp }, context);
+  assert.equal(capture.uuid, identifier);
+  assert.equal(capture.timestamp.toISOString(), timestamp.toISOString());
+  assert.ok(!JSON.stringify(capture).includes("PRIVATE_"));
+  const invalidCapture = policy.sanitizeMarketingEvent({ ...event, uuid: "PRIVATE_ACCOUNT_ID", timestamp: "PRIVATE_NOTE" }, context);
+  assert.equal(invalidCapture.uuid, undefined);
+  assert.equal(invalidCapture.timestamp, undefined);
+  assert.equal(policy.sanitizeMarketingEvent({ ...event, timestamp: new Date(NaN) }, context).timestamp, undefined);
   assert.equal(policy.sanitizeMarketingEvent(event, { ...context, enabled: false }), null);
   assert.equal(policy.sanitizeMarketingEvent({ ...event, event: "$identify" }, context), null);
   assert.equal(policy.sanitizeMarketingEvent({ ...event, properties: { ...event.properties, $current_url: "https://recoveryinventory.com/app" } }, context), null);
