@@ -16,14 +16,10 @@ export function InventoryGuideShowcase() {
         <h2 id="ri-ai-guide-title">{t("AI Inventory Guide", "راهنمای ترازنامه با هوش مصنوعی")}</h2>
         <p>{t("Use the optional AI guide when you want help putting a reflection into words. Close your day with Step 10, or explore a Step 4 resentment, fear, or relationship, one question at a time.", "هر زمان برای بیان تأملاتتان کمک می‌خواهید، از راهنمای اختیاری هوش مصنوعی استفاده کنید. روزتان را با گام ۱۰ مرور کنید یا رنجش، ترس یا رابطه‌ای را در گام ۴، هر بار با یک پرسش، بررسی کنید.")}</p>
         <p>{t("Your sponsor and fellowship remain your guides for step work. AI is a writing aid, not a sponsor or a group.", "راهنما و انجمن شما همچنان راهنمای کار کردن قدم‌ها هستند. هوش مصنوعی کمک‌نویس است، نه اسپانسر یا گروه.")}</p>
-        <dl>
-          <div><dt>{t("Step 4", "گام ۴")}</dt><dd>{t("Explore a resentment, fear, or relationship at your own pace.", "رنجش، ترس یا رابطه‌ای را با سرعت خودتان بررسی کنید.")}</dd></div>
-          <div><dt>{t("Step 10", "گام ۱۰")}</dt><dd>{t("Review your day, notice progress, and consider a small next step.", "روزتان را مرور کنید، پیشرفت را ببینید و به یک گام کوچک بعدی فکر کنید.")}</dd></div>
-        </dl>
         <p>{t("Available in all 10 site languages. You choose what to send to AI.", "به هر ۱۰ زبان سایت در دسترس است. خودتان انتخاب می‌کنید چه چیزی برای هوش مصنوعی بفرستید.")}</p>
         <p>{inventoryGuideAllowance(language, t)}</p>
         <div className="ri-ai-guide-actions">
-          <a className="button button-primary" href="#membership">{t("See membership plans", "مشاهده طرح‌های عضویت")}</a>
+          <a className="text-link" href="#membership">{t("See membership plans", "مشاهده طرح‌های عضویت")}</a>
           <a className="text-link" href="/app">{t("Open member workspace", "باز کردن فضای اعضا")}</a>
         </div>
       </div>

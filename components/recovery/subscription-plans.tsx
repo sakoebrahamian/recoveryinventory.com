@@ -14,11 +14,14 @@ export function SubscriptionSavings() {
   return (
     <div className="subscription-savings">
       <strong>{t("Choose yearly and save $34.88 a year (about 58%).", "اشتراک سالانه را انتخاب کنید و هر سال ۳۴٫۸۸ دلار (حدود ۵۸٪) صرفه‌جویی کنید.")}</strong>
-      <p className="subscription-calculation" dir="ltr">
-        {money(subscriptionPricing.monthly)} × 12 = {money(subscriptionPricing.monthly * 12)}<br />
-        {money(subscriptionPricing.monthly * 12)} − {money(subscriptionPricing.yearly)} = {money(yearlySavings)} ({new Intl.NumberFormat(language).format(yearlySavingsPercent)}%)
-      </p>
-      <small>{t("Savings compare 12 monthly payments with one yearly payment, before any discounts or applicable tax.", "این صرفه‌جویی از مقایسه ۱۲ پرداخت ماهانه با یک پرداخت سالانه، پیش از تخفیف یا مالیات احتمالی، محاسبه شده است.")}</small>
+      <details>
+        <summary>{t("How savings are calculated", "روش محاسبه صرفه‌جویی")}</summary>
+        <p className="subscription-calculation" dir="ltr">
+          {money(subscriptionPricing.monthly)} × 12 = {money(subscriptionPricing.monthly * 12)}<br />
+          {money(subscriptionPricing.monthly * 12)} − {money(subscriptionPricing.yearly)} = {money(yearlySavings)} ({new Intl.NumberFormat(language).format(yearlySavingsPercent)}%)
+        </p>
+        <small>{t("Savings compare 12 monthly payments with one yearly payment, before any discounts or applicable tax.", "این صرفه‌جویی از مقایسه ۱۲ پرداخت ماهانه با یک پرداخت سالانه، پیش از تخفیف یا مالیات احتمالی، محاسبه شده است.")}</small>
+      </details>
     </div>
   );
 }

@@ -6,7 +6,6 @@ import { localizedPath } from "@/lib/languages";
 
 import * as React from "react";
 import type { Language } from "@/lib/inventory";
-import { LanguageAvailability } from "./language-availability";
 import { ThemePicker } from "./theme-picker";
 import { BrandMark } from "./brand-mark";
 import { aboutLanguageRoutes } from "@/lib/about-content";
@@ -42,13 +41,10 @@ export function SiteHeader({
       <div className="site-header-inner">
         <BrandMark />
         <nav className="desktop-nav" aria-label={t("Primary navigation", "ناوبری اصلی")}>
-          <a href="/demo">{t("Try the demo", "مشاهده نسخه آزمایشی")}</a>
+          <a href="/demo">{t("Demo", "نسخه آزمایشی")}</a>
           <a href={learnHref}>{t("Learn", "یادگیری")}</a>
-          <a href={aboutLanguageRoutes[language]}>{t("Why I built this", "چرا این سایت را ساختم")}</a>
-          <a href="/#inventories">{t("Inventories", "ترازنامه‌ها")}</a>
-          <a href="/#ai-guide">{t("AI Guide", "راهنمای هوش مصنوعی")}</a>
-          <a href="/#membership">{t("Subscription", "اشتراک")}</a>
-          <a href="/privacy">{t("Privacy", "حریم خصوصی")}</a>
+          <a href="/#membership">{t("Pricing", "قیمت‌ها")}</a>
+          <a href={aboutLanguageRoutes[language]}>{t("About", "درباره ما")}</a>
         </nav>
         <div className="header-actions">
           <LanguageToggle languageOverride={languageOverride} languageRoutes={languageRoutes} />
@@ -56,12 +52,8 @@ export function SiteHeader({
           <a href="/recover" className="button button-small button-outline header-login">
             {t("Log in", "ورود")}
           </a>
-          <a href="/join" className="button button-small button-primary header-join">
-            {t("Create account", "ایجاد حساب")}
-          </a>
         </div>
       </div>
-      <LanguageAvailability language={language} />
     </header>
   );
 }

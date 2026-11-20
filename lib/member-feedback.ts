@@ -10,7 +10,6 @@ type MemberFeedback = {
   feature: Record<Language, string>;
   context: Record<Language, string>;
   quote: Record<Language, string>;
-  pricingQuote?: Record<Language, string>;
 };
 
 // English excerpts and display names were supplied with publication permission
@@ -55,11 +54,6 @@ export const memberFeedback: Record<MemberFeedbackId, MemberFeedback> = {
       es: "Llevo aproximadamente un mes usando el sitio y la función de análisis ha sido, con diferencia, lo más útil para mí. Poder revisar varias semanas y ver patrones en mi conducta y mis reacciones me ha dado una perspectiva mucho más clara que mirar un solo día de forma aislada.",
       fa: "حدود یک ماه است از سایت استفاده می‌کنم و بخش تحلیل، بیش از هر بخش دیگری برایم مفید بوده است. اینکه می‌توانم چند هفته گذشته را مرور کنم و الگوهای رفتار و واکنش‌هایم را ببینم، در مقایسه با نگاه کردن به یک روز به‌تنهایی، دید بسیار روشن‌تری به من داده است.",
     }),
-    pricingQuote: expandLocalizedRecord({
-      en: "Being able to look back over a few weeks and actually see patterns in my behavior and reactions has given me a much clearer perspective than just looking at a single day on its own.",
-      es: "Poder revisar varias semanas y ver patrones en mi conducta y mis reacciones me ha dado una perspectiva mucho más clara que mirar un solo día de forma aislada.",
-      fa: "اینکه می‌توانم چند هفته گذشته را مرور کنم و الگوهای رفتار و واکنش‌هایم را ببینم، در مقایسه با نگاه کردن به یک روز به‌تنهایی، دید بسیار روشن‌تری به من داده است.",
-    }),
   },
   redDot: {
     name: "Red Dot",
@@ -84,27 +78,23 @@ export const memberFeedback: Record<MemberFeedbackId, MemberFeedback> = {
 };
 
 export const memberFeedbackCopy: Record<Language, {
-  eyebrow: string;
   title: string;
   description: string;
   translationNote: string;
 }> = expandLocalizedRecord({
   en: {
-    eyebrow: "Early user feedback",
     title: "What people are finding useful.",
-    description: "Six early users shared their experience. These excerpts are shared with permission, using each person’s chosen display name.",
+    description: "Excerpts shared with permission under each person’s chosen display name.",
     translationNote: "Translated from English",
   },
   es: {
-    eyebrow: "Comentarios de los primeros usuarios",
     title: "Lo que los usuarios encuentran útil.",
-    description: "Seis de los primeros usuarios compartieron su experiencia. Estos fragmentos se publican con su permiso y con el nombre que cada persona eligió mostrar.",
+    description: "Fragmentos publicados con permiso y con el nombre que cada persona eligió mostrar.",
     translationNote: "Traducción del inglés",
   },
   fa: {
-    eyebrow: "بازخورد کاربران اولیه",
     title: "چه چیزهایی برای کاربران مفید بوده است؟",
-    description: "شش نفر از کاربران اولیه تجربه‌شان را در میان گذاشته‌اند. این بخش‌ها با اجازه آن‌ها و با نام نمایشی انتخابی هر فرد منتشر می‌شوند.",
+    description: "گزیده‌ها با اجازه افراد و با نام نمایشی انتخابی آن‌ها منتشر شده‌اند.",
     translationNote: "ترجمه از انگلیسی",
   },
 });
