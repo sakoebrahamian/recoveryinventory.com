@@ -35,12 +35,12 @@
   --input: #cbdada;
   --ring: var(--teal);
   --radius: 0.85rem;
-  --journal-pattern-men: repeating-linear-gradient(146deg, transparent 0 22px, #ffffff26 22px 23px, transparent 23px 35px);
-  --journal-pattern-women: repeating-radial-gradient(ellipse at 90% 0%, transparent 0 21px, #ffffff32 22px 23px, transparent 24px 38px);
-  --journal-pattern-nonbinary: repeating-radial-gradient(circle at 78% 65%, transparent 0 20px, #ffffff29 21px 22px, transparent 23px 34px);
-  --journal-curve-men: 30% 60% 32% 45% / 36% 31% 51% 50%;
-  --journal-curve-women: 52% 48% 60% 40% / 47% 55% 45% 53%;
-  --journal-curve-nonbinary: 42% 58% 38% 62% / 51% 42% 58% 49%;
+  --journal-pattern-diagonal: repeating-linear-gradient(146deg, transparent 0 22px, #ffffff26 22px 23px, transparent 23px 35px);
+  --journal-pattern-arcs: repeating-radial-gradient(ellipse at 90% 0%, transparent 0 21px, #ffffff32 22px 23px, transparent 24px 38px);
+  --journal-pattern-ripples: repeating-radial-gradient(circle at 78% 65%, transparent 0 20px, #ffffff29 21px 22px, transparent 23px 34px);
+  --journal-curve-diagonal: 30% 60% 32% 45% / 36% 31% 51% 50%;
+  --journal-curve-arcs: 52% 48% 60% 40% / 47% 55% 45% 53%;
+  --journal-curve-ripples: 42% 58% 38% 62% / 51% 42% 58% 49%;
   color-scheme: light;
 }
 
@@ -11177,11 +11177,10 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
 .theme-picker-panel {
   position: fixed;
   inset: 0;
-  width: min(40rem, calc(100% - 2rem));
-  max-height: min(88dvh, 42rem);
+  width: min(44rem, calc(100% - 2rem));
+  max-height: min(90dvh, 48rem);
   margin: auto;
-  overflow: auto;
-  overscroll-behavior: contain;
+  overflow: hidden;
   border: 1px solid var(--theme-border, #b6c4b7);
   border-radius: 24px;
   background: var(--theme-surface, #fffdf9);
@@ -11196,11 +11195,16 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
 }
 
 .theme-picker-content {
+  display: flex;
+  max-height: inherit;
+  flex-direction: column;
+  gap: .65rem;
   padding: clamp(1rem, 4vw, 1.6rem);
 }
 
 .theme-picker-heading {
   display: flex;
+  flex: none;
   align-items: center;
   justify-content: space-between;
   gap: .65rem;
@@ -11226,46 +11230,16 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
   cursor: pointer;
 }
 
-.theme-picker-content p {
-  margin: .3rem 0 1rem;
-  color: var(--theme-muted, #53685f);
-  font-size: .875rem;
-}
-
-.theme-picker-groups {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: .35rem;
-  margin-block: 0 1rem;
-  border-radius: 12px;
-  background: var(--theme-soft, #f2f6ee);
-  padding: .35rem;
-}
-
-.theme-picker-groups button {
-  min-height: 44px;
-  border: 1px solid transparent;
-  border-radius: 9px;
-  background: transparent;
-  color: inherit;
-  padding: .35rem;
-  font-size: .875rem;
-  font-weight: 700;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-  cursor: pointer;
-}
-
-.theme-picker-groups button[aria-pressed="true"] {
-  border-color: var(--theme-ink, #173f3a);
-  background: var(--theme-ink, #173f3a);
-  color: #fff;
-}
-
 .theme-picker-grid {
   display: grid;
+  min-height: 0;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: .65rem;
+  margin-inline: -.25rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: .25rem;
+  scroll-padding: .25rem;
 }
 
 .theme-choice {
@@ -11320,9 +11294,9 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
     linear-gradient(130deg, var(--preview-accent), var(--preview-ink));
 }
 
-.theme-choice-art[data-group="men"] { --preview-pattern: var(--journal-pattern-men); }
-.theme-choice-art[data-group="women"] { --preview-pattern: var(--journal-pattern-women); }
-.theme-choice-art[data-group="nonbinary"] { --preview-pattern: var(--journal-pattern-nonbinary); }
+.theme-choice-art[data-pattern="diagonal"] { --preview-pattern: var(--journal-pattern-diagonal); }
+.theme-choice-art[data-pattern="arcs"] { --preview-pattern: var(--journal-pattern-arcs); }
+.theme-choice-art[data-pattern="ripples"] { --preview-pattern: var(--journal-pattern-ripples); }
 
 .theme-choice-paper {
   display: grid;
@@ -11346,8 +11320,11 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
   background: var(--preview-ink);
 }
 
-.theme-picker-content .theme-picker-storage {
-  margin: .8rem 0 0;
+.theme-picker-storage {
+  flex: none;
+  margin: 0;
+  color: var(--theme-muted, #53685f);
+  font-size: .875rem;
 }
 
 @media (max-width: 540px) {

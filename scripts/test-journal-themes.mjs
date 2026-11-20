@@ -14,11 +14,9 @@ function contrast(a, b) {
 }
 const server = await createServer({ configFile: false, appType: "custom", server: { middlewareMode: true, hmr: false, watch: null }, resolve: { alias: { "@": path.resolve(".") } } });
 try {
-  const { journalThemeGroups, journalThemes, supportedTheme, journalThemeBootstrap, journalThemeStyles, themePreferenceKey } = await server.ssrLoadModule("/lib/journal-themes.ts");
+  const { journalThemes, supportedTheme, journalThemeBootstrap, journalThemeStyles, themePreferenceKey } = await server.ssrLoadModule("/lib/journal-themes.ts");
   assert.equal(journalThemes.length, 15);
   assert.equal(new Set(journalThemes.map(theme => theme.id)).size, 15);
-  assert.deepEqual(journalThemeGroups.map(group => group.id), ["men", "women", "nonbinary"]);
-  for (const group of journalThemeGroups) assert.equal(journalThemes.filter(theme => theme.group === group.id).length, 5);
   for (const theme of ["sage", "ocean", "lavender", "rose", "forest", "sky", "amber", "plum", "terracotta", "slate"]) {
     assert.equal(supportedTheme(theme), theme, `${theme}: saved preferences remain valid`);
   }
@@ -31,7 +29,8 @@ try {
     assert.ok(contrast(theme.muted, theme.surface) >= 4.5, `${theme.id}: card secondary text contrast`);
     assert.ok(contrast(theme.ink, "#ffffff") >= 4.5, `${theme.id}: primary button contrast`);
     assert.ok(contrast(theme.accent, theme.paper) >= 4.5, `${theme.id}: accent text contrast`);
-    assert.ok(journalThemeStyles.includes(`--theme-pattern: var(--journal-pattern-${theme.group})`), `${theme.id}: missing collection pattern`);
+    const themeRule = journalThemeStyles.split(`:root[data-ri-theme="${theme.id}"]`)[1].split("}")[0];
+    assert.ok(themeRule.includes(`--theme-pattern: var(--journal-pattern-${theme.pattern})`), `${theme.id}: missing preview pattern`);
     const document = { documentElement: { dataset: {} } };
     vm.runInNewContext(journalThemeBootstrap, { document, localStorage: { getItem: key => key === themePreferenceKey ? theme.id : null } });
     assert.equal(document.documentElement.dataset.riTheme, theme.id, `${theme.id}: restored before paint`);
@@ -39,8 +38,7 @@ try {
   for (const language of ["es", "fr", "pt-BR", "ar", "de", "hy", "it", "el"]) {
     const dictionary = language === "es" ? (await server.ssrLoadModule("/lib/translations-es.ts")).spanishTranslations : JSON.parse(fs.readFileSync(`lib/locales/${language}.json`, "utf8"));
     const keys = [
-      "Color theme", "Choose your colors", "Saved on this browser.", "Theme collections", "Anyone can choose any theme.", "Close",
-      ...journalThemeGroups.map(group => group.label),
+      "Color theme", "Choose your colors", "Saved on this browser.", "Close",
       ...journalThemes.map(theme => theme.label),
     ];
     for (const key of keys) assert.ok(dictionary[key], `${language}: missing theme chooser copy for ${key}`);
@@ -53,5 +51,5 @@ try {
   const document = { documentElement: { dataset: {} } };
   vm.runInNewContext(journalThemeBootstrap, { document, localStorage: { getItem: () => { throw new Error("Storage blocked"); } } });
   assert.equal(document.documentElement.dataset.riTheme, "sage");
-  console.log("15 themes passed: five per collection, text/button contrast, saved preference restoration, fallback, and localized labels.");
+  console.log("15 themes passed: preview patterns, text/button contrast, saved preference restoration, fallback, and localized labels.");
 } finally { await server.close(); }
