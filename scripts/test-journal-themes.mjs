@@ -17,6 +17,8 @@ try {
   const { journalThemes, supportedTheme, journalThemeBootstrap, journalThemeStyles, themePreferenceKey } = await server.ssrLoadModule("/lib/journal-themes.ts");
   assert.equal(journalThemes.length, 15);
   assert.equal(new Set(journalThemes.map(theme => theme.id)).size, 15);
+  const artworkCss = fs.readFileSync("app/journal-theme-art.css", "utf8");
+  const artwork = new Set();
   for (const theme of ["sage", "ocean", "lavender", "rose", "forest", "sky", "amber", "plum", "terracotta", "slate"]) {
     assert.equal(supportedTheme(theme), theme, `${theme}: saved preferences remain valid`);
   }
@@ -30,11 +32,16 @@ try {
     assert.ok(contrast(theme.ink, "#ffffff") >= 4.5, `${theme.id}: primary button contrast`);
     assert.ok(contrast(theme.accent, theme.paper) >= 4.5, `${theme.id}: accent text contrast`);
     const themeRule = journalThemeStyles.split(`:root[data-ri-theme="${theme.id}"]`)[1].split("}")[0];
-    assert.ok(themeRule.includes(`--theme-pattern: var(--journal-pattern-${theme.pattern})`), `${theme.id}: missing preview pattern`);
+    assert.ok(themeRule.includes(`--theme-pattern: var(--journal-pattern-${theme.pattern})`), `${theme.id}: missing hero pattern`);
+    const artworkSelector = `:is(html[data-ri-theme="${theme.id}"], .theme-choice-art[data-theme-art="${theme.id}"]) {`;
+    const artworkRule = artworkCss.split(artworkSelector)[1]?.split("}")[0] ?? "";
+    assert.match(artworkRule, /--journal-art:\s+.*gradient/s, `${theme.id}: missing background artwork`);
+    artwork.add(artworkRule);
     const document = { documentElement: { dataset: {} } };
     vm.runInNewContext(journalThemeBootstrap, { document, localStorage: { getItem: key => key === themePreferenceKey ? theme.id : null } });
     assert.equal(document.documentElement.dataset.riTheme, theme.id, `${theme.id}: restored before paint`);
   }
+  assert.equal(artwork.size, journalThemes.length, "Each theme has a distinct background");
   for (const language of ["es", "fr", "pt-BR", "ar", "de", "hy", "it", "el"]) {
     const dictionary = language === "es" ? (await server.ssrLoadModule("/lib/translations-es.ts")).spanishTranslations : JSON.parse(fs.readFileSync(`lib/locales/${language}.json`, "utf8"));
     const keys = [
@@ -51,5 +58,5 @@ try {
   const document = { documentElement: { dataset: {} } };
   vm.runInNewContext(journalThemeBootstrap, { document, localStorage: { getItem: () => { throw new Error("Storage blocked"); } } });
   assert.equal(document.documentElement.dataset.riTheme, "sage");
-  console.log("15 themes passed: preview patterns, text/button contrast, saved preference restoration, fallback, and localized labels.");
+  console.log("15 themes passed: unique background artwork, text/button contrast, saved preference restoration, fallback, and localized labels.");
 } finally { await server.close(); }
