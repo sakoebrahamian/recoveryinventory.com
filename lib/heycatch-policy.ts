@@ -32,6 +32,7 @@ type CapturedEvent = { event: string; properties: Record<string, unknown>; [key:
 export type MarketingEventContext = { href: string; referrer: string; enabled: boolean };
 const eventNames = new Set(["$pageview", "$pageleave", "$autocapture", "$rageclick", "$opt_in"]);
 const identifiers = ["distinct_id", "$device_id", "$session_id", "$window_id"];
+const eventUuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 const sourceNames = new Set(["google", "bing", "facebook", "instagram", "reddit", "youtube", "linkedin", "tiktok", "newsletter", "recovery_partner", "heycatch"]);
 const elementTags = new Set(["a", "button", "div", "span", "svg", "path", "li", "ul", "nav", "header", "section", "article", "main", "footer", "summary", "details", "strong", "em", "p"]);
 
@@ -89,6 +90,11 @@ export function sanitizeMarketingEvent(event: CapturedEvent | null, context: Mar
       return [{ tag_name: item.tag_name }];
     });
   }
-  // Do not carry SDK person updates, arbitrary properties, element text/attributes, or raw URLs.
-  return { event: event.event, properties };
+  // Preserve the SDK's per-event identifier and capture time for delivery.
+  const clean: CapturedEvent = { event: event.event, properties };
+  if (typeof event.uuid === "string" && eventUuid.test(event.uuid)) clean.uuid = event.uuid;
+  if (event.timestamp instanceof Date && Number.isFinite(event.timestamp.getTime())) {
+    clean.timestamp = new Date(event.timestamp.getTime());
+  }
+  return clean;
 }
