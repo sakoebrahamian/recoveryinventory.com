@@ -103,9 +103,6 @@ export default function Home() {
       }).replace(/</g, "\\u003c") }} />
 
       <section className="ri-hero">
-        <div className="ri-hero-shape ri-hero-shape-one" aria-hidden="true" />
-        <div className="ri-hero-shape ri-hero-shape-two" aria-hidden="true" />
-
         <div className="ri-hero-copy">
           <div className="ri-eyebrow">
             <span className="ri-eyebrow-dot" aria-hidden="true" />

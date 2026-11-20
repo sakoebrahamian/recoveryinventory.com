@@ -4357,56 +4357,10 @@ a[href] {
   padding: 72px 0 92px;
 }
 
-.ri-hero-shape,
 .ri-demo-aura,
 .ri-final-glow {
   position: absolute;
   pointer-events: none;
-}
-
-.ri-hero-shape-one {
-  top: -120px;
-  left: -260px;
-  width: 560px;
-  height: 560px;
-  border: 1px solid rgb(var(--theme-ink-rgb, 23 63 58) / 0.08);
-  border-radius: 50%;
-}
-
-.ri-hero-shape-one::before,
-.ri-hero-shape-one::after {
-  position: absolute;
-  border: 1px solid rgb(var(--theme-ink-rgb, 23 63 58) / 0.06);
-  border-radius: inherit;
-  content: "";
-}
-
-.ri-hero-shape-one::before {
-  inset: 55px;
-}
-
-.ri-hero-shape-one::after {
-  inset: 112px;
-}
-
-.ri-hero-shape-two {
-  right: 38%;
-  bottom: 40px;
-  width: 120px;
-  height: 120px;
-  border-radius: 38% 62% 45% 55%;
-  background: color-mix(in srgb, var(--theme-highlight, #d97757) 22%, transparent);
-  transform: rotate(24deg);
-}
-
-html[dir="rtl"] .ri-hero-shape-one {
-  right: -260px;
-  left: auto;
-}
-
-html[dir="rtl"] .ri-hero-shape-two {
-  right: auto;
-  left: 38%;
 }
 
 .ri-hero-copy {
@@ -6077,7 +6031,6 @@ html[dir="rtl"] .ri-floating-secure {
 }
 
 @media print {
-  .ri-hero-shape,
   .ri-demo-aura,
   .ri-floating-card,
   .ri-final-glow {
@@ -6109,26 +6062,6 @@ html[dir="rtl"] .ri-floating-secure {
     radial-gradient(circle at 92% 3%, rgba(126, 170, 143, 0.13), transparent 25rem),
     radial-gradient(circle at 2% 42%, rgba(201, 102, 73, 0.07), transparent 22rem),
     var(--paper);
-}
-
-.inner-page::before,
-.member-page::before {
-  position: absolute;
-  z-index: 0;
-  top: 120px;
-  right: -220px;
-  width: 430px;
-  height: 430px;
-  border: 1px solid rgb(var(--theme-ink-rgb, 23 63 58) / 0.065);
-  border-radius: 50%;
-  content: "";
-  pointer-events: none;
-}
-
-html[dir="rtl"] .inner-page::before,
-html[dir="rtl"] .member-page::before {
-  right: auto;
-  left: -220px;
 }
 
 .inner-page > *,
@@ -11289,14 +11222,10 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
   overflow: hidden;
   border-radius: 8px;
   background:
-    var(--preview-pattern, none),
+    var(--journal-art, none),
     radial-gradient(ellipse at 92% 0%, var(--preview-highlight), transparent 70%),
     linear-gradient(130deg, var(--preview-accent), var(--preview-ink));
 }
-
-.theme-choice-art[data-pattern="diagonal"] { --preview-pattern: var(--journal-pattern-diagonal); }
-.theme-choice-art[data-pattern="arcs"] { --preview-pattern: var(--journal-pattern-arcs); }
-.theme-choice-art[data-pattern="ripples"] { --preview-pattern: var(--journal-pattern-ripples); }
 
 .theme-choice-paper {
   display: grid;

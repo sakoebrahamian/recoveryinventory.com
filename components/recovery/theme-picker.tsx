@@ -37,7 +37,7 @@ export function ThemePicker({ language: override }: { language?: Language }) {
                 chooseTheme(item.id);
                 dialog.current?.close();
               }}>
-                <span className="theme-choice-art" data-pattern={item.pattern} aria-hidden="true" style={{
+                <span className="theme-choice-art" data-theme-art={item.id} aria-hidden="true" style={{
                   "--preview-ink": item.ink,
                   "--preview-accent": item.accent,
                   "--preview-tint": item.tint,
