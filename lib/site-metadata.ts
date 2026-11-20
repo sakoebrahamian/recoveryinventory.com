@@ -6,6 +6,14 @@ export const SITE_NAME = "Recovery Inventory";
 export const SITE_URL = "https://recoveryinventory.com";
 export const SITE_DESCRIPTION =
   "Private Step 4 workbooks and Step 10 daily inventories with optional AI journaling guidance for members, charts, and sponsor reports in 10 languages.";
+export const SITE_HOME_TITLE = "Private Step 4 & Step 10 Journal | Recovery Inventory";
+
+const SHARE_IMAGE = {
+  url: "/social-preview.png",
+  width: 1200,
+  height: 630,
+  alt: "Recovery Inventory wordmark and RI monogram for the private Step 4 and Step 10 journal",
+};
 
 export const RECOVERY_APP_STRUCTURED_DATA = {
   "@context": "https://schema.org",
@@ -55,6 +63,20 @@ export function createPublicPageMetadata({
     alternates: {
       canonical: path,
       ...(languages ? { languages } : {}),
+    },
+    openGraph: {
+      type: "website",
+      url: path,
+      siteName: SITE_NAME,
+      title,
+      description,
+      images: [SHARE_IMAGE],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [SHARE_IMAGE],
     },
   };
 }

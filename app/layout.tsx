@@ -6,22 +6,21 @@ import { MarketingAnalyticsNotice } from "@/components/recovery/marketing-analyt
 import { ThemeProvider } from "@/components/recovery/theme-provider";
 import { journalThemeStyles, journalThemeBootstrap } from "@/lib/journal-themes";
 import {
+  createPublicPageMetadata,
   SITE_DESCRIPTION,
+  SITE_HOME_TITLE,
   SITE_NAME,
   SITE_STRUCTURED_DATA,
   SITE_URL,
 } from "@/lib/site-metadata";
 
 export const metadata: Metadata = {
+  ...createPublicPageMetadata({ title: SITE_HOME_TITLE, description: SITE_DESCRIPTION, path: "/" }),
   metadataBase: new URL(SITE_URL),
   applicationName: SITE_NAME,
   title: {
-    default: "Private Step 4 & Step 10 Journal | Recovery Inventory",
+    default: SITE_HOME_TITLE,
     template: "%s | Recovery Inventory",
-  },
-  description: SITE_DESCRIPTION,
-  alternates: {
-    canonical: "/",
   },
   robots: {
     index: true,
@@ -38,18 +37,6 @@ export const metadata: Metadata = {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
     apple: "/apple-touch-icon.png",
-  },
-  openGraph: {
-    type: "website",
-    url: SITE_URL,
-    siteName: SITE_NAME,
-    title: SITE_NAME,
-    description: SITE_DESCRIPTION,
-    images: [{ url: "/social-preview.png", width: 1200, height: 630, alt: "Recovery Inventory logo" }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    images: ["/social-preview.png"],
   },
 };
 
