@@ -2117,5 +2117,15 @@
   "What happens after the free month?": "ماذا يحدث بعد انتهاء الشهر المجاني؟",
   "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and the AI guide.": "يمكنك الاستمرار في قراءة وتصدير مدخلات الخطوة ١٠ التي حفظتها. اشترك في أي وقت بالحساب نفسه لمواصلة حفظ المدخلات واستخدام الخطوة ٤ ودليل الذكاء الاصطناعي.",
   "Look back at your Step 10 entries to see what you’ve been practicing and what needs attention.": "راجع مدخلات الخطوة ١٠ لتلاحظ ما كنت تمارسه وما يحتاج إلى اهتمام.",
-  "Excerpts shared with permission under each person’s chosen display name.": "نُشرت المقتطفات بإذن أصحابها وبالاسم الذي اختار كل منهم عرضه."
+  "Excerpts shared with permission under each person’s chosen display name.": "نُشرت المقتطفات بإذن أصحابها وبالاسم الذي اختار كل منهم عرضه.",
+  "Last 24 hours": "آخر ٢٤ ساعة",
+  "Hourly public activity": "النشاط العام حسب الساعة",
+  "Page views by hour in your device’s time zone.": "مشاهدات الصفحات حسب الساعة في المنطقة الزمنية لجهازك.",
+  "Hourly reporting began {time}. Earlier activity in this window is unavailable.": "بدأ إعداد التقارير بالساعة في {time}. بيانات النشاط السابقة في هذه الفترة غير متاحة.",
+  "Hourly reporting was unavailable during this time.": "لم تكن التقارير بالساعة متاحة في هذه الفترة.",
+  "Select a total, chart bar, or row to see its breakdown.": "اختر إجماليًا أو عمودًا في الرسم البياني أو صفًا لعرض التفاصيل.",
+  "One entry is counted per browser tab session. A returning visitor can count more than once.": "يُحتسب دخول واحد لكل جلسة في علامة تبويب في المتصفح. قد يُحتسب الزائر العائد أكثر من مرة.",
+  "{language} selected": "تم اختيار {language}",
+  "Last updated November 22, 2026": "آخر تحديث في ٢٢ نوفمبر ٢٠٢٦",
+  "To show activity by hour over the last 24 hours, we also keep recent aggregate counts by time. Counts older than 48 hours are removed when new activity is recorded.": "لعرض النشاط حسب الساعة خلال آخر ٢٤ ساعة، نحتفظ أيضًا بإجماليات حديثة حسب الوقت. تُحذف الإجماليات الأقدم من ٤٨ ساعة عند تسجيل نشاط جديد."
 }

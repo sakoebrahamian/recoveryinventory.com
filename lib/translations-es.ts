@@ -1327,4 +1327,6 @@ export const spanishTranslations: Record<string, string> = {
   "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and the AI guide.": "Puedes seguir leyendo y exportando tus entradas guardadas del Paso 10. Pásate a una suscripción en la misma cuenta cuando quieras para seguir guardando entradas y usar el Paso 4 y la guía con IA.",
   "Look back at your Step 10 entries to see what you’ve been practicing and what needs attention.": "Revisa tus entradas del Paso 10 para ver qué has estado practicando y qué necesita atención.",
   "Excerpts shared with permission under each person’s chosen display name.": "Fragmentos publicados con permiso y con el nombre que cada persona eligió mostrar.",
+  "Last updated November 22, 2026": "Última actualización: 22 de noviembre de 2026",
+  "To show activity by hour over the last 24 hours, we also keep recent aggregate counts by time. Counts older than 48 hours are removed when new activity is recorded.": "Para mostrar la actividad por hora durante las últimas 24 horas, también guardamos totales recientes por intervalo de tiempo. Los totales de hace más de 48 horas se eliminan al registrar nueva actividad.",
 };

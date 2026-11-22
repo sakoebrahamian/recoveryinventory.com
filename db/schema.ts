@@ -126,3 +126,19 @@ export const siteAnalyticsDaily = sqliteTable(
   },
   (table) => [primaryKey({ columns: [table.day, table.metric, table.label] })],
 );
+
+export const siteAnalyticsRecent = sqliteTable(
+  "site_analytics_recent",
+  {
+    recordedAt: integer("recorded_at").notNull(),
+    metric: text("metric").notNull(),
+    label: text("label").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (table) => [primaryKey({ columns: [table.recordedAt, table.metric, table.label] })],
+);
+
+export const siteAnalyticsCollection = sqliteTable("site_analytics_collection", {
+  id: integer("id").primaryKey(),
+  recentStartedAt: integer("recent_started_at").notNull(),
+});

@@ -2117,5 +2117,15 @@
   "What happens after the free month?": "Ի՞նչ է լինում անվճար ամսից հետո։",
   "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and the AI guide.": "Դուք կարող եք շարունակել կարդալ և արտահանել Քայլ 10-ի պահպանված գրառումները։ Ցանկացած ժամանակ նույն հաշվով բաժանորդագրվեք՝ գրառումների պահպանումը շարունակելու և Քայլ 4-ն ու ԱԲ ուղեցույցն օգտագործելու համար։",
   "Look back at your Step 10 entries to see what you’ve been practicing and what needs attention.": "Վերանայեք Քայլ 10-ի գրառումները՝ տեսնելու, թե ինչ եք կիրառել և ինչն է ուշադրության կարիք զգում։",
-  "Excerpts shared with permission under each person’s chosen display name.": "Հատվածները հրապարակվել են թույլտվությամբ և յուրաքանչյուր անձի ընտրած ցուցադրվող անունով։"
+  "Excerpts shared with permission under each person’s chosen display name.": "Հատվածները հրապարակվել են թույլտվությամբ և յուրաքանչյուր անձի ընտրած ցուցադրվող անունով։",
+  "Last 24 hours": "Վերջին 24 ժամը",
+  "Hourly public activity": "Հանրային ակտիվությունն ըստ ժամերի",
+  "Page views by hour in your device’s time zone.": "Էջերի դիտումներն ըստ ժամերի՝ ձեր սարքի ժամային գոտով։",
+  "Hourly reporting began {time}. Earlier activity in this window is unavailable.": "Ժամային հաշվառումը սկսվել է {time}։ Այս ժամանակահատվածի ավելի վաղ տվյալները հասանելի չեն։",
+  "Hourly reporting was unavailable during this time.": "Այս ժամանակահատվածի համար ժամային տվյալներ չկան։",
+  "Select a total, chart bar, or row to see its breakdown.": "Մանրամասները տեսնելու համար ընտրեք որևէ ընդհանուր ցուցանիշ, գծապատկերի սյունակ կամ տող։",
+  "One entry is counted per browser tab session. A returning visitor can count more than once.": "Դիտարկիչի յուրաքանչյուր ներդիրի աշխատաշրջանի համար հաշվվում է մեկ մուտք։ Կրկին այցելող անձը կարող է մի քանի անգամ հաշվվել։",
+  "{language} selected": "Ընտրվել է {language} լեզուն",
+  "Last updated November 22, 2026": "Վերջին թարմացումը՝ 2026 թ. նոյեմբերի 22-ին",
+  "To show activity by hour over the last 24 hours, we also keep recent aggregate counts by time. Counts older than 48 hours are removed when new activity is recorded.": "Վերջին 24 ժամվա ակտիվությունն ըստ ժամերի ցույց տալու համար պահպանում ենք նաև ըստ ժամանակի խմբավորված վերջին տվյալները։ Նոր ակտիվություն գրանցելիս 48 ժամից հին տվյալները ջնջվում են։"
 }

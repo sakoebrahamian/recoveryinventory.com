@@ -2117,5 +2117,15 @@
   "What happens after the free month?": "O que acontece após o mês grátis?",
   "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and the AI guide.": "Você pode continuar lendo e exportando suas entradas salvas do Passo 10. Assine com a mesma conta quando quiser para continuar salvando entradas e usar o Passo 4 e o guia de IA.",
   "Look back at your Step 10 entries to see what you’ve been practicing and what needs attention.": "Reveja suas entradas do Passo 10 para ver o que você tem praticado e o que precisa de atenção.",
-  "Excerpts shared with permission under each person’s chosen display name.": "Trechos publicados com autorização e com o nome que cada pessoa escolheu exibir."
+  "Excerpts shared with permission under each person’s chosen display name.": "Trechos publicados com autorização e com o nome que cada pessoa escolheu exibir.",
+  "Last 24 hours": "Últimas 24 horas",
+  "Hourly public activity": "Atividade pública por hora",
+  "Page views by hour in your device’s time zone.": "Visualizações de páginas por hora no fuso horário do seu dispositivo.",
+  "Hourly reporting began {time}. Earlier activity in this window is unavailable.": "O acompanhamento por hora começou em {time}. A atividade anterior nesse período não está disponível.",
+  "Hourly reporting was unavailable during this time.": "O acompanhamento por hora não estava disponível nesse intervalo.",
+  "Select a total, chart bar, or row to see its breakdown.": "Selecione um total, uma barra do gráfico ou uma linha para ver os detalhes.",
+  "One entry is counted per browser tab session. A returning visitor can count more than once.": "Uma entrada é contada por sessão de aba do navegador. Uma pessoa que retorna pode ser contada mais de uma vez.",
+  "{language} selected": "{language} selecionado",
+  "Last updated November 22, 2026": "Última atualização em 22 de novembro de 2026",
+  "To show activity by hour over the last 24 hours, we also keep recent aggregate counts by time. Counts older than 48 hours are removed when new activity is recorded.": "Para mostrar a atividade por hora nas últimas 24 horas, também mantemos contagens agregadas recentes por horário. Contagens com mais de 48 horas são removidas quando novas atividades são registradas."
 }

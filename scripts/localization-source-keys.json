@@ -2117,5 +2117,15 @@
   "What happens after the free month?",
   "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and the AI guide.",
   "Look back at your Step 10 entries to see what you’ve been practicing and what needs attention.",
-  "Excerpts shared with permission under each person’s chosen display name."
+  "Excerpts shared with permission under each person’s chosen display name.",
+  "Last 24 hours",
+  "Hourly public activity",
+  "Page views by hour in your device’s time zone.",
+  "Hourly reporting began {time}. Earlier activity in this window is unavailable.",
+  "Hourly reporting was unavailable during this time.",
+  "Select a total, chart bar, or row to see its breakdown.",
+  "One entry is counted per browser tab session. A returning visitor can count more than once.",
+  "{language} selected",
+  "Last updated November 22, 2026",
+  "To show activity by hour over the last 24 hours, we also keep recent aggregate counts by time. Counts older than 48 hours are removed when new activity is recorded."
 ]
