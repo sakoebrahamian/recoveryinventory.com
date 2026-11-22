@@ -2117,5 +2117,15 @@
   "What happens after the free month?": "Τι γίνεται μετά τον δωρεάν μήνα;",
   "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and the AI guide.": "Μπορείς να συνεχίσεις να διαβάζεις και να εξάγεις τις αποθηκευμένες καταχωρίσεις του Βήματος 10. Μπορείς να εγγραφείς με τον ίδιο λογαριασμό ανά πάσα στιγμή για να συνεχίσεις να αποθηκεύεις καταχωρίσεις και να χρησιμοποιείς το Βήμα 4 και τον οδηγό ΤΝ.",
   "Look back at your Step 10 entries to see what you’ve been practicing and what needs attention.": "Ξαναδιάβασε τις καταχωρίσεις του Βήματος 10 για να δεις τι εξασκείς και τι χρειάζεται προσοχή.",
-  "Excerpts shared with permission under each person’s chosen display name.": "Τα αποσπάσματα δημοσιεύονται με άδεια και με το εμφανιζόμενο όνομα που επέλεξε κάθε άτομο."
+  "Excerpts shared with permission under each person’s chosen display name.": "Τα αποσπάσματα δημοσιεύονται με άδεια και με το εμφανιζόμενο όνομα που επέλεξε κάθε άτομο.",
+  "Last 24 hours": "Τελευταίες 24 ώρες",
+  "Hourly public activity": "Δημόσια δραστηριότητα ανά ώρα",
+  "Page views by hour in your device’s time zone.": "Προβολές σελίδων ανά ώρα στη ζώνη ώρας της συσκευής σας.",
+  "Hourly reporting began {time}. Earlier activity in this window is unavailable.": "Η ωριαία καταγραφή ξεκίνησε στις {time}. Τα προηγούμενα δεδομένα δραστηριότητας για αυτή την περίοδο δεν είναι διαθέσιμα.",
+  "Hourly reporting was unavailable during this time.": "Η ωριαία καταγραφή δεν ήταν διαθέσιμη σε αυτό το διάστημα.",
+  "Select a total, chart bar, or row to see its breakdown.": "Επιλέξτε ένα σύνολο, μια στήλη του γραφήματος ή μια γραμμή για να δείτε λεπτομέρειες.",
+  "One entry is counted per browser tab session. A returning visitor can count more than once.": "Μετράται μία είσοδος ανά συνεδρία καρτέλας του προγράμματος περιήγησης. Όποιος επιστρέφει μπορεί να μετρηθεί περισσότερες από μία φορές.",
+  "{language} selected": "Επιλέχθηκε η γλώσσα {language}",
+  "Last updated November 22, 2026": "Τελευταία ενημέρωση στις 22 Νοεμβρίου 2026",
+  "To show activity by hour over the last 24 hours, we also keep recent aggregate counts by time. Counts older than 48 hours are removed when new activity is recorded.": "Για να δείχνουμε τη δραστηριότητα ανά ώρα τις τελευταίες 24 ώρες, διατηρούμε και πρόσφατα συγκεντρωτικά σύνολα ανά χρονικό διάστημα. Τα σύνολα που είναι παλαιότερα από 48 ώρες αφαιρούνται όταν καταγράφεται νέα δραστηριότητα."
 }

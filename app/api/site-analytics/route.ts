@@ -4,9 +4,8 @@ import {
   isSiteAnalyticsPage,
   isSiteAnalyticsSource,
 } from "@/lib/site-analytics-config";
-import { analyticsDatabase, ensureSiteAnalyticsTable } from "@/lib/site-analytics-server";
-
-type SubmittedEvent = { metric?: unknown; label?: unknown };
+import { SITE_ANALYTICS_HOUR_SECONDS } from "@/lib/site-analytics-report";
+import { analyticsDatabase, ensureSiteAnalyticsTables } from "@/lib/site-analytics-server";
 
 const BOT_PATTERN = /bot|crawler|spider|slurp|bingpreview|facebookexternalhit|whatsapp|preview|headless|lighthouse|pagespeed/i;
 const METRICS = new Set(["page", "language", "page_language", "entry_source", "action", "action_source"]);
@@ -22,7 +21,8 @@ function validDay(day: unknown): day is string {
   return allowed.has(day);
 }
 
-function validEvent(event: SubmittedEvent): event is { metric: string; label: string } {
+function validEvent(event: unknown): event is { metric: string; label: string } {
+  if (!event || typeof event !== "object" || !("metric" in event) || !("label" in event)) return false;
   if (typeof event.metric !== "string" || !METRICS.has(event.metric) || typeof event.label !== "string") return false;
   if (event.metric === "page") return isSiteAnalyticsPage(event.label);
   if (event.metric === "language") return isSiteAnalyticsLanguage(event.label);
@@ -30,11 +30,11 @@ function validEvent(event: SubmittedEvent): event is { metric: string; label: st
   if (event.metric === "action") return isSiteAnalyticsAction(event.label);
   if (event.metric === "page_language") {
     const [page, language, extra] = event.label.split(":");
-    return !extra && isSiteAnalyticsPage(page) && isSiteAnalyticsLanguage(language);
+    return extra === undefined && isSiteAnalyticsPage(page) && isSiteAnalyticsLanguage(language);
   }
   if (event.metric === "action_source") {
     const [action, source, extra] = event.label.split(":");
-    return !extra && isSiteAnalyticsAction(action) && isSiteAnalyticsSource(source);
+    return extra === undefined && isSiteAnalyticsAction(action) && isSiteAnalyticsSource(source);
   }
   return false;
 }
@@ -62,28 +62,41 @@ export async function POST(request: Request) {
   const contentLength = Number(request.headers.get("content-length") ?? "0");
   if (contentLength > 2048) return Response.json({ error: "Request too large." }, { status: 413 });
 
-  let body: { day?: unknown; events?: unknown };
+  let body: { day?: unknown; events?: unknown } | null;
   try {
-    body = await request.json() as { day?: unknown; events?: unknown };
+    body = await request.json() as typeof body;
   } catch {
     return Response.json({ error: "Invalid request." }, { status: 400 });
   }
-  if (!validDay(body.day) || !Array.isArray(body.events) || body.events.length < 1 || body.events.length > 6) {
+  if (!body || !validDay(body.day) || !Array.isArray(body.events) || body.events.length < 1 || body.events.length > 6) {
     return Response.json({ error: "Invalid request." }, { status: 400 });
   }
-  const events = body.events as SubmittedEvent[];
+  const day = body.day;
+  const events: unknown[] = body.events;
   if (!events.every(validEvent)) return Response.json({ error: "Invalid request." }, { status: 400 });
 
-  await ensureSiteAnalyticsTable();
+  await ensureSiteAnalyticsTables();
   const database = analyticsDatabase();
-  const retentionStart = new Date();
+  const now = new Date();
+  const recordedAt = Math.floor(now.getTime() / 1_000);
+  const retentionStart = new Date(now);
   retentionStart.setUTCMonth(retentionStart.getUTCMonth() - 13);
-  const statements = events.map((event) => database.prepare(
-    `INSERT INTO site_analytics_daily (day, metric, label, count)
-     VALUES (?, ?, ?, 1)
-     ON CONFLICT(day, metric, label) DO UPDATE SET count = count + 1`,
-  ).bind(body.day, event.metric, event.label));
-  statements.push(database.prepare("DELETE FROM site_analytics_daily WHERE day < ?").bind(retentionStart.toISOString().slice(0, 10)));
+  const statements = events.flatMap((event) => [
+    database.prepare(
+      `INSERT INTO site_analytics_daily (day, metric, label, count)
+       VALUES (?, ?, ?, 1)
+       ON CONFLICT(day, metric, label) DO UPDATE SET count = count + 1`,
+    ).bind(day, event.metric, event.label),
+    database.prepare(
+      `INSERT INTO site_analytics_recent (recorded_at, metric, label, count)
+       VALUES (?, ?, ?, 1)
+       ON CONFLICT(recorded_at, metric, label) DO UPDATE SET count = count + 1`,
+    ).bind(recordedAt, event.metric, event.label),
+  ]);
+  statements.push(
+    database.prepare("DELETE FROM site_analytics_daily WHERE day < ?").bind(retentionStart.toISOString().slice(0, 10)),
+    database.prepare("DELETE FROM site_analytics_recent WHERE recorded_at < ?").bind(recordedAt - 48 * SITE_ANALYTICS_HOUR_SECONDS),
+  );
   await database.batch(statements);
 
   return new Response(null, {

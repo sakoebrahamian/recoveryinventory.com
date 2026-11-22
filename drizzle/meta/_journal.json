@@ -36,6 +36,13 @@
       "when": 1790233205704,
       "tag": "0004_fancy_tarantula",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1795363489537,
+      "tag": "0005_site_analytics_recent",
+      "breakpoints": true
     }
   ]
 }

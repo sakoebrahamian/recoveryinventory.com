@@ -5,16 +5,24 @@ import {
   SITE_ANALYTICS_PAGES,
   SITE_ANALYTICS_SOURCES,
 } from "@/lib/site-analytics-config";
-import { analyticsDatabase, ensureSiteAnalyticsTable } from "@/lib/site-analytics-server";
+import {
+  SITE_ANALYTICS_HOUR_SECONDS,
+  SITE_ANALYTICS_RECENT_HOURS,
+  type SiteAnalyticsReportData,
+  type SiteAnalyticsTotals,
+} from "@/lib/site-analytics-report";
+import { analyticsDatabase, ensureSiteAnalyticsTables } from "@/lib/site-analytics-server";
 
 type AnalyticsRow = {
-  day: string;
+  bucket: string | number;
   metric: string;
   label: string;
   count: number;
 };
 
 const ALLOWED_RANGES = new Set([7, 30, 90, 395]);
+const HOUR = SITE_ANALYTICS_HOUR_SECONDS;
+const HOURS = SITE_ANALYTICS_RECENT_HOURS;
 
 function utcDayOffset(day: string, offset: number): string {
   const date = new Date(`${day}T12:00:00Z`);
@@ -22,16 +30,119 @@ function utcDayOffset(day: string, offset: number): string {
   return date.toISOString().slice(0, 10);
 }
 
-function currentThroughDay(candidate: string | null): string {
-  const today = new Date().toISOString().slice(0, 10);
-  if (!candidate || !/^\d{4}-\d{2}-\d{2}$/.test(candidate)) return today;
-  return Math.abs(new Date(`${candidate}T12:00:00Z`).getTime() - new Date(`${today}T12:00:00Z`).getTime()) <= 86_400_000
-    ? candidate
-    : today;
+function currentThroughDay(candidate: string | null, now: Date): string {
+  const today = now.toISOString().slice(0, 10);
+  return [utcDayOffset(today, -1), today, utcDayOffset(today, 1)].find((day) => day === candidate) ?? today;
 }
 
-function counted(labels: readonly string[]) {
-  return Object.fromEntries(labels.map((label) => [label, 0])) as Record<string, number>;
+function isoTime(seconds: number): string {
+  return new Date(seconds * 1_000).toISOString();
+}
+
+function counted(labels: readonly string[]): Record<string, number> {
+  return Object.fromEntries(labels.map((label) => [label, 0]));
+}
+
+function emptyTotals(): SiteAnalyticsTotals {
+  return { pageViews: 0, entries: 0, demoVisits: 0, joinVisits: 0, accounts: 0, checkouts: 0, activations: 0 };
+}
+
+function breakdowns(rows: AnalyticsRow[]) {
+  const pages = counted(SITE_ANALYTICS_PAGES);
+  const languages = counted(SITE_ANALYTICS_LANGUAGES);
+  const sources = counted(SITE_ANALYTICS_SOURCES);
+  const actions = counted(SITE_ANALYTICS_ACTIONS);
+  const pageLanguages = Object.fromEntries(SITE_ANALYTICS_PAGES.map((page) => [page, counted(SITE_ANALYTICS_LANGUAGES)]));
+  const actionSources = Object.fromEntries(SITE_ANALYTICS_ACTIONS.map((action) => [action, counted(SITE_ANALYTICS_SOURCES)]));
+  const buckets = new Map<AnalyticsRow["bucket"], SiteAnalyticsTotals>();
+  const totals = emptyTotals();
+
+  for (const { bucket, metric, label, count } of rows) {
+    let period = buckets.get(bucket);
+    if (!period) {
+      period = emptyTotals();
+      buckets.set(bucket, period);
+    }
+
+    if (metric === "page" && Object.hasOwn(pages, label)) {
+      pages[label] += count;
+      period.pageViews += count;
+      if (label === "demo") period.demoVisits += count;
+      if (label === "join") period.joinVisits += count;
+    } else if (metric === "entry_source" && Object.hasOwn(sources, label)) {
+      sources[label] += count;
+      period.entries += count;
+    } else if (metric === "language" && Object.hasOwn(languages, label)) {
+      languages[label] += count;
+    } else if (metric === "action" && Object.hasOwn(actions, label)) {
+      actions[label] += count;
+      if (label === "account_created") period.accounts += count;
+      if (label === "checkout_started") period.checkouts += count;
+      if (label === "membership_activated") period.activations += count;
+    } else if (metric === "page_language" || metric === "action_source") {
+      const [primary, secondary] = label.split(":");
+      const group = metric === "page_language" ? pageLanguages : actionSources;
+      if (Object.hasOwn(group, primary) && Object.hasOwn(group[primary], secondary)) group[primary][secondary] += count;
+    }
+  }
+
+  const totalKeys = Object.keys(totals) as Array<keyof SiteAnalyticsTotals>;
+  for (const period of buckets.values()) {
+    for (const key of totalKeys) totals[key] += period[key];
+  }
+
+  return { buckets, totals, pages, languages, sources, actions, pageLanguages, actionSources };
+}
+
+async function reportLast24Hours(now: Date): Promise<SiteAnalyticsReportData> {
+  // Use the server's receipt time so visitor time zones do not affect the rolling window.
+  const through = Math.floor(now.getTime() / 1_000);
+  const from = through - HOURS * HOUR;
+  const firstHour = Math.floor(from / HOUR) * HOUR;
+  const database = analyticsDatabase();
+  const [result, collection] = await Promise.all([
+    database.prepare(
+      `SELECT recorded_at - (recorded_at % ${HOUR}) AS bucket, metric, label, SUM(count) AS count
+       FROM site_analytics_recent
+       WHERE recorded_at >= ? AND recorded_at < ?
+       GROUP BY bucket, metric, label`,
+    ).bind(from, through).all<AnalyticsRow>(),
+    database.prepare("SELECT recent_started_at FROM site_analytics_collection WHERE id = 1").first<number>("recent_started_at"),
+  ]);
+  const { buckets, ...tallies } = breakdowns(result.results);
+  const hourly = Array.from({ length: Math.ceil((through - firstHour) / HOUR) }, (_, index) => {
+    const hour = firstHour + index * HOUR;
+    return {
+      from: isoTime(Math.max(from, hour)),
+      through: isoTime(Math.min(through, hour + HOUR)),
+      ...(buckets.get(hour) ?? emptyTotals()),
+    };
+  });
+
+  return {
+    range: { hours: HOURS, from: isoTime(from), through: isoTime(through), collectedFrom: isoTime(collection ?? through) },
+    hourly,
+    ...tallies,
+  };
+}
+
+async function reportByDay(url: URL, now: Date): Promise<SiteAnalyticsReportData> {
+  const requestedDays = Number(url.searchParams.get("days") ?? "30");
+  const days = ALLOWED_RANGES.has(requestedDays) ? requestedDays : 30;
+  const through = currentThroughDay(url.searchParams.get("through"), now);
+  const from = utcDayOffset(through, -(days - 1));
+  const result = await analyticsDatabase().prepare(
+    `SELECT day AS bucket, metric, label, count
+     FROM site_analytics_daily
+     WHERE day >= ? AND day <= ?`,
+  ).bind(from, through).all<AnalyticsRow>();
+  const { buckets, ...tallies } = breakdowns(result.results);
+  const daily = Array.from({ length: days }, (_, index) => {
+    const day = utcDayOffset(from, index);
+    return { day, ...(buckets.get(day) ?? emptyTotals()) };
+  });
+
+  return { range: { days, from, through }, daily, ...tallies };
 }
 
 export async function GET(request: Request) {
@@ -39,75 +150,15 @@ export async function GET(request: Request) {
     const account = await requireAccount(request);
     if (!isAnalyticsOwner(account)) return Response.json({ error: "Owner access is required." }, { status: 403 });
 
+    await ensureSiteAnalyticsTables();
+    const now = new Date();
     const url = new URL(request.url);
-    const requestedDays = Number(url.searchParams.get("days") ?? "30");
-    const days = ALLOWED_RANGES.has(requestedDays) ? requestedDays : 30;
-    const through = currentThroughDay(url.searchParams.get("through"));
-    const from = utcDayOffset(through, -(days - 1));
+    const report = url.searchParams.get("hours") === String(HOURS)
+      ? await reportLast24Hours(now)
+      : await reportByDay(url, now);
 
-    await ensureSiteAnalyticsTable();
-    const result = await analyticsDatabase().prepare(
-      `SELECT day, metric, label, count
-       FROM site_analytics_daily
-       WHERE day >= ? AND day <= ?
-       ORDER BY day ASC`,
-    ).bind(from, through).all<AnalyticsRow>();
-    const rows = result.results ?? [];
-
-    const pages = counted(SITE_ANALYTICS_PAGES);
-    const languages = counted(SITE_ANALYTICS_LANGUAGES);
-    const sources = counted(SITE_ANALYTICS_SOURCES);
-    const actions = counted(SITE_ANALYTICS_ACTIONS);
-    const actionSources: Record<string, Record<string, number>> = Object.fromEntries(
-      SITE_ANALYTICS_ACTIONS.map((action) => [action, counted(SITE_ANALYTICS_SOURCES)]),
-    );
-    const daily = Array.from({ length: days }, (_, index) => ({
-      day: utcDayOffset(from, index),
-      pageViews: 0,
-      entries: 0,
-      accounts: 0,
-      activations: 0,
-    }));
-    const dailyByDay = new Map(daily.map((item) => [item.day, item]));
-
-    for (const row of rows) {
-      const count = Number(row.count) || 0;
-      if (row.metric === "page" && row.label in pages) pages[row.label] += count;
-      if (row.metric === "language" && row.label in languages) languages[row.label] += count;
-      if (row.metric === "entry_source" && row.label in sources) sources[row.label] += count;
-      if (row.metric === "action" && row.label in actions) actions[row.label] += count;
-      if (row.metric === "action_source") {
-        const [action, source] = row.label.split(":");
-        if (action in actionSources && source in actionSources[action]) actionSources[action][source] += count;
-      }
-      const day = dailyByDay.get(row.day);
-      if (!day) continue;
-      if (row.metric === "page") day.pageViews += count;
-      if (row.metric === "entry_source") day.entries += count;
-      if (row.metric === "action" && row.label === "account_created") day.accounts += count;
-      if (row.metric === "action" && row.label === "membership_activated") day.activations += count;
-    }
-
-    return Response.json({
-      range: { days, from, through },
-      totals: {
-        pageViews: Object.values(pages).reduce((sum, count) => sum + count, 0),
-        entries: Object.values(sources).reduce((sum, count) => sum + count, 0),
-        demoVisits: pages.demo,
-        joinVisits: pages.join,
-        accounts: actions.account_created,
-        checkouts: actions.checkout_started,
-        activations: actions.membership_activated,
-      },
-      pages,
-      languages,
-      sources,
-      actions,
-      actionSources,
-      daily,
-    }, { headers: { "cache-control": "private, no-store" } });
+    return Response.json(report, { headers: { "cache-control": "private, no-store" } });
   } catch (error) {
     return jsonError(error);
   }
 }
-
