@@ -11855,6 +11855,10 @@ html[dir="rtl"] .pattern-map th.is-week-start, html[dir="rtl"] .pattern-map td.i
   .analytics-hero-frame { overflow-x: auto; }
   .analytics-hero-svg { min-width: 560px; }
 }
+@media (max-width: 640px) {
+  .analytics-hero-frame { overflow-x: auto; }
+  .analytics-hero-svg { min-width: 560px; }
+}
 @media screen {
   @container (max-width: 640px) {
     .pattern-map tbody tr.pattern-group-row { display: block; grid-column: 1 / -1; border: 0; padding: .4rem 0 0; }
