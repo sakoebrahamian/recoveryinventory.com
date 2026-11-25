@@ -37,7 +37,6 @@ export function SiteFooter({ language: languageOverride }: { language?: Language
           <a href={localizedPath(language, "/learn/" + resourceSlug)}>{reflectionText(language, "fellowshipResources")}</a>
           <a href={aboutLanguageRoutes[language]}>{t("About", "درباره ما")}</a>
           <a href={comparisonBasePath(language)}>{t("Compare options", "مقایسه گزینه‌ها")}</a>
-          <a href="/#ai-guide">{t("AI Inventory Guide", "راهنمای ترازنامه با هوش مصنوعی")}</a>
           <a href="/join">{t("Subscription", "اشتراک")}</a>
           <a href="/privacy">{t("Privacy", "حریم خصوصی")}</a>
           <a href="/privacy#analytics-choices">{t("Analytics choices", "انتخاب‌های آمارگیری")}</a>

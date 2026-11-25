@@ -13,13 +13,13 @@ export function GET() {
 - Step 10 has 39 questions across 24 principles. Step 4 has six editable workbook sections. These are Recovery Inventory's original reflection framework, not official fellowship literature.
 - Members can save inventories, review date-filtered analytics, and choose notes and principles for reports they preview, copy, print, or export. Nothing is shared automatically.
 - Anonymous username/password accounts with a recovery code, or verified email accounts.
-- Optional AI writing guidance requires membership. Each member can send up to 50 requests per day; the website has a shared 5,000-request monthly limit. AI is not a sponsor or professional care.
+- Open the floating Chat With Serenity button for optional AI writing guidance. Live chat requires membership. Each member can send up to 50 requests per day. The website has a shared 5,000-request monthly limit. For step work and professional care, turn to your sponsor and qualified professionals.
 
 ## Pricing and free access
 
 - $${(subscriptionPricing.monthly / 100).toFixed(2)} USD monthly or $${(subscriptionPricing.yearly / 100).toFixed(2)} USD yearly. Both subscriptions include the same features and renew until canceled. Taxes may apply.
-- Free demo: no account or card needed. Demo entries are not saved. The demo includes inventory tools, sample analytics, learning tools, and public AI examples; it does not include live AI access.
-- Free accounts need no card. During the first 30 days after signup, an account can save up to 30 daily Step 10 entries, review its own Step 10 analytics, and export or share its entries. Saved Step 10 remains readable and exportable after the 30-day free period. Upgrade the same account to keep saving and unlock Step 4 workbooks and the AI guide. No automatic charge or automatic paid conversion occurs.
+- Free demo: no account or card needed. Demo entries are temporary. Try inventory tools, sample analytics, learning tools, and a sample conversation with Serenity.
+- Free accounts need no card. During the first 30 days after signup, an account can save up to 30 daily Step 10 entries, review its own Step 10 analytics, and export or share its entries. Saved Step 10 remains readable and exportable after the 30-day free period. Upgrade the same account to keep saving and unlock Step 4 workbooks and live chat with Serenity. No automatic charge or automatic paid conversion occurs.
 - Paid payments are non-refundable except where required by law. Cancel future renewals in the billing portal; paid access continues through the paid period. Existing Step 10 remains available to read and export.
 - [Membership plans](${SITE_URL}/#membership)
 - [Payment terms](${SITE_URL}/terms)

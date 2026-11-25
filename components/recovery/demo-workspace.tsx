@@ -7,6 +7,7 @@ import { Step10Inventory, createDemoStep10Data, type Step10Data } from "./step10
 import { Step4Inventory } from "./step4-inventory";
 import { RecoveryLearningCenter } from "./recovery-learning-center";
 import { useLanguage } from "./language-provider";
+import { useSerenityJournal } from "./serenity";
 import { recordSiteAction } from "@/lib/site-analytics";
 import type { SiteAnalyticsAction } from "@/lib/site-analytics-config";
 import { defaultReportPeriod } from "@/lib/step10-report-period";
@@ -30,6 +31,7 @@ function ReadyDemoWorkspace() {
   const [activeStep, setActiveStep] = React.useState<"10" | "4" | "analytics" | "learning">("10");
   const [demoDraft, setDemoDraft] = React.useState<Step10Data>(() => createDemoStep10Data(t));
   const [reportPeriod, setReportPeriod] = React.useState(() => defaultReportPeriod(todayIso()));
+  useSerenityJournal(activeStep === "4" ? "step4" : activeStep === "10" ? "step10" : null, demoDraft.date);
 
   const chooseStep = React.useCallback((next: "10" | "4" | "analytics" | "learning") => {
     const actions: Record<typeof next, SiteAnalyticsAction> = {

@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { SiteHeader } from "@/components/recovery/site-header";
 import { subscriptionGuidance } from "@/lib/recovery-guidance";
-import { InventoryGuideShowcase } from "@/components/recovery/inventory-guide-promo";
 import { SiteFooter } from "@/components/recovery/site-footer";
 import { useLanguage } from "@/components/recovery/language-provider";
 import { questionWithPrinciple, step10Questions } from "@/lib/inventory";
@@ -57,8 +56,8 @@ export default function Home() {
     {
       question: t("What can I try in the free demo?", "در نسخه آزمایشی رایگان چه چیزهایی را می‌توانم امتحان کنم؟"),
       answer: t(
-        "Explore Step 10, Step 4, sample charts, and the learning tools without creating an account. Demo entries are not saved to an account. The live AI guide is included with membership; its public examples show the kind of questions it can ask.",
-        "بدون ساخت حساب، گام ۱۰، گام ۴، نمودارهای نمونه و ابزارهای آموزشی را بررسی کنید. نوشته‌های نسخه آزمایشی در حسابی ذخیره نمی‌شوند. استفاده از راهنمای هوش مصنوعی همراه با اشتراک است؛ نمونه‌های عمومی، نوع پرسش‌هایی را که می‌تواند بپرسد نشان می‌دهند."
+        "Explore Step 10, Step 4, sample charts, and the learning tools without an account. Demo entries are temporary. Open Serenity to try a sample conversation.",
+        "بدون حساب، گام ۱۰، گام ۴، نمودارهای نمونه و ابزارهای یادگیری را بررسی کنید. نوشته‌های آزمایشی موقت هستند. برای امتحان یک گفت‌وگوی نمونه، Serenity را باز کنید."
       ),
     },
     {
@@ -84,7 +83,7 @@ export default function Home() {
     },
     {
       question: t("What happens after the free month?", "بعد از ماه رایگان چه می‌شود؟"),
-      answer: t("You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and the AI guide.", "همچنان می‌توانید نوشته‌های ذخیره‌شده گام ۱۰ را بخوانید و از آن‌ها خروجی بگیرید. برای ادامه ذخیره نوشته‌ها و استفاده از گام ۴ و راهنمای هوش مصنوعی، هر زمان خواستید همین حساب را ارتقا دهید."),
+      answer: t("You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.", "همچنان می‌توانید نوشته‌های ذخیره‌شده گام ۱۰ را بخوانید و از آن‌ها خروجی بگیرید. برای ادامه ذخیره نوشته‌ها و استفاده از گام ۴ و Serenity، هر زمان خواستید همین حساب را ارتقا دهید."),
     },
     {
       question: t("Can I cancel at any time?", "آیا هر زمان می‌توانم لغو کنم؟"),
@@ -279,8 +278,6 @@ export default function Home() {
           </article>
         </div>
       </section>
-
-      <InventoryGuideShowcase />
 
       <section className="ri-section ri-learning-showcase" id="learning">
         <div className="ri-learning-copy">

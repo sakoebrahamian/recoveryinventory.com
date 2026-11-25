@@ -2221,5 +2221,19 @@
   "Members can use AI chat and guided questions in Step 4, Steps 6 and 7, Steps 8 and 9, and Step 10.": "يمكن للأعضاء استخدام المحادثة مع الذكاء الاصطناعي والأسئلة الموجّهة في الخطوة ٤، والخطوتين ٦ و٧، والخطوتين ٨ و٩، والخطوة ١٠.",
   "Each member can send up to {daily} AI requests per day across all supported steps, both guide modes, and all languages. The site has a shared limit of {monthly} requests per month.": "يمكن لكل عضو إرسال ما يصل إلى {daily} طلبًا للذكاء الاصطناعي يوميًا، عبر كل الخطوات المدعومة ووضعَي الدليل وجميع اللغات. وللموقع حد مشترك يبلغ {monthly} طلبًا في الشهر.",
   "What pattern would you like to understand or change?": "أي نمط تود فهمه أو تغييره؟",
-  "What part of this situation would you like to reflect on?": "في أي جانب من هذا الموقف تودّ التأمل؟"
+  "What part of this situation would you like to reflect on?": "في أي جانب من هذا الموقف تودّ التأمل؟",
+  "Chat With Serenity": "الدردشة مع Serenity",
+  "Minimize Serenity": "تصغير نافذة Serenity",
+  "Opening Serenity…": "جارٍ فتح Serenity…",
+  "Choose a journal": "اختر دفترًا",
+  "Hi, I’m Serenity.": "مرحبًا، أنا Serenity.",
+  "What would you like to reflect on today?": "ما الذي تودّ التأمل فيه اليوم؟",
+  "Hide example": "إخفاء المثال",
+  "Try an example": "تجربة مثال",
+  "Serenity is temporarily unavailable.": "Serenity غير متاحة مؤقتًا.",
+  "Serenity’s live chat is included with membership.": "الاشتراك يشمل الدردشة المباشرة مع Serenity.",
+  "AI use and limits": "استخدام الذكاء الاصطناعي وحدوده",
+  "Serenity AI reflection guide": "Serenity، دليل للتأمل بالذكاء الاصطناعي",
+  "Explore Step 10, Step 4, sample charts, and the learning tools without an account. Demo entries are temporary. Open Serenity to try a sample conversation.": "استكشف الخطوتين ١٠ و٤ والرسوم البيانية التجريبية وأدوات التعلم دون حساب. التدوينات التجريبية مؤقتة. افتح Serenity لتجربة محادثة نموذجية.",
+  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "لا يزال بإمكانك قراءة تدوينات الخطوة ١٠ المحفوظة وتصديرها. اشترك في أي وقت بالحساب نفسه لمواصلة حفظ التدوينات واستخدام الخطوة ٤ وSerenity."
 }

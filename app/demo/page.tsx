@@ -5,7 +5,6 @@ import { isRtlLanguage } from "@/lib/languages";
 import { ArrowRight, Eye, ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/recovery/site-header";
 import { AnalyticsFeatureGuide } from "@/components/recovery/analytics-feature-guide";
-import { InventoryGuideNotice } from "@/components/recovery/inventory-guide-promo";
 import { SiteFooter } from "@/components/recovery/site-footer";
 import { DemoWorkspace } from "@/components/recovery/demo-workspace";
 import { useLanguage } from "@/components/recovery/language-provider";
@@ -25,7 +24,6 @@ export default function DemoPage() {
         <div><ShieldCheck size={18} /><span>{t("Demo mode: your changes stay on this page and disappear when it closes.", "حالت آزمایشی: تغییرات فقط در همین صفحه می‌مانند و پس از بستن آن حذف می‌شوند.")}</span></div>
         <a className="text-link" href="/join">{t("Create an anonymous username or email account", "ایجاد حساب ناشناس با نام کاربری یا حساب ایمیلی")}<ArrowRight className={isRtlLanguage(language) ? "rotate-180" : ""} size={16} /></a>
       </div>
-      <InventoryGuideNotice mockChat />
       <DemoWorkspace />
       <AnalyticsFeatureGuide compact />
       <SiteFooter />

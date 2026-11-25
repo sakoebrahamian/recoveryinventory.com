@@ -1,12 +1,8 @@
 "use client";
 
-import { dateTimeFormat } from "@/lib/languages";
-
-import { isRtlLanguage, languageLocale } from "@/lib/languages";
-
 import * as React from "react";
-import { Sparkles } from "lucide-react";
 import type { Language } from "@/lib/inventory";
+import { dateTimeFormat, languageLocale } from "@/lib/languages";
 import { reflectionText } from "@/lib/reflection-copy";
 import {
   inventoryGuideAllowance,
@@ -22,42 +18,31 @@ type GuideMode = "chat" | "guided";
 type GuideTranslation = (english: string, farsi: string) => string;
 type GuideScope = { step: InventoryGuideStep; language: Language };
 
-export function InventoryGuide({ step, date, language }: { step: InventoryGuideStep | null; date: string; language: Language }) {
+export function SerenityConversation({ step, language }: GuideScope) {
   const t: GuideTranslation = (english, farsi) => translateForLanguage(language, english, farsi);
-  const [open, setOpen] = React.useState(false);
   const [mode, setMode] = React.useState<GuideMode>("chat");
-  const panelId = React.useId();
-  const scope = `${step}-${date}-${open}`;
 
   return (
-    <div className="inventory-guide" hidden={step === null} lang={language} dir={isRtlLanguage(language) ? "rtl" : "ltr"}>
-      <button
-        type="button"
-        className="button button-outline button-small"
-        aria-expanded={open}
-        aria-controls={panelId}
-        onClick={() => setOpen(!open)}
-      >
-        <Sparkles size={16} aria-hidden="true" />
-        {open ? t("Close AI guide", "بستن راهنمای هوش مصنوعی") : t("Help me reflect with AI", "کمک هوش مصنوعی برای تأمل")}
-      </button>
-      <div id={panelId} className="inventory-guide-panel" hidden={!open}>
-        <div className="inventory-guide-modes" role="group" aria-label={t("AI guide mode", "روش استفاده از راهنمای هوش مصنوعی")}>
-          <button type="button" aria-pressed={mode === "chat"} onClick={() => setMode("chat")}>{t("Chat", "گفت‌وگو")}</button>
-          <button type="button" aria-pressed={mode === "guided"} onClick={() => setMode("guided")}>{t("Guided Questions", "پرسش‌های هدایت‌شده")}</button>
-        </div>
-        <p className="inventory-guide-privacy mt-2 max-w-3xl">
+    <>
+      <div className="inventory-guide-modes" role="group" aria-label={t("AI guide mode", "روش استفاده از راهنمای هوش مصنوعی")}>
+        <button type="button" aria-pressed={mode === "chat"} onClick={() => setMode("chat")}>{t("Chat", "گفت‌وگو")}</button>
+        <button type="button" aria-pressed={mode === "guided"} onClick={() => setMode("guided")}>{t("Guided Questions", "پرسش‌های هدایت‌شده")}</button>
+      </div>
+      <div hidden={mode !== "chat"}>
+        <InventoryGuideConversation step={step} language={language} mode="chat" t={t} />
+      </div>
+      <div hidden={mode !== "guided"}>
+        <InventoryGuideConversation step={step} language={language} mode="guided" t={t} />
+      </div>
+      <details className="inventory-guide-history">
+        <summary>{t("AI use and limits", "کاربرد و محدودیت‌های هوش مصنوعی")}</summary>
+        <p className="inventory-guide-privacy">{t("Your sponsor and fellowship remain your guides for step work. AI is a writing aid, not a sponsor or a group.", "راهنما و انجمن شما همچنان راهنمای کار کردن قدم‌ها هستند. هوش مصنوعی کمک‌نویس است، نه اسپانسر یا گروه.")}</p>
+        <p className="inventory-guide-privacy">
           {inventoryGuideAllowance(language)}{" "}
           {t("The daily allowance resets at midnight UTC. Some failed requests count toward the limit.", "سهمیه روزانه در نیمه‌شب به وقت UTC بازنشانی می‌شود. برخی درخواست‌های ناموفق هم از سهمیه کم می‌شوند.")}
         </p>
-        <div hidden={mode !== "chat"}>
-          <InventoryGuideConversation step={step ?? "step10"} language={language} scope={scope} mode="chat" t={t} />
-        </div>
-        <div hidden={mode !== "guided"}>
-          <InventoryGuideConversation step={step ?? "step10"} language={language} scope={scope} mode="guided" t={t} />
-        </div>
-      </div>
-    </div>
+      </details>
+    </>
   );
 }
 
@@ -132,7 +117,6 @@ function GuideIssueNotice({ issue, language, t }: { issue: GuideIssue | null; la
 }
 
 type GuideConversation = {
-  scope: string;
   topic?: string;
   draft: string;
   history: InventoryGuideMessage[];
@@ -140,22 +124,19 @@ type GuideConversation = {
   issue: GuideIssue | null;
 };
 
-function startConversation(scope: string, topic?: string): GuideConversation {
-  return { scope, topic, draft: "", history: [], busy: false, issue: null };
-}
-
-function InventoryGuideConversation({ step, language, scope, mode, t }: GuideScope & { scope: string; mode: GuideMode; t: GuideTranslation }) {
+function InventoryGuideConversation({ step, language, mode, t }: GuideScope & { mode: GuideMode; t: GuideTranslation }) {
   const id = React.useId();
   const guided = mode === "guided";
   const topics = guided ? inventoryGuideTopics(step, language) : [];
-  const [conversation, setConversation] = React.useState(() => startConversation(scope, topics[0]?.id));
-  if (conversation.scope !== scope) setConversation(startConversation(scope, topics[0]?.id));
+  const [conversation, setConversation] = React.useState<GuideConversation>(() => ({
+    topic: topics[0]?.id, draft: "", history: [], busy: false, issue: null,
+  }));
   const { topic, draft, history, busy, issue } = conversation;
   const pending = React.useRef<AbortController | null>(null);
   React.useLayoutEffect(() => () => {
     pending.current?.abort();
     pending.current = null;
-  }, [scope]);
+  }, []);
   const firstGuidedQuestion = topic !== undefined && history.length === 0;
   const starters: Record<InventoryGuideStep, string> = {
     step4: t("What is one experience or pattern you’d like to explore?", "دوست دارید کدام تجربه یا الگو را بررسی کنید؟"),
@@ -163,7 +144,8 @@ function InventoryGuideConversation({ step, language, scope, mode, t }: GuideSco
     step67: reflectionText(language, "guideStart67"),
     step89: reflectionText(language, "guideStart89"),
   };
-  const messages: InventoryGuideMessage[] = guided ? history : [{ role: "guide", text: starters[step] }, ...history];
+  const greeting = t("Hi, I’m Serenity.", "سلام، من Serenity هستم.");
+  const messages: InventoryGuideMessage[] = guided ? history : [{ role: "guide", text: `${greeting} ${starters[step]}` }, ...history];
   const earlier = messages.slice(0, -2);
   const recent = messages.slice(-2);
   const messageLabel = firstGuidedQuestion
@@ -206,7 +188,7 @@ function InventoryGuideConversation({ step, language, scope, mode, t }: GuideSco
   function renderMessage(entry: InventoryGuideMessage, index: number) {
     return (
       <div className={"inventory-guide-message " + entry.role} key={index}>
-        <strong>{entry.role === "guide" ? t("Guide", "راهنما") : t("You", "شما")}</strong>
+        <strong>{entry.role === "guide" ? <bdi>Serenity</bdi> : t("You", "شما")}</strong>
         <p dir="auto">{entry.text}</p>
       </div>
     );
@@ -236,7 +218,7 @@ function InventoryGuideConversation({ step, language, scope, mode, t }: GuideSco
         <textarea
           id={id + "-message"}
           className="form-textarea"
-          rows={3}
+          rows={2}
           maxLength={inventoryGuideNoteLimit}
           value={draft}
           disabled={busy}
@@ -244,15 +226,15 @@ function InventoryGuideConversation({ step, language, scope, mode, t }: GuideSco
           aria-describedby={id + "-privacy"}
         />
       </label>
+      <div>
+        <button className="button button-primary button-small" type="submit" disabled={busy || (!firstGuidedQuestion && !draft.trim())} aria-describedby={id + "-privacy"}>
+          {busy ? t("Preparing a question…", "در حال آماده کردن پرسش…") : t("Send to AI", "ارسال به هوش مصنوعی")}
+        </button>
+      </div>
       <p id={id + "-privacy"} className="inventory-guide-privacy">
         {privacy}{" "}
         <a href="/privacy#ai-inventory-guide" target="_blank" rel="noopener noreferrer">{t("Privacy policy", "سیاست حریم خصوصی")}</a>
       </p>
-      <div>
-        <button className="button button-primary button-small" type="submit" disabled={busy || (!firstGuidedQuestion && !draft.trim())}>
-          {busy ? t("Preparing a question…", "در حال آماده کردن پرسش…") : t("Send to AI", "ارسال به هوش مصنوعی")}
-        </button>
-      </div>
       <GuideIssueNotice issue={issue} language={language} t={t} />
     </form>
   );
