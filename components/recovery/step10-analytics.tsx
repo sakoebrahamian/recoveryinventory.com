@@ -39,7 +39,8 @@ type Step10AnalyticsProps = {
   reportInventory?: Step10Data | null;
   reportPeriod?: ReportPeriod;
   onReportPeriodChange?: (period: ReportPeriod) => void;
-  onExportChart?: (day: string) => void;
+  onExportChart?: () => void;
+  onExportPattern?: () => void;
 };
 
 function dateBefore(isoDate: string, days: number): string {
@@ -84,7 +85,7 @@ export function createDemoAnalytics(draft?: Step10Data, t: (english: string, far
   return from ? calculateStep10PeriodAnalytics(sampleRecords, { from, through, mode }) : calculateStep10Analytics(sampleRecords, through);
 }
 
-export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refreshKey = 0, onOpenStep10, reportInventory, reportPeriod, onReportPeriodChange, onExportChart }: Step10AnalyticsProps) {
+export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refreshKey = 0, onOpenStep10, reportInventory, reportPeriod, onReportPeriodChange, onExportChart, onExportPattern }: Step10AnalyticsProps) {
   const { language, t } = useLanguage();
   const [shareMessage, setShareMessage] = React.useState("");
   const [chartOpen, setChartOpen] = React.useState(false);
@@ -168,7 +169,6 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
               <div className="analytics-share-actions">
                 <button className="button button-primary" type="button" onClick={() => void shareCombinedReport()}><Share2 size={16} />{t("Share with sponsor", "اشتراک با حامی")}</button>
                 <button className="button button-outline" type="button" onClick={() => void copyCombinedReport()}><Copy size={16} />{t("Copy inventory and analytics", "کپی ترازنامه و تحلیل")}</button>
-                {onExportChart && <button className="button button-outline" type="button" onClick={() => onExportChart(reportInventory.date)}><FileDown size={16} />{t("Export chart only", "خروجی فقط نمودار")}</button>}
               </div>
               <p className="analytics-share-context">{t("Includes the inventory for", "شامل ترازنامه روز")} {formatDisplayDate(reportInventory.date, language)}. {t("The chart and analytics use the chosen period.", "نمودار و تحلیل از بازه انتخاب‌شده استفاده می‌کنند.")} <span dir="auto">({bounds.from === bounds.through ? formatDisplayDate(bounds.from, language) : `${formatDisplayDate(bounds.from, language)} – ${formatDisplayDate(bounds.through, language)}`})</span></p>
             </>
@@ -178,6 +178,10 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
               {onOpenStep10 && <button className="button button-outline button-small" type="button" onClick={onOpenStep10}>{t("Open Step 10", "باز کردن گام ۱۰")}</button>}
             </>
           )}
+          {analytics.totalEntries > 0 && (onExportChart || onExportPattern) && <div className="analytics-share-actions">
+            {onExportChart && <button className="button button-outline" type="button" onClick={onExportChart}><FileDown size={16} />{t("Export chart only", "خروجی فقط نمودار")}</button>}
+            {onExportPattern && <button className="button button-outline" type="button" onClick={onExportPattern}><Share2 size={16} />{t("Share pattern map", "اشتراک نقشه الگوها")}</button>}
+          </div>}
           {shareMessage && <p className="analytics-share-message" role="status">{shareMessage}</p>}
         </div>
       </header>
@@ -215,7 +219,8 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
       <Step10HeroChart key={`hero:${bounds.from}:${bounds.through}`} analytics={analytics} bounds={bounds} />
       <Step10WhatChanged analytics={analytics} />
       <Step10PeriodComparison analytics={analytics} bounds={bounds} />
-      <Step10PatternVisual key={`patterns:${bounds.from}:${bounds.through}`} analytics={analytics} bounds={bounds} onOpenDate={onOpenDate} />
+      <Step10PatternVisual key={`patterns:${bounds.from}:${bounds.through}`} analytics={analytics} bounds={bounds} onOpenDate={onOpenDate} onExportPattern={analytics.totalEntries ? onExportPattern : undefined} />
+      {demo && analytics.totalEntries > 0 && <Step10PatternSummary analytics={analytics} bounds={bounds} view="map" demo />}
       {!analytics.totalEntries && <p className="analytics-data-note">{t("No saved Step 10 inventories in this period.", "هیچ ترازنامه ذخیره‌شده گام ۱۰ در این بازه وجود ندارد.")}</p>}
 
       <Step10AnalyticsDetail key={`${bounds.from}:${bounds.through}:${bounds.mode}`} analytics={analytics} bounds={bounds} demo={demo} onOpenDate={onOpenDate} />

@@ -6,33 +6,20 @@ import { localizedText } from "@/lib/localization";
 import { isRtlLanguage, languageLocale } from "@/lib/languages";
 
 import * as React from "react";
+import { Share2 } from "lucide-react";
 import { formatDisplayDate, principles, step10Questions, type Language } from "@/lib/inventory";
 import type { Step10AnalyticsData } from "@/lib/step10-analytics";
 import type { ReportBounds } from "@/lib/step10-report-period";
 import { countQuestionDays, type AnswerTotals } from "@/lib/step10-detail";
-import { buildStep10Patterns, type PatternCell, type PatternTone, type PrinciplePattern } from "@/lib/step10-patterns";
+import { buildStep10Patterns, patternSymbols as symbols, patternToneLabel as toneLabel, type PatternCell, type PrinciplePattern } from "@/lib/step10-patterns";
 import { HowWeCountLink } from "./step10-how-we-count";
 import { useLanguage } from "./language-provider";
 
-type Translate = (en: string, fa: string) => string;
-const symbols: Record<PatternTone, string> = { practiced: "+", attention: "!", mixed: "±", na: "–", unanswered: "?", "no-entry": "·", "not-included": "×" };
-function toneLabel(tone: PatternTone, t: Translate) {
-  const labels: Record<PatternTone, string> = {
-    practiced: t("Practiced answers only", "فقط پاسخ‌های تمرین کردم"),
-    attention: t("Needs attention answers only", "فقط پاسخ‌های نیازمند توجه"),
-    mixed: t("Mixed Practiced and Needs attention", "ترکیب تمرین کردم و نیازمند توجه"),
-    na: t("Didn’t come up today", "امروز پیش نیامد"),
-    unanswered: t("Not answered", "پاسخ داده نشده"),
-    "no-entry": t("No saved inventory", "بدون ترازنامه ذخیره‌شده"),
-    "not-included": t("Question not included in this older inventory", "این پرسش در ترازنامه قدیمی وجود نداشت"),
-  };
-  return labels[tone];
-}
 function rangeLabel(cell: { from: string; through: string }, language: Language) {
   return cell.from === cell.through ? formatDisplayDate(cell.from, language) : `${formatDisplayDate(cell.from, language)} – ${formatDisplayDate(cell.through, language)}`;
 }
 
-export function Step10PatternVisual({ analytics, bounds, onOpenDate, print = false }: { analytics: Step10AnalyticsData; bounds: ReportBounds; onOpenDate?: (date: string) => void; print?: boolean }) {
+export function Step10PatternVisual({ analytics, bounds, onOpenDate, onExportPattern, print = false }: { analytics: Step10AnalyticsData; bounds: ReportBounds; onOpenDate?: (date: string) => void; onExportPattern?: () => void; print?: boolean }) {
   const { language, t } = useLanguage();
   const [view, setView] = React.useState<"overview" | "map">("overview");
   const [sort, setSort] = React.useState<"attention" | "practiced" | "principle">("attention");
@@ -107,12 +94,67 @@ export function Step10PatternVisual({ analytics, bounds, onOpenDate, print = fal
       {onOpenDate && <button type="button" className="button button-outline button-small" onClick={() => onOpenDate(day.date)}>{t("Open this inventory", "باز کردن این ترازنامه")}</button>}
     </div>)}
   </article> : null;
+  const columnsPerTable = print ? 14 : Math.max(1, data.buckets.length);
+  const columnGroups = Array.from({ length: Math.ceil(data.buckets.length / columnsPerTable) }, (_, index) => ({
+    start: index * columnsPerTable,
+    end: (index + 1) * columnsPerTable,
+  }));
   const map = (view === "map" || print) ? <>
     <p>{data.interval === "day" ? t("Each square is one principle on one day. Look across a row for repeated colors. Select a square to inspect the actual answers.", "هر خانه یک اصل در یک روز است. تکرار رنگ‌ها را در هر ردیف ببینید. برای بررسی پاسخ‌های واقعی، یک خانه را انتخاب کنید.") : data.interval === "week" ? t("For longer ranges, each square groups one calendar week. Select a square to see its dates and answers.", "برای بازه‌های طولانی‌تر، هر خانه یک هفته تقویمی را نشان می‌دهد. برای دیدن تاریخ‌ها و پاسخ‌ها، یک خانه را انتخاب کنید.") : t("For ranges longer than a year, each square groups one calendar month. Select a square to see its dates and answers.", "برای بازه‌های طولانی‌تر از یک سال، هر خانه یک ماه تقویمی را نشان می‌دهد. برای دیدن تاریخ‌ها و پاسخ‌ها، یک خانه را انتخاب کنید.")}</p>
     <p className="pattern-method-note">{t("Purple squares are saved answers marked Didn’t come up today. Only dotted white squares mean no saved inventory.", "خانه‌های بنفش، پاسخ‌های ذخیره‌شده با گزینه «امروز پیش نیامد» هستند. فقط خانه‌های سفید نقطه‌چین یعنی ترازنامه‌ای ذخیره نشده است.")}</p>
     {!print && <p className="pattern-method-note">{t("Keyboard: use arrow keys to move between squares; Home and End move to the first and last date.", "صفحه‌کلید: با کلیدهای جهت‌نما بین خانه‌ها حرکت کنید؛ Home و End به نخستین و آخرین تاریخ می‌روند.")}</p>}
     {!print && <p className="pattern-map-mobile-note">{t("On smaller screens, each principle has its own grid. Dates continue on the next row. Tap a square to see its answers below that principle.", "در صفحه‌های کوچک‌تر، هر اصل شبکه جداگانه‌ای دارد. تاریخ‌ها در ردیف بعدی ادامه پیدا می‌کنند. برای دیدن پاسخ‌ها در زیر همان اصل، یک خانه را لمس کنید.")}</p>}
-    <div className="pattern-map-scroll" tabIndex={0} role="region" aria-label={t("Patterns across the selected dates", "الگوها در تاریخ‌های انتخاب‌شده")}><table className="pattern-map"><caption>{t("Patterns across the selected dates", "الگوها در تاریخ‌های انتخاب‌شده")}</caption><thead><tr><th>{t("Principle", "اصل")}</th>{data.buckets.map((bucket, index) => <th key={bucket.from} className={columnClass(bucket.from)} title={bucketLabels[index]}><span>{headingDate.format(new Date(`${bucket.from}T12:00:00Z`))}</span></th>)}</tr></thead><tbody>{data.rows.map((row) => <tr key={row.id}><th scope="row">{name(row.id)}</th>{row.cells.map((cell, index) => <td key={cell.from} className={columnClass(cell.from)}>{print ? <span className={`pattern-square pattern-tone-${cell.tone}`} title={selectionTitle(row, cell, index)}>{symbols[cell.tone]}</span> : <button type="button" className={`pattern-square pattern-tone-${cell.tone}`} title={selectionTitle(row, cell, index)} aria-label={selectionTitle(row, cell, index)} aria-pressed={selected?.id === row.id && selected.index === index} tabIndex={selected?.id === row.id ? selected.index === index ? 0 : -1 : index === 0 ? 0 : -1} onKeyDown={(event) => moveCell(event, row.id, index)} onClick={() => setSelected({ id: row.id, index })}><span aria-hidden="true">{symbols[cell.tone]}</span><time className="pattern-cell-date" dateTime={cell.from} aria-hidden="true">{headingDate.format(new Date(`${cell.from}T12:00:00Z`))}</time><span className="pattern-cell-entry" aria-hidden="true">{cell.tone === "na" ? t("Saved", "ذخیره‌شده") : cell.tone === "no-entry" ? t("No entry", "بدون ثبت") : ""}</span></button>}</td>)}{!print && selected?.id === row.id && <td className="pattern-inline-detail" colSpan={data.buckets.length + 1}>{selectedDetail}</td>}</tr>)}</tbody></table></div>
+    {onExportPattern && !print && <button className="button button-outline button-small" type="button" onClick={onExportPattern}><Share2 size={16} aria-hidden="true" />{t("Export pattern map", "خروجی نقشه الگوها")}</button>}
+    <div className="pattern-map-scroll" tabIndex={print ? undefined : 0} role="region" aria-label={t("Patterns across the selected dates", "الگوها در تاریخ‌های انتخاب‌شده")}>
+      {columnGroups.map(({ start, end }) => (
+        <table key={start} className="pattern-map">
+          <caption>{t("Patterns across the selected dates", "الگوها در تاریخ‌های انتخاب‌شده")}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{t("Principle", "اصل")}</th>
+              {data.buckets.slice(start, end).map((bucket, index) => (
+                <th scope="col" key={bucket.from} className={columnClass(bucket.from)} title={bucketLabels[start + index]}>
+                  <span>{headingDate.format(new Date(bucket.from + "T12:00:00Z"))}</span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.rows.map((row) => (
+              <tr key={row.id}>
+                <th scope="row">{name(row.id)}</th>
+                {row.cells.slice(start, end).map((cell, offset) => {
+                  const index = start + offset;
+                  const label = selectionTitle(row, cell, index);
+                  const className = "pattern-square pattern-tone-" + cell.tone;
+                  return (
+                    <td key={cell.from} className={columnClass(cell.from)}>
+                      {print ? <span className={className} title={label}>{symbols[cell.tone]}</span> : (
+                        <button
+                          type="button"
+                          className={className}
+                          title={label}
+                          aria-label={label}
+                          aria-pressed={selected?.id === row.id && selected.index === index}
+                          tabIndex={selected?.id === row.id ? selected.index === index ? 0 : -1 : index === 0 ? 0 : -1}
+                          onKeyDown={(event) => moveCell(event, row.id, index)}
+                          onClick={() => setSelected({ id: row.id, index })}
+                        >
+                          <span aria-hidden="true">{symbols[cell.tone]}</span>
+                          <time className="pattern-cell-date" dateTime={cell.from} aria-hidden="true">{headingDate.format(new Date(cell.from + "T12:00:00Z"))}</time>
+                          <span className="pattern-cell-entry" aria-hidden="true">{cell.tone === "na" ? t("Saved", "ذخیره‌شده") : cell.tone === "no-entry" ? t("No entry", "بدون ثبت") : ""}</span>
+                        </button>
+                      )}
+                    </td>
+                  );
+                })}
+                {!print && selected?.id === row.id && <td className="pattern-inline-detail" colSpan={data.buckets.length + 1}>{selectedDetail}</td>}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ))}
+    </div>
     {!print && <div className="pattern-map-detail">{selectedDetail}</div>}
   </> : null;
   return <section className={`analytics-pattern-visual${print ? " pattern-visual-print" : ""}`} aria-label={t("Visual pattern overview", "نمای تصویری الگوها")}>

@@ -2307,5 +2307,15 @@
   "AI use and limits": "Χρήση και όρια της τεχνητής νοημοσύνης",
   "Serenity AI reflection guide": "Serenity, οδηγός αναστοχασμού με τεχνητή νοημοσύνη",
   "Explore Step 10, Step 4, sample charts, and the learning tools without an account. Demo entries are temporary. Open Serenity to try a sample conversation.": "Εξερεύνησε το Βήμα 10, το Βήμα 4, τα ενδεικτικά διαγράμματα και τα εργαλεία μάθησης χωρίς λογαριασμό. Οι δοκιμαστικές καταχωρίσεις είναι προσωρινές. Άνοιξε τη Serenity για να δοκιμάσεις μια ενδεικτική συνομιλία.",
-  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Μπορείς ακόμη να διαβάζεις και να εξάγεις τις αποθηκευμένες καταχωρίσεις του Βήματος 10. Ενεργοποίησε συνδρομή με τον ίδιο λογαριασμό όποτε θέλεις για να συνεχίσεις να αποθηκεύεις καταχωρίσεις και να χρησιμοποιείς το Βήμα 4 και τη Serenity."
+  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Μπορείς ακόμη να διαβάζεις και να εξάγεις τις αποθηκευμένες καταχωρίσεις του Βήματος 10. Ενεργοποίησε συνδρομή με τον ίδιο λογαριασμό όποτε θέλεις για να συνεχίσεις να αποθηκεύεις καταχωρίσεις και να χρησιμοποιείς το Βήμα 4 και τη Serenity.",
+  "Share pattern map": "Κοινοποίηση χάρτη μοτίβων",
+  "Export pattern map": "Εξαγωγή χάρτη μοτίβων",
+  "Preview pattern map": "Προεπισκόπηση χάρτη μοτίβων",
+  "Hide pattern map preview": "Απόκρυψη προεπισκόπησης χάρτη",
+  "Preview, print, or share the pattern map for the selected dates. It shows saved answers with colors and symbols.": "Δες την προεπισκόπηση του χάρτη μοτίβων για τις επιλεγμένες ημερομηνίες, εκτύπωσέ τον ή κοινοποίησέ τον. Τα χρώματα και τα σύμβολα δείχνουν τις αποθηκευμένες απαντήσεις.",
+  "Saved answers only. Written reflections and notes stay private.": "Περιλαμβάνονται μόνο οι αποθηκευμένες απαντήσεις. Οι γραπτοί στοχασμοί και οι σημειώσεις σου παραμένουν ιδιωτικά.",
+  "Page {page} of {total}": "Σελίδα {page} από {total}",
+  "PDF includes every page. PNG includes the displayed page.": "Το PDF περιέχει όλες τις σελίδες. Το PNG περιέχει τη σελίδα που εμφανίζεται.",
+  "Pattern map shared.": "Ο χάρτης μοτίβων κοινοποιήθηκε.",
+  "File sharing is unavailable here. The file was downloaded so you can attach it yourself.": "Η κοινοποίηση αρχείων δεν είναι διαθέσιμη εδώ. Έγινε λήψη του αρχείου για να το επισυνάψεις."
 }

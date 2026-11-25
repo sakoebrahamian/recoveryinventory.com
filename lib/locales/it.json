@@ -2307,5 +2307,15 @@
   "AI use and limits": "Uso e limiti dell’IA",
   "Serenity AI reflection guide": "Serenity, guida alla riflessione con IA",
   "Explore Step 10, Step 4, sample charts, and the learning tools without an account. Demo entries are temporary. Open Serenity to try a sample conversation.": "Esplora i Passi 10 e 4, i grafici di esempio e gli strumenti di apprendimento senza un account. Le annotazioni della demo sono temporanee. Apri Serenity per provare una conversazione di esempio.",
-  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Puoi continuare a leggere ed esportare le annotazioni salvate del Passo 10. Abbonati quando vuoi con lo stesso account per continuare a salvare le annotazioni e usare il Passo 4 e Serenity."
+  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Puoi continuare a leggere ed esportare le annotazioni salvate del Passo 10. Abbonati quando vuoi con lo stesso account per continuare a salvare le annotazioni e usare il Passo 4 e Serenity.",
+  "Share pattern map": "Condividi la mappa degli schemi",
+  "Export pattern map": "Esporta la mappa degli schemi",
+  "Preview pattern map": "Anteprima della mappa degli schemi",
+  "Hide pattern map preview": "Nascondi l’anteprima della mappa",
+  "Preview, print, or share the pattern map for the selected dates. It shows saved answers with colors and symbols.": "Visualizza in anteprima, stampa o condividi la mappa degli schemi per le date selezionate. Colori e simboli mostrano le risposte salvate.",
+  "Saved answers only. Written reflections and notes stay private.": "Sono incluse solo le risposte salvate. Le riflessioni scritte e le note restano private.",
+  "Page {page} of {total}": "Pagina {page} di {total}",
+  "PDF includes every page. PNG includes the displayed page.": "Il PDF include tutte le pagine. Il PNG include la pagina visualizzata.",
+  "Pattern map shared.": "Mappa degli schemi condivisa.",
+  "File sharing is unavailable here. The file was downloaded so you can attach it yourself.": "Qui non è possibile condividere file. Il file è stato scaricato così puoi allegarlo tu."
 }

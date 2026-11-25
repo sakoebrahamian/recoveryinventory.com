@@ -43,6 +43,7 @@ try {
   assert.ok(longData.timeline.length <= 48, "the timeline must stay legible on one page for very long ranges");
   assert.equal(longData.timeline[0].from, longBounds.from);
   assert.equal(longData.timeline.at(-1).through, longBounds.through);
+  const mapBounds = { ...bounds, from: "2026-08-19" };
   const render = process.argv.includes("--render-fixtures");
   const sharpPackage = render ? fs.readdirSync("node_modules/.pnpm").find((name) => name.startsWith("sharp@")) : null;
   const sharp = render ? createRequire(import.meta.url)(path.resolve("node_modules/.pnpm", sharpPackage, "node_modules/sharp")) : null;
@@ -54,6 +55,17 @@ try {
     assert.ok(svg.includes(t("Sample data", "داده نمونه")));
     assert.ok(!svg.includes("PRIVATE_"));
     for (const principle of inventory.principles) assert.ok(svg.includes(principle[language]), `missing ${principle.id} in ${language}`);
+    const maps = summary.step10PatternMapSvgs({ ...analytics, days: [outside, ...analytics.days] }, mapBounds, language, t, true);
+    assert.equal(maps.length, 3, "a 62-day map fits on three landscape sheets");
+    assert.equal(summary.step10PatternMapSvgs(analytics, bounds, language, t).length, 1);
+    for (const sheet of maps) {
+      assert.ok(sheet.includes(t("Pattern map", "نقشه الگوها")));
+      assert.ok(!sheet.includes("PRIVATE_"), "the map must never include written journal content");
+      assert.ok(sheet.includes(t("No saved inventory", "بدون ترازنامه ذخیره‌شده")));
+      for (const principle of inventory.principles) assert.ok(sheet.includes(principle[language]));
+    }
+    assert.ok(maps[0].includes(inventory.formatDisplayDate(mapBounds.from, language)));
+    assert.ok(maps.at(-1).includes(inventory.formatDisplayDate(mapBounds.through, language)));
     assert.equal(JSON.stringify(analytics), snapshot, "exports must not change saved analytics");
     if (render) {
       fs.writeFileSync(`tmp/pdfs/pattern-summary-${language}.svg`, svg);
@@ -64,7 +76,15 @@ try {
       assert.equal((ascii.match(/\/Type \/Page\s/g) ?? []).length, 1);
       const start = Number(ascii.match(/startxref\n(\d+)/)[1]);
       assert.equal(new TextDecoder().decode(pdf.slice(start, start + 4)), "xref");
+      const images = await Promise.all(maps.map((sheet) => sharp(Buffer.from(sheet)).resize(3200, 2264).jpeg({ quality: 95 }).toBuffer()));
+      const mapPdf = summary.patternSummaryPdf(images, 3200, 2264);
+      fs.writeFileSync(`tmp/pdfs/pattern-map-${language}.pdf`, mapPdf);
+      const mapText = new TextDecoder().decode(mapPdf);
+      assert.equal((mapText.match(/\/Type \/Page\s/g) ?? []).length, images.length);
+      assert.equal(mapText.match(/\/MediaBox \[0 0 842 595\]/g)?.length, images.length);
+      const mapXref = Number(mapText.match(/startxref\n(\d+)/)[1]);
+      assert.equal(new TextDecoder().decode(mapPdf.slice(mapXref, mapXref + 4)), "xref");
     }
   }
-  console.log(`Pattern summary checks passed: 24 principles, scoped dates, missing days, legacy questions, counts-only privacy, long ranges, and all languages${render ? ", plus one-page PDF structure" : ""}.`);
+  console.log(`Pattern report checks passed: 24 principles, scoped dates, missing days, legacy questions, counts-only privacy, and long ranges${render ? ", plus one-page summary and multi-page map PDFs" : ""}.`);
 } finally { await server.close(); }

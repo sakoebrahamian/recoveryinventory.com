@@ -7,6 +7,23 @@ export type PatternTone = "practiced" | "attention" | "mixed" | "na" | "unanswer
 export type PatternCell = AnswerTotals & { from: string; through: string; savedDays: number; tone: PatternTone };
 export type PrinciplePattern = AnswerTotals & { id: string; scoredDays: number; cells: PatternCell[] };
 
+export const patternSymbols: Record<PatternTone, string> = {
+  practiced: "+", attention: "!", mixed: "±", na: "–", unanswered: "?", "no-entry": "·", "not-included": "×",
+};
+
+export function patternToneLabel(tone: PatternTone, t: (en: string, fa: string) => string) {
+  const labels: Record<PatternTone, string> = {
+    practiced: t("Practiced answers only", "فقط پاسخ‌های تمرین کردم"),
+    attention: t("Needs attention answers only", "فقط پاسخ‌های نیازمند توجه"),
+    mixed: t("Mixed Practiced and Needs attention", "ترکیب تمرین کردم و نیازمند توجه"),
+    na: t("Didn’t come up today", "امروز پیش نیامد"),
+    unanswered: t("Not answered", "پاسخ داده نشده"),
+    "no-entry": t("No saved inventory", "بدون ترازنامه ذخیره‌شده"),
+    "not-included": t("Question not included in this older inventory", "این پرسش در ترازنامه قدیمی وجود نداشت"),
+  };
+  return labels[tone];
+}
+
 export function patternTone(counts: AnswerTotals, savedDays: number): PatternTone {
   if (!savedDays) return "no-entry";
   if (counts.practiced && counts.attention) return "mixed";

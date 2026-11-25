@@ -3499,7 +3499,21 @@ html[dir="rtl"] .inventory-export-fieldset legend {
 }
 
 .inventory-export-format {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.inventory-export-close {
+  min-height: 44px;
+}
+
+.inventory-export-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-block-start: 1rem;
+}
+
+.inventory-export-panel .pattern-summary-export {
+  margin: 1rem 0 0;
 }
 
 .inventory-export-format-help {
@@ -3764,8 +3778,13 @@ html[dir="rtl"] .inventory-export-analytics-status {
   }
 
   .inventory-export-header {
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr);
     gap: 0.65rem;
+  }
+
+  .inventory-export-close {
+    grid-column: 2;
+    justify-self: start;
   }
 
   .inventory-export-icon {
@@ -3789,13 +3808,14 @@ html[dir="rtl"] .inventory-export-analytics-status {
   }
 
   html.inventory-export-page,
-  html.inventory-export-page body {
+  html.inventory-export-page body,
+  html.focused-export-page,
+  html.focused-export-page body {
     background: white !important;
-  }
-
-  html.inventory-export-page body {
+    width: auto !important;
     min-height: 0 !important;
     margin: 0 !important;
+    padding: 0 !important;
     overflow: visible !important;
   }
 
@@ -3807,7 +3827,10 @@ html[dir="rtl"] .inventory-export-analytics-status {
     position: static;
     display: block !important;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
     margin: 0;
+    overflow-wrap: anywhere;
     background: white;
     color: #162f2c;
     font-family: Arial, Helvetica, sans-serif;
@@ -4148,13 +4171,13 @@ html[dir="rtl"] .inventory-export-analytics-status {
 
   html.inventory-export-page .inventory-print-principles {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 2.5mm;
   }
 
   html.inventory-export-page .inventory-print-principle {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
     gap: 0.5mm 2mm;
     break-inside: avoid;
     border: 0.75pt solid #dbe3dd;
@@ -4194,13 +4217,14 @@ html[dir="rtl"] .inventory-export-analytics-status {
 
   html.inventory-export-page .inventory-print-state {
     align-self: center;
+    justify-self: start;
     border-radius: 99px;
     background: var(--theme-tint, #e2ece3);
     color: #3e6c57;
     padding: 0.6mm 1.5mm;
     font-size: 6.5pt;
     font-weight: 800;
-    white-space: nowrap;
+    white-space: normal;
   }
 
   html.inventory-export-page .inventory-print-state.is-attention {
@@ -4215,7 +4239,7 @@ html[dir="rtl"] .inventory-export-analytics-status {
 
   html.inventory-export-page .inventory-print-reflections {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 2.5mm;
   }
 
@@ -7459,9 +7483,10 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
     padding: 0.15rem 0;
     font-size: 8pt;
   }
-  html.inventory-export-page .step10-report-chart-row.is-daily { grid-template-columns: minmax(0, 38%) minmax(68px, 1fr) auto; }
+  html.inventory-export-page .step10-report-chart-row { grid-template-columns: minmax(0, 40%) minmax(0, 1fr) minmax(0, 25%); }
+  html.inventory-export-page .step10-report-chart-bar { min-width: 0; }
   html.inventory-export-page .step10-report-chart-row.is-daily .step10-report-chart-bar { grid-column: 2; grid-row: 1; }
-  html.inventory-export-page .step10-report-chart-row.is-daily .step10-report-chart-state { grid-column: 3; grid-row: 1; }
+  html.inventory-export-page .step10-report-chart-row.is-daily .step10-report-chart-state { grid-column: 3; grid-row: 1; white-space: normal; }
   .step10-report-chart { break-inside: auto; }
   .step10-report-chart-total,
   .step10-report-chart-bar,
@@ -11043,6 +11068,7 @@ html[dir="rtl"] .ri-learning-preview {
 .pattern-stacked-bar { display: flex; min-height: 27px; background: #f0f3ed; border-radius: 6px; overflow: hidden; }
 .pattern-stacked-bar span { display: flex; justify-content: center; align-items: center; font-size: .75rem; font-weight: 700; overflow: hidden; }
 .pattern-map-scroll { max-width: 100%; overflow-x: auto; border: 1px solid #d8e3d9; border-radius: 8px; padding: .5rem; }
+#pattern-map-panel > .button { margin-block-end: .75rem; }
 .pattern-map { border-collapse: separate; border-spacing: 3px; width: max-content; min-width: 100%; font-size: .8rem; }
 .pattern-map caption { text-align: start; color: #36584e; font-size: .85rem; padding: .4rem 0; }
 .pattern-map thead th { height: 80px; vertical-align: bottom; min-width: 26px; text-align: center; padding-bottom: 8px; color: #405e55; }
@@ -11100,10 +11126,11 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
   html.inventory-export-page .pattern-summary-grid { break-inside: avoid; }
   html.inventory-export-page .pattern-summary-grid h4 { font-size: 10pt; }
   html.inventory-export-page .pattern-map-scroll { overflow: visible; padding: 0; border: 0; }
-  html.inventory-export-page .pattern-map { width: 100%; min-width: 0; table-layout: fixed; border-spacing: 1px; font-size: 7pt; }
+  html.inventory-export-page .pattern-map { width: 100%; min-width: 0; table-layout: fixed; border-spacing: 1px; font-size: 7pt; break-inside: avoid; }
+  html.inventory-export-page .pattern-map + .pattern-map { margin-block-start: 4mm; }
   html.inventory-export-page .pattern-map th:first-child { width: 24%; position: static; min-width: 0; max-width: none; }
-  html.inventory-export-page .pattern-map thead th { min-width: 0; height: 60px; }
-  html.inventory-export-page .pattern-map thead th span { width: 12px; font-size: 6pt; }
+  html.inventory-export-page .pattern-map thead th { min-width: 0; height: auto; padding: 1.5mm .5mm; }
+  html.inventory-export-page .pattern-map thead th:not(:first-child) span { width: auto; font-size: 6.5pt; white-space: normal; transform: none; }
   html.inventory-export-page .pattern-map tbody .pattern-square { min-width: 0; width: 100%; height: 14px; border-radius: 2px; font-size: 7pt; }
   html.inventory-export-page .pattern-map tr, html.inventory-export-page .pattern-principle-bar-row { break-inside: avoid; }
   html.inventory-export-page .pattern-map thead { display: table-header-group; }
@@ -11117,17 +11144,20 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
 .pattern-summary-export .pattern-method-note { font-size: .8rem; }
 .pattern-summary-export-actions { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin: 1rem 0; }
 .pattern-summary-export-actions label { display: flex; gap: .5rem; align-items: center; font-size: .85rem; }
-.pattern-summary-export-actions select { min-height: 44px; padding: .4rem; border: 1px solid #91ad9f; border-radius: 8px; background: white; }
+.pattern-summary-pages { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; margin-block-start: 1rem; }
+.pattern-summary-export select { min-height: 44px; max-width: 100%; padding: .4rem; border: 1px solid #91ad9f; border-radius: 8px; background: white; }
 .pattern-summary-preview figure { margin: 0; min-width: 0; }
 .pattern-summary-sheet { display: block; width: 100%; max-width: 100%; height: auto; border: 1px solid var(--theme-border, #c8d9cd); border-radius: 8px; background: white; }
-.pattern-summary-preview figcaption { font-size: .8rem; line-height: 1.6; color: #405e55; padding-top: .6rem; }
 .pattern-summary-print-root { display: none; }
 @media (max-width: 650px) { .pattern-summary-export { margin: .75rem; } }
 @media print {
-  html.pattern-summary-printing, html.pattern-summary-printing body { margin: 0 !important; padding: 0 !important; min-height: 0 !important; background: white !important; overflow: visible !important; }
+  @page pattern-report { size: landscape; margin: 8mm; }
+  html.pattern-summary-printing, html.pattern-summary-printing body { width: auto !important; margin: 0 !important; padding: 0 !important; min-height: 0 !important; background: white !important; overflow: visible !important; }
   html.pattern-summary-printing body > :not(.pattern-summary-print-root) { display: none !important; }
-  html.pattern-summary-printing .pattern-summary-print-root { display: block !important; position: static; width: 100%; margin: 0; padding: 0; break-inside: avoid; }
-  html.pattern-summary-printing .pattern-summary-print-root img { display: block; width: 100%; height: auto; max-height: 190mm; object-fit: contain; margin: 0 auto; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  html.pattern-summary-printing .pattern-summary-print-root { display: block !important; position: static; width: 100%; margin: 0; padding: 0; page: pattern-report; }
+  .pattern-print-sheet { break-inside: avoid; }
+  .pattern-print-sheet + .pattern-print-sheet { break-before: page; }
+  .pattern-print-sheet img { display: block; width: 100%; max-width: 100%; height: auto; max-height: 185mm; object-fit: contain; margin: 0 auto; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
 /* Shared subscription choice on the public, signup, and activation screens. */
 .subscription-plan-picker {

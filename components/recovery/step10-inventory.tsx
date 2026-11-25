@@ -49,6 +49,7 @@ type Step10InventoryProps = {
   onSave?: (data: Step10Data) => Promise<void> | void;
   onExport?: () => void;
   onExportChart?: () => void;
+  onExportPattern?: () => void;
   onOpenLearning?: () => void;
   onChange?: (data: Step10Data) => void;
   onDirtyChange?: (dirty: boolean) => void;
@@ -111,7 +112,7 @@ function readStep10Draft(key: string, date: string): Step10Data | null {
   }
 }
 
-export function Step10Inventory({ demo = false, initialData, onSave, onExport, onExportChart, onOpenLearning, onChange, onDirtyChange, reportPeriod, onReportPeriodChange, refreshKey = 0, onOpenMorning }: Step10InventoryProps) {
+export function Step10Inventory({ demo = false, initialData, onSave, onExport, onExportChart, onExportPattern, onOpenLearning, onChange, onDirtyChange, reportPeriod, onReportPeriodChange, refreshKey = 0, onOpenMorning }: Step10InventoryProps) {
   const { language, t } = useLanguage();
   const [mode, setMode] = React.useState<"quick" | "full">("full");
   React.useEffect(() => {
@@ -512,6 +513,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
               <Save size={17} />{saving ? t("Saving…", "در حال ذخیره…") : t("Save inventory", "ذخیره ترازنامه")}
             </button>}
             <button className="button button-outline" type="button" onClick={shareInventory}><Share2 size={17} />{t("Share with sponsor", "اشتراک با حامی")}</button>
+            {onExportPattern && <button className="button button-outline" type="button" onClick={onExportPattern}><Share2 size={17} />{t("Share pattern map", "اشتراک نقشه الگوها")}</button>}
             {rangeReport.error && <button className="button button-outline" type="button" onClick={rangeReport.retry}><Share2 size={17} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
             <button className="button button-outline" type="button" onClick={copyInventory}><Copy size={17} />{t("Copy full inventory", "کپی ترازنامه کامل")}</button>
             <button className="button button-outline" type="button" onClick={onExport ?? (() => window.print())}><FileDown size={17} />{t(onExport ? "Export saved inventory" : "Print / Save PDF", onExport ? "خروجی از ترازنامه ذخیره‌شده" : "چاپ / ذخیره PDF")}</button>
@@ -528,6 +530,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
           <ReportPeriodPicker period={period} onChange={choosePeriod} selectedDay={data.date} id="step10-report-period-mobile" />
           <button className="button button-outline" type="button" onClick={viewChart}><BarChart3 size={17} />{t("View inventory chart", "مشاهده نمودار ترازنامه")}</button>
           <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); void shareInventory(); }}><Share2 size={17} />{t("Share with sponsor", "اشتراک با حامی")}</button>
+          {onExportPattern && <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); onExportPattern(); }}><Share2 size={17} />{t("Share pattern map", "اشتراک نقشه الگوها")}</button>}
           {rangeReport.error && <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); rangeReport.retry(); }}><Share2 size={17} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
           <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); void copyInventory(); }}><Copy size={17} />{t("Copy full inventory", "کپی ترازنامه کامل")}</button>
           <button className="button button-outline" type="button" onClick={() => { setMobileActionsOpen(false); (onExport ?? (() => window.print()))(); }}><FileDown size={17} />{t(onExport ? "Export saved inventory" : "Print / Save PDF", onExport ? "خروجی از ترازنامه ذخیره‌شده" : "چاپ / ذخیره PDF")}</button>

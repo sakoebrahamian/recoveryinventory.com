@@ -7,9 +7,10 @@ import { localizedText } from "@/lib/localization";
 import { isRtlLanguage, languageLocale } from "@/lib/languages";
 
 import * as React from "react";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import { BookOpenText, CheckCircle2, Clock3, Plus } from "lucide-react";
 import { formatDisplayDate, step4Types, todayIso } from "@/lib/inventory";
+import { openPrintPreview } from "@/lib/print-preview";
 import { Step4Inventory, type Step4Data, type Step4Entry } from "./step4-inventory";
 import { originalFrameworkGuidance, step4WorkbookGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
@@ -100,11 +101,10 @@ export function Step4Workspace({ onOpenLearning, onDirtyChange }: Step4Workspace
   const [dirty, setDirty] = React.useState(false);
   const [draftVersion, setDraftVersion] = React.useState(0);
   const [printData, setPrintData] = React.useState<Step4Data | null>(null);
+  const clearPrint = React.useRef<(() => void) | null>(null);
   const canUseDom = React.useSyncExternalStore(subscribeToDom, getClientDomSnapshot, getServerDomSnapshot);
 
-  React.useEffect(() => {
-    return () => document.documentElement.classList.remove("inventory-export-page");
-  }, []);
+  React.useEffect(() => () => clearPrint.current?.(), []);
 
   React.useEffect(() => {
     let stopped = false;
@@ -191,16 +191,8 @@ export function Step4Workspace({ onOpenLearning, onDirtyChange }: Step4Workspace
   }
 
   function printWorkbook(data: Step4Data) {
-    setPrintData(data);
-    const originalTitle = document.title;
-    document.title = `${data.title} - ${t("Recovery Inventory", "ترازنامه بهبودی")}`;
-    document.documentElement.classList.add("inventory-export-page");
-    const restore = () => {
-      document.title = originalTitle;
-      document.documentElement.classList.remove("inventory-export-page");
-    };
-    window.addEventListener("afterprint", restore, { once: true });
-    window.setTimeout(() => window.print(), 50);
+    flushSync(() => setPrintData(data));
+    clearPrint.current = openPrintPreview("inventory-export-page", `${data.title} - ${t("Recovery Inventory", "ترازنامه بهبودی")}`, () => setPrintData(null));
   }
 
   const dateLabel = (timestamp: number) => dateTimeFormat(languageLocale(language), { year: "numeric", month: "short", day: "numeric" }).format(new Date(timestamp * 1000));
@@ -224,7 +216,7 @@ export function Step4Workspace({ onOpenLearning, onDirtyChange }: Step4Workspace
       </section>
 
       <Step4Inventory key={`${selectedId}-${draftVersion}`} initialData={activeData} onSave={saveWorkbook} onExport={printWorkbook} onOpenLearning={onOpenLearning} onDirtyChange={setDirty} />
-      {canUseDom ? createPortal(<Step4PrintDocument data={printData} />, document.body) : null}
+      {canUseDom && printData ? createPortal(<Step4PrintDocument data={printData} />, document.body) : null}
     </>
   );
 }

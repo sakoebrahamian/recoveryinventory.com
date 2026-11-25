@@ -11,6 +11,7 @@ import { formatDisplayDate, principles, step10Questions, principleQuestion, type
 import { reflectionFields, type Step10AnalyticsData, type ReflectionField } from "@/lib/step10-analytics";
 import { answerForDay, countQuestionDays, questionIdsForPrinciples, reflectionEntries, step10Trends } from "@/lib/step10-detail";
 import { formatStep10FocusedReport, step10ReflectionLabel } from "@/lib/step10-report";
+import { openPrintPreview } from "@/lib/print-preview";
 import type { ReportBounds } from "@/lib/step10-report-period";
 import { buildStep10Trends } from "@/lib/step10-trends";
 import { fillTemplate, practiceRateByDate, tintLevel } from "@/lib/step10-visuals";
@@ -101,13 +102,11 @@ export function Step10AnalyticsDetail({ analytics, bounds, demo = false, onOpenD
     try { await navigator.clipboard.writeText(report); setCopyMessage(t("Selected report copied.", "گزارش انتخاب‌شده کپی شد.")); }
     catch { setCopyMessage(t("Copy was unavailable. Select the preview text to copy it.", "کپی در دسترس نبود. متن پیش‌نمایش را برای کپی انتخاب کنید.")); }
   }
+  const clearPrint = React.useRef<(() => void) | null>(null);
+  React.useEffect(() => () => clearPrint.current?.(), []);
+
   function printReport() {
-    const title = document.title;
-    document.title = t("Focused sponsor report", "گزارش منتخب برای حامی");
-    document.documentElement.classList.add("focused-export-page");
-    const restore = () => { document.documentElement.classList.remove("focused-export-page"); document.title = title; };
-    window.addEventListener("afterprint", restore, { once: true });
-    try { window.print(); } catch { restore(); }
+    clearPrint.current = openPrintPreview("focused-export-page", t("Focused sponsor report", "گزارش منتخب برای حامی"));
   }
 
   return <div className="analytics-deep-dive">

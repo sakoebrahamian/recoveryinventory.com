@@ -12,6 +12,7 @@ import { CalendarRange, FileDown, RefreshCw, X } from "lucide-react";
 import { formatDisplayDate, principleCategories, step10QuestionsForPayload, principleQuestion, questionPrincipleName, questionWithPrinciple, reflectionPrincipleNames, step4Types, todayIso } from "@/lib/inventory";
 import { reflectionFields, type PrincipleAnalytics, type Step10AnalyticsData } from "@/lib/step10-analytics";
 import { step10ReflectionLabel } from "@/lib/step10-report";
+import { openPrintPreview } from "@/lib/print-preview";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
 import { sponsorGuidance, originalFrameworkGuidance } from "@/lib/recovery-guidance";
 import { practiceForPrinciple } from "@/lib/step10-practices";
@@ -24,6 +25,7 @@ import type { Step10Data } from "./step10-inventory";
 import type { Step4Data, Step4Entry } from "./step4-inventory";
 import { ReportPeriodPicker } from "./report-period-picker";
 import { Step10ReportChart } from "./step10-report-chart";
+import { Step10PatternSummary } from "./step10-pattern-summary";
 import { useReportAnalytics } from "./use-report-analytics";
 import { reportBounds, type ReportBounds, type ReportPeriod } from "@/lib/step10-report-period";
 
@@ -37,17 +39,17 @@ export type InventoryRecord = {
 
 export type InventoryExportHandle = {
   open: (options?: { type?: "step10" | "step4"; format?: ExportFormat; day?: string }) => void;
+  close: () => void;
 };
 
 type ExportScope = "today" | "day" | "week" | "range" | "month" | "year";
-type ExportFormat = "summary" | "archive" | "chart";
+type ExportFormat = "summary" | "archive" | "chart" | "pattern";
 
 type InventoryExportProps = {
   records: InventoryRecord[];
   selectedDate: string;
   year: number;
   reportPeriod: ReportPeriod;
-  onReportPeriodChange: (period: ReportPeriod) => void;
   refreshKey: number;
 };
 
@@ -367,12 +369,13 @@ function PrintDocument({ records, scopeLabel, analytics, bounds, format }: { rec
 }
 
 export const InventoryExport = React.forwardRef<InventoryExportHandle, InventoryExportProps>(function InventoryExport(
-  { records, selectedDate, year, reportPeriod, onReportPeriodChange, refreshKey },
+  { records, selectedDate, year, reportPeriod, refreshKey },
   ref,
 ) {
   const { language, t } = useLanguage();
   const [open, setOpen] = React.useState(false);
   const [format, setFormat] = React.useState<ExportFormat>("summary");
+  const [exportPeriod, setExportPeriod] = React.useState(reportPeriod);
   const [reportDay, setReportDay] = React.useState(selectedDate);
   const [scope, setScope] = React.useState<ExportScope>("day");
   const [day, setDay] = React.useState(selectedDate);
@@ -385,15 +388,39 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
   const [todayRecordsResult, setTodayRecordsResult] = React.useState<{ key: string; records: InventoryRecord[]; error: string }>({ key: "", records: [], error: "" });
   const [todayRetry, setTodayRetry] = React.useState(0);
   const panelRef = React.useRef<HTMLElement>(null);
+  const returnTo = React.useRef<{ trigger: HTMLElement | null; scrollY: number } | null>(null);
+  const clearPrint = React.useRef<(() => void) | null>(null);
   const canUseDom = React.useSyncExternalStore(
     subscribeToDom,
     getClientDomSnapshot,
     getServerDomSnapshot,
   );
 
-  React.useEffect(() => {
-    document.documentElement.classList.add("inventory-export-page");
-    return () => document.documentElement.classList.remove("inventory-export-page");
+  React.useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!open || !panel) return;
+    const header = panel.closest(".member-page")?.querySelector(".member-header");
+    const headerHeight = header?.getBoundingClientRect().height ?? 0;
+    panel.focus({ preventScroll: true });
+    window.scrollTo({ top: window.scrollY + panel.getBoundingClientRect().top - headerHeight - 16, behavior: "instant" });
+  }, [open]);
+
+  React.useEffect(() => () => clearPrint.current?.(), []);
+
+  const closeExport = React.useCallback((restorePosition = true) => {
+    const previous = returnTo.current;
+    returnTo.current = null;
+    clearPrint.current?.();
+    clearPrint.current = null;
+    setOpen(false);
+    if (restorePosition && previous) {
+      window.requestAnimationFrame(() => {
+        const trigger = previous.trigger;
+        const target = trigger?.getClientRects().length ? trigger : document.querySelector<HTMLElement>('button[aria-controls="step10-mobile-menu"]');
+        target?.focus({ preventScroll: true });
+        window.scrollTo({ top: previous.scrollY, behavior: "instant" });
+      });
+    }
   }, []);
 
   React.useImperativeHandle(ref, () => ({
@@ -401,7 +428,10 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
       const nextFormat = options?.format ?? (options?.type === "step4" ? "archive" : "summary");
       const nextScope = nextFormat === "archive" && options?.type === "step10" ? reportPeriod.mode : "day";
       const nextDay = nextScope === "today" ? todayIso() : options?.day ?? selectedDate;
+      const trigger = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
+      returnTo.current ??= { trigger, scrollY: window.scrollY };
       setFormat(nextFormat);
+      setExportPeriod(reportPeriod);
       setReportDay(options?.day ?? selectedDate);
       setScope(nextScope);
       setDay(nextDay);
@@ -412,9 +442,9 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
       setIncludeStep4(options?.type ? options.type === "step4" : true);
       setIncludeAnalytics(true);
       setOpen(true);
-      window.setTimeout(() => panelRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 0);
     },
-  }), [reportPeriod, selectedDate]);
+    close: () => closeExport(false),
+  }), [closeExport, reportPeriod, selectedDate]);
 
   const needsTodayRecords = open && format === "archive" && scope === "today" && year !== Number(todayIso().slice(0, 4));
   const todayRecordsKey = `${todayIso()}:${refreshKey}:${todayRetry}`;
@@ -443,7 +473,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
     through: rangeStart <= rangeEnd ? rangeEnd : rangeStart,
   };
   const archiveDay = scope === "today" ? todayIso() : scope === "month" ? `${month}-01` : scope === "year" ? firstDayOfYear(year) : day;
-  const rawBounds = reportBounds(format === "archive" ? archivePeriod : reportPeriod, format === "archive" ? archiveDay : reportDay);
+  const rawBounds = reportBounds(format === "archive" ? archivePeriod : exportPeriod, format === "archive" ? archiveDay : reportDay);
   const archiveFrom = rawBounds && scope !== "today" && rawBounds.from < firstDayOfYear(year) ? firstDayOfYear(year) : rawBounds?.from;
   const archiveThrough = rawBounds && scope !== "today" && rawBounds.through > lastDayOfYear(year) ? lastDayOfYear(year) : rawBounds?.through;
   const bounds = rawBounds && format === "archive"
@@ -507,21 +537,21 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
 
   function printExport() {
     if (!canPrint) return;
-    const originalTitle = document.title;
-    document.title = `${t("Recovery Inventory", "ترازنامه بهبودی")} - ${printLabel}`;
-    const restoreTitle = () => { document.title = originalTitle; };
-    window.addEventListener("afterprint", restoreTitle, { once: true });
-    window.print();
+    clearPrint.current = openPrintPreview("inventory-export-page", `${t("Recovery Inventory", "ترازنامه بهبودی")} - ${printLabel}`, closeExport);
   }
 
   return (
     <>
       {open && (
-        <section className="inventory-export-panel" ref={panelRef} aria-labelledby="inventory-export-title">
+        <section className="inventory-export-panel" ref={panelRef} tabIndex={-1} aria-labelledby="inventory-export-title" onKeyDown={(event) => {
+          if (event.key !== "Escape" || event.defaultPrevented) return;
+          event.stopPropagation();
+          closeExport();
+        }}>
           <div className="inventory-export-header">
             <div className="inventory-export-icon"><CalendarRange size={21} /></div>
             <div><h3 id="inventory-export-title">{t("Export saved inventories", "خروجی گرفتن از ترازنامه‌های ذخیره‌شده")}</h3><p>{t("Choose exactly what should appear in the printout or PDF.", "دقیقاً انتخاب کنید چه چیزی در نسخه چاپی یا PDF نمایش داده شود.")}</p></div>
-            <button className="icon-button" type="button" onClick={() => setOpen(false)} aria-label={t("Close export options", "بستن گزینه‌های خروجی")}><X size={18} /></button>
+            <button className="button button-outline button-small inventory-export-close" type="button" onClick={() => closeExport()}><X size={16} aria-hidden="true" />{t("Cancel", "لغو")}</button>
           </div>
 
           <fieldset className="inventory-export-fieldset">
@@ -529,15 +559,17 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
             <div className="inventory-export-scope inventory-export-format" role="radiogroup">
               <label className={format === "summary" ? "is-selected" : ""}><input type="radio" name="export-format" checked={format === "summary"} onChange={() => setFormat("summary")} /><span>{t("Sponsor summary", "خلاصه برای حامی")}</span></label>
               <label className={format === "chart" ? "is-selected" : ""}><input type="radio" name="export-format" checked={format === "chart"} onChange={() => setFormat("chart")} /><span>{t("Chart only", "فقط نمودار")}</span></label>
+              <label className={format === "pattern" ? "is-selected" : ""}><input type="radio" name="export-format" checked={format === "pattern"} onChange={() => setFormat("pattern")} /><span>{t("Pattern map", "نقشه الگوها")}</span></label>
               <label className={format === "archive" ? "is-selected" : ""}><input type="radio" name="export-format" checked={format === "archive"} onChange={() => setFormat("archive")} /><span>{t("Full journal", "دفتر کامل")}</span></label>
             </div>
             <p className="inventory-export-format-help">{format === "summary"
               ? t("Counts and inventory chart for the selected day by default. Choose a week, month, year, or custom range for a broader sponsor summary without individual daily pages.", "شمارش‌ها و نمودار ترازنامه به‌طور پیش‌فرض برای روز انتخاب‌شده‌اند. برای خلاصه گسترده‌تر حامی بدون صفحه‌های روزانه، هفته، ماه، سال یا بازه دلخواه را انتخاب کنید.")
               : format === "chart" ? t("Export only the inventory chart for the chosen day or range as a printable PDF. No inventory pages or written reflections are included.", "فقط نمودار ترازنامه را برای روز یا بازه انتخاب‌شده به‌صورت PDF قابل چاپ خروجی بگیرید. صفحه ترازنامه یا بازتاب‌های نوشته‌شده در آن نیست.")
+              : format === "pattern" ? t("Preview, print, or share the pattern map for the selected dates. It shows saved answers with colors and symbols.", "نقشه الگوها را برای تاریخ‌های انتخاب‌شده پیش‌نمایش، چاپ یا به اشتراک بگذارید. پاسخ‌های ذخیره‌شده با رنگ و نشانه نمایش داده می‌شوند.")
                 : t("Print every saved inventory in the selected dates, with complete daily writing. You can include Step 10 analytics for those same dates.", "همه ترازنامه‌های ذخیره‌شده در تاریخ‌های انتخابی را با نوشته‌های کامل روزانه چاپ کنید. می‌توانید تحلیل گام ۱۰ را برای همان تاریخ‌ها اضافه کنید.")}</p>
           </fieldset>
 
-          {format !== "archive" && <ReportPeriodPicker period={reportPeriod} onChange={onReportPeriodChange} selectedDay={reportDay} id="export-report-period" />}
+          {format !== "archive" && <ReportPeriodPicker period={exportPeriod} onChange={setExportPeriod} selectedDay={reportDay} id="export-report-period" />}
 
           {format === "archive" && <fieldset className="inventory-export-fieldset">
             <legend>{t("Date selection", "انتخاب تاریخ")}</legend>
@@ -578,23 +610,28 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
             </div>}
           </div>}
 
-          <div className="inventory-export-summary">
+          {format === "pattern" ? (bounds && currentAnalytics && canPrint ? (
+            <Step10PatternSummary analytics={currentAnalytics} bounds={bounds} view="map" onPrintClosed={closeExport} />
+          ) : !scoped.loading && currentAnalytics && (
+            <p role="status">{t("No saved Step 10 inventories in this period.", "هیچ ترازنامه ذخیره‌شده گام ۱۰ در این بازه وجود ندارد.")}</p>
+          )) : <div className="inventory-export-summary">
             {needsTodayRecords && !todayRecordsReady && <p role="status">{t("Loading today's saved inventory…", "در حال بارگذاری ترازنامه ذخیره‌شده امروز…")}</p>}
             {needsTodayRecords && todayRecordsReady && todayRecordsResult.error && <p role="alert">{t("Today's inventory could not load. Please try again.", "ترازنامه امروز بارگذاری نشد. لطفاً دوباره تلاش کنید.")} <button className="button button-outline button-small" type="button" onClick={() => setTodayRetry((value) => value + 1)}>{t("Try again", "تلاش دوباره")}</button></p>}
             <div><strong>{format !== "archive" ? currentAnalytics?.totalEntries ?? 0 : filteredRecords.length}</strong><span>{t(format !== "archive" ? "saved Step 10 inventories" : filteredRecords.length === 1 ? "saved inventory" : "saved inventories", format !== "archive" ? "ترازنامه ذخیره‌شده گام ۱۰" : "ترازنامه ذخیره‌شده")}</span></div>
             <div><strong>{format !== "archive" ? currentAnalytics?.totalPracticed ?? 0 : dateCount}</strong><span>{format !== "archive" ? t("Practiced choices", "انتخاب‌های تمرین‌شده") : t(dateCount === 1 ? "date" : "dates", "تاریخ")}</span></div>
             <p>{canPrint ? printLabel : format === "summary" ? t("Save a Step 10 inventory to create a sponsor summary.", "برای ساخت خلاصه حامی، ترازنامه گام ۱۰ را ذخیره کنید.") : format === "chart" ? t("Save a Step 10 inventory in this period to export its chart.", "برای خروجی گرفتن از نمودار، ترازنامه گام ۱۰ را در این بازه ذخیره کنید.") : t("No saved inventories match this selection.", "هیچ ترازنامه ذخیره‌شده‌ای با این انتخاب مطابقت ندارد.")}</p>
             <button className="button button-primary" type="button" onClick={printExport} disabled={!canPrint}><FileDown size={17} />{t("Print / Save PDF", "چاپ / ذخیره PDF")}</button>
-          </div>
-          {bounds && currentAnalytics && wantsAnalytics && currentAnalytics.totalEntries > 0 && (
+          </div>}
+          {format !== "pattern" && bounds && currentAnalytics && wantsAnalytics && currentAnalytics.totalEntries > 0 && (
             <div className="inventory-export-chart-preview" aria-label={t("Preview inventory chart", "پیش‌نمایش نمودار ترازنامه")}>
               <Step10ReportChart analytics={currentAnalytics} bounds={bounds} />
             </div>
           )}
+          <div className="inventory-export-footer"><button className="button button-outline button-small" type="button" onClick={() => closeExport()}>{t("Cancel", "لغو")}</button></div>
         </section>
       )}
 
-      {canUseDom
+      {canUseDom && open && canPrint && format !== "pattern"
         ? createPortal(
           <PrintDocument records={format === "archive" ? filteredRecords : []} scopeLabel={printLabel} analytics={open && wantsAnalytics && canPrint ? currentAnalytics : null} bounds={bounds} format={format} />,
           document.body,

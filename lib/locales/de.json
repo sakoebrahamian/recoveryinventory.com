@@ -2307,5 +2307,15 @@
   "AI use and limits": "KI-Nutzung und Limits",
   "Serenity AI reflection guide": "Serenity, KI-Begleitung für deine Reflexion",
   "Explore Step 10, Step 4, sample charts, and the learning tools without an account. Demo entries are temporary. Open Serenity to try a sample conversation.": "Entdecke Schritt 10, Schritt 4, Beispieldiagramme und Lernangebote ohne Konto. Demo-Einträge sind vorübergehend. Öffne Serenity, um ein Beispielgespräch auszuprobieren.",
-  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Du kannst deine gespeicherten Einträge zu Schritt 10 weiterhin lesen und exportieren. Schließe jederzeit mit demselben Konto ein Abo ab, um weiter Einträge zu speichern und Schritt 4 und Serenity zu nutzen."
+  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Du kannst deine gespeicherten Einträge zu Schritt 10 weiterhin lesen und exportieren. Schließe jederzeit mit demselben Konto ein Abo ab, um weiter Einträge zu speichern und Schritt 4 und Serenity zu nutzen.",
+  "Share pattern map": "Musterraster teilen",
+  "Export pattern map": "Musterraster exportieren",
+  "Preview pattern map": "Vorschau des Musterrasters",
+  "Hide pattern map preview": "Vorschau des Musterrasters ausblenden",
+  "Preview, print, or share the pattern map for the selected dates. It shows saved answers with colors and symbols.": "Sieh dir das Musterraster für die ausgewählten Daten als Vorschau an, drucke es oder teile es. Farben und Symbole zeigen die gespeicherten Antworten.",
+  "Saved answers only. Written reflections and notes stay private.": "Enthalten sind nur gespeicherte Antworten. Deine schriftlichen Reflexionen und Notizen bleiben privat.",
+  "Page {page} of {total}": "Seite {page} von {total}",
+  "PDF includes every page. PNG includes the displayed page.": "Die PDF-Datei enthält alle Seiten. Die PNG-Datei enthält die angezeigte Seite.",
+  "Pattern map shared.": "Musterraster geteilt.",
+  "File sharing is unavailable here. The file was downloaded so you can attach it yourself.": "Hier können keine Dateien geteilt werden. Die Datei wurde heruntergeladen, damit du sie selbst anhängen kannst."
 }

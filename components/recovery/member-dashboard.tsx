@@ -301,6 +301,7 @@ export function MemberDashboard() {
   }
 
   function switchTool(next: MemberTool, date = selectedDate) {
+    exportRef.current?.close();
     if (next === activeType) return true;
     if (!confirmDiscardStep10()) return false;
     if (activeType === "step4" && step4Dirty && !window.confirm(t("You have unsaved Step 4 changes. Continue without saving them?", "تغییرات ذخیره‌نشده گام چهارم دارید. بدون ذخیره ادامه می‌دهید؟"))) return false;
@@ -448,8 +449,7 @@ export function MemberDashboard() {
             records={records}
             selectedDate={selectedDate}
             year={year}
-            reportPeriod={reportPeriod}
-            onReportPeriodChange={setReportPeriod}
+            reportPeriod={activeType === "analytics" ? analyticsPeriod : reportPeriod}
             refreshKey={analyticsVersion}
           />
           {activeType === "step10" ? (
@@ -460,6 +460,7 @@ export function MemberDashboard() {
               onDirtyChange={setStep10Dirty}
               onExport={() => exportRef.current?.open({ type: "step10", format: "archive" })}
               onExportChart={() => exportRef.current?.open({ format: "chart", day: selectedDate })}
+              onExportPattern={() => exportRef.current?.open({ format: "pattern", day: selectedDate })}
               onOpenLearning={() => switchTool("learning")}
               onOpenMorning={account.membershipActive ? (date) => switchTool("step11", date) : undefined}
               reportPeriod={reportPeriod}
@@ -513,7 +514,8 @@ export function MemberDashboard() {
               reportInventory={sponsorInventory?.payload as Step10Data | undefined}
               reportPeriod={analyticsPeriod}
               onReportPeriodChange={setAnalyticsPeriod}
-              onExportChart={(day) => exportRef.current?.open({ format: "chart", day })}
+              onExportChart={() => exportRef.current?.open({ format: "chart" })}
+              onExportPattern={() => exportRef.current?.open({ format: "pattern" })}
             />
           ) : (
             <>
