@@ -137,15 +137,18 @@ export function step10PatternSummarySvg(analytics: Step10AnalyticsData, bounds: 
   return parts.join("");
 }
 
-/** One landscape map page per group of date columns, with no member writing. */
-export function step10PatternMapSvgs(analytics: Step10AnalyticsData, bounds: ReportBounds, language: Language, t: Translate, demo = false) {
+/** Most date columns that still read clearly on one landscape page. Daily maps never exceed 62 days. */
+export const patternMapColumnLimits = { onePage: 62, perPage: 30 } as const;
+
+/** Landscape map pages with no member writing. fitOnePage shrinks the squares so up to two months fit on one page. */
+export function step10PatternMapSvgs(analytics: Step10AnalyticsData, bounds: ReportBounds, language: Language, t: Translate, demo = false, fitOnePage = true) {
   const days = analytics.days.filter((day) => day.date >= bounds.from && day.date <= bounds.through);
   const { buckets, rows, interval } = buildStep10Patterns({ ...analytics, days }, bounds);
   const rtl = isRtlLanguage(language);
   const locale = languageLocale(language, true);
   const number = new Intl.NumberFormat(locale);
   const title = t("Pattern map", "نقشه الگوها");
-  const columnsPerPage = 30;
+  const columnsPerPage = fitOnePage ? Math.max(1, Math.min(buckets.length, patternMapColumnLimits.onePage)) : patternMapColumnLimits.perPage;
   const pageCount = Math.ceil(buckets.length / columnsPerPage);
   const dateLabel = dateTimeFormat(locale, {
     month: "numeric", ...(interval === "month" ? { year: "2-digit" as const } : { day: "numeric" as const }),
@@ -178,14 +181,17 @@ export function step10PatternMapSvgs(analytics: Step10AnalyticsData, bounds: Rep
     const columnPeriod = interval === "day" ? t("Day", "روز")
       : interval === "week" ? t("Calendar week", "هفته تقویمی") : t("Month", "ماه");
     text(columnPeriod, 56, 160, 17, 1488, true);
+    const labelSize = columnUnit < 30 ? 12 : columnUnit < 42 ? 14 : 16;
+    const labelEvery = columnUnit < 24 ? 2 : 1;
     columns.forEach((bucket, index) => {
-      text(dateLabel.format(new Date(bucket.from + "T12:00:00Z")), columnX(index), 192, 16, columnUnit - 3, true, false, true);
+      if (index % labelEvery) return;
+      text(dateLabel.format(new Date(bucket.from + "T12:00:00Z")), columnX(index) - (labelEvery - 1) * columnUnit / 2, 192, labelSize, columnUnit * labelEvery - 3, true, false, true);
     });
     function square(tone: PatternTone, x: number, y: number, w: number, h: number) {
       rect(x, y, w, h, mapColors[tone], 4, "#c4d1c9");
       if (tone === "mixed") rect(x + w / 2, y + 1, w / 2 - 1, h - 2, "#f9d9bd", 2);
       const ink = tone === "practiced" || tone === "attention" ? "#fff" : "#173f3a";
-      text(patternSymbols[tone], x, y + 18, 18, w, true, false, true, ink);
+      text(patternSymbols[tone], x, y + 18, Math.min(18, Math.round(w * .7)), w, true, false, true, ink);
     }
     text(t("Principle", "اصل"), labelX, 192, 18, 248, true);
     rows.forEach((row, index) => {
@@ -245,10 +251,10 @@ export function patternSummaryPdf(jpeg: Uint8Array | Uint8Array[], imageWidth: n
   return result;
 }
 
-export async function preparePatternSummary(analytics: Step10AnalyticsData, bounds: ReportBounds, language: Language, t: Translate, demo = false, view: "summary" | "map" = "summary") {
+export async function preparePatternSummary(analytics: Step10AnalyticsData, bounds: ReportBounds, language: Language, t: Translate, demo = false, view: "summary" | "map" = "summary", fitOnePage = true) {
   await document.fonts.ready;
   const sheets = view === "map"
-    ? step10PatternMapSvgs(analytics, bounds, language, t, demo)
+    ? step10PatternMapSvgs(analytics, bounds, language, t, demo, fitOnePage)
     : [step10PatternSummarySvg(analytics, bounds, language, t, demo)];
   const stem = `step10-pattern-${view}-${language}-${bounds.from}-${bounds.through}`;
   const canvas = document.createElement("canvas");

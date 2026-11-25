@@ -41,6 +41,7 @@ type Step10AnalyticsProps = {
   onReportPeriodChange?: (period: ReportPeriod) => void;
   onExportChart?: () => void;
   onExportPattern?: () => void;
+  onOpenExport?: () => void;
 };
 
 function dateBefore(isoDate: string, days: number): string {
@@ -85,7 +86,7 @@ export function createDemoAnalytics(draft?: Step10Data, t: (english: string, far
   return from ? calculateStep10PeriodAnalytics(sampleRecords, { from, through, mode }) : calculateStep10Analytics(sampleRecords, through);
 }
 
-export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refreshKey = 0, onOpenStep10, reportInventory, reportPeriod, onReportPeriodChange, onExportChart, onExportPattern }: Step10AnalyticsProps) {
+export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refreshKey = 0, onOpenStep10, reportInventory, reportPeriod, onReportPeriodChange, onExportChart, onExportPattern, onOpenExport }: Step10AnalyticsProps) {
   const { language, t } = useLanguage();
   const [shareMessage, setShareMessage] = React.useState("");
   const [chartOpen, setChartOpen] = React.useState(false);
@@ -160,7 +161,11 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
         </div>
         <div className="analytics-header-actions">
           {controls}<button type="button" className="button button-outline button-small" onClick={() => choosePeriod({ mode: "range", from: dateBefore(todayIso(), 29), through: todayIso() })}>{t("Last 30 days", "۳۰ روز گذشته")}</button>{demo && <span className="analytics-sample-badge">{t("Sample data", "داده نمونه")}</span>}
-          {reportInventory ? (
+          {onOpenExport ? (
+            analytics.totalEntries > 0 && <div className="analytics-share-actions">
+              <button className="button button-primary" type="button" onClick={onOpenExport}><Share2 size={16} />{t("Share and export", "اشتراک و خروجی")}</button>
+            </div>
+          ) : reportInventory ? (
             <>
 
               {!draftDay && !demo && <p className="analytics-share-context">{t("Range analytics count saved entries only. Save changes before sharing if you want them counted.", "تحلیل بازه فقط نوشته‌های ذخیره‌شده را می‌شمارد. اگر می‌خواهید تغییرات محاسبه شوند، پیش از اشتراک ذخیره کنید.")}</p>}
@@ -178,7 +183,7 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
               {onOpenStep10 && <button className="button button-outline button-small" type="button" onClick={onOpenStep10}>{t("Open Step 10", "باز کردن گام ۱۰")}</button>}
             </>
           )}
-          {analytics.totalEntries > 0 && (onExportChart || onExportPattern) && <div className="analytics-share-actions">
+          {!onOpenExport && analytics.totalEntries > 0 && (onExportChart || onExportPattern) && <div className="analytics-share-actions">
             {onExportChart && <button className="button button-outline" type="button" onClick={onExportChart}><FileDown size={16} />{t("Export chart only", "خروجی فقط نمودار")}</button>}
             {onExportPattern && <button className="button button-outline" type="button" onClick={onExportPattern}><Share2 size={16} />{t("Share pattern map", "اشتراک نقشه الگوها")}</button>}
           </div>}

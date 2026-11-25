@@ -11861,6 +11861,46 @@ html[dir="rtl"] .pattern-map th.is-week-start, html[dir="rtl"] .pattern-map td.i
   }
 }
 
+/* Share and export panel: three steps on the left, live preview and actions on the right. */
+.inventory-export-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+.inventory-export-steps { display: grid; gap: .25rem; min-width: 0; }
+.inventory-export-preview { position: sticky; top: 9rem; display: grid; gap: .75rem; min-width: 0; margin-top: .9rem; padding: 1rem; border: 1px solid rgb(var(--theme-ink-rgb, 23 63 58) / .12); border-radius: 16px; background: var(--theme-soft, #f6f8f3); }
+.inventory-export-preview h4 { margin: 0; color: var(--theme-ink, #173f3a); font-size: .85rem; font-weight: 800; letter-spacing: .03em; }
+.inventory-export-preview .inventory-export-summary { grid-template-columns: auto auto minmax(0, 1fr); margin: 0; background: var(--theme-surface, #fffdf9); }
+.inventory-export-preview .inventory-export-chart-preview, .inventory-export-preview .pattern-summary-export { margin: 0; }
+.inventory-export-format-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; }
+.inventory-export-format-cards label { position: relative; display: flex; align-items: flex-start; gap: .6rem; min-width: 0; padding: .75rem .85rem; border: 1px solid rgb(var(--theme-ink-rgb, 23 63 58) / .16); border-radius: 12px; background: var(--theme-surface, #fffdf9); color: var(--theme-ink, #173f3a); cursor: pointer; }
+.inventory-export-format-cards label:hover { border-color: rgb(var(--theme-ink-rgb, 23 63 58) / .35); }
+.inventory-export-format-cards label.is-selected { border: 2px solid var(--theme-accent, #0d6571); padding: calc(.75rem - 1px) calc(.85rem - 1px); background: var(--theme-soft, #edf4e9); }
+.inventory-export-format-cards label:has(input:focus-visible) { outline: 3px solid var(--theme-accent, #0d6571); outline-offset: 2px; }
+.inventory-export-format-cards input { position: absolute; opacity: 0; pointer-events: none; }
+.inventory-export-format-cards svg { flex-shrink: 0; margin-top: .1rem; color: var(--theme-accent, #0d6571); }
+.inventory-export-format-cards span { display: grid; gap: .15rem; min-width: 0; }
+.inventory-export-format-cards strong { font-size: .9rem; }
+.inventory-export-format-cards small { color: #536d64; font-size: .74rem; line-height: 1.4; }
+.inventory-export-quick-dates { display: flex; flex-wrap: wrap; gap: .45rem; margin-bottom: .6rem; }
+.inventory-export-quick-dates .button.is-selected { border-color: var(--theme-accent, #0d6571); background: var(--theme-accent, #0d6571); color: #fff; }
+.inventory-export-included { display: grid; gap: .4rem; margin: .2rem 0 .6rem; padding: 0; list-style: none; font-size: .86rem; line-height: 1.45; }
+.inventory-export-included li { display: flex; align-items: flex-start; gap: .5rem; color: var(--theme-ink, #173f3a); }
+.inventory-export-included li svg { flex-shrink: 0; margin-top: .15rem; }
+.inventory-export-included li.is-included svg { color: #1f6a45; }
+.inventory-export-included li.is-private { color: #5f756f; }
+.export-action-bar { display: flex; flex-wrap: wrap; gap: .5rem; }
+.export-action-bar .button { flex: 1 1 auto; justify-content: center; }
+.export-page-badge { justify-self: start; margin: 0; padding: .2rem .6rem; border-radius: 999px; background: #e2efe2; color: #1f6a45; font-size: .74rem; font-weight: 800; }
+.inventory-export-note, .inventory-export-message { margin: 0; color: #536d64; font-size: .78rem; line-height: 1.5; }
+.pattern-fit-toggle { display: flex; align-items: flex-start; gap: .55rem; margin: .2rem 0 .7rem; color: var(--theme-ink, #173f3a); font-size: .85rem; cursor: pointer; }
+.pattern-fit-toggle input { flex-shrink: 0; width: 18px; height: 18px; margin-top: .15rem; accent-color: var(--theme-accent, #0d6571); }
+.pattern-fit-toggle span { display: grid; gap: .1rem; }
+.pattern-fit-toggle small { color: #536d64; font-size: .75rem; }
+@media (max-width: 760px) {
+  .inventory-export-layout { grid-template-columns: minmax(0, 1fr); }
+  .inventory-export-preview { position: static; }
+}
+@media (max-width: 420px) {
+  .inventory-export-format-cards { grid-template-columns: minmax(0, 1fr); }
+}
+
 @media (max-width: 520px) {
   .ri-reflection-dates { grid-template-columns: minmax(0, 1fr); }
   .ri-inventory-mode .button { flex: 1 1 9rem; }
