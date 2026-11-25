@@ -7,12 +7,12 @@ import { languageLocale } from "@/lib/languages";
 
 import * as React from "react";
 import { BarChart3, CalendarCheck2, Copy, FileDown, Flame, RefreshCw, Share2, ShieldCheck, Target, UsersRound } from "lucide-react";
-import { formatDisplayDate, principleCategories, step10Questions, step10QuestionSetVersion, questionWithPrinciple, todayIso } from "@/lib/inventory";
-import { calculateStep10Analytics, calculateStep10PeriodAnalytics, type PrincipleAnalytics, type Step10AnalyticsData, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
+import { formatDisplayDate, principleCategories, step10Questions, step10QuestionSetVersion, todayIso } from "@/lib/inventory";
+import { calculateStep10Analytics, calculateStep10PeriodAnalytics, type Step10AnalyticsData, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
 import { formatStep10SponsorReport } from "@/lib/step10-report";
 import { copyStep10Report, shareStep10Report } from "@/lib/step10-share";
-import { summarizeStep10Insights } from "@/lib/step10-insights";
 import { Step10AnalyticsDetail, Step10PeriodComparison } from "./step10-analytics-detail";
+import { Step10TrendInsights } from "./step10-trend-insights";
 import { sponsorGuidance } from "@/lib/recovery-guidance";
 import { useLanguage } from "./language-provider";
 import type { Step10Data } from "./step10-inventory";
@@ -96,10 +96,6 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
   const draftDay = false;
   const locale = languageLocale(language, true);
 
-  const principleName = React.useCallback((item: PrincipleAnalytics) => {
-    return questionWithPrinciple(item.id, language);
-  }, [language]);
-
   async function shareCombinedReport() {
     if (!reportAnalytics || !reportInventory || !bounds) { setShareMessage(t("Choose a valid analytics period and wait for the report to load.", "بازه تحلیل معتبری انتخاب کنید و منتظر بارگذاری گزارش بمانید.")); return; }
     const text = formatStep10SponsorReport(reportInventory, reportAnalytics, bounds, language, t, demo);
@@ -138,9 +134,6 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
     {error && <button className="button button-outline" type="button" onClick={scoped.retry}>{t("Try again", "تلاش دوباره")}</button>}
   </section>;
 
-  const insights = summarizeStep10Insights(analytics);
-  const latestHighlight = analytics.written.reflections.find((item) => item.field === "highlights")?.excerpts[0];
-  const latestConcern = analytics.written.reflections.find((item) => item.field === "attention")?.excerpts[0];
   const maxMonthlyEntries = Math.max(...analytics.months.map((month) => month.entries), 1);
 
   return (
@@ -198,39 +191,12 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
         </article>
       </div>
 
+      <Step10TrendInsights analytics={analytics} />
       <Step10PatternSummary key={`summary:${bounds.from}:${bounds.through}`} analytics={analytics} bounds={bounds} demo={demo} />
       <Step10PatternVisual key={`patterns:${bounds.from}:${bounds.through}`} analytics={analytics} bounds={bounds} onOpenDate={onOpenDate} />
       <Step10PeriodComparison analytics={analytics} bounds={bounds} />
       {!analytics.totalEntries && <p className="analytics-data-note">{t("No saved Step 10 inventories in this period.", "هیچ ترازنامه ذخیره‌شده گام ۱۰ در این بازه وجود ندارد.")}</p>}
 
-      <section className="analytics-interpretation" aria-labelledby="analytics-interpretation-title">
-        <div className="analytics-interpretation-heading">
-          <h3 id="analytics-interpretation-title">{t("What your inventories show", "ترازنامه‌های شما چه نشان می‌دهند")}</h3>
-          <p>{t("These patterns describe your recorded choices, not your worth or a recovery score. We look for repeated answers on at least three days; Didn’t come up today and unanswered questions do not count.", "این الگوها انتخاب‌های ثبت‌شده شما را توصیف می‌کنند، نه ارزش شما یا نمره بهبودی‌تان را. ما پاسخ‌های تکرارشده در دست‌کم سه روز را بررسی می‌کنیم؛ گزینه «امروز پیش نیامد» و پاسخ‌های خالی محاسبه نمی‌شوند.")}</p>
-        </div>
-        <div className="analytics-interpretation-grid">
-          <article className="analytics-interpretation-card is-strength">
-            <h4>{t("Where you are doing well", "جاهایی که خوب پیش می‌روید")}</h4>
-            <p>{t("You chose Practiced more often than Needs attention for these questions.", "برای این پرسش‌ها، «تمرین کردم» را بیشتر از «نیازمند توجه» انتخاب کرده‌اید.")}</p>
-            {insights.strengths.length ? <ul>{insights.strengths.map((item) => (
-              <li key={item.id}><strong>{principleName(item)}</strong><span>{item.practiced} {t("of", "از")} {item.answered} {t("recorded answers marked Practiced", "پاسخ ثبت‌شده با برچسب «تمرین کردم»")}</span></li>
-            ))}</ul> : <p className="analytics-interpretation-empty">{insights.enoughHistory
-              ? t("No repeated Practiced pattern is clear yet. Review your entries with your sponsor.", "هنوز الگوی روشنی از «تمرین کردم» دیده نمی‌شود. نوشته‌هایتان را با حامی مرور کنید.")
-              : t("Save more inventories to see a repeated pattern. Discuss what you have recorded with your sponsor.", "برای دیدن الگوی تکرارشونده، ترازنامه‌های بیشتری ذخیره کنید. موارد ثبت‌شده را با حامی در میان بگذارید.")}</p>}
-            {latestHighlight && <div className="analytics-interpretation-quote"><strong>{t("Recent words about what went well", "نوشته اخیر درباره آنچه خوب پیش رفت")}</strong><time>{formatDisplayDate(latestHighlight.date, language)}</time><blockquote dir="auto">{latestHighlight.text}</blockquote></div>}
-          </article>
-          <article className="analytics-interpretation-card is-focus">
-            <h4>{t("Where to ask for help", "جاهایی که می‌توانید کمک بخواهید")}</h4>
-            <p>{t("These questions were marked Needs attention at least half of the recorded times.", "این پرسش‌ها دست‌کم در نیمی از پاسخ‌های ثبت‌شده با «نیازمند توجه» مشخص شده‌اند.")}</p>
-            {insights.focus.length ? <ul>{insights.focus.map((item) => (
-              <li key={item.id}><strong>{principleName(item)}</strong><span>{item.attention} {t("of", "از")} {item.answered} {t("recorded answers marked Needs attention", "پاسخ ثبت‌شده با برچسب «نیازمند توجه»")}</span></li>
-            ))}</ul> : <p className="analytics-interpretation-empty">{insights.enoughHistory
-              ? t("Among questions answered on at least three days, none was marked Needs attention at least half the time. Bring any concerns to your sponsor anyway.", "در میان پرسش‌هایی که در دست‌کم سه روز به آن‌ها پاسخ داده‌اید، هیچ‌کدام دست‌کم در نیمی از موارد «نیازمند توجه» نبوده‌اند. با این حال نگرانی‌های خود را با حامی در میان بگذارید.")
-              : t("Save more inventories before looking for a recurring focus. Your sponsor can still help with today's concerns.", "پیش از جست‌وجوی تمرکز تکرارشونده، ترازنامه‌های بیشتری ذخیره کنید. حامی همچنان می‌تواند درباره نگرانی‌های امروز کمک کند.")}</p>}
-            {latestConcern && <div className="analytics-interpretation-quote"><strong>{t("Recent words about what needs attention", "نوشته اخیر درباره آنچه نیازمند توجه است")}</strong><time>{formatDisplayDate(latestConcern.date, language)}</time><blockquote dir="auto">{latestConcern.text}</blockquote></div>}
-          </article>
-        </div>
-      </section>
 
       <details className="analytics-weekly-details">
         <summary>{t("View recent weekly writing", "نمایش نوشته‌های هفتگی اخیر")} <span>({analytics.weekly.length})</span></summary>
@@ -244,26 +210,6 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
 
       <Step10AnalyticsDetail key={`${bounds.from}:${bounds.through}:${bounds.mode}`} analytics={analytics} bounds={bounds} demo={demo} onOpenDate={onOpenDate} />
 
-      <div className="analytics-insight-grid">
-        <AnalyticsPrincipleList
-          title={t("Practiced most often", "بیشترین تمرین")}
-          description={t("Based on the number of saved entries marked Practiced.", "بر اساس تعداد نوشته‌های ذخیره‌شده با برچسب تمرین‌شده.")}
-          items={analytics.topPracticed}
-          getName={principleName}
-          countLabel={t("practiced", "تمرین‌شده")}
-          tone="good"
-          emptyLabel={t("No pattern yet", "هنوز الگویی وجود ندارد")}
-        />
-        <AnalyticsPrincipleList
-          title={t("Recurring focus", "تمرکز تکرارشونده")}
-          description={t("Based on the number of saved entries marked Needs attention.", "بر اساس تعداد نوشته‌های ذخیره‌شده با برچسب نیازمند توجه.")}
-          items={analytics.topAttention}
-          getName={principleName}
-          countLabel={t("needs attention", "نیازمند توجه")}
-          tone="care"
-          emptyLabel={t("No pattern yet", "هنوز الگویی وجود ندارد")}
-        />
-      </div>
 
       <div className="analytics-detail-grid">
         <article className="analytics-panel">
@@ -309,40 +255,5 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
         <div><strong>{t("Private and non-clinical", "خصوصی و غیرپزشکی")}</strong><p>{t("This private summary counts saved Step 10 selections within the selected dates and shows your own writing. It does not interpret every nuance of your words, analyze Step 4, or provide a diagnosis or clinical assessment.", "این خلاصه خصوصی انتخاب‌های ذخیره‌شده گام ۱۰ در تاریخ‌های انتخاب‌شده و نوشته‌های خودتان را نشان می‌دهد. همه ظرافت‌های نوشته‌های شما را تفسیر نمی‌کند، گام ۴ را تحلیل نمی‌کند و تشخیص یا ارزیابی بالینی ارائه نمی‌دهد.")} {t("Future-dated inventories are not included.", "ترازنامه‌های دارای تاریخ آینده محاسبه نمی‌شوند.")}</p></div>
       </footer>
     </section>
-  );
-}
-
-function AnalyticsPrincipleList({
-  title,
-  description,
-  items,
-  getName,
-  countLabel,
-  tone,
-  emptyLabel,
-}: {
-  title: string;
-  description: string;
-  items: PrincipleAnalytics[];
-  getName: (item: PrincipleAnalytics) => string;
-  countLabel: string;
-  tone: "good" | "care";
-  emptyLabel: string;
-}) {
-  return (
-    <article className={`analytics-panel analytics-principles analytics-principles-${tone}`}>
-      <div className="analytics-panel-heading"><div><h3>{title}</h3><p>{description}</p></div></div>
-      {items.length > 0 ? (
-        <ol>
-          {items.map((item, index) => (
-            <li key={item.id}>
-              <span>{index + 1}</span>
-              <div><strong>{getName(item)}</strong><small>{item[tone === "good" ? "practiced" : "attention"]} {countLabel}</small></div>
-              <b>{tone === "good" ? item.practiceRate : 100 - item.practiceRate}%</b>
-            </li>
-          ))}
-        </ol>
-      ) : <p className="analytics-no-pattern">{emptyLabel}</p>}
-    </article>
   );
 }
