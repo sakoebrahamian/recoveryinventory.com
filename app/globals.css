@@ -7771,6 +7771,96 @@ html[dir="rtl"] .analytics-sponsor-note h3 {
 .analytics-interpretation-quote time { color: #667a75; margin-top: 0.2rem; }
 .analytics-interpretation-quote blockquote { margin: 0.35rem 0 0; white-space: pre-wrap; font-size: 0.78rem; line-height: 1.5; }
 
+.trend-insights {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0.8rem clamp(1.2rem, 3vw, 2rem);
+}
+
+.trend-summary,
+.trend-patterns {
+  min-width: 0;
+  border: 1px solid rgba(76, 130, 101, 0.2);
+  border-radius: 18px;
+  background: var(--theme-surface, #fffdf9);
+  padding: 1.1rem;
+}
+
+.trend-patterns {
+  border-color: rgba(107, 79, 179, 0.22);
+  background: #f7f4fc;
+}
+
+.trend-summary h3,
+.trend-patterns h3 {
+  margin: 0;
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+html[dir="rtl"] .trend-summary h3,
+html[dir="rtl"] .trend-patterns h3 {
+  font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+}
+
+.trend-summary h4 {
+  margin: 0.95rem 0 0;
+  color: var(--ink);
+  font-size: 0.92rem;
+}
+
+.trend-summary ul,
+.trend-patterns ul {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.6rem 0 0;
+  padding-inline-start: 1.2rem;
+  color: #35564e;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.trend-patterns > p,
+.trend-note {
+  margin: 0.45rem 0 0;
+  color: #536d64;
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.trend-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  margin-top: 0;
+}
+
+.trend-chip {
+  display: inline-block;
+  justify-self: start;
+  margin: 0.15rem 0;
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+  font-weight: 700;
+}
+
+.analytics-interpretation-card li .trend-chip.is-improving,
+.analytics-interpretation-card li .trend-chip.is-strength {
+  background: #dcebe0;
+  color: #2f5d47;
+}
+
+.analytics-interpretation-card li .trend-chip.is-focus {
+  background: #f6e2c4;
+  color: #7a4f12;
+}
+
+.analytics-interpretation-card li .trend-chip.is-slipping {
+  background: #f3d6d0;
+  color: #8a3324;
+}
+
 .analytics-written {
   margin: 1rem clamp(1.2rem, 3vw, 2rem);
   border-top: 1px solid rgb(var(--theme-ink-rgb, 23 63 58) / 0.14);
