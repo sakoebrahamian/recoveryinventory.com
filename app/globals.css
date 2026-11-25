@@ -7420,6 +7420,8 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
 .step10-report-chart-legend .is-practiced::before { background: #23836c; }
 .step10-report-chart-legend .is-attention::before { background: #cc7955; }
 .step10-report-chart-legend .is-na::before { background: #6b4fb3; }
+.step10-draft-status { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; margin: 0 0 .8rem; padding: .5rem .8rem; border-radius: 10px; background: var(--theme-soft, #edf4e9); color: var(--theme-ink, #173f3a); font-size: .85rem; line-height: 1.5; }
+.step10-draft-status button { padding: 0; border: 0; background: none; color: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
 .step10-report-chart-rows { display: grid; gap: 0.4rem; }
 .inventory-sidebar .step10-report-chart-rows { max-height: 360px; overflow-y: auto; }
 .step10-report-chart-row { display: grid; grid-template-columns: minmax(0, 38%) minmax(90px, 1fr) minmax(0, 23%); align-items: center; gap: 0.6rem; padding: 0.35rem 0; border-bottom: 1px solid #e8ede9; font-size: 0.76rem; break-inside: avoid; }
