@@ -11851,6 +11851,10 @@ html[dir="rtl"] .pattern-map th.is-week-start, html[dir="rtl"] .pattern-map td.i
 .pattern-map tbody tr.pattern-group-row { display: table-row; }
 .pattern-map .pattern-group-row th { position: static; min-width: 0; max-width: none; background: transparent; padding: .75rem 0 .2rem; text-align: start; color: #5f756f; font-size: .74rem; font-weight: 800; letter-spacing: .03em; }
 .pattern-map .pattern-group-row th span { position: sticky; inset-inline-start: 0; }
+@media (max-width: 640px) {
+  .analytics-hero-frame { overflow-x: auto; }
+  .analytics-hero-svg { min-width: 560px; }
+}
 @media screen {
   @container (max-width: 640px) {
     .pattern-map tbody tr.pattern-group-row { display: block; grid-column: 1 / -1; border: 0; padding: .4rem 0 0; }
