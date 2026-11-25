@@ -15,7 +15,7 @@ function fillTemplate(template: string, values: Record<string, string | number>)
   return template.replace(/\{([A-Za-z][A-Za-z0-9]*)\}/g, (match, key: string) => (key in values ? String(values[key]) : match));
 }
 
-function statusLabel(status: TrendStatus, t: Translate) {
+export function statusLabel(status: TrendStatus, t: Translate) {
   if (status === "improving") return t("Improving", "رو به بهبود");
   if (status === "slipping") return t("Slipping", "رو به افت");
   if (status === "focus") return t("Ongoing focus", "تمرکز ادامه‌دار");
