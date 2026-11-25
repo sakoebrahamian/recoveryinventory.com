@@ -12,6 +12,7 @@ import { reflectionFields, type Step10AnalyticsData, type ReflectionField } from
 import { answerForDay, countQuestionDays, questionIdsForPrinciples, reflectionEntries, step10Trends } from "@/lib/step10-detail";
 import { formatStep10FocusedReport, step10ReflectionLabel } from "@/lib/step10-report";
 import type { ReportBounds } from "@/lib/step10-report-period";
+import { buildStep10Trends } from "@/lib/step10-trends";
 import { useLanguage } from "./language-provider";
 
 type Translate = (english: string, farsi: string) => string;
@@ -27,6 +28,21 @@ function dateRange(bounds: { from: string; through: string }, language: Language
 export function Step10PeriodComparison({ analytics, bounds }: { analytics: Step10AnalyticsData; bounds: ReportBounds }) {
   const { language, t } = useLanguage();
   const previous = analytics.comparison;
+  const previousEntries = previous?.totalEntries ?? 0;
+  const halves = React.useMemo(() => (previousEntries < 3 ? buildStep10Trends(analytics.days).halves : null), [analytics.days, previousEntries]);
+  if (halves) {
+    const halfChange = halves.earlier.rate !== null && halves.recent.rate !== null ? halves.recent.rate - halves.earlier.rate : null;
+    return <section className="analytics-comparison analytics-panel">
+      <h3>{t("First half compared with second half", "مقایسه نیمه اول با نیمه دوم")}</h3>
+      <p>{t("There are not enough saved inventories in the previous period, so this compares the first and second half of the selected period.", "در بازه پیشین ترازنامه ذخیره‌شده کافی وجود ندارد، بنابراین این بخش نیمه اول و دوم بازه انتخاب‌شده را مقایسه می‌کند.")}</p>
+      <div className="analytics-comparison-grid">
+        <article><h4>{t("First half", "نیمه اول")}</h4><time>{dateRange({ from: halves.earlierFrom, through: halves.earlierThrough }, language)}</time><strong>{halves.earlier.rate === null ? "—" : `${halves.earlier.rate}%`}</strong><span>{halves.earlier.practiced}/{halves.earlier.answered} {t("answers marked Practiced", "پاسخ با برچسب تمرین کردم")}</span><small>{halves.earlierDays} {t("saved days", "روز ذخیره‌شده")}</small></article>
+        <article><h4>{t("Second half", "نیمه دوم")}</h4><time>{dateRange({ from: halves.recentFrom, through: halves.recentThrough }, language)}</time><strong>{halves.recent.rate === null ? "—" : `${halves.recent.rate}%`}</strong><span>{halves.recent.practiced}/{halves.recent.answered} {t("answers marked Practiced", "پاسخ با برچسب تمرین کردم")}</span><small>{halves.recentDays} {t("saved days", "روز ذخیره‌شده")}</small></article>
+        <article><h4>{t("Change in recorded answers", "تغییر پاسخ‌های ثبت‌شده")}</h4><strong>{halfChange === null ? "—" : `${halfChange > 0 ? "+" : ""}${halfChange}`}</strong><span>{halfChange === null ? t("Not enough answered questions to compare", "پرسش‌های پاسخ‌داده‌شده برای مقایسه کافی نیست") : t("percentage points", "واحد درصد")}</span></article>
+      </div>
+      <p>{t("Percentages use Practiced and Needs attention answers only. Days without an inventory, unanswered questions, and Didn’t come up today are excluded. Recorded days and question availability can differ; this is not a recovery grade.", "درصدها فقط از پاسخ‌های «تمرین کردم» و «نیازمند توجه» محاسبه می‌شوند. روزهای بدون ترازنامه، پاسخ‌های خالی و «امروز پیش نیامد» کنار گذاشته می‌شوند. تعداد روزهای ثبت‌شده و پرسش‌های موجود ممکن است متفاوت باشد؛ این نمره بهبودی نیست.")}</p>
+    </section>;
+  }
   const rate = analytics.totalAnswered ? analytics.practiceRate : null;
   const change = rate !== null && previous?.practiceRate !== null && previous?.practiceRate !== undefined ? rate - previous.practiceRate : null;
   return <section className="analytics-comparison analytics-panel">
