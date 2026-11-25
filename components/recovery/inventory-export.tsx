@@ -8,10 +8,11 @@ import { isRtlLanguage, languageLocale } from "@/lib/languages";
 
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { CalendarRange, FileDown, RefreshCw, X } from "lucide-react";
+import { BarChart3, BookOpen, Check, Copy, FileDown, FileText, LayoutGrid, Lock, RefreshCw, Share2, X } from "lucide-react";
 import { formatDisplayDate, principleCategories, step10QuestionsForPayload, principleQuestion, questionPrincipleName, questionWithPrinciple, reflectionPrincipleNames, step4Types, todayIso } from "@/lib/inventory";
 import { reflectionFields, type PrincipleAnalytics, type Step10AnalyticsData } from "@/lib/step10-analytics";
-import { step10ReflectionLabel } from "@/lib/step10-report";
+import { formatStep10SponsorReport, step10ReflectionLabel } from "@/lib/step10-report";
+import { copyStep10Report, shareStep10Report } from "@/lib/step10-share";
 import { openPrintPreview } from "@/lib/print-preview";
 import { summarizeStep10Insights } from "@/lib/step10-insights";
 import { sponsorGuidance, originalFrameworkGuidance } from "@/lib/recovery-guidance";
@@ -56,6 +57,12 @@ type InventoryExportProps = {
 const subscribeToDom = () => () => undefined;
 const getClientDomSnapshot = () => true;
 const getServerDomSnapshot = () => false;
+
+function shiftDays(date: string, days: number) {
+  const value = new Date(date + "T12:00:00Z");
+  value.setUTCDate(value.getUTCDate() + days);
+  return value.toISOString().slice(0, 10);
+}
 
 function firstDayOfYear(year: number) {
   return `${String(year).padStart(4, "0")}-01-01`;
@@ -385,6 +392,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
   const [includeStep10, setIncludeStep10] = React.useState(true);
   const [includeStep4, setIncludeStep4] = React.useState(true);
   const [includeAnalytics, setIncludeAnalytics] = React.useState(true);
+  const [shareMessage, setShareMessage] = React.useState("");
   const [todayRecordsResult, setTodayRecordsResult] = React.useState<{ key: string; records: InventoryRecord[]; error: string }>({ key: "", records: [], error: "" });
   const [todayRetry, setTodayRetry] = React.useState(0);
   const panelRef = React.useRef<HTMLElement>(null);
@@ -540,6 +548,68 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
     clearPrint.current = openPrintPreview("inventory-export-page", `${t("Recovery Inventory", "ترازنامه بهبودی")} - ${printLabel}`, closeExport);
   }
 
+  const today = todayIso();
+  const quickPeriods: [string, ReportPeriod][] = [
+    [t("Last 30 days", "۳۰ روز گذشته"), { mode: "range", from: shiftDays(today, -29), through: today }],
+    [t("This week", "این هفته"), { mode: "week", from: today, through: today }],
+    [t("This month", "این ماه"), { mode: "month", from: today, through: today }],
+  ];
+  const isQuick = (period: ReportPeriod) => exportPeriod.mode === period.mode
+    && (period.mode === "range" ? exportPeriod.from === period.from && exportPeriod.through === period.through : reportDay === today);
+  function chooseQuick(period: ReportPeriod) {
+    setExportPeriod(period);
+    setReportDay(today);
+    setShareMessage("");
+  }
+  const formatCards: [ExportFormat, React.ReactNode, string, string][] = [
+    ["summary", <FileText size={20} aria-hidden="true" key="summary" />, t("Sponsor summary", "خلاصه برای حامی"), t("Counts, chart, and patterns. Best to share.", "شمارش‌ها، نمودار و الگوها. بهترین گزینه برای اشتراک.")],
+    ["pattern", <LayoutGrid size={20} aria-hidden="true" key="pattern" />, t("Pattern map", "نقشه الگوها"), t("Color-coded answers by day.", "پاسخ‌ها با رنگ برای هر روز.")],
+    ["chart", <BarChart3 size={20} aria-hidden="true" key="chart" />, t("Chart only", "فقط نمودار"), t("One picture of your answers.", "یک تصویر از پاسخ‌های شما.")],
+    ["archive", <BookOpen size={20} aria-hidden="true" key="archive" />, t("Full journal", "دفتر کامل"), t("Every entry with your writing.", "همه نوشته‌ها همراه با متن کامل شما.")],
+  ];
+  const privateWriting = t("No written reflections or notes", "بدون بازتاب‌ها یا یادداشت‌های نوشته‌شده");
+  const included: [boolean, string][] = format === "summary" ? [
+    [true, t("Answer counts and the inventory chart", "شمارش پاسخ‌ها و نمودار ترازنامه")],
+    [true, t("Patterns, trends, and what changed", "الگوها، روندها و آنچه تغییر کرد")],
+    [true, t("Short excerpts of your weekly writing for periods longer than a day", "بخش‌های کوتاهی از نوشته‌های هفتگی شما برای بازه‌های بیش از یک روز")],
+  ] : format === "chart" ? [
+    [true, t("The inventory chart for these dates", "نمودار ترازنامه برای این تاریخ‌ها")],
+    [false, privateWriting],
+  ] : format === "pattern" ? [
+    [true, t("Color-coded answers for every principle and day", "پاسخ‌های رنگی برای هر اصل و هر روز")],
+    [false, privateWriting],
+  ] : [
+    [true, t("Every saved inventory with your full writing", "همه ترازنامه‌های ذخیره‌شده همراه با نوشته‌های کامل شما")],
+    [includeAnalytics && includeStep10, t("Step 10 analytics for the same dates", "تحلیل گام ۱۰ برای همان تاریخ‌ها")],
+  ];
+  const shareInventory = (records.find((record) => record.type === "step10" && record.date === reportDay)
+    ?? [...records].reverse().find((record) => record.type === "step10"))?.payload as Step10Data | undefined;
+  const reportText = format === "summary" && shareInventory && bounds && currentAnalytics && currentAnalytics.totalEntries > 0 && !scoped.loading
+    ? formatStep10SponsorReport(shareInventory, currentAnalytics, bounds, language, t)
+    : "";
+
+  async function shareReport() {
+    if (!reportText || !currentAnalytics || !bounds) return;
+    try {
+      const result = await shareStep10Report(reportText, currentAnalytics, bounds, language, t);
+      setShareMessage(result === "image" ? t("Share menu opened with the chart image and full report.", "منوی اشتراک با تصویر نمودار و گزارش کامل باز شد.")
+        : result === "rich-copy" ? t("Full report and visual chart copied. Paste into a rich-text app to see the chart.", "گزارش کامل و نمودار تصویری کپی شد. برای دیدن نمودار آن را در برنامه‌ای با پشتیبانی از متن غنی جای‌گذاری کنید.")
+          : t("Full report shared or copied with a text chart. Use Print / PDF for a visual chart.", "گزارش کامل با نمودار متنی به اشتراک گذاشته یا کپی شد. برای نمودار تصویری از چاپ / PDF استفاده کنید."));
+    } catch (error) {
+      if ((error as Error).name !== "AbortError") setShareMessage(t("Sharing was not available. Try copying the report.", "اشتراک در دسترس نبود. گزارش را کپی کنید."));
+    }
+  }
+
+  async function copyReport() {
+    if (!reportText || !currentAnalytics || !bounds) return;
+    try {
+      const copied = await copyStep10Report(reportText, currentAnalytics, bounds, language, t);
+      setShareMessage(copied === "rich" ? t("Full inventory, period analytics, and visual chart copied.", "ترازنامه کامل، تحلیل بازه و نمودار تصویری کپی شد.") : t("Full inventory and analytics copied with a text chart.", "ترازنامه کامل و تحلیل همراه با نمودار متنی کپی شد."));
+    } catch {
+      setShareMessage(t("Copy was not available. Try Share.", "کپی در دسترس نبود. از اشتراک استفاده کنید."));
+    }
+  }
+
   return (
     <>
       {open && (
@@ -549,30 +619,29 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
           closeExport();
         }}>
           <div className="inventory-export-header">
-            <div className="inventory-export-icon"><CalendarRange size={21} /></div>
-            <div><h3 id="inventory-export-title">{t("Export saved inventories", "خروجی گرفتن از ترازنامه‌های ذخیره‌شده")}</h3><p>{t("Choose exactly what should appear in the printout or PDF.", "دقیقاً انتخاب کنید چه چیزی در نسخه چاپی یا PDF نمایش داده شود.")}</p></div>
-            <button className="button button-outline button-small inventory-export-close" type="button" onClick={() => closeExport()}><X size={16} aria-hidden="true" />{t("Cancel", "لغو")}</button>
+            <div className="inventory-export-icon"><Share2 size={21} /></div>
+            <div><h3 id="inventory-export-title">{t("Share and export", "اشتراک و خروجی")}</h3><p>{t("Choose what to make and which dates. The preview shows what will be shared.", "انتخاب کنید چه چیزی و برای کدام تاریخ‌ها ساخته شود. پیش‌نمایش نشان می‌دهد چه چیزی به اشتراک گذاشته می‌شود.")}</p></div>
+            <button className="button button-outline button-small inventory-export-close" type="button" onClick={() => closeExport()}><X size={16} aria-hidden="true" />{t("Close", "بستن")}</button>
           </div>
 
-          <fieldset className="inventory-export-fieldset">
-            <legend>{t("Report format", "قالب گزارش")}</legend>
-            <div className="inventory-export-scope inventory-export-format" role="radiogroup">
-              <label className={format === "summary" ? "is-selected" : ""}><input type="radio" name="export-format" checked={format === "summary"} onChange={() => setFormat("summary")} /><span>{t("Sponsor summary", "خلاصه برای حامی")}</span></label>
-              <label className={format === "chart" ? "is-selected" : ""}><input type="radio" name="export-format" checked={format === "chart"} onChange={() => setFormat("chart")} /><span>{t("Chart only", "فقط نمودار")}</span></label>
-              <label className={format === "pattern" ? "is-selected" : ""}><input type="radio" name="export-format" checked={format === "pattern"} onChange={() => setFormat("pattern")} /><span>{t("Pattern map", "نقشه الگوها")}</span></label>
-              <label className={format === "archive" ? "is-selected" : ""}><input type="radio" name="export-format" checked={format === "archive"} onChange={() => setFormat("archive")} /><span>{t("Full journal", "دفتر کامل")}</span></label>
-            </div>
-            <p className="inventory-export-format-help">{format === "summary"
-              ? t("Counts and inventory chart for the selected day by default. Choose a week, month, year, or custom range for a broader sponsor summary without individual daily pages.", "شمارش‌ها و نمودار ترازنامه به‌طور پیش‌فرض برای روز انتخاب‌شده‌اند. برای خلاصه گسترده‌تر حامی بدون صفحه‌های روزانه، هفته، ماه، سال یا بازه دلخواه را انتخاب کنید.")
-              : format === "chart" ? t("Export only the inventory chart for the chosen day or range as a printable PDF. No inventory pages or written reflections are included.", "فقط نمودار ترازنامه را برای روز یا بازه انتخاب‌شده به‌صورت PDF قابل چاپ خروجی بگیرید. صفحه ترازنامه یا بازتاب‌های نوشته‌شده در آن نیست.")
-              : format === "pattern" ? t("Preview, print, or share the pattern map for the selected dates. It shows saved answers with colors and symbols.", "نقشه الگوها را برای تاریخ‌های انتخاب‌شده پیش‌نمایش، چاپ یا به اشتراک بگذارید. پاسخ‌های ذخیره‌شده با رنگ و نشانه نمایش داده می‌شوند.")
-                : t("Print every saved inventory in the selected dates, with complete daily writing. You can include Step 10 analytics for those same dates.", "همه ترازنامه‌های ذخیره‌شده در تاریخ‌های انتخابی را با نوشته‌های کامل روزانه چاپ کنید. می‌توانید تحلیل گام ۱۰ را برای همان تاریخ‌ها اضافه کنید.")}</p>
-          </fieldset>
+          <div className="inventory-export-layout">
+            <div className="inventory-export-steps">
+              <fieldset className="inventory-export-fieldset">
+                <legend>{t("1. What do you want to make?", "۱. چه چیزی می‌خواهید بسازید؟")}</legend>
+                <div className="inventory-export-format-cards" role="radiogroup">
+                  {formatCards.map(([value, icon, label, hint]) => (
+                    <label key={value} className={format === value ? "is-selected" : ""}><input type="radio" name="export-format" checked={format === value} onChange={() => { setFormat(value); setShareMessage(""); }} />{icon}<span><strong>{label}</strong><small>{hint}</small></span></label>
+                  ))}
+                </div>
+              </fieldset>
 
-          {format !== "archive" && <ReportPeriodPicker period={exportPeriod} onChange={setExportPeriod} selectedDay={reportDay} id="export-report-period" />}
-
-          {format === "archive" && <fieldset className="inventory-export-fieldset">
-            <legend>{t("Date selection", "انتخاب تاریخ")}</legend>
+              <fieldset className="inventory-export-fieldset">
+                <legend>{t("2. Which dates?", "۲. کدام تاریخ‌ها؟")}</legend>
+                {format !== "archive" && <>
+                  <div className="inventory-export-quick-dates">{quickPeriods.map(([label, period]) => <button key={label} type="button" className={isQuick(period) ? "button button-small is-selected" : "button button-outline button-small"} aria-pressed={isQuick(period)} onClick={() => chooseQuick(period)}>{label}</button>)}</div>
+                  <ReportPeriodPicker period={exportPeriod} onChange={(next) => { setExportPeriod(next); setShareMessage(""); }} selectedDay={reportDay} id="export-report-period" />
+                </>}
+                {format === "archive" && <>
             <div className="inventory-export-scope" role="radiogroup">
               {([
                 ["today", t("Today", "امروز")],
@@ -591,7 +660,8 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
               {scope === "month" && <label><span>{t("Month", "ماه")}</span><input type="month" min={`${year}-01`} max={`${year}-12`} value={month} onChange={(event) => setMonth(event.target.value)} /></label>}
               {scope === "year" && <div className="inventory-export-year"><span>{t("Calendar year", "سال تقویم")}</span><strong>{new Intl.NumberFormat(languageLocale(language), { useGrouping: false }).format(year)}</strong></div>}
             </div>
-          </fieldset>}
+                </>}
+              </fieldset>
 
           {format === "archive" && <fieldset className="inventory-export-fieldset">
             <legend>{t("Include", "شامل")}</legend>
@@ -601,6 +671,9 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
             </div>
           </fieldset>}
 
+              <fieldset className="inventory-export-fieldset">
+                <legend>{t("3. What's included", "۳. چه چیزی شامل است")}</legend>
+                <ul className="inventory-export-included">{included.map(([on, text]) => <li key={text} className={on ? "is-included" : "is-private"}>{on ? <Check size={16} aria-hidden="true" /> : <Lock size={16} aria-hidden="true" />}<span>{text}</span></li>)}</ul>
           {(format !== "archive" || includeStep10) && <div className="inventory-export-analytics-option">
             {format === "archive" && <label><input type="checkbox" checked={includeAnalytics} onChange={(event) => setIncludeAnalytics(event.target.checked)} /><span><strong>{t("Include Step 10 analytics for selected dates", "افزودن تحلیل گام ۱۰ برای تاریخ‌های انتخاب‌شده")}</strong><small>{t("The inventory chart and counts use the same dates as this export.", "نمودار ترازنامه و شمارش‌ها از همان تاریخ‌های این خروجی استفاده می‌کنند.")}</small></span></label>}
             {wantsAnalytics && (!currentAnalytics || scoped.loading) && <div className="inventory-export-analytics-status" role="status">
@@ -609,25 +682,39 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
               {scoped.error && <small>{scoped.error}</small>}
             </div>}
           </div>}
+              </fieldset>
+            </div>
 
-          {format === "pattern" ? (bounds && currentAnalytics && canPrint ? (
+            <div className="inventory-export-preview">
+              <h4>{t("Preview", "پیش‌نمایش")}</h4>
+              {format === "pattern" ? (bounds && currentAnalytics && canPrint ? (
             <Step10PatternSummary analytics={currentAnalytics} bounds={bounds} view="map" onPrintClosed={closeExport} />
           ) : !scoped.loading && currentAnalytics && (
             <p role="status">{t("No saved Step 10 inventories in this period.", "هیچ ترازنامه ذخیره‌شده گام ۱۰ در این بازه وجود ندارد.")}</p>
-          )) : <div className="inventory-export-summary">
-            {needsTodayRecords && !todayRecordsReady && <p role="status">{t("Loading today's saved inventory…", "در حال بارگذاری ترازنامه ذخیره‌شده امروز…")}</p>}
-            {needsTodayRecords && todayRecordsReady && todayRecordsResult.error && <p role="alert">{t("Today's inventory could not load. Please try again.", "ترازنامه امروز بارگذاری نشد. لطفاً دوباره تلاش کنید.")} <button className="button button-outline button-small" type="button" onClick={() => setTodayRetry((value) => value + 1)}>{t("Try again", "تلاش دوباره")}</button></p>}
-            <div><strong>{format !== "archive" ? currentAnalytics?.totalEntries ?? 0 : filteredRecords.length}</strong><span>{t(format !== "archive" ? "saved Step 10 inventories" : filteredRecords.length === 1 ? "saved inventory" : "saved inventories", format !== "archive" ? "ترازنامه ذخیره‌شده گام ۱۰" : "ترازنامه ذخیره‌شده")}</span></div>
-            <div><strong>{format !== "archive" ? currentAnalytics?.totalPracticed ?? 0 : dateCount}</strong><span>{format !== "archive" ? t("Practiced choices", "انتخاب‌های تمرین‌شده") : t(dateCount === 1 ? "date" : "dates", "تاریخ")}</span></div>
-            <p>{canPrint ? printLabel : format === "summary" ? t("Save a Step 10 inventory to create a sponsor summary.", "برای ساخت خلاصه حامی، ترازنامه گام ۱۰ را ذخیره کنید.") : format === "chart" ? t("Save a Step 10 inventory in this period to export its chart.", "برای خروجی گرفتن از نمودار، ترازنامه گام ۱۰ را در این بازه ذخیره کنید.") : t("No saved inventories match this selection.", "هیچ ترازنامه ذخیره‌شده‌ای با این انتخاب مطابقت ندارد.")}</p>
-            <button className="button button-primary" type="button" onClick={printExport} disabled={!canPrint}><FileDown size={17} />{t("Print / Save PDF", "چاپ / ذخیره PDF")}</button>
-          </div>}
+              )) : <>
+                {format === "chart" && canPrint && <p className="export-page-badge">{t("{count} page", "{count} صفحه").replace("{count}", new Intl.NumberFormat(languageLocale(language)).format(1))}</p>}
           {format !== "pattern" && bounds && currentAnalytics && wantsAnalytics && currentAnalytics.totalEntries > 0 && (
             <div className="inventory-export-chart-preview" aria-label={t("Preview inventory chart", "پیش‌نمایش نمودار ترازنامه")}>
               <Step10ReportChart analytics={currentAnalytics} bounds={bounds} />
             </div>
           )}
-          <div className="inventory-export-footer"><button className="button button-outline button-small" type="button" onClick={() => closeExport()}>{t("Cancel", "لغو")}</button></div>
+                <div className="inventory-export-summary">
+            {needsTodayRecords && !todayRecordsReady && <p role="status">{t("Loading today's saved inventory…", "در حال بارگذاری ترازنامه ذخیره‌شده امروز…")}</p>}
+            {needsTodayRecords && todayRecordsReady && todayRecordsResult.error && <p role="alert">{t("Today's inventory could not load. Please try again.", "ترازنامه امروز بارگذاری نشد. لطفاً دوباره تلاش کنید.")} <button className="button button-outline button-small" type="button" onClick={() => setTodayRetry((value) => value + 1)}>{t("Try again", "تلاش دوباره")}</button></p>}
+            <div><strong>{format !== "archive" ? currentAnalytics?.totalEntries ?? 0 : filteredRecords.length}</strong><span>{t(format !== "archive" ? "saved Step 10 inventories" : filteredRecords.length === 1 ? "saved inventory" : "saved inventories", format !== "archive" ? "ترازنامه ذخیره‌شده گام ۱۰" : "ترازنامه ذخیره‌شده")}</span></div>
+            <div><strong>{format !== "archive" ? currentAnalytics?.totalPracticed ?? 0 : dateCount}</strong><span>{format !== "archive" ? t("Practiced choices", "انتخاب‌های تمرین‌شده") : t(dateCount === 1 ? "date" : "dates", "تاریخ")}</span></div>
+            <p>{canPrint ? printLabel : format === "summary" ? t("Save a Step 10 inventory to create a sponsor summary.", "برای ساخت خلاصه حامی، ترازنامه گام ۱۰ را ذخیره کنید.") : format === "chart" ? t("Save a Step 10 inventory in this period to export its chart.", "برای خروجی گرفتن از نمودار، ترازنامه گام ۱۰ را در این بازه ذخیره کنید.") : t("No saved inventories match this selection.", "هیچ ترازنامه ذخیره‌شده‌ای با این انتخاب مطابقت ندارد.")}</p>
+                </div>
+                <div className="export-action-bar">
+                  <button className="button button-primary" type="button" onClick={printExport} disabled={!canPrint}><FileDown size={17} />{t("Print / Save PDF", "چاپ / ذخیره PDF")}</button>
+                  {reportText && <button className="button button-outline" type="button" onClick={() => void shareReport()}><Share2 size={16} />{t("Share", "اشتراک")}</button>}
+                  {reportText && <button className="button button-outline" type="button" onClick={() => void copyReport()}><Copy size={16} />{t("Copy as text", "کپی به‌صورت متن")}</button>}
+                </div>
+                {reportText && shareInventory && <p className="inventory-export-note">{t("Share and Copy as text also include your full inventory for", "اشتراک و کپی به‌صورت متن، ترازنامه کامل شما را نیز شامل می‌شود برای")} {formatDisplayDate(shareInventory.date, language)}.</p>}
+                {shareMessage && <p className="inventory-export-message" role="status">{shareMessage}</p>}
+              </>}
+            </div>
+          </div>
         </section>
       )}
 
