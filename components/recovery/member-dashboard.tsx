@@ -5,7 +5,7 @@ import { dateTimeFormat } from "@/lib/languages";
 import { languageLocale, localizedPath } from "@/lib/languages";
 
 import * as React from "react";
-import { BarChart3, BookOpenText, CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LockKeyhole, LogOut, RefreshCw, Save, ShieldCheck } from "lucide-react";
+import { BarChart3, BookOpenText, CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LockKeyhole, LogOut, RefreshCw, Save, ShieldCheck, UserRound, X } from "lucide-react";
 import { AddEmailAccess } from "./add-email-access";
 import { PasswordAccess } from "./password-access";
 import { LanguageAvailability } from "./language-availability";
@@ -48,7 +48,9 @@ type AccountView = {
   analyticsOwner: boolean;
 };
 
-type MemberTool = "step10" | "step4" | "analytics" | "learning" | ReflectionKind;
+type MemberTool = "step10" | "step4" | "analytics" | "learning" | "account" | ReflectionKind;
+
+const trialNoticeKey = "ri-trial-notice-hidden";
 
 function dateForYear(year: number): string {
   const today = todayIso();
@@ -87,6 +89,10 @@ export function MemberDashboard() {
   const [promotionCode, setPromotionCode] = React.useState("");
   const [billingPlan, setBillingPlan] = React.useState<BillingPlan>("yearly");
   const [upgradeOpen, setUpgradeOpen] = React.useState(false);
+  // A per-device convenience only: hiding the trial bar never affects the account.
+  const [trialNoticeHidden, setTrialNoticeHidden] = React.useState(() => {
+    try { return typeof window !== "undefined" && window.localStorage.getItem(trialNoticeKey) === "1"; } catch { return false; }
+  });
   useSerenityJournal(account && (activeType === "step10" || activeType === "step4") ? activeType : null, selectedDate);
   React.useEffect(() => {
     if (!step10Dirty) return;
@@ -100,7 +106,7 @@ export function MemberDashboard() {
       const search = new URLSearchParams(window.location.search);
       const plan = search.get("plan");
       const tool = search.get("tool");
-      if (isBillingPlan(plan)) setBillingPlan(plan);
+      if (isBillingPlan(plan)) { setBillingPlan(plan); setActiveType("account"); setUpgradeOpen(true); }
       if (isReflectionKind(tool)) setActiveType(tool);
     }, 0);
     return () => window.clearTimeout(timer);
@@ -306,6 +312,18 @@ export function MemberDashboard() {
     return true;
   }
 
+  function openUpgrade(event?: React.MouseEvent) {
+    event?.preventDefault();
+    if (!switchTool("account")) return;
+    setUpgradeOpen(true);
+    window.requestAnimationFrame(() => document.getElementById("upgrade-options")?.scrollIntoView({ block: "start" }));
+  }
+
+  function hideTrialNotice() {
+    setTrialNoticeHidden(true);
+    try { window.localStorage.setItem(trialNoticeKey, "1"); } catch { /* storage unavailable: hide for this visit only */ }
+  }
+
   function openToolFromShortcut(next: "learning" | "analytics") {
     if (!switchTool(next)) return;
     window.requestAnimationFrame(() => {
@@ -330,6 +348,13 @@ export function MemberDashboard() {
   const selectedStep10 = records.find((record) => record.type === "step10" && record.date === selectedDate);
   const sponsorInventory = selectedStep10 ?? records.filter((record) => record.type === "step10").at(-1);
   const locale = languageLocale(language);
+  const trialProgress = account.freeWeekActive && account.freeWeekEndsAt ? <span>{t("Free saving ends:", "پایان ذخیره‌سازی دوره رایگان ۳۰ روزه:")} <time dateTime={new Date(account.freeWeekEndsAt * 1000).toISOString()}>{dateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(account.freeWeekEndsAt * 1000))}</time> · {account.freeEntriesUsed}/{account.freeEntriesLimit} {t("daily entries saved", "ترازنامه روزانه ذخیره‌شده")}</span> : null;
+  const freeAccountNotice = <section className="free-account-notice">
+    <h2>{account.freeWeekActive ? t("Your 30-day Step 10 trial is open", "دوره رایگان ۳۰ روزه گام ۱۰ شما فعال است") : t("Your free account keeps your saved Step 10", "حساب رایگان، گام ۱۰ ذخیره‌شده شما را نگه می‌دارد")}</h2>
+    <p>{account.freeWeekActive ? t("Save up to 30 daily Step 10 entries during the first 30 days after signup. Review your own analytics and choose what to export or share. No card and no automatic charge.", "در ۳۰ روز اول پس از ثبت‌نام، تا ۳۰ ترازنامه روزانه گام ۱۰ ذخیره کنید. تحلیل خود را مرور کنید و خروجی یا اشتراک‌گذاری را خودتان انتخاب کنید. بدون کارت یا برداشت خودکار.") : t("Read and export your saved Step 10 entries at any time. Subscribe when you want to save new days or use Step 4 and the AI guide.", "نوشته‌های گام ۱۰ ذخیره‌شده را هر زمان بخوانید و خروجی بگیرید. برای ذخیره روزهای جدید یا استفاده از گام ۴ و راهنمای هوش مصنوعی، اشتراک انتخاب کنید.")}</p>
+    {trialProgress && <p>{trialProgress}</p>}
+    <a href="#upgrade-options" onClick={openUpgrade}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a>
+  </section>;
 
   return (
     <main className="member-page">
@@ -362,15 +387,17 @@ export function MemberDashboard() {
         {message && <p className="dashboard-message" role="status">{message}</p>}
         {billingRecovery && <p className="auth-switch"><a href="/app">{t("Open your workspace", "فضای کاری خود را باز کنید")}</a></p>}
 
-        {!account.membershipActive && <section className="free-account-notice">
-          <h2>{account.freeWeekActive ? t("Your 30-day Step 10 trial is open", "دوره رایگان ۳۰ روزه گام ۱۰ شما فعال است") : t("Your free account keeps your saved Step 10", "حساب رایگان، گام ۱۰ ذخیره‌شده شما را نگه می‌دارد")}</h2>
-          <p>{account.freeWeekActive ? t("Save up to 30 daily Step 10 entries during the first 30 days after signup. Review your own analytics and choose what to export or share. No card and no automatic charge.", "در ۳۰ روز اول پس از ثبت‌نام، تا ۳۰ ترازنامه روزانه گام ۱۰ ذخیره کنید. تحلیل خود را مرور کنید و خروجی یا اشتراک‌گذاری را خودتان انتخاب کنید. بدون کارت یا برداشت خودکار.") : t("Read and export your saved Step 10 entries at any time. Subscribe when you want to save new days or use Step 4 and the AI guide.", "نوشته‌های گام ۱۰ ذخیره‌شده را هر زمان بخوانید و خروجی بگیرید. برای ذخیره روزهای جدید یا استفاده از گام ۴ و راهنمای هوش مصنوعی، اشتراک انتخاب کنید.")}</p>
-          {account.freeWeekActive && account.freeWeekEndsAt && <p>{t("Free saving ends:", "پایان ذخیره‌سازی دوره رایگان ۳۰ روزه:")} <time dateTime={new Date(account.freeWeekEndsAt * 1000).toISOString()}>{dateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(account.freeWeekEndsAt * 1000))}</time> · {account.freeEntriesUsed}/{account.freeEntriesLimit} {t("daily entries saved", "ترازنامه روزانه ذخیره‌شده")}</p>}
-          <a href="#upgrade-options" onClick={() => setUpgradeOpen(true)}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a>
-        </section>}
+        {!account.membershipActive && (account.freeWeekActive
+          ? !trialNoticeHidden && activeType !== "account" && <section className="free-account-notice is-compact" aria-label={t("Your 30-day Step 10 trial is open", "دوره رایگان ۳۰ روزه گام ۱۰ شما فعال است")}>
+            <strong>{t("Your 30-day Step 10 trial is open", "دوره رایگان ۳۰ روزه گام ۱۰ شما فعال است")}</strong>
+            {trialProgress}
+            <a href="#upgrade-options" onClick={openUpgrade}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a>
+            <button type="button" className="notice-dismiss" onClick={hideTrialNotice} aria-label={t("Close", "بستن")} title={t("Close", "بستن")}><X size={16} aria-hidden="true" /></button>
+          </section>
+          : activeType !== "account" && freeAccountNotice)}
 
-        <div className={`dashboard-workspace dashboard-workspace-${activeType}`}>
-          <aside className="dashboard-sidebar">
+        <div className={`dashboard-workspace dashboard-workspace-${activeType}${activeType === "step10" ? "" : " no-sidebar"}`}>
+          {activeType === "step10" && <aside className="dashboard-sidebar">
             {activeType === "step10" && <section className="dashboard-card compact-calendar-card">
               <div className="compact-calendar-header">
                 <button type="button" onClick={() => moveMonth(-1)} aria-label={t("Previous month", "ماه قبل")}><ChevronLeft size={18} /></button>
@@ -387,27 +414,13 @@ export function MemberDashboard() {
               </div>
             </section>}
 
-            <section className="dashboard-card membership-card">
-              <h3>{t("Subscription", "اشتراک")}</h3>
-              <p>{account.membershipActive ? t("Your inventories can be saved privately.", "ترازنامه‌های شما به‌صورت خصوصی ذخیره می‌شوند.") : t("Your free account and saved Step 10 entries stay with you. Upgrade in this same account whenever you choose.", "حساب رایگان و نوشته‌های گام ۱۰ ذخیره‌شده با شما می‌مانند. هر زمان خواستید، در همین حساب ارتقا دهید.")}</p>
-              {!account.membershipActive && <details id="upgrade-options" open={upgradeOpen} onToggle={event => setUpgradeOpen(event.currentTarget.open)}><summary>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</summary><p>{t("Both paid plans add ongoing Step 10 saving, Step 4 workbooks, and the optional AI guide. Existing entries stay in this account.", "هر دو طرح پولی، ذخیره مداوم گام ۱۰، دفترهای گام ۴ و راهنمای اختیاری هوش مصنوعی را اضافه می‌کنند. نوشته‌های موجود در همین حساب می‌مانند.")}</p><SubscriptionPlanPicker value={billingPlan} onChange={setBillingPlan} disabled={billingBusy} /><div className="promotion-code-field"><label htmlFor="membership-promotion-code">{t("Promotion code (optional)", "کد تخفیف (اختیاری)")}</label><input id="membership-promotion-code" className="form-input" value={promotionCode} onChange={event => setPromotionCode(event.target.value)} autoComplete="off" /></div><button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}>{billingBusy ? t("Opening secure checkout…", "در حال باز کردن پرداخت امن…") : t("Upgrade my account", "ارتقای حساب من")}</button></details>}
-              <p className="fine-print">{subscriptionGuidance(t)}</p>
-              <p>{t("Available plans: $4.99/month or $25/year.", "اشتراک‌های موجود: ماهانه ۴٫۹۹ دلار یا سالانه ۲۵ دلار.")}</p>
-              <p className="fine-print">{t("View your billing period and next payment in the billing portal.", "دوره پرداخت و پرداخت بعدی خود را در پنل پرداخت ببینید.")}</p>
-              {account.membershipActive || account.hasBillingProfile ? (
-                <button className="button button-outline button-full" type="button" onClick={() => openBilling("portal")} disabled={billingBusy}><RefreshCw size={16} />{t("Manage or cancel", "مدیریت یا لغو")}</button>
-              ) : null}
-              <p className="fine-print">{t("Paid subscriptions renew automatically at your selected billing interval until canceled. Stripe may retain the billing details required to process payment.", "اشتراک‌های پولی تا زمان لغو، بر اساس دوره پرداخت انتخابی شما به‌طور خودکار تمدید می‌شوند. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را نگه دارد.")}</p>
-            </section>
-            <AddEmailAccess email={account.email} onConnected={(email) => setAccount((current) => current ? { ...current, email, hasEmailLogin: true } : current)} />
-            <PasswordAccess username={account.username} onConfigured={(username) => setAccount((current) => current ? { ...current, username, hasPasswordLogin: true } : current)} />
-          </aside>
+          </aside>}
 
           <section className="member-inventory-section dashboard-inventory-column" ref={toolPanelRef} tabIndex={-1}>
           <div className="member-inventory-heading">
             <div>
-              <span>{activeType === "analytics" ? t("Step 10 only", "فقط گام ۱۰") : activeType === "step4" ? t("Not tied to the daily calendar", "مستقل از تقویم روزانه") : activeType === "learning" ? t("Learn", "یادگیری") : isReflectionKind(activeType) ? reflectionText(language, reflectionLabels[activeType].label) : t("Selected date", "تاریخ انتخاب‌شده")}</span>
-              <h2>{activeType === "analytics" ? t("Your patterns through today", "الگوهای شما تا امروز") : activeType === "step4" ? t("Your reusable Step 4 workbooks", "دفترهای قابل ویرایش گام چهارم شما") : activeType === "learning" ? t("Recovery learning center", "مرکز آموزش بهبودی") : isReflectionKind(activeType) ? reflectionText(language, "moreJournals") : formatDisplayDate(selectedDate, language)}</h2>
+              <span>{activeType === "account" ? t("Account", "حساب") : activeType === "analytics" ? t("Step 10 only", "فقط گام ۱۰") : activeType === "step4" ? t("Not tied to the daily calendar", "مستقل از تقویم روزانه") : activeType === "learning" ? t("Learn", "یادگیری") : isReflectionKind(activeType) ? reflectionText(language, reflectionLabels[activeType].label) : t("Selected date", "تاریخ انتخاب‌شده")}</span>
+              <h2>{activeType === "account" ? t("Account and subscription", "حساب و اشتراک") : activeType === "analytics" ? t("Your patterns through today", "الگوهای شما تا امروز") : activeType === "step4" ? t("Your reusable Step 4 workbooks", "دفترهای قابل ویرایش گام چهارم شما") : activeType === "learning" ? t("Recovery learning center", "مرکز آموزش بهبودی") : isReflectionKind(activeType) ? reflectionText(language, "moreJournals") : formatDisplayDate(selectedDate, language)}</h2>
             </div>
             <div className="member-inventory-tools">
               {activeType === "step10" && <button className="button button-outline inventory-export-trigger" type="button" onClick={() => exportRef.current?.open()}><FileDown size={17} />{t("Export Step 10", "خروجی گام ۱۰")}</button>}
@@ -417,6 +430,7 @@ export function MemberDashboard() {
                 <button className={`workspace-tab${isReflectionKind(activeType) ? " is-active" : ""}`} type="button" onClick={() => { if (!isReflectionKind(activeType)) switchTool("step67"); }} role="tab" aria-selected={isReflectionKind(activeType)}><span>{reflectionText(language, "moreJournals")}</span></button>
                 <button className={`workspace-tab${activeType === "analytics" ? " is-active" : ""}`} type="button" onClick={() => switchTool("analytics")} role="tab" aria-selected={activeType === "analytics"}><BarChart3 size={16} /><span>{t("Analytics", "تحلیل")}</span></button>
                 <button className={`workspace-tab${activeType === "learning" ? " is-active" : ""}`} type="button" onClick={() => switchTool("learning")} role="tab" aria-selected={activeType === "learning"}><BookOpenText size={16} /><span>{t("Learn", "یادگیری")}</span></button>
+                <button className={`workspace-tab${activeType === "account" ? " is-active" : ""}`} type="button" onClick={() => switchTool("account")} role="tab" aria-selected={activeType === "account"}><UserRound size={16} /><span>{t("Account", "حساب")}</span></button>
               </div>
             </div>
           </div>
@@ -453,7 +467,7 @@ export function MemberDashboard() {
               refreshKey={analyticsVersion}
             /></fieldset>
           ) : activeType === "step4" ? (
-            account.membershipActive ? <Step4Workspace onOpenLearning={() => switchTool("learning")} onDirtyChange={setStep4Dirty} /> : <section className="dashboard-card"><LockKeyhole size={24} /><h3>{t("Step 4 is included with a paid subscription", "گام ۴ همراه با اشتراک پولی است")}</h3><p>{t("Your free account includes 30 free days of Step 10. Choose a paid plan to save Step 4 workbooks and use the AI guide.", "حساب رایگان شامل ۳۰ روز رایگان گام ۱۰ است. برای ذخیره دفترهای گام ۴ و استفاده از راهنمای هوش مصنوعی، طرح پولی انتخاب کنید.")}</p><a href="#upgrade-options" className="button button-outline" onClick={() => setUpgradeOpen(true)}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a><a className="text-link" href="/demo?step=4">{t("Try Step 4", "گام چهارم را امتحان کنید")}</a></section>
+            account.membershipActive ? <Step4Workspace onOpenLearning={() => switchTool("learning")} onDirtyChange={setStep4Dirty} /> : <section className="dashboard-card"><LockKeyhole size={24} /><h3>{t("Step 4 is included with a paid subscription", "گام ۴ همراه با اشتراک پولی است")}</h3><p>{t("Your free account includes 30 free days of Step 10. Choose a paid plan to save Step 4 workbooks and use the AI guide.", "حساب رایگان شامل ۳۰ روز رایگان گام ۱۰ است. برای ذخیره دفترهای گام ۴ و استفاده از راهنمای هوش مصنوعی، طرح پولی انتخاب کنید.")}</p><a href="#upgrade-options" className="button button-outline" onClick={openUpgrade}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a><a className="text-link" href="/demo?step=4">{t("Try Step 4", "گام چهارم را امتحان کنید")}</a></section>
           ) : isReflectionKind(activeType) ? (
             <>
               <nav className="ri-inventory-mode ri-reflection-navigation" aria-label={reflectionText(language, "moreJournals")}>
@@ -466,12 +480,30 @@ export function MemberDashboard() {
                   <p>{reflectionText(language, reflectionLabels[activeType].intro)}</p>
                   <p>{reflectionText(language, "paidJournals")}</p>
                   <div className="ri-reflection-actions">
-                    <a href="#upgrade-options" className="button button-outline" onClick={() => setUpgradeOpen(true)}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a>
+                    <a href="#upgrade-options" className="button button-outline" onClick={openUpgrade}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a>
                     <a href={localizedPath(language, "/learn/" + reflectionSlugs[activeType])} className="text-link">{t("Read guide", "مطالعه راهنما")}</a>
                   </div>
                 </section>
               )}
             </>
+          ) : activeType === "account" ? (
+            <div className="account-panels">
+              {!account.membershipActive && freeAccountNotice}
+            <section className="dashboard-card membership-card">
+              <h3>{t("Subscription", "اشتراک")}</h3>
+              <p>{account.membershipActive ? t("Your inventories can be saved privately.", "ترازنامه‌های شما به‌صورت خصوصی ذخیره می‌شوند.") : t("Your free account and saved Step 10 entries stay with you. Upgrade in this same account whenever you choose.", "حساب رایگان و نوشته‌های گام ۱۰ ذخیره‌شده با شما می‌مانند. هر زمان خواستید، در همین حساب ارتقا دهید.")}</p>
+              {!account.membershipActive && <details id="upgrade-options" open={upgradeOpen} onToggle={event => setUpgradeOpen(event.currentTarget.open)}><summary>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</summary><p>{t("Both paid plans add ongoing Step 10 saving, Step 4 workbooks, and the optional AI guide. Existing entries stay in this account.", "هر دو طرح پولی، ذخیره مداوم گام ۱۰، دفترهای گام ۴ و راهنمای اختیاری هوش مصنوعی را اضافه می‌کنند. نوشته‌های موجود در همین حساب می‌مانند.")}</p><SubscriptionPlanPicker value={billingPlan} onChange={setBillingPlan} disabled={billingBusy} /><div className="promotion-code-field"><label htmlFor="membership-promotion-code">{t("Promotion code (optional)", "کد تخفیف (اختیاری)")}</label><input id="membership-promotion-code" className="form-input" value={promotionCode} onChange={event => setPromotionCode(event.target.value)} autoComplete="off" /></div><button className="button button-primary button-full" type="button" onClick={() => openBilling("checkout")} disabled={billingBusy}>{billingBusy ? t("Opening secure checkout…", "در حال باز کردن پرداخت امن…") : t("Upgrade my account", "ارتقای حساب من")}</button></details>}
+              <p className="fine-print">{subscriptionGuidance(t)}</p>
+              <p>{t("Available plans: $4.99/month or $25/year.", "اشتراک‌های موجود: ماهانه ۴٫۹۹ دلار یا سالانه ۲۵ دلار.")}</p>
+              <p className="fine-print">{t("View your billing period and next payment in the billing portal.", "دوره پرداخت و پرداخت بعدی خود را در پنل پرداخت ببینید.")}</p>
+              {account.membershipActive || account.hasBillingProfile ? (
+                <button className="button button-outline button-full" type="button" onClick={() => openBilling("portal")} disabled={billingBusy}><RefreshCw size={16} />{t("Manage or cancel", "مدیریت یا لغو")}</button>
+              ) : null}
+              <p className="fine-print">{t("Paid subscriptions renew automatically at your selected billing interval until canceled. Stripe may retain the billing details required to process payment.", "اشتراک‌های پولی تا زمان لغو، بر اساس دوره پرداخت انتخابی شما به‌طور خودکار تمدید می‌شوند. Stripe ممکن است اطلاعات لازم برای پردازش پرداخت را نگه دارد.")}</p>
+            </section>
+            <AddEmailAccess email={account.email} onConnected={(email) => setAccount((current) => current ? { ...current, email, hasEmailLogin: true } : current)} />
+            <PasswordAccess username={account.username} onConfigured={(username) => setAccount((current) => current ? { ...current, username, hasPasswordLogin: true } : current)} />
+            </div>
           ) : activeType === "analytics" ? (
             <Step10Analytics
               refreshKey={analyticsVersion}
