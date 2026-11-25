@@ -33,6 +33,7 @@ export function SiteFooter({ language: languageOverride }: { language?: Language
         <div className="footer-links">
           <a href="/demo">{t("Demo", "نسخه آزمایشی")}</a>
           <a href={learnHref}>{t("Learn", "یادگیری")}</a>
+          <a href={"/demo?step=analytics&lang=" + language}>{reflectionText(language, "analyticsDemo")}</a>
           <a href={localizedPath(language, "/learn/" + resourceSlug)}>{reflectionText(language, "fellowshipResources")}</a>
           <a href={aboutLanguageRoutes[language]}>{t("About", "درباره ما")}</a>
           <a href={comparisonBasePath(language)}>{t("Compare options", "مقایسه گزینه‌ها")}</a>

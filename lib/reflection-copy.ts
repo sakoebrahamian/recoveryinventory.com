@@ -1,6 +1,7 @@
 import type { Language } from "@/lib/languages";
-import { translateForLanguage } from "@/lib/localization";
-import type { ReflectionKind } from "@/lib/reflection-journals";
+import { localizedText, translateForLanguage } from "@/lib/localization";
+import { principles } from "@/lib/inventory";
+import { reflectionPatternLabels, type ReflectionChoiceField, type ReflectionKind, type ReflectionPattern } from "@/lib/reflection-journals";
 
 export const reflectionMessages = {
   quick: ["Two-minute check-in", "مرور دو دقیقه‌ای"],
@@ -61,6 +62,42 @@ export const reflectionMessages = {
   resourcesIntro: ["Find meetings and official literature directly from the fellowships that publish these resources.", "جلسه‌ها و منابع رسمی را مستقیماً در وب‌سایت انجمن‌هایی بیابید که این منابع را منتشر می‌کنند."],
   findMeetings: ["Find meetings", "یافتن جلسه‌ها"],
   officialLiterature: ["Official literature", "منابع رسمی"],
+  choosePattern: ["Choose a pattern or write your own", "یک الگو را انتخاب کنید یا با واژه‌های خودتان بنویسید"],
+  suggestedPatterns: ["Suggested patterns", "الگوهای پیشنهادی"],
+  savedPatterns: ["My past patterns", "الگوهای گذشته من"],
+  readiness: ["How ready am I to work on it?", "چقدر آماده‌ام روی این الگو کار کنم؟"],
+  noticing: ["I’m noticing it", "دارم به این الگو توجه می‌کنم"],
+  open: ["I’m open to working on it", "مایلم روی این الگو کار کنم"],
+  ready: ["I’m ready to try a different response", "آماده‌ام پاسخ متفاوتی را امتحان کنم"],
+  support: ["What help would I like to seek?", "دوست دارم چه کمکی بگیرم؟"],
+  seekHigherPower: ["Ask my Higher Power for help", "از نیروی برترم کمک بگیرم"],
+  seekSponsor: ["Talk with my sponsor", "با حامی‌ام گفت‌وگو کنم"],
+  seekTrustedPerson: ["Reach out to someone I trust", "با کسی که به او اعتماد دارم صحبت کنم"],
+  principle: ["Which principle would I like to practice?", "دوست دارم کدام اصل را تمرین کنم؟"],
+  focus: ["What’s my focus today?", "تمرکز امروز من بر چیست؟"],
+  focusResponsibility: ["Taking responsibility", "مسئولیت‌پذیری"],
+  focusBoundaries: ["Considering the other person’s boundaries", "توجه به مرزهای فرد مقابل"],
+  focusSponsor: ["Preparing to talk with my sponsor", "آماده شدن برای گفت‌وگو با حامی‌ام"],
+  focusBehavior: ["Changing my behavior", "تغییر رفتارم"],
+  filterFocus: ["Filter saved dates by focus", "نمایش تاریخ‌های ذخیره‌شده بر اساس موضوع"],
+  allFocuses: ["All focus areas", "همه موضوع‌ها"],
+  noFocusDates: ["No saved dates for this focus yet.", "هنوز تاریخی برای این موضوع ذخیره نشده است."],
+  last30: ["Last 30 days", "۳۰ روز گذشته"],
+  last90: ["Last 90 days", "۹۰ روز گذشته"],
+  allDates: ["All saved dates", "همه تاریخ‌های ذخیره‌شده"],
+  filterPattern: ["Filter by pattern", "فیلتر بر اساس الگو"],
+  allPatterns: ["All patterns", "همه الگوها"],
+  patternAnalytics: ["Pattern analytics", "تحلیل الگوها"],
+  analyticsDemo: ["Analytics demo", "نسخه آزمایشی تحلیل"],
+  periodCount: ["{count} saved dates", "{count} تاریخ ذخیره‌شده"],
+  readinessCounts: ["Readiness choices", "انتخاب‌های آمادگی"],
+  supportCounts: ["Help I want to seek", "کمکی که می‌خواهم بگیرم"],
+  principleCounts: ["Principles I want to practice", "اصولی که می‌خواهم تمرین کنم"],
+  noChoices: ["No choices saved for this view yet.", "هنوز انتخابی برای این نما ذخیره نشده است."],
+  guideAvailability: ["Members can use AI chat and guided questions in Step 4, Steps 6 and 7, Steps 8 and 9, and Step 10.", "اعضا می‌توانند در گام ۴، گام‌های ۶ و ۷، گام‌های ۸ و ۹ و گام ۱۰ از گفت‌وگو با هوش مصنوعی و پرسش‌های هدایت‌شده استفاده کنند."],
+  guideAllowance: ["Each member can send up to {daily} AI requests per day across all supported steps, both guide modes, and all languages. The site has a shared limit of {monthly} requests per month.", "هر عضو می‌تواند در مجموعِ گام‌های دارای راهنما، هر دو حالت و همه زبان‌ها، روزانه تا {daily} درخواست به هوش مصنوعی بفرستد. سقف مشترک سایت برای همه اعضا {monthly} درخواست در ماه است."],
+  guideStart67: ["What pattern would you like to understand or change?", "دوست دارید کدام الگو را بهتر بشناسید یا تغییر دهید؟"],
+  guideStart89: ["What part of this situation would you like to reflect on?", "دوست دارید درباره کدام بخش از این موقعیت فکر کنید؟"],
 } as const;
 
 export type ReflectionMessage = keyof typeof reflectionMessages;
@@ -68,6 +105,22 @@ export type ReflectionMessage = keyof typeof reflectionMessages;
 export function reflectionText(language: Language, key: ReflectionMessage) {
   const [english, farsi] = reflectionMessages[key];
   return translateForLanguage(language, english, farsi);
+}
+
+const choiceLabels: Record<Exclude<ReflectionChoiceField, "patternChoice" | "principle">, Record<string, ReflectionMessage>> = {
+  readiness: { noticing: "noticing", open: "open", ready: "ready" },
+  support: { "higher-power": "seekHigherPower", sponsor: "seekSponsor", "trusted-person": "seekTrustedPerson" },
+  focus: { responsibility: "focusResponsibility", boundaries: "focusBoundaries", "sponsor-conversation": "focusSponsor", "changing-behavior": "focusBehavior" },
+};
+
+export function reflectionChoiceText(language: Language, field: ReflectionChoiceField, value: string) {
+  if (field === "patternChoice") return reflectionPatternLabels[value as ReflectionPattern]?.[language] ?? "";
+  if (field === "principle") {
+    const principle = principles.find(({ id }) => id === value);
+    return principle ? localizedText(principle, language) : "";
+  }
+  const label = choiceLabels[field][value];
+  return label ? reflectionText(language, label) : "";
 }
 
 export const reflectionLabels = {

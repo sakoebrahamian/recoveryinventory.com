@@ -45,6 +45,12 @@ try {
     assert.ok(questions.every(Boolean));
     assert.equal(guide.inventoryGuideTopics("step4", language).length, 7);
     assert.equal(guide.inventoryGuideTopics("step10", language).length, 40);
+    assert.equal(guide.inventoryGuideTopics("step67", language).length, 5);
+    assert.equal(guide.inventoryGuideTopics("step89", language).length, 5);
+    for (const choice of ["defensiveness", "impatience", "avoidance"]) {
+      assert.ok(reflections.reflectionChoiceText(language, "patternChoice", choice));
+    }
+    assert.ok(guide.inventoryGuideAllowance(language).includes(new Intl.NumberFormat(language).format(50)));
     assert.equal(localization.localizedText(original, language), language === "en" || language === "es" || language === "fa" ? original[language] : t("Honesty"));
     if (newLanguages.includes(language)) {
       assert.ok(questions.every((label, index) => label !== inventory.step10Questions[index].en), `${language}: untranslated inventory question`);

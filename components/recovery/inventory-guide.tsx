@@ -7,6 +7,7 @@ import { isRtlLanguage, languageLocale } from "@/lib/languages";
 import * as React from "react";
 import { Sparkles } from "lucide-react";
 import type { Language } from "@/lib/inventory";
+import { reflectionText } from "@/lib/reflection-copy";
 import {
   inventoryGuideAllowance,
   inventoryGuideHistoryLimit,
@@ -46,7 +47,7 @@ export function InventoryGuide({ step, date, language }: { step: InventoryGuideS
           <button type="button" aria-pressed={mode === "guided"} onClick={() => setMode("guided")}>{t("Guided Questions", "پرسش‌های هدایت‌شده")}</button>
         </div>
         <p className="inventory-guide-privacy mt-2 max-w-3xl">
-          {inventoryGuideAllowance(language, t)}{" "}
+          {inventoryGuideAllowance(language)}{" "}
           {t("The daily allowance resets at midnight UTC. Some failed requests count toward the limit.", "سهمیه روزانه در نیمه‌شب به وقت UTC بازنشانی می‌شود. برخی درخواست‌های ناموفق هم از سهمیه کم می‌شوند.")}
         </p>
         <div hidden={mode !== "chat"}>
@@ -156,10 +157,13 @@ function InventoryGuideConversation({ step, language, scope, mode, t }: GuideSco
     pending.current = null;
   }, [scope]);
   const firstGuidedQuestion = topic !== undefined && history.length === 0;
-  const starter = step === "step4"
-    ? t("What is one experience or pattern you’d like to explore?", "دوست دارید کدام تجربه یا الگو را بررسی کنید؟")
-    : t("What moment from today would you like to reflect on?", "دوست دارید به کدام لحظه از امروز فکر کنید؟");
-  const messages: InventoryGuideMessage[] = guided ? history : [{ role: "guide", text: starter }, ...history];
+  const starters: Record<InventoryGuideStep, string> = {
+    step4: t("What is one experience or pattern you’d like to explore?", "دوست دارید کدام تجربه یا الگو را بررسی کنید؟"),
+    step10: t("What moment from today would you like to reflect on?", "دوست دارید به کدام لحظه از امروز فکر کنید؟"),
+    step67: reflectionText(language, "guideStart67"),
+    step89: reflectionText(language, "guideStart89"),
+  };
+  const messages: InventoryGuideMessage[] = guided ? history : [{ role: "guide", text: starters[step] }, ...history];
   const earlier = messages.slice(0, -2);
   const recent = messages.slice(-2);
   const messageLabel = firstGuidedQuestion

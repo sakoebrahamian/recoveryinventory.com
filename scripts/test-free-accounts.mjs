@@ -114,7 +114,26 @@ try {
   const morning = await reflections.GET(get("/api/reflections?kind=step11", first.cookie));
   assert.deepEqual((await morning.json()).entries, [{ date: date(0), payload: { intention: "Listen again" } }]);
   assert.ok((await savedInventories(first.cookie)).every(item => item.type === "step10" || item.type === "step4"));
-  assert.deepEqual(reflectionModel.trackedPatterns([{ payload: { pattern: "Defensiveness" } }, { payload: { pattern: "  defensiveness " } }]), [{ name: "Defensiveness", count: 2 }]);
+  const selectedChoices = { patternChoice: "defensiveness", readiness: "ready", support: "sponsor", principle: "patience", willingness: "Pause first" };
+  const savedChoices = await reflections.POST(post("/api/reflections", { kind: "step67", date: date(1), payload: selectedChoices }, first.cookie));
+  assert.deepEqual((await savedChoices.json()).entry, { date: date(1), payload: selectedChoices });
+  const reflectionHistory = await (await reflections.GET(get("/api/reflections?kind=step67", first.cookie))).json();
+  assert.deepEqual(reflectionHistory.entries.map(({ payload }) => payload), [journalPayloads.step67, selectedChoices]);
+  assert.deepEqual(reflectionModel.trackedPatterns(reflectionHistory.entries), [{ key: "defensiveness", preset: "defensiveness", name: "Defensiveness", count: 2 }]);
+  assert.deepEqual(reflectionModel.reflectionChoiceCounts(reflectionHistory.entries, "support"), [["sponsor", 1]]);
+  assert.deepEqual(reflectionModel.reflectionChoiceCounts(reflectionHistory.entries, "principle"), [["patience", 1]]);
+  assert.equal(reflectionModel.entryPattern({ pattern: "  حالت دفاعی  " }).key, "defensiveness");
+  assert.equal(reflectionModel.entryPattern({ pattern: " I  talk too quickly " }).key, "custom:i talk too quickly");
+  const datedExamples = ["2026-10-25", "2026-10-26", "2026-11-24", "2026-11-25"].map((date) => ({ date, payload: selectedChoices }));
+  assert.deepEqual(reflectionModel.reflectionEntriesInPeriod(datedExamples, "30", "2026-11-24").map(({ date }) => date), ["2026-10-26", "2026-11-24"]);
+  assert.equal(reflectionModel.parseReflection("step67", { ...selectedChoices, support: "unknown" }), null);
+  assert.equal(reflectionModel.parseReflection("step67", { ...selectedChoices, principle: "unknown" }), null);
+  assert.deepEqual(reflectionModel.parseReflection("step67", { ...selectedChoices, pattern: "Unsaved manual label" }), selectedChoices);
+  assert.equal((await reflections.POST(post("/api/reflections", { kind: "step89", date: date(1), payload: { focus: "unknown" } }, first.cookie))).status, 400);
+  const savedFocus = { ...journalPayloads.step89, focus: "boundaries" };
+  assert.equal((await reflections.POST(post("/api/reflections", { kind: "step89", date: date(1), payload: savedFocus }, first.cookie))).status, 200);
+  const focusHistory = await (await reflections.GET(get("/api/reflections?kind=step89", first.cookie))).json();
+  assert.deepEqual(focusHistory.entries.filter(({ payload }) => payload.focus === "boundaries").map(({ date }) => date), [date(1)]);
   sqlite.prepare("UPDATE users SET subscription_status = 'canceled' WHERE id = ?").run(first.id);
   const retained = await savedInventories(first.cookie); assert.equal(retained.length, 31); assert.ok(retained.every(item => item.type === "step10"));
   assert.equal((await inventories.GET(get(`/api/inventories?year=${year}&type=step4`, first.cookie))).status, 403);
@@ -129,5 +148,5 @@ try {
   assert.deepEqual(competing.map(response => response.status).sort(), [200, 403]);
   assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM inventories WHERE user_id = ?").get(second.id).n, 30);
   assert.equal((await inventories.POST(post("/api/inventories", { type: "step10", date: "2026-02-30", payload: payload("2026-02-30") }, second.cookie))).status, 400);
-  console.log("Account integration checks passed: free Step 10 check-ins, 30-day expiry, atomic 30-date cap, retained entries, paid upgrades, and encrypted and account-scoped private journals.");
+  console.log("Account integration checks passed: free Step 10 check-ins, 30-day expiry, atomic 30-date cap, paid upgrades, encrypted journals, saved choices, date ranges and pattern counts.");
 } finally { await server.close(); sqlite.close(); delete globalThis.__RI_FREE_TEST_ENV__; }

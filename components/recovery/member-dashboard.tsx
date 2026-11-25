@@ -92,6 +92,7 @@ export function MemberDashboard() {
     return () => window.clearTimeout(timer);
   }, []);
   const exportRef = React.useRef<InventoryExportHandle>(null);
+  const toolPanelRef = React.useRef<HTMLElement>(null);
   const activationRecordedRef = React.useRef(false);
   const inventoriesLoadId = React.useRef(0);
 
@@ -271,13 +272,22 @@ export function MemberDashboard() {
   }
 
   function switchTool(next: MemberTool, date = selectedDate) {
-    if (next === activeType) return;
-    if (activeType === "step4" && step4Dirty && !window.confirm(t("You have unsaved Step 4 changes. Continue without saving them?", "تغییرات ذخیره‌نشده گام چهارم دارید. بدون ذخیره ادامه می‌دهید؟"))) return;
-    if (reflectionDirty && !window.confirm(reflectionText(language, "unsaved"))) return;
+    if (next === activeType) return true;
+    if (activeType === "step4" && step4Dirty && !window.confirm(t("You have unsaved Step 4 changes. Continue without saving them?", "تغییرات ذخیره‌نشده گام چهارم دارید. بدون ذخیره ادامه می‌دهید؟"))) return false;
+    if (reflectionDirty && !window.confirm(reflectionText(language, "unsaved"))) return false;
     setStep4Dirty(false);
     setReflectionDirty(false);
     if (isReflectionKind(next)) setReflectionDate(date);
     setActiveType(next);
+    return true;
+  }
+
+  function openToolFromShortcut(next: "learning" | "analytics") {
+    if (!switchTool(next)) return;
+    window.requestAnimationFrame(() => {
+      toolPanelRef.current?.focus({ preventScroll: true });
+      toolPanelRef.current?.scrollIntoView({ block: "start" });
+    });
   }
 
   if (loading) return <div className="loading-panel"><div><div className="spinner" /><p>{t("Opening your private space…", "در حال باز کردن فضای خصوصی شما…")}</p></div></div>;
@@ -321,6 +331,10 @@ export function MemberDashboard() {
             </div>
           </div>
         </div>
+        <nav className="ri-page-shortcuts ri-workspace-shortcuts" aria-label={t("Choose a member tool", "انتخاب ابزار اعضا")}>
+          <button type="button" className="button button-outline" aria-pressed={activeType === "learning"} onClick={() => openToolFromShortcut("learning")}><BookOpenText size={17} aria-hidden="true" />{t("Learn", "یادگیری")}</button>
+          <button type="button" className="button button-outline" aria-pressed={activeType === "analytics"} onClick={() => openToolFromShortcut("analytics")}><BarChart3 size={17} aria-hidden="true" />{t("Step 10 analytics", "تحلیل گام ۱۰")}</button>
+        </nav>
         {message && <p className="dashboard-message" role="status">{message}</p>}
         {billingRecovery && <p className="auth-switch"><a href="/app">{t("Open your workspace", "فضای کاری خود را باز کنید")}</a></p>}
 
@@ -365,7 +379,7 @@ export function MemberDashboard() {
             <PasswordAccess username={account.username} onConfigured={(username) => setAccount((current) => current ? { ...current, username, hasPasswordLogin: true } : current)} />
           </aside>
 
-          <section className="member-inventory-section dashboard-inventory-column">
+          <section className="member-inventory-section dashboard-inventory-column" ref={toolPanelRef} tabIndex={-1}>
           <div className="member-inventory-heading">
             <div>
               <span>{activeType === "analytics" ? t("Step 10 only", "فقط گام ۱۰") : activeType === "step4" ? t("Not tied to the daily calendar", "مستقل از تقویم روزانه") : activeType === "learning" ? t("Learn", "یادگیری") : isReflectionKind(activeType) ? reflectionText(language, reflectionLabels[activeType].label) : t("Selected date", "تاریخ انتخاب‌شده")}</span>
@@ -423,7 +437,7 @@ export function MemberDashboard() {
               <nav className="ri-inventory-mode ri-reflection-navigation" aria-label={reflectionText(language, "moreJournals")}>
                 {reflectionKinds.map((kind) => <button type="button" className="button button-outline" key={kind} aria-pressed={activeType === kind} onClick={() => switchTool(kind, reflectionDate)}>{reflectionText(language, kind)}</button>)}
               </nav>
-              {account.membershipActive ? <ReflectionJournal key={activeType} kind={activeType} initialDate={reflectionDate} onDirtyChange={setReflectionDirty} /> : (
+              {account.membershipActive ? <ReflectionJournal key={activeType} kind={activeType} initialDate={reflectionDate} onDirtyChange={setReflectionDirty} aiAvailable={account.inventoryGuideAvailable} /> : (
                 <section className="dashboard-card">
                   <LockKeyhole size={24} aria-hidden="true" />
                   <h3>{reflectionText(language, activeType)}</h3>

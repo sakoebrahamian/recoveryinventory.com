@@ -1,10 +1,11 @@
 "use client";
 
-import { isRtlLanguage } from "@/lib/languages";
+import { isRtlLanguage, localizedPath } from "@/lib/languages";
 
 import { useState } from "react";
 import {
   ArrowRight,
+  BarChart3,
   BookOpenText,
   CalendarDays,
   Check,
@@ -126,6 +127,10 @@ export default function Home() {
             <a href={demoHref} className="button button-outline button-large">{demoLabel}</a>
           </div>
           <p className="ri-hero-demo-note">{trialNote}</p>
+          <nav className="ri-page-shortcuts" aria-label={t("Learn", "یادگیری")}>
+            <a className="text-link" href={localizedPath(language, "/learn")}><BookOpenText size={17} aria-hidden="true" />{t("Learn", "یادگیری")}</a>
+            <a className="text-link" href={"/demo?step=analytics&lang=" + language}><BarChart3 size={17} aria-hidden="true" />{reflectionText(language, "analyticsDemo")}</a>
+          </nav>
         </div>
 
         <figure className="ri-hero-figure" aria-describedby="hero-preview-description">

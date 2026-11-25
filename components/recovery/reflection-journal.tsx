@@ -5,20 +5,23 @@ import { LockKeyhole, Save } from "lucide-react";
 import { formatDisplayDate } from "@/lib/inventory";
 import { isIsoCalendarDate } from "@/lib/free-account";
 import { localizedPath } from "@/lib/languages";
-import { reflectionLabels, reflectionText, type ReflectionMessage } from "@/lib/reflection-copy";
+import { reflectionChoiceText, reflectionLabels, reflectionText, type ReflectionMessage } from "@/lib/reflection-copy";
 import {
-  morningPractices, parseReflection, reflectionFieldLimit, reflectionFields, reflectionSlugs, trackedPatterns,
+  morningPractices, parseReflection, reflectionChoices, reflectionFieldLimit, reflectionFields, reflectionSlugs,
   type ReflectionEntry, type ReflectionField, type ReflectionKind, type ReflectionPayload,
 } from "@/lib/reflection-journals";
 import { useLanguage } from "./language-provider";
+import { InventoryGuide } from "./inventory-guide";
+import { ReflectionChoiceAnalytics, ReflectionChoiceInputs } from "./reflection-choices";
 
 type Props = {
   kind: ReflectionKind;
   initialDate: string;
   onDirtyChange: (dirty: boolean) => void;
+  aiAvailable?: boolean;
 };
 
-export function ReflectionJournal({ kind, initialDate, onDirtyChange }: Props) {
+export function ReflectionJournal({ kind, initialDate, onDirtyChange, aiAvailable = false }: Props) {
   const { language, t } = useLanguage();
   const text = (key: ReflectionMessage) => reflectionText(language, key);
   const fieldId = useId();
@@ -29,6 +32,7 @@ export function ReflectionJournal({ kind, initialDate, onDirtyChange }: Props) {
   const [saving, setSaving] = useState(false);
   const [readFailed, setReadFailed] = useState(false);
   const [loadAttempt, setLoadAttempt] = useState(0);
+  const [focusFilter, setFocusFilter] = useState("");
   const [status, setStatus] = useState<"saved" | "required" | "failed" | "membership" | null>(null);
   const mounted = useRef(false);
 
@@ -62,11 +66,15 @@ export function ReflectionJournal({ kind, initialDate, onDirtyChange }: Props) {
     return () => controller.abort();
   }, [kind, initialDate, loadAttempt]);
 
-  function setField(field: ReflectionField, value: string) {
-    setDraft((previous) => ({ ...previous, [field]: value }));
+  function updateDraft(fields: ReflectionPayload) {
+    setDraft((previous) => ({ ...previous, ...fields }));
     setDirty(true);
     onDirtyChange(true);
     setStatus(null);
+  }
+
+  function setField(field: ReflectionField, value: string) {
+    updateDraft({ [field]: value });
   }
 
   function selectDate(next: string) {
@@ -117,8 +125,8 @@ export function ReflectionJournal({ kind, initialDate, onDirtyChange }: Props) {
   }
 
   const copy = reflectionLabels[kind];
-  const patterns = kind === "step67" ? trackedPatterns(entries ?? []) : [];
-  const number = new Intl.NumberFormat(language);
+  const availableDates = kind === "step89" && focusFilter ? entries?.filter(({ payload }) => payload.focus === focusFilter) : entries;
+  const analyticsId = fieldId + "-analytics";
 
   return (
     <section className="dashboard-card ri-reflection-journal" aria-labelledby={fieldId + "-title"}>
@@ -128,8 +136,12 @@ export function ReflectionJournal({ kind, initialDate, onDirtyChange }: Props) {
           <h3 id={fieldId + "-title"}>{text(kind)}</h3>
           <p>{text(copy.intro)}</p>
         </div>
-        <a className="text-link" href={localizedPath(language, "/learn/" + reflectionSlugs[kind])}>{t("Read guide", "مطالعه راهنما")}</a>
+        <nav className="ri-reflection-actions" aria-label={t("Learn", "یادگیری")}>
+          <a className="text-link" href={localizedPath(language, "/learn/" + reflectionSlugs[kind])}>{t("Read guide", "مطالعه راهنما")}</a>
+          {kind === "step67" && entries && <a className="text-link" href={"#" + analyticsId}>{text("patternAnalytics")}</a>}
+        </nav>
       </header>
+      {aiAvailable && kind !== "step11" && <InventoryGuide step={kind} date={date} language={language} />}
       {readFailed ? (
         <div role="alert">
           <p>{text("readError")}</p>
@@ -145,15 +157,25 @@ export function ReflectionJournal({ kind, initialDate, onDirtyChange }: Props) {
                 <span>{t("Inventory date", "تاریخ ترازنامه")}</span>
                 <input className="form-input" type="date" value={date} onChange={(event) => selectDate(event.target.value)} />
               </label>
-              {entries.length > 0 && <label className="form-field">
+              {kind === "step89" && entries.length > 0 && <label className="form-field">
+                <span>{text("filterFocus")}</span>
+                <select className="form-input" value={focusFilter} onChange={(event) => setFocusFilter(event.target.value)}>
+                  <option value="">{text("allFocuses")}</option>
+                  {reflectionChoices.focus.map((id) => <option key={id} value={id}>{reflectionChoiceText(language, "focus", id)}</option>)}
+                </select>
+              </label>}
+              {availableDates && availableDates.length > 0 && <label className="form-field">
                 <span>{text("savedDates")}</span>
-                <select className="form-input" value={entries.some((entry) => entry.date === date) ? date : ""} onChange={(event) => selectDate(event.target.value)}>
+                <select className="form-input" value={availableDates.some((entry) => entry.date === date) ? date : ""} onChange={(event) => selectDate(event.target.value)}>
                   <option value="" disabled>{text("savedDates")}</option>
-                  {entries.map((entry) => <option key={entry.date} value={entry.date}>{formatDisplayDate(entry.date, language)}</option>)}
+                  {availableDates.map((entry) => <option key={entry.date} value={entry.date}>{formatDisplayDate(entry.date, language)}</option>)}
                 </select>
               </label>}
             </div>
+            {focusFilter && availableDates?.length === 0 && <p role="status">{text("noFocusDates")}</p>}
+            {kind !== "step11" && <ReflectionChoiceInputs kind={kind} draft={draft} entries={entries} onChange={updateDraft} />}
             {reflectionFields[kind].map((field) => {
+              if (field === "pattern" && draft.patternChoice) return null;
               const id = fieldId + "-" + field;
               const value = draft[field] ?? "";
               return (
@@ -183,22 +205,13 @@ export function ReflectionJournal({ kind, initialDate, onDirtyChange }: Props) {
           </fieldset>
           {status && <p className={status === "saved" ? "form-success" : "form-error"} role="status">
             {status === "saved" ? t("Inventory saved privately.", "ترازنامه به‌صورت خصوصی ذخیره شد.")
-              : status === "required" ? text("writeFirst")
+              : status === "required" ? text(kind === "step67" ? "choosePattern" : "writeFirst")
               : status === "membership" ? text("paidJournals")
               : t("Could not save. Please try again.", "ذخیره انجام نشد. دوباره تلاش کنید.")}
           </p>}
         </form>
       )}
-      {patterns.length > 0 && (
-        <section className="ri-reflection-patterns" aria-labelledby={fieldId + "-patterns"}>
-          <h4 id={fieldId + "-patterns"}>{text("tracked")}</h4>
-          <ul>
-            {patterns.map(({ name, count }) => <li key={name}>
-              <button className="button button-outline" type="button" disabled={saving} onClick={() => setField("pattern", name)}><bdi>{name}</bdi><span>{number.format(count)}</span></button>
-            </li>)}
-          </ul>
-        </section>
-      )}
+      {kind === "step67" && entries && <ReflectionChoiceAnalytics entries={entries} id={analyticsId} />}
     </section>
   );
 }

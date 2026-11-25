@@ -198,7 +198,34 @@ try {
     assert.equal((await ask({ ...chat, language }, "member-b")).status, 200);
     assert.ok(sent.at(-1).instructions.includes(`Reply in ${replyLanguageNames[language]}.`));
   }
-  console.log("Inventory guide checks passed (all ten target languages, membership, consent, chat and guided follow-ups, migration recovery, provider handling, and both request caps).");
+  const shortHistory = [
+    { role: "member", text: "I noticed a familiar pattern." },
+    { role: "guide", text: "When did it show up?" },
+    { role: "member", text: "During a conversation." },
+    { role: "guide", text: "What kind of help would feel useful?" },
+  ];
+  for (const [step, topic, language, title] of [
+    ["step67", "support", "fa", "Steps 6 and 7"],
+    ["step89", "boundaries", "ar", "Steps 8 and 9"],
+  ]) {
+    const newGuide = { step, topic, language, consent: true, note: "Synthetic note for the guide" };
+    assert.equal((await ask(newGuide, "member-b")).status, 200);
+    const initial = JSON.parse(sent.at(-1).input);
+    assert.equal(initial.step, title);
+    assert.equal(initial.reflection, newGuide.note);
+    assert.notEqual(initial.topic, topic);
+    assert.ok(sent.at(-1).instructions.includes("Reply in " + replyLanguageNames[language] + "."));
+    const latest = { step, language, consent: true, message: "I want time to reflect.", history: shortHistory };
+    assert.equal((await ask(latest, "inactive")).status, 403);
+    assert.equal((await ask({ ...latest, history: [...shortHistory, ...shortHistory] }, "member-b")).status, 400);
+    assert.equal((await ask({ ...latest, savedChoices: { focus: "boundaries" } }, "member-b")).status, 400);
+    assert.equal((await ask(latest, "member-b")).status, 200);
+    assert.deepEqual(JSON.parse(sent.at(-1).input), { step: title, recent_chat: shortHistory, latest_message: latest.message });
+    assert.equal((await ask({ ...latest, topic }, "member-b")).status, 200);
+    assert.equal(JSON.parse(sent.at(-1).input).topic, initial.topic);
+  }
+  assert.equal((await ask({ ...chat, step: "step11" }, "member-b")).status, 400);
+  console.log("Inventory guide checks passed for all supported steps and languages, consent, short history, guided follow-ups, privacy, and shared quotas.");
 } finally {
   globalThis.fetch = realFetch;
   delete globalThis.inventoryGuideTestEnv;

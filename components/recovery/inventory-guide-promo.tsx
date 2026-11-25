@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Sparkles } from "lucide-react";
 import type { Language } from "@/lib/inventory";
 import { inventoryGuideAllowance } from "@/lib/inventory-guide";
+import { reflectionText } from "@/lib/reflection-copy";
 import { translateForLanguage, useLanguage } from "./language-provider";
 
 export function InventoryGuideShowcase() {
@@ -14,10 +15,10 @@ export function InventoryGuideShowcase() {
       <div className="ri-ai-guide-copy">
         <span className="ri-section-label"><Sparkles size={16} aria-hidden="true" />{t("Included with membership", "همراه با اشتراک")}</span>
         <h2 id="ri-ai-guide-title">{t("AI Inventory Guide", "راهنمای ترازنامه با هوش مصنوعی")}</h2>
-        <p>{t("Use the optional AI guide when you want help putting a reflection into words. Close your day with Step 10, or explore a Step 4 resentment, fear, or relationship, one question at a time.", "هر زمان برای بیان تأملاتتان کمک می‌خواهید، از راهنمای اختیاری هوش مصنوعی استفاده کنید. روزتان را با گام ۱۰ مرور کنید یا رنجش، ترس یا رابطه‌ای را در گام ۴، هر بار با یک پرسش، بررسی کنید.")}</p>
+        <p>{reflectionText(language, "guideAvailability")}</p>
         <p>{t("Your sponsor and fellowship remain your guides for step work. AI is a writing aid, not a sponsor or a group.", "راهنما و انجمن شما همچنان راهنمای کار کردن قدم‌ها هستند. هوش مصنوعی کمک‌نویس است، نه اسپانسر یا گروه.")}</p>
         <p>{t("Available in all 10 site languages. You choose what to send to AI.", "به هر ۱۰ زبان سایت در دسترس است. خودتان انتخاب می‌کنید چه چیزی برای هوش مصنوعی بفرستید.")}</p>
-        <p>{inventoryGuideAllowance(language, t)}</p>
+        <p>{inventoryGuideAllowance(language)}</p>
         <div className="ri-ai-guide-actions">
           <a className="text-link" href="#membership">{t("See membership plans", "مشاهده طرح‌های عضویت")}</a>
           <a className="text-link" href="/app">{t("Open member workspace", "باز کردن فضای اعضا")}</a>
@@ -81,8 +82,8 @@ export function InventoryGuideNotice({ language, mockChat = false }: { language?
       <Sparkles size={20} aria-hidden="true" />
       <div>
         <strong>{t("AI Inventory Guide", "راهنمای ترازنامه با هوش مصنوعی")}</strong>
-        <p>{t("Monthly and yearly memberships include optional AI chat and guided questions for Step 4 and Step 10.", "اشتراک‌های ماهانه و سالانه شامل گفت‌وگوی اختیاری با هوش مصنوعی و پرسش‌های هدایت‌شده برای گام ۴ و گام ۱۰ هستند.")}</p>
-        <p>{inventoryGuideAllowance(language ?? contextLanguage, t)}</p>
+        <p>{reflectionText(language ?? contextLanguage, "guideAvailability")}</p>
+        <p>{inventoryGuideAllowance(language ?? contextLanguage)}</p>
       </div>
       {mockChat ? (
         <details className="inventory-guide-notice-example">

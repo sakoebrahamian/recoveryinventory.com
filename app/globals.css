@@ -11559,11 +11559,50 @@ html[data-ri-theme]:not([data-ri-theme="sage"]) :is(.workspace-tab:not(.is-activ
 .ri-reflection-fields { min-inline-size: 0; border: 0; margin: 0; padding: 0; }
 .ri-reflection-fields :is(input, textarea, select) { min-width: 0; max-width: 100%; font-size: max(1rem, 16px); }
 .ri-reflection-dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
-.ri-reflection-patterns { margin-block-start: 1.15rem; }
-.ri-reflection-patterns ul { display: flex; flex-wrap: wrap; gap: .5rem; list-style: none; padding: 0; }
-.ri-reflection-patterns li { min-width: 0; }
-.ri-reflection-patterns button { white-space: normal; overflow-wrap: anywhere; }
-.ri-reflection-patterns span { padding-inline: .35rem; border-radius: 10px; background: var(--theme-tint, #e0e8db); }
+.ri-reflection-choices,
+.ri-reflection-counts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: .8rem; }
+.ri-reflection-choices select { width: 100%; }
+.ri-reflection-analytics {
+  scroll-margin-block-start: 5rem;
+  margin-block-start: 1.25rem;
+  border-block-start: 1px solid var(--theme-border, var(--line));
+  padding-block-start: 1.15rem;
+}
+.ri-reflection-analytics h4 { margin-block: 0 .75rem; }
+.ri-reflection-analytics h5 { margin-block: 0 .5rem; font-size: .95rem; }
+.ri-reflection-analytics ul { list-style: none; padding: 0; margin-block: 0; }
+.ri-pattern-counts { margin-block: 1rem; }
+.ri-pattern-counts ul { display: flex; flex-wrap: wrap; gap: .45rem; }
+.ri-pattern-counts li {
+  display: flex;
+  gap: .6rem;
+  align-items: center;
+  min-width: 0;
+  padding: .45rem .65rem;
+  border-radius: 10px;
+  background: var(--theme-tint, #e0e8db);
+  overflow-wrap: anywhere;
+}
+.ri-reflection-counts > section {
+  min-width: 0;
+  padding: .75rem;
+  border: 1px solid var(--theme-border, var(--line));
+  border-radius: 12px;
+}
+.ri-reflection-counts li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: .15rem .6rem;
+  padding-block: .3rem;
+  overflow-wrap: anywhere;
+}
+.ri-reflection-counts meter { grid-column: 1 / -1; width: 100%; }
+.ri-page-shortcuts { display: flex; flex-wrap: wrap; gap: .45rem 1rem; align-items: center; margin-block: .7rem; }
+.ri-page-shortcuts .text-link { display: inline-flex; align-items: center; gap: .4rem; min-height: 44px; }
+.ri-page-shortcuts svg { flex: 0 0 auto; }
+.ri-workspace-shortcuts .button { min-height: 44px; white-space: normal; }
+.member-inventory-section { scroll-margin-block-start: 1rem; }
 .ri-learning-journal-body,
 .ri-fellowship-grid { margin-block-start: 1rem; }
 .ri-learning-journal-body { max-inline-size: 64ch; }
