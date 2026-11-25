@@ -1,3 +1,4 @@
+import { step10QuestionsForPayload } from "@/lib/inventory";
 import type { AnalyticsDay } from "@/lib/step10-analytics";
 import type { QuestionTrend } from "@/lib/step10-trends";
 
@@ -95,6 +96,20 @@ export function practiceRateByDate(days: AnalyticsDay[]): Record<string, number 
     const { practiced, answered } = dayAnswers(day);
     return [day.date, practiceRate(practiced, answered)];
   }));
+}
+
+/** Practiced share for one saved Step 10 payload, used to tint the workspace calendar. */
+export function payloadPracticeRate(payload: unknown): number | null {
+  const states = payload && typeof payload === "object" ? (payload as { states?: unknown }).states : undefined;
+  if (!states || typeof states !== "object") return null;
+  const answers = states as Record<string, unknown>;
+  let practiced = 0;
+  let answered = 0;
+  for (const { id } of step10QuestionsForPayload(payload)) {
+    if (answers[id] === "practiced") { practiced += 1; answered += 1; }
+    else if (answers[id] === "attention") answered += 1;
+  }
+  return practiceRate(practiced, answered);
 }
 
 /** 0 = no answered questions; 1–4 = light to dark green by Practiced share. */

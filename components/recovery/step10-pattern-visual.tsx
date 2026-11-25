@@ -7,7 +7,7 @@ import { isRtlLanguage, languageLocale } from "@/lib/languages";
 
 import * as React from "react";
 import { Share2 } from "lucide-react";
-import { formatDisplayDate, principles, step10Questions, type Language } from "@/lib/inventory";
+import { formatDisplayDate, principleCategories, principles, step10Questions, type Language } from "@/lib/inventory";
 import type { Step10AnalyticsData } from "@/lib/step10-analytics";
 import type { ReportBounds } from "@/lib/step10-report-period";
 import { countQuestionDays, type AnswerTotals } from "@/lib/step10-detail";
@@ -34,6 +34,8 @@ export function Step10PatternVisual({ analytics, bounds, onOpenDate, onExportPat
     return [weekday === 0 || weekday === 6 ? "is-weekend" : "", weekday === 1 ? "is-week-start" : ""].filter(Boolean).join(" ") || undefined;
   };
   const name = (id: string) => (() => { const item = principles.find((item) => item.id === id); return item ? localizedText(item, language) : id; })();
+  const categoryOf = (id: string) => principles.find((item) => item.id === id)?.category;
+  const categoryName = (id: string) => { const area = principleCategories.find((item) => item.id === id); return area ? localizedText(area, language) : id; };
   const ordered = [...data.rows].sort((a, b) => sort === "principle" ? name(a.id).localeCompare(name(b.id), language) : b[sort] - a[sort] || b.scoredDays - a.scoredDays || name(a.id).localeCompare(name(b.id), language));
   const selectedRow = selected ? data.rows.find((row) => row.id === selected.id) : undefined;
   const selectedCell = selectedRow && selected ? selectedRow.cells[selected.index] : undefined;
@@ -54,7 +56,7 @@ export function Step10PatternVisual({ analytics, bounds, onOpenDate, onExportPat
     row = Math.max(0, Math.min(data.rows.length - 1, row));
     column = Math.max(0, Math.min(data.buckets.length - 1, column));
     setSelected({ id: data.rows[row].id, index: column });
-    event.currentTarget.closest("table")?.querySelectorAll("tbody tr")[row]?.querySelectorAll("button")[column]?.focus();
+    event.currentTarget.closest("table")?.querySelectorAll("tbody tr[data-pattern-row]")[row]?.querySelectorAll("button")[column]?.focus();
   }
   const bars = <div className="pattern-principle-bars">{(showAll || print ? ordered : ordered.slice(0, 8)).map((row) => {
     const total = row.answered + row.na + row.unanswered;
@@ -120,8 +122,12 @@ export function Step10PatternVisual({ analytics, bounds, onOpenDate, onExportPat
             </tr>
           </thead>
           <tbody>
-            {data.rows.map((row) => (
-              <tr key={row.id}>
+            {data.rows.map((row, rowIndex) => {
+              const area = categoryOf(row.id);
+              const startsArea = area && area !== (rowIndex > 0 ? categoryOf(data.rows[rowIndex - 1].id) : undefined);
+              return <React.Fragment key={row.id}>
+              {startsArea && <tr className="pattern-group-row"><th scope="rowgroup" colSpan={Math.min(end, data.buckets.length) - start + 1}><span>{categoryName(area ?? "")}</span></th></tr>}
+              <tr data-pattern-row="">
                 <th scope="row">{name(row.id)}</th>
                 {row.cells.slice(start, end).map((cell, offset) => {
                   const index = start + offset;
@@ -150,7 +156,8 @@ export function Step10PatternVisual({ analytics, bounds, onOpenDate, onExportPat
                 })}
                 {!print && selected?.id === row.id && <td className="pattern-inline-detail" colSpan={data.buckets.length + 1}>{selectedDetail}</td>}
               </tr>
-            ))}
+              </React.Fragment>;
+            })}
           </tbody>
         </table>
       ))}
