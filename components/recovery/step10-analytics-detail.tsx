@@ -13,6 +13,8 @@ import { answerForDay, countQuestionDays, questionIdsForPrinciples, reflectionEn
 import { formatStep10FocusedReport, step10ReflectionLabel } from "@/lib/step10-report";
 import type { ReportBounds } from "@/lib/step10-report-period";
 import { buildStep10Trends } from "@/lib/step10-trends";
+import { fillTemplate, practiceRateByDate, tintLevel } from "@/lib/step10-visuals";
+import { HowWeCountLink } from "./step10-how-we-count";
 import { useLanguage } from "./language-provider";
 
 type Translate = (english: string, farsi: string) => string;
@@ -40,7 +42,7 @@ export function Step10PeriodComparison({ analytics, bounds }: { analytics: Step1
         <article><h4>{t("Second half", "نیمه دوم")}</h4><time>{dateRange({ from: halves.recentFrom, through: halves.recentThrough }, language)}</time><strong>{halves.recent.rate === null ? "—" : `${halves.recent.rate}%`}</strong><span>{halves.recent.practiced}/{halves.recent.answered} {t("answers marked Practiced", "پاسخ با برچسب تمرین کردم")}</span><small>{halves.recentDays} {t("saved days", "روز ذخیره‌شده")}</small></article>
         <article><h4>{t("Change in recorded answers", "تغییر پاسخ‌های ثبت‌شده")}</h4><strong>{halfChange === null ? "—" : `${halfChange > 0 ? "+" : ""}${halfChange}`}</strong><span>{halfChange === null ? t("Not enough answered questions to compare", "پرسش‌های پاسخ‌داده‌شده برای مقایسه کافی نیست") : t("percentage points", "واحد درصد")}</span></article>
       </div>
-      <p>{t("Percentages use Practiced and Needs attention answers only. Days without an inventory, unanswered questions, and Didn’t come up today are excluded. Recorded days and question availability can differ; this is not a recovery grade.", "درصدها فقط از پاسخ‌های «تمرین کردم» و «نیازمند توجه» محاسبه می‌شوند. روزهای بدون ترازنامه، پاسخ‌های خالی و «امروز پیش نیامد» کنار گذاشته می‌شوند. تعداد روزهای ثبت‌شده و پرسش‌های موجود ممکن است متفاوت باشد؛ این نمره بهبودی نیست.")}</p>
+      <p><HowWeCountLink /></p>
     </section>;
   }
   const rate = analytics.totalAnswered ? analytics.practiceRate : null;
@@ -53,7 +55,7 @@ export function Step10PeriodComparison({ analytics, bounds }: { analytics: Step1
       <article><h4>{t("Previous period", "بازه پیشین")}</h4><time>{previous ? dateRange(previous.bounds, language) : "—"}</time><strong>{previous?.practiceRate === null || previous?.practiceRate === undefined ? "—" : `${previous.practiceRate}%`}</strong><span>{previous?.totalPracticed ?? 0}/{previous?.totalAnswered ?? 0} {t("answers marked Practiced", "پاسخ با برچسب تمرین کردم")}</span><small>{previous?.totalEntries ?? 0} {t("saved days", "روز ذخیره‌شده")}</small></article>
       <article><h4>{t("Change in recorded answers", "تغییر پاسخ‌های ثبت‌شده")}</h4><strong>{change === null ? "—" : `${change > 0 ? "+" : ""}${change}`}</strong><span>{change === null ? t("Not enough answered questions to compare", "پرسش‌های پاسخ‌داده‌شده برای مقایسه کافی نیست") : t("percentage points", "واحد درصد")}</span></article>
     </div>
-    <p>{t("Percentages use Practiced and Needs attention answers only. Days without an inventory, unanswered questions, and Didn’t come up today are excluded. Recorded days and question availability can differ; this is not a recovery grade.", "درصدها فقط از پاسخ‌های «تمرین کردم» و «نیازمند توجه» محاسبه می‌شوند. روزهای بدون ترازنامه، پاسخ‌های خالی و «امروز پیش نیامد» کنار گذاشته می‌شوند. تعداد روزهای ثبت‌شده و پرسش‌های موجود ممکن است متفاوت باشد؛ این نمره بهبودی نیست.")}</p>
+    <p><HowWeCountLink /></p>
     {(analytics.totalEntries < 3 || (previous?.totalEntries ?? 0) < 3) && <p className="analytics-data-note">{t("One or both periods have fewer than three saved days. Treat the comparison as a small sample, not a repeated pattern.", "یک یا هر دو بازه کمتر از سه روز ذخیره‌شده دارند. این مقایسه را نمونه‌ای کوچک بدانید، نه یک الگوی تکرارشونده.")}</p>}
   </section>;
 }
@@ -69,7 +71,7 @@ export function Step10AnalyticsDetail({ analytics, bounds, demo = false, onOpenD
   const { language, t } = useLanguage();
   const [chosen, setChosen] = React.useState<string[]>([]);
   const [expanded, setExpanded] = React.useState("");
-  const [interval, setInterval] = React.useState<"week" | "month">("week");
+  const [interval, setInterval] = React.useState<"day" | "week" | "month">("week");
   const [month, setMonth] = React.useState(bounds.from.slice(0, 7));
   const [selectedDay, setSelectedDay] = React.useState(analytics.days.at(-1)?.date ?? bounds.from);
   const [field, setField] = React.useState("all");
@@ -93,6 +95,7 @@ export function Step10AnalyticsDetail({ analytics, bounds, demo = false, onOpenD
   const currentDay = analytics.days.find((item) => item.date === selectedDay);
   const dayAction = (date: string) => onOpenDate && <button type="button" className="button button-outline button-small" onClick={() => onOpenDate(date)}>{t("Open this inventory", "باز کردن این ترازنامه")}</button>;
   const locale = languageLocale(language, true);
+  const dayRates = React.useMemo(() => practiceRateByDate(analytics.days), [analytics.days]);
 
   async function copyReport() {
     try { await navigator.clipboard.writeText(report); setCopyMessage(t("Selected report copied.", "گزارش انتخاب‌شده کپی شد.")); }
@@ -112,7 +115,7 @@ export function Step10AnalyticsDetail({ analytics, bounds, demo = false, onOpenD
       <h3>{t("Explore your principles", "بررسی اصول شما")}</h3>
       <p>{t("Choose principles to follow in the trend and detailed history. With none selected, all 24 are included. Main questions and follow-ups keep their own answers.", "اصول مورد نظر را برای بررسی روند و سابقه جزئی انتخاب کنید. اگر هیچ اصلی انتخاب نشود، هر ۲۴ اصل نمایش داده می‌شوند. پرسش‌های اصلی و تکمیلی پاسخ‌های جداگانه دارند.")}</p>
       <details className="analytics-principle-chooser"><summary>{t("Choose principles", "انتخاب اصول")} ({chosen.length || principles.length})</summary><fieldset><legend>{t("Principles to follow", "اصول مورد نظر")}</legend><div className="analytics-checkbox-grid">{principles.map((item) => <label key={item.id}><input type="checkbox" checked={chosen.includes(item.id)} onChange={() => togglePrinciple(item.id)} />{localizedText(item, language)}</label>)}</div><button type="button" className="button button-outline button-small" onClick={() => { setChosen([]); setPreview(false); }}>{t("Show all principles", "نمایش همه اصول")}</button></fieldset></details>
-      <div className="analytics-filter-row"><label>{t("Group trend by", "گروه‌بندی روند بر اساس")}<select value={interval} onChange={(event) => setInterval(event.target.value as "week" | "month")}><option value="week">{t("Calendar week", "هفته تقویمی")}</option><option value="month">{t("Calendar month", "ماه تقویمی")}</option></select></label></div>
+      <div className="analytics-filter-row"><label>{t("Group trend by", "گروه‌بندی روند بر اساس")}<select value={interval} onChange={(event) => setInterval(event.target.value as "day" | "week" | "month")}><option value="day">{t("Day", "روز")}</option><option value="week">{t("Calendar week", "هفته تقویمی")}</option><option value="month">{t("Calendar month", "ماه تقویمی")}</option></select></label></div>
       <div className="analytics-table-scroll"><table className="analytics-data-table"><caption>{t("Trend for selected principles", "روند اصول انتخاب‌شده")}</caption><thead><tr><th>{t("Period", "بازه")}</th><th>{t("Saved days", "روزهای ذخیره‌شده")}</th><th>{t("Practiced", "تمرین کردم")}</th><th>{t("Needs attention", "نیازمند توجه")}</th><th>{t("Didn’t come up today", "امروز پیش نیامد")}</th><th>{t("Not answered", "پاسخ داده نشده")}</th><th>{t("Practiced share", "سهم تمرین‌شده")}</th></tr></thead><tbody>{trends.map((item) => <tr key={item.from}><th scope="row">{dateRange(item, language)}</th><td>{item.savedDays}</td><td>{item.practiced}</td><td>{item.attention}</td><td>{item.na}</td><td>{item.unanswered}</td><td><span className="analytics-mini-bar" aria-hidden="true"><i style={{ width: `${item.rate ?? 0}%` }} /></span>{item.rate === null ? "—" : `${item.rate}%`} <small>({item.practiced}/{item.answered})</small></td></tr>)}</tbody></table></div>
       <p>{t("Counts are question answers, not numbers of principles or days. A dash means there were no Practiced or Needs attention answers.", "شمارش‌ها تعداد پاسخ‌های پرسش‌ها هستند، نه تعداد اصول یا روزها. خط تیره یعنی هیچ پاسخ «تمرین کردم» یا «نیازمند توجه» ثبت نشده است.")}</p>
       <div className="analytics-principle-details">{principles.filter((item) => !chosen.length || chosen.includes(item.id)).map((principle) => <details key={principle.id} open={expanded === principle.id} onToggle={(event) => { if (event.currentTarget.open) setExpanded(principle.id); else setExpanded((value) => value === principle.id ? "" : value); }}>
@@ -131,13 +134,15 @@ export function Step10AnalyticsDetail({ analytics, bounds, demo = false, onOpenD
     </section>
 
     <section className="analytics-panel">
-      <h3>{t("Recorded-day calendar", "تقویم روزهای ثبت‌شده")}</h3><p>{t("A marked day has a saved inventory. An unmarked day means no inventory was saved, not a negative answer.", "روز علامت‌دار ترازنامه ذخیره‌شده دارد. روز بدون علامت یعنی ترازنامه‌ای ذخیره نشده، نه اینکه پاسخ منفی بوده است.")}</p>
+      <h3>{t("Recorded-day calendar", "تقویم روزهای ثبت‌شده")}</h3><p>{t("A marked day has a saved inventory. An unmarked day means no inventory was saved, not a negative answer.", "روز علامت‌دار ترازنامه ذخیره‌شده دارد. روز بدون علامت یعنی ترازنامه‌ای ذخیره نشده، نه اینکه پاسخ منفی بوده است.")} {t("Darker green means a higher Practiced share that day.", "سبز تیره‌تر یعنی سهم «تمرین کردم» در آن روز بیشتر بوده است.")}</p>
       <div className="analytics-calendar-layout"><div><div className="analytics-calendar-heading"><button type="button" className="button button-outline button-small" disabled={month <= bounds.from.slice(0, 7)} onClick={() => moveMonth(-1)}>{t("Previous month", "ماه پیشین")}</button><strong>{dateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(monthDate)}</strong><button type="button" className="button button-outline button-small" disabled={month >= bounds.through.slice(0, 7)} onClick={() => moveMonth(1)}>{t("Next month", "ماه بعد")}</button></div>
         <div className="analytics-calendar-weekdays">{Array.from({ length: 7 }, (_, index) => <span key={index}>{dateTimeFormat(locale, { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 9, 19 + index)))}</span>)}</div>
         <div className="analytics-calendar-grid">{Array.from({ length: firstWeekday }, (_, index) => <span key={`blank-${index}`} />)}{Array.from({ length: lastDay }, (_, index) => {
           const date = `${month}-${String(index + 1).padStart(2, "0")}`;
-          const saved = analytics.days.some((item) => item.date === date);
-          return <button type="button" key={date} disabled={date < bounds.from || date > bounds.through} aria-pressed={selectedDay === date} className={`${saved ? "has-inventory" : ""}${selectedDay === date ? " is-selected" : ""}`} aria-label={`${formatDisplayDate(date, language)}: ${saved ? t("Saved inventory", "ترازنامه ذخیره‌شده") : t("No saved inventory", "بدون ترازنامه ذخیره‌شده")}`} onClick={() => setSelectedDay(date)}>{index + 1}{saved && <span aria-hidden="true">●</span>}</button>;
+          const saved = date in dayRates;
+          const rate = dayRates[date] ?? null;
+          const rateLabel = rate === null ? "" : ` · ${fillTemplate(t("{rate}% Practiced", "{rate}% تمرین کردم"), { rate })}`;
+          return <button type="button" key={date} disabled={date < bounds.from || date > bounds.through} aria-pressed={selectedDay === date} className={`${saved ? `has-inventory tint-${tintLevel(rate)}` : ""}${selectedDay === date ? " is-selected" : ""}`} aria-label={`${formatDisplayDate(date, language)}: ${saved ? t("Saved inventory", "ترازنامه ذخیره‌شده") : t("No saved inventory", "بدون ترازنامه ذخیره‌شده")}${rateLabel}`} title={saved && rate !== null ? `${rate}%` : undefined} onClick={() => setSelectedDay(date)}>{index + 1}{saved && <span aria-hidden="true">{rate === null ? "●" : `${rate}%`}</span>}</button>;
         })}</div></div>
         <article className="analytics-calendar-day"><h4>{formatDisplayDate(selectedDay, language)}</h4>{currentDay ? <><p>{t("Saved inventory", "ترازنامه ذخیره‌شده")}</p>{dayAction(selectedDay)}<dl>{(["practiced", "attention", "na", "unanswered"] as const).map((state) => <div key={state}><dt>{stateLabel(state, t)}</dt><dd>{currentDay.questionIds.filter((id) => answerForDay(currentDay, id) === state).length}</dd></div>)}</dl></> : <p>{t("No saved inventory", "بدون ترازنامه ذخیره‌شده")}</p>}</article>
       </div>
