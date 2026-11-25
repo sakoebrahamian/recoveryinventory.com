@@ -11504,3 +11504,106 @@ html[data-ri-theme]:not([data-ri-theme="sage"]) :is(.workspace-tab:not(.is-activ
 @media print {
   .theme-picker { display: none !important; }
 }
+
+.ri-inventory-mode,
+.ri-reflection-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem;
+}
+
+.ri-inventory-mode .button {
+  min-width: 0;
+  min-height: 44px;
+  white-space: normal;
+  text-align: center;
+}
+
+.ri-inventory-mode .button[aria-pressed="true"] {
+  border-color: var(--theme-ink, var(--ink));
+  background: var(--theme-ink, var(--ink));
+  color: white;
+}
+
+.ri-reflection-navigation { margin-block: .75rem 1rem; }
+.ri-quick-check-in,
+.ri-reflection-fields,
+.ri-learning-journal-body { display: grid; gap: 1rem; }
+.ri-quick-check-in { margin-block-start: 1rem; }
+
+.ri-morning-intention,
+.ri-reflection-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: .75rem 1rem;
+  overflow-wrap: anywhere;
+}
+
+.ri-morning-intention {
+  margin-block: 1rem;
+  padding: .85rem 1rem;
+  border-inline-start: 3px solid var(--theme-accent, var(--teal));
+  border-radius: 12px;
+  background: var(--theme-soft, #f2f6ee);
+}
+
+.ri-morning-intention strong { display: flex; align-items: center; gap: .4rem; }
+.ri-morning-intention p { margin-block: .4rem 0; white-space: pre-wrap; }
+.ri-reflection-journal { min-width: 0; }
+.ri-reflection-heading { margin-block-end: 1rem; }
+.ri-reflection-heading h3 { margin-block: .25rem .4rem; }
+.ri-reflection-heading p { margin: 0; max-width: 65ch; }
+.ri-reflection-fields { min-inline-size: 0; border: 0; margin: 0; padding: 0; }
+.ri-reflection-fields :is(input, textarea, select) { min-width: 0; max-width: 100%; font-size: max(1rem, 16px); }
+.ri-reflection-dates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+.ri-reflection-patterns { margin-block-start: 1.15rem; }
+.ri-reflection-patterns ul { display: flex; flex-wrap: wrap; gap: .5rem; list-style: none; padding: 0; }
+.ri-reflection-patterns li { min-width: 0; }
+.ri-reflection-patterns button { white-space: normal; overflow-wrap: anywhere; }
+.ri-reflection-patterns span { padding-inline: .35rem; border-radius: 10px; background: var(--theme-tint, #e0e8db); }
+.ri-learning-journal-body,
+.ri-fellowship-grid { margin-block-start: 1rem; }
+.ri-learning-journal-body { max-inline-size: 64ch; }
+.ri-learning-journal-body .public-learning-context p:last-child { margin-block: .75rem 0; }
+.ri-fellowship-grid .public-learning-card a { margin-block: .25rem; min-height: 44px; }
+.ri-fellowship-grid h2 { font-size: 1.25rem; }
+.ri-step4-access { margin-block: .25rem .7rem; }
+
+.ri-sample-week {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr));
+  gap: .45rem;
+  list-style: none;
+  padding: 0;
+  margin-block: .8rem;
+}
+
+.ri-sample-day {
+  display: grid;
+  align-content: start;
+  gap: .25rem;
+  padding: .65rem;
+  border: 1px solid var(--theme-border, #c5d4c8);
+  border-radius: 10px;
+  overflow-wrap: anywhere;
+}
+
+.ri-sample-day span { font-size: .875rem; }
+.ri-sample-day.is-practiced { background: var(--theme-soft, #f2f6ee); }
+.ri-sample-day.is-attention { border-inline-start: 3px solid var(--theme-accent, #9c4931); }
+.ri-sample-action { line-height: 1.6; }
+.ri-sponsor-example { margin-block-start: 1rem; border-block-start: 1px solid var(--theme-border, #c5d4c8); padding-block-start: .5rem; }
+.ri-sponsor-example summary { cursor: pointer; padding-block: .7rem; font-weight: 700; }
+.ri-sponsor-samples { display: grid; gap: .4rem; }
+.ri-sponsor-samples label { display: flex; align-items: baseline; gap: .55rem; min-height: 44px; padding-block: .5rem; cursor: pointer; }
+.ri-sponsor-preview { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: .9rem; line-height: 1.55; border-radius: 10px; background: var(--theme-soft, #f2f6ee); padding: .85rem; }
+.ri-quick-check-in label > span { font-weight: 700; }
+.ri-quick-check-in .toast-note { margin: 0; }
+
+@media (max-width: 520px) {
+  .ri-reflection-dates { grid-template-columns: minmax(0, 1fr); }
+  .ri-inventory-mode .button { flex: 1 1 9rem; }
+}

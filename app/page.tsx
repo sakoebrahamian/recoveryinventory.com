@@ -31,6 +31,7 @@ import { MemberTestimonials } from "@/components/recovery/member-testimonials";
 import { PatternHistoryExample } from "@/components/recovery/pattern-history-example";
 import { ExternalMentions } from "@/components/recovery/external-mentions";
 import { step10AppCopy, step10AppRoutes } from "@/lib/step10-app-content";
+import { reflectionText } from "@/lib/reflection-copy";
 
 type PreviewMode = "step10" | "step4";
 
@@ -44,7 +45,7 @@ export default function Home() {
   const demoHref = `/demo?lang=${language}`;
   const freeMonthLabel = t("Start my free month", "شروع ماه رایگان من");
   const demoLabel = t("Explore the free demo", "مشاهده نسخه آزمایشی رایگان");
-  const trialNote = t("30 days of Step 10. No card or automatic charge.", "۳۰ روز گام ۱۰. بدون کارت یا برداشت خودکار.");
+  const trialNote = reflectionText(language, "trial");
   const heroSteps = t("Step 4 and Step 10", "گام‌های ۴ و ۱۰").replace(/(\S) (?=\p{Number})/gu, "$1\u00a0");
 
   const faqs = [
@@ -106,7 +107,7 @@ export default function Home() {
         <div className="ri-hero-copy">
           <div className="ri-eyebrow">
             <span className="ri-eyebrow-dot" aria-hidden="true" />
-            {t("For members of AA, NA and other twelve-step fellowships", "برای اعضای AA، NA و دیگر انجمن‌های دوازده‌قدمی")}
+            {reflectionText(language, "independent")}
           </div>
           <h1>
             {t("A private journal for ", "دفتر خصوصی برای ")}
@@ -250,7 +251,7 @@ export default function Home() {
               <li><Check size={16} />{t("Private analytics across your Step 10 history", "تحلیل خصوصی در سراسر سابقه گام ۱۰ شما")}</li>
             </ul>
             <div className="ri-practice-links">
-              <a href="/demo?step=10">{t("Try Step 10", "آزمایش گام دهم")}<ArrowRight className={arrowClass} size={17} aria-hidden="true" /></a>
+              <a href={`/demo?step=10&mode=quick&lang=${language}`}>{reflectionText(language, "quick")}<ArrowRight className={arrowClass} size={17} aria-hidden="true" /></a>
               <a href={step10AppRoutes[language]}>{step10AppCopy[language].title}<ArrowRight className={arrowClass} size={16} aria-hidden="true" /></a>
             </div>
           </article>
@@ -268,7 +269,8 @@ export default function Home() {
               <li><Check size={16} />{t("Multiple reusable Step 4 workbooks", "چندین دفتر قابل استفاده گام چهارم")}</li>
               <li><Check size={16} />{t("A sponsor-ready private summary", "خلاصه خصوصی آماده برای حامی")}</li>
             </ul>
-            <a href="/demo?step=4">{t("Try Step 4", "آزمایش گام چهارم")}<ArrowRight className={arrowClass} size={17} /></a>
+            <p className="ri-step4-access">{reflectionText(language, "saveStep4")}</p>
+            <a href={`/demo?step=4&lang=${language}`}>{reflectionText(language, "freeStep4")}<ArrowRight className={arrowClass} size={17} aria-hidden="true" /></a>
           </article>
         </div>
       </section>
@@ -321,6 +323,7 @@ export default function Home() {
           <span>{t("One website subscription, two ways to pay", "یک اشتراک وب‌سایت، دو روش پرداخت")}</span>
           <h2>{t("A full year of reflection for less than 50¢ a week.", "یک سال کامل تأمل، کمتر از ۵۰ سنت در هفته.")}</h2>
           <p>{t("Daily Step 10, reusable Step 4 workbooks, the learning center, your ongoing history, and every sharing option are included in both monthly and yearly subscriptions.", "گام دهم روزانه، دفترهای قابل استفاده گام چهارم، مرکز آموزش، سابقه مداوم و همه گزینه‌های اشتراک‌گذاری در هر دو اشتراک ماهانه و سالانه گنجانده شده‌اند.")}</p>
+          <p>{reflectionText(language, "membership")}</p>
         </div>
         <div className="ri-price-card">
           <p className="fine-print">{subscriptionGuidance(t)}</p>

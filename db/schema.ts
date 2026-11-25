@@ -1,4 +1,5 @@
-import { index, integer, primaryKey, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
+import { check, index, integer, primaryKey, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable(
   "users",
@@ -108,6 +109,22 @@ export const step4Workbooks = sqliteTable(
     updatedAt: integer("updated_at").notNull(),
   },
   (table) => [index("step4_workbooks_user_updated_idx").on(table.userId, table.updatedAt)],
+);
+
+export const reflectionJournals = sqliteTable(
+  "reflection_journals",
+  {
+    userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(),
+    entryDate: text("entry_date").notNull(),
+    encryptedPayload: text("encrypted_payload").notNull(),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.kind, table.entryDate] }),
+    check("reflection_journals_kind", sql`${table.kind} IN ('step67', 'step89', 'step11')`),
+  ],
 );
 
 export const billingEvents = sqliteTable("billing_events", {

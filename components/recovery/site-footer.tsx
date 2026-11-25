@@ -7,7 +7,9 @@ import { aboutLanguageRoutes } from "@/lib/about-content";
 import { comparisonBasePath } from "@/lib/product-comparisons";
 import { BrandMark } from "./brand-mark";
 import { translateForLanguage, useLanguage } from "./language-provider";
-import { sponsorGuidance, originalFrameworkGuidance } from "@/lib/recovery-guidance";
+import { independenceDisclosure, sponsorGuidance, originalFrameworkGuidance } from "@/lib/recovery-guidance";
+import { reflectionText } from "@/lib/reflection-copy";
+import { resourceSlug } from "@/lib/reflection-journals";
 
 export function SiteFooter({ language: languageOverride }: { language?: Language }) {
   const { language: contextLanguage, t: contextTranslate } = useLanguage();
@@ -31,6 +33,7 @@ export function SiteFooter({ language: languageOverride }: { language?: Language
         <div className="footer-links">
           <a href="/demo">{t("Demo", "نسخه آزمایشی")}</a>
           <a href={learnHref}>{t("Learn", "یادگیری")}</a>
+          <a href={localizedPath(language, "/learn/" + resourceSlug)}>{reflectionText(language, "fellowshipResources")}</a>
           <a href={aboutLanguageRoutes[language]}>{t("About", "درباره ما")}</a>
           <a href={comparisonBasePath(language)}>{t("Compare options", "مقایسه گزینه‌ها")}</a>
           <a href="/#ai-guide">{t("AI Inventory Guide", "راهنمای ترازنامه با هوش مصنوعی")}</a>
@@ -46,12 +49,7 @@ export function SiteFooter({ language: languageOverride }: { language?: Language
         <p>{originalFrameworkGuidance(t)}</p>
       </aside>
       <div className="footer-legal">
-        <p>
-          {t(
-            "Recovery Inventory is an independent tool and is not affiliated with or endorsed by Alcoholics Anonymous, Narcotics Anonymous, AAWS, or NAWS. It is not a substitute for professional care.",
-            "Recovery Inventory ابزاری مستقل است و وابسته یا مورد تأیید انجمن الکلی‌های گمنام، معتادان گمنام، AAWS یا NAWS نیست. این ابزار جایگزین مراقبت حرفه‌ای نیست."
-          )}
-        </p>
+        <p>{independenceDisclosure(t)}</p>
         <span>© {new Date().getFullYear()} RecoveryInventory.com</span>
       </div>
     </footer>

@@ -2,6 +2,8 @@ import { localizedPath, languageRoutes } from "./languages";
 
 import { expandLocalizedRecord } from "@/lib/localization";
 import type { Language } from "@/lib/inventory";
+import { reflectionLabels, reflectionText } from "@/lib/reflection-copy";
+import { reflectionKinds, reflectionSlugs, resourceSlug, type ReflectionKind } from "@/lib/reflection-journals";
 
 export type LearningStage = {
   label: string;
@@ -40,10 +42,17 @@ export type LearningArticleCopy = {
   closing: string;
 };
 
+type LearningSummary = Pick<LearningArticleCopy, "eyebrow" | "title" | "description" | "summary" | "lead">;
+
 export type PublicLearningTopic = {
   id: "step10" | "step4" | "dishonesty";
   slug: string;
   copy: Record<Language, LearningArticleCopy>;
+} | {
+  id: ReflectionKind | "resources";
+  slug: string;
+  compact: true;
+  copy: Record<Language, LearningSummary>;
 };
 
 export const learningHubCopy: Record<Language, {
@@ -65,7 +74,7 @@ export const learningHubCopy: Record<Language, {
     eyebrow: "Public learning center",
     title: "Understand the pattern. Practice the principle.",
     description: "Original guides to daily reflection, our Step 4 workbook, and patterns, behaviors, and principles to practice.",
-    libraryLabel: "Three practical guides",
+    libraryLabel: "Reflection guides",
     sectionTitle: "Start with one guide",
     sectionIntro: "Read at your own pace. These guides explain the ideas; the private member tools help you put them into practice.",
     readGuide: "Read guide",
@@ -80,7 +89,7 @@ export const learningHubCopy: Record<Language, {
     eyebrow: "Centro público de aprendizaje",
     title: "Comprende el patrón. Practica el principio.",
     description: "Guías originales sobre reflexión diaria, nuestro cuaderno del Paso 4, patrones, conductas y principios para practicar.",
-    libraryLabel: "Tres guías prácticas",
+    libraryLabel: "Guías de reflexión",
     sectionTitle: "Comienza con una guía",
     sectionIntro: "Lee a tu propio ritmo. Estas guías explican las ideas; las herramientas privadas para miembros te ayudan a ponerlas en práctica.",
     readGuide: "Leer la guía",
@@ -95,7 +104,7 @@ export const learningHubCopy: Record<Language, {
     eyebrow: "مرکز آموزش عمومی",
     title: "الگو را بشناسید. اصل را تمرین کنید.",
     description: "راهنماهای اصلی درباره تأمل روزانه، دفتر گام چهارم ما، الگوها، رفتارها و اصول قابل تمرین.",
-    libraryLabel: "سه راهنمای عملی",
+    libraryLabel: "راهنماهای تأمل",
     sectionTitle: "با یک راهنما آغاز کنید",
     sectionIntro: "با سرعت مناسب خود مطالعه کنید. این راهنماها مفاهیم را توضیح می‌دهند و ابزارهای خصوصی اعضا به شما کمک می‌کنند آنها را تمرین کنید.",
     readGuide: "مطالعه راهنما",
@@ -107,6 +116,30 @@ export const learningHubCopy: Record<Language, {
     safetyNote: "این راهنماها برای تأمل شخصی هستند و تشخیص، درمان، پشتیبانی بحران یا جایگزین مراقبت حرفه‌ای و راهنمایی قابل اعتماد در بهبودی نیستند.",
   },
 });
+
+function reflectionSummary(language: Language, kind: ReflectionKind | "resources"): LearningSummary {
+  const labels = kind === "resources" ? null : reflectionLabels[kind];
+  const title = reflectionText(language, labels?.guide ?? "fellowshipResources");
+  const intro = reflectionText(language, labels?.intro ?? "resourcesIntro");
+  return {
+    eyebrow: reflectionText(language, labels?.label ?? "officialLiterature"),
+    title,
+    description: intro,
+    summary: intro,
+    lead: intro,
+  };
+}
+
+const journalLearningTopics: PublicLearningTopic[] = ([...reflectionKinds, "resources"] as const).map((id) => ({
+  id,
+  slug: id === "resources" ? resourceSlug : reflectionSlugs[id],
+  compact: true,
+  copy: expandLocalizedRecord({
+    en: reflectionSummary("en", id),
+    es: reflectionSummary("es", id),
+    fa: reflectionSummary("fa", id),
+  }),
+}));
 
 export const publicLearningTopics: PublicLearningTopic[] = [
   {
@@ -448,6 +481,7 @@ export const publicLearningTopics: PublicLearningTopic[] = [
       },
     }),
   },
+  ...journalLearningTopics,
 ];
 
 export function learningBasePath(language: Language): `/${string}` {

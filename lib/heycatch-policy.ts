@@ -1,3 +1,5 @@
+import { reflectionSlugs, resourceSlug } from "@/lib/reflection-journals";
+
 /** Only known, public marketing routes may participate. New routes default to private. */
 export const MARKETING_CHOICE_KEY = "ri-marketing-analytics-v1";
 export const MARKETING_CHOICE_EVENT = "ri-marketing-analytics-change";
@@ -5,6 +7,7 @@ export type MarketingChoice = "allowed" | "declined";
 const publicPaths = new Set([
   "/", "/about", "/privacy", "/terms", "/learn", "/vs", "/step-10-daily-inventory-app",
   "/learn/step-10-daily-inventory", "/learn/step-4-personal-inventory", "/learn/dishonesty-to-honesty",
+  ...[...Object.values(reflectionSlugs), resourceSlug].map((slug) => "/learn/" + slug),
   "/vs/12steps-online", "/vs/innerascent", "/vs/pen-and-paper",
 ]);
 const locales = new Set(["es", "fa", "fr", "pt-br", "ar", "de", "hy", "it", "el"]);
