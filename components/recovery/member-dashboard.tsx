@@ -70,6 +70,7 @@ export function MemberDashboard() {
   const [activeType, setActiveType] = React.useState<MemberTool>("step10");
   const [step4Dirty, setStep4Dirty] = React.useState(false);
   const [reflectionDirty, setReflectionDirty] = React.useState(false);
+  const [step10Dirty, setStep10Dirty] = React.useState(false);
   const [reflectionDate, setReflectionDate] = React.useState(todayIso);
   const [analyticsVersion, setAnalyticsVersion] = React.useState(0);
   const [reportPeriod, setReportPeriod] = React.useState(() => defaultReportPeriod(todayIso()));
@@ -80,6 +81,12 @@ export function MemberDashboard() {
   const [billingPlan, setBillingPlan] = React.useState<BillingPlan>("yearly");
   const [upgradeOpen, setUpgradeOpen] = React.useState(false);
   useSerenityJournal(account && (activeType === "step10" || activeType === "step4") ? activeType : null, selectedDate);
+  React.useEffect(() => {
+    if (!step10Dirty) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [step10Dirty]);
 
   React.useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -171,14 +178,23 @@ export function MemberDashboard() {
     }
   }, [loadAccount, loadInventories, year]);
 
+  function confirmDiscardStep10() {
+    if (activeType !== "step10" || !step10Dirty) return true;
+    if (!window.confirm(reflectionText(language, "unsaved"))) return false;
+    setStep10Dirty(false);
+    return true;
+  }
+
   function chooseYear(next: number) {
     if (!Number.isInteger(next) || next < 1 || next > 9999) return;
+    if (!confirmDiscardStep10()) { setYearDraft(String(year)); return; }
     setYear(next);
     setYearDraft(String(next));
     setSelectedDate(dateForYear(next));
   }
 
   function moveMonth(offset: number) {
+    if (!confirmDiscardStep10()) return;
     const [selectedYear, selectedMonth, selectedDay] = selectedDate.split("-").map(Number);
     const targetFirst = new Date(Date.UTC(selectedYear, selectedMonth - 1 + offset, 1));
     const targetYear = targetFirst.getUTCFullYear();
@@ -273,6 +289,7 @@ export function MemberDashboard() {
 
   function switchTool(next: MemberTool, date = selectedDate) {
     if (next === activeType) return true;
+    if (!confirmDiscardStep10()) return false;
     if (activeType === "step4" && step4Dirty && !window.confirm(t("You have unsaved Step 4 changes. Continue without saving them?", "تغییرات ذخیره‌نشده گام چهارم دارید. بدون ذخیره ادامه می‌دهید؟"))) return false;
     if (reflectionDirty && !window.confirm(reflectionText(language, "unsaved"))) return false;
     setStep4Dirty(false);
@@ -356,9 +373,9 @@ export function MemberDashboard() {
                 </div>
                 <button type="button" onClick={() => moveMonth(1)} aria-label={t("Next month", "ماه بعد")}><ChevronRight size={18} /></button>
               </div>
-              <CompactCalendar locale={locale} selectedDate={selectedDate} records={records} today={todayIso()} onSelect={setSelectedDate} />
+              <CompactCalendar locale={locale} selectedDate={selectedDate} records={records} today={todayIso()} onSelect={(date) => { if (date === selectedDate || confirmDiscardStep10()) setSelectedDate(date); }} />
               <div className="compact-calendar-footer">
-                <button type="button" onClick={() => { const today = todayIso(); const todayYear = Number(today.slice(0, 4)); setYear(todayYear); setYearDraft(String(todayYear)); setSelectedDate(today); }}>{t("Today", "امروز")}</button>
+                <button type="button" onClick={() => { const today = todayIso(); if (today !== selectedDate && !confirmDiscardStep10()) return; const todayYear = Number(today.slice(0, 4)); setYear(todayYear); setYearDraft(String(todayYear)); setSelectedDate(today); }}>{t("Today", "امروز")}</button>
                 <div className="calendar-legend"><span><i className="dot-ten" />{t("Saved Step 10", "گام ۱۰ ذخیره‌شده")}</span></div>
               </div>
             </section>}
@@ -419,6 +436,7 @@ export function MemberDashboard() {
               key={`step10-${selectedDate}`}
               initialData={(selectedStep10?.payload as Step10Data | undefined) ?? { date: selectedDate }}
               onSave={(data) => saveInventory(data.date, data)}
+              onDirtyChange={setStep10Dirty}
               onExport={() => exportRef.current?.open({ type: "step10", format: "archive" })}
               onExportChart={() => exportRef.current?.open({ format: "chart", day: selectedDate })}
               onOpenLearning={() => switchTool("learning")}
