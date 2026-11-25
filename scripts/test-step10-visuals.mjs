@@ -68,5 +68,7 @@ try {
   assert.equal(daily.length, 5, "the Day option has one row per date");
   assert.deepEqual(daily.map((item) => [item.from, item.through, item.savedDays]), [["2026-11-16", "2026-11-16", 1], ["2026-11-17", "2026-11-17", 1], ["2026-11-18", "2026-11-18", 0], ["2026-11-19", "2026-11-19", 1], ["2026-11-20", "2026-11-20", 1]]);
   assert.equal(visuals.fillTemplate("{a} of {b} {missing}", { a: 2, b: 3 }), "2 of 3 {missing}");
+  assert.equal(visuals.payloadPracticeRate({ states: { honesty: "practiced", patience: "attention", gratitude: "na" } }), 50, "workspace calendar share ignores Didn’t come up today");
+  assert.equal(visuals.payloadPracticeRate(null), null, "an empty payload has no calendar tint");
   console.log("Visual checks passed: daily share, 7-day average, writing markers, long ranges, calendar tint, what-changed order, and the Day trend option.");
 } finally { await server.close(); }
