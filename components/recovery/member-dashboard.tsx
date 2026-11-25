@@ -425,7 +425,7 @@ export function MemberDashboard() {
               <h2>{activeType === "account" ? t("Account and subscription", "حساب و اشتراک") : activeType === "analytics" ? t("Your patterns through today", "الگوهای شما تا امروز") : activeType === "step4" ? t("Your reusable Step 4 workbooks", "دفترهای قابل ویرایش گام چهارم شما") : activeType === "learning" ? t("Recovery learning center", "مرکز آموزش بهبودی") : isReflectionKind(activeType) ? reflectionText(language, "moreJournals") : formatDisplayDate(selectedDate, language)}</h2>
             </div>
             <div className="member-inventory-tools">
-              {activeType === "step10" && <button className="button button-outline inventory-export-trigger" type="button" onClick={() => exportRef.current?.open()}><FileDown size={17} />{t("Export Step 10", "خروجی گام ۱۰")}</button>}
+              {activeType === "step10" && <button className="button button-outline inventory-export-trigger" type="button" onClick={() => exportRef.current?.open()}><FileDown size={17} />{t("Share and export", "اشتراک و خروجی")}</button>}
               <div className="workspace-tabs member-workspace-tabs" role="tablist" aria-label={t("Choose a member tool", "انتخاب ابزار اعضا")}>
                 <button className={`workspace-tab${activeType === "step10" ? " is-active" : ""}`} type="button" onClick={() => switchTool("step10")} role="tab" aria-selected={activeType === "step10"}><span>{t("Step 10 Daily Inventory", "ترازنامه روزانه گام دهم")}</span></button>
                 <button className={`workspace-tab${activeType === "step4" ? " is-active" : ""}`} type="button" onClick={() => switchTool("step4")} role="tab" aria-selected={activeType === "step4"}><span>{t("Step 4 Personal Inventory", "ترازنامه شخصی گام چهارم")}</span></button>
@@ -517,6 +517,7 @@ export function MemberDashboard() {
               onReportPeriodChange={setAnalyticsPeriod}
               onExportChart={() => exportRef.current?.open({ format: "chart" })}
               onExportPattern={() => exportRef.current?.open({ format: "pattern" })}
+              onOpenExport={() => exportRef.current?.open({ format: "summary" })}
             />
           ) : (
             <>
