@@ -164,7 +164,7 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
                 <button className="button button-outline" type="button" onClick={() => void copyCombinedReport()}><Copy size={16} />{t("Copy inventory and analytics", "کپی ترازنامه و تحلیل")}</button>
                 {onExportChart && <button className="button button-outline" type="button" onClick={() => onExportChart(reportInventory.date)}><FileDown size={16} />{t("Export chart only", "خروجی فقط نمودار")}</button>}
               </div>
-              <p className="analytics-share-context">{t("Includes the inventory for", "شامل ترازنامه روز")} {formatDisplayDate(reportInventory.date, language)}. {t("The chart and analytics use the chosen period.", "نمودار و تحلیل از بازه انتخاب‌شده استفاده می‌کنند.")}</p>
+              <p className="analytics-share-context">{t("Includes the inventory for", "شامل ترازنامه روز")} {formatDisplayDate(reportInventory.date, language)}. {t("The chart and analytics use the chosen period.", "نمودار و تحلیل از بازه انتخاب‌شده استفاده می‌کنند.")} <span dir="auto">({bounds.from === bounds.through ? formatDisplayDate(bounds.from, language) : `${formatDisplayDate(bounds.from, language)} – ${formatDisplayDate(bounds.through, language)}`})</span></p>
             </>
           ) : (
             <>
@@ -290,7 +290,7 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
           <div className="analytics-panel-heading"><div><h3>{t("Activity over time", "فعالیت در طول زمان")}</h3><p>{t("Saved Step 10 inventories by month.", "ترازنامه‌های ذخیره‌شده گام ۱۰ بر اساس ماه.")}</p></div></div>
           <div className="analytics-months">
             {analytics.months.map((month) => {
-              const monthLabel = dateTimeFormat(locale, { month: "short", year: "2-digit", timeZone: "UTC" }).format(new Date(`${month.month}-01T12:00:00Z`));
+              const monthLabel = dateTimeFormat(locale, { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(`${month.month}-01T12:00:00Z`));
               const height = Math.max(12, Math.round((month.entries / maxMonthlyEntries) * 100));
               return (
                 <div key={month.month} title={`${monthLabel}: ${month.entries}`}>

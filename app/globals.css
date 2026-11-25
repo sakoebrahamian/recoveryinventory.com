@@ -1571,8 +1571,8 @@ html[dir="rtl"] .page-hero h1 {
 }
 
 .state-picker button[aria-pressed="true"].na {
-  border-color: var(--slate);
-  background: var(--slate);
+  border-color: #6b4fb3;
+  background: #6b4fb3;
   color: white;
 }
 
@@ -7964,6 +7964,14 @@ html[dir="rtl"] .analytics-panel-heading h3 {
   font-size: 0.72rem;
 }
 
+.analytics-principles-good li b {
+  color: var(--success, #487b62);
+}
+
+.analytics-principles-care li b {
+  color: #8a5b18;
+}
+
 .analytics-no-pattern {
   margin: 1rem 0 0;
   color: #71837e;
@@ -8045,7 +8053,7 @@ html[dir="rtl"] .analytics-panel-heading h3 {
   width: 100%;
   min-height: 10px;
   border-radius: inherit;
-  background: linear-gradient(180deg, var(--ri-coral), #e5a87c);
+  background: linear-gradient(180deg, var(--success, #487b62), #84ae90);
 }
 
 .analytics-privacy-note {

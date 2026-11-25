@@ -51,6 +51,7 @@ type Step10InventoryProps = {
   onExportChart?: () => void;
   onOpenLearning?: () => void;
   onChange?: (data: Step10Data) => void;
+  onDirtyChange?: (dirty: boolean) => void;
   reportPeriod?: ReportPeriod;
   onReportPeriodChange?: (period: ReportPeriod) => void;
   refreshKey?: number;
@@ -98,7 +99,7 @@ export function createDemoStep10Data(t: (english: string, farsi: string) => stri
   };
 }
 
-export function Step10Inventory({ demo = false, initialData, onSave, onExport, onExportChart, onOpenLearning, onChange, reportPeriod, onReportPeriodChange, refreshKey = 0, onOpenMorning }: Step10InventoryProps) {
+export function Step10Inventory({ demo = false, initialData, onSave, onExport, onExportChart, onOpenLearning, onChange, onDirtyChange, reportPeriod, onReportPeriodChange, refreshKey = 0, onOpenMorning }: Step10InventoryProps) {
   const { language, t } = useLanguage();
   const [mode, setMode] = React.useState<"quick" | "full">("full");
   React.useEffect(() => {
@@ -124,6 +125,8 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
     };
   });
   const [message, setMessage] = React.useState("");
+  const [savedSnapshot, setSavedSnapshot] = React.useState(() => JSON.stringify(data));
+  const dirty = JSON.stringify(data) !== savedSnapshot;
   const [saving, setSaving] = React.useState(false);
   const [mobileActionsOpen, setMobileActionsOpen] = React.useState(false);
   const [chartOpen, setChartOpen] = React.useState(true);
@@ -146,6 +149,8 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
     : null;
 
   React.useEffect(() => { onChange?.(data); }, [data, onChange]);
+  React.useEffect(() => { onDirtyChange?.(dirty); }, [dirty, onDirtyChange]);
+  React.useEffect(() => () => onDirtyChange?.(false), [onDirtyChange]);
 
   React.useEffect(() => {
     if (!mobileActionsOpen) return;
@@ -250,6 +255,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
     setMessage("");
     try {
       await onSave(data);
+      setSavedSnapshot(JSON.stringify(data));
       setMessage(t("Inventory saved privately.", "ترازنامه به‌صورت خصوصی ذخیره شد."));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : t("Could not save. Please try again.", "ذخیره انجام نشد. دوباره تلاش کنید."));
