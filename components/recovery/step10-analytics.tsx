@@ -6,9 +6,15 @@ import { localizedText } from "@/lib/localization";
 import { languageLocale } from "@/lib/languages";
 
 import * as React from "react";
-import { BarChart3, CalendarCheck2, Copy, FileDown, Flame, RefreshCw, Share2, ShieldCheck, Target, UsersRound } from "lucide-react";
-import { formatDisplayDate, principleCategories, step10Questions, step10QuestionSetVersion, todayIso } from "@/lib/inventory";
+import { BarChart3, CalendarCheck2, Copy, FileDown, Flame, RefreshCw, Share2, ShieldCheck, Target, TrendingUp, UsersRound } from "lucide-react";
+import { formatDisplayDate, principleCategories, questionWithPrinciple, step10Questions, step10QuestionSetVersion, todayIso } from "@/lib/inventory";
 import { calculateStep10Analytics, calculateStep10PeriodAnalytics, type Step10AnalyticsData, type Step10AnalyticsRecord } from "@/lib/step10-analytics";
+import { step10Trends } from "@/lib/step10-detail";
+import { buildStep10Trends } from "@/lib/step10-trends";
+import { fillTemplate } from "@/lib/step10-visuals";
+import { Step10HeroChart } from "./step10-hero-chart";
+import { Step10HowWeCount } from "./step10-how-we-count";
+import { Step10WhatChanged } from "./step10-what-changed";
 import { formatStep10SponsorReport } from "@/lib/step10-report";
 import { copyStep10Report, shareStep10Report } from "@/lib/step10-share";
 import { Step10AnalyticsDetail, Step10PeriodComparison } from "./step10-analytics-detail";
@@ -95,6 +101,7 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
   const error = scoped.error;
   const draftDay = false;
   const locale = languageLocale(language, true);
+  const trends = React.useMemo(() => buildStep10Trends(analytics?.days ?? []), [analytics?.days]);
 
   async function shareCombinedReport() {
     if (!reportAnalytics || !reportInventory || !bounds) { setShareMessage(t("Choose a valid analytics period and wait for the report to load.", "بازه تحلیل معتبری انتخاب کنید و منتظر بارگذاری گزارش بمانید.")); return; }
@@ -135,6 +142,12 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
   </section>;
 
   const maxMonthlyEntries = Math.max(...analytics.months.map((month) => month.entries), 1);
+  const halves = trends.halves;
+  const halfChange = halves && halves.earlier.rate !== null && halves.recent.rate !== null ? halves.recent.rate - halves.earlier.rate : null;
+  const weeklyRates = step10Trends(analytics.days, bounds, step10Questions.map(({ id }) => id), "week").flatMap((week) => (week.rate === null ? [] : [week.rate]));
+  const sparkline = weeklyRates.length >= 2 ? weeklyRates.map((rate, index) => `${((index / (weeklyRates.length - 1)) * 100).toFixed(1)},${(26 - (rate / 100) * 24).toFixed(1)}`).join(" ") : "";
+  const topImproved = trends.improving[0];
+  const writingDays = analytics.days.filter((day) => Object.keys(day.reflections).length > 0 || day.questionIds.some((id) => day.states[id] === "attention" && day.notes[id]?.trim())).length;
 
   return (
     <section className="analytics-shell" data-inventory="analytics">
@@ -177,38 +190,47 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
         <article>
           <span><Target size={18} />{t("Practiced share", "سهم تمرین‌شده")}</span>
           <strong>{analytics.totalAnswered ? `${analytics.practiceRate}%` : "—"}</strong>
+          {halfChange !== null && <em className={`kpi-delta ${halfChange > 0 ? "is-up" : halfChange < 0 ? "is-down" : "is-flat"}`}><span aria-hidden="true">{halfChange > 0 ? "▲" : halfChange < 0 ? "▼" : "="}</span> {halfChange > 0 ? fillTemplate(t("Up {change} points from the first half", "{change} واحد بالاتر از نیمه اول"), { change: halfChange }) : halfChange < 0 ? fillTemplate(t("Down {change} points from the first half", "{change} واحد پایین‌تر از نیمه اول"), { change: -halfChange }) : t("Same as the first half", "برابر با نیمه اول")}</em>}
           <small>{analytics.totalPracticed}/{analytics.totalAnswered} {t("answers marked Practiced", "پاسخ با برچسب تمرین کردم")}</small>
+          {sparkline && <svg className="kpi-sparkline" viewBox="0 0 100 28" preserveAspectRatio="none" aria-hidden="true"><polyline points={sparkline} /></svg>}
         </article>
         <article>
           <span><CalendarCheck2 size={18} />{t("Saved inventories", "ترازنامه‌های ذخیره‌شده")}</span>
           <strong>{analytics.totalEntries}</strong>
-          <small>{t("in selected period", "در بازه انتخاب‌شده")}</small>
+          <small>{t("in selected period", "در بازه انتخاب‌شده")} · {fillTemplate(t("{count} days with writing", "{count} روز دارای نوشته"), { count: writingDays })}</small>
         </article>
         <article>
-          <span><Flame size={18} />{t("Days with writing", "روزهای دارای نوشته")}</span>
-          <strong>{analytics.days.filter((day) => Object.keys(day.reflections).length > 0 || day.questionIds.some((id) => day.states[id] === "attention" && day.notes[id]?.trim())).length}</strong>
-          <small>{t("days", "روز")}</small>
+          <span><Flame size={18} />{t("Current streak", "رشته فعلی")}</span>
+          <strong>{analytics.currentStreak} <small>{t("days", "روز")}</small></strong>
+          <small>{fillTemplate(t("Longest in this period: {count} days in a row", "طولانی‌ترین در این بازه: {count} روز پشت سر هم"), { count: analytics.longestStreak })}</small>
+        </article>
+        <article>
+          <span><TrendingUp size={18} />{t("Most improved", "بیشترین پیشرفت")}</span>
+          <strong>{topImproved?.change ? `+${topImproved.change}` : "—"}</strong>
+          <small>{topImproved ? <>{t("percentage points", "واحد درصد")} · <span dir="auto">{questionWithPrinciple(topImproved.id, language)}</span></> : t("Nothing here yet for this period.", "هنوز موردی برای این بازه نیست.")}</small>
         </article>
       </div>
 
       <Step10TrendInsights analytics={analytics} />
-      <Step10PatternSummary key={`summary:${bounds.from}:${bounds.through}`} analytics={analytics} bounds={bounds} demo={demo} />
-      <Step10PatternVisual key={`patterns:${bounds.from}:${bounds.through}`} analytics={analytics} bounds={bounds} onOpenDate={onOpenDate} />
+      <Step10HeroChart key={`hero:${bounds.from}:${bounds.through}`} analytics={analytics} bounds={bounds} />
+      <Step10WhatChanged analytics={analytics} />
       <Step10PeriodComparison analytics={analytics} bounds={bounds} />
+      <Step10PatternVisual key={`patterns:${bounds.from}:${bounds.through}`} analytics={analytics} bounds={bounds} onOpenDate={onOpenDate} />
       {!analytics.totalEntries && <p className="analytics-data-note">{t("No saved Step 10 inventories in this period.", "هیچ ترازنامه ذخیره‌شده گام ۱۰ در این بازه وجود ندارد.")}</p>}
 
+      <Step10AnalyticsDetail key={`${bounds.from}:${bounds.through}:${bounds.mode}`} analytics={analytics} bounds={bounds} demo={demo} onOpenDate={onOpenDate} />
 
       <details className="analytics-weekly-details">
         <summary>{t("View recent weekly writing", "نمایش نوشته‌های هفتگی اخیر")} <span>({analytics.weekly.length})</span></summary>
         <Step10WeeklyInsights analytics={analytics} />
       </details>
 
+      <Step10PatternSummary key={`summary:${bounds.from}:${bounds.through}`} analytics={analytics} bounds={bounds} demo={demo} />
+
       <aside className="analytics-sponsor-note">
         <UsersRound size={23} aria-hidden="true" />
         <div><h3>{t("Review this with your sponsor", "این گزارش را با حامی مرور کنید")}</h3><p>{sponsorGuidance(t)}</p></div>
       </aside>
-
-      <Step10AnalyticsDetail key={`${bounds.from}:${bounds.through}:${bounds.mode}`} analytics={analytics} bounds={bounds} demo={demo} onOpenDate={onOpenDate} />
 
 
       <div className="analytics-detail-grid">
@@ -249,6 +271,8 @@ export function Step10Analytics({ demo = false, selectedDay, onOpenDate, refresh
           </div>
         </article>
       </div>
+
+      <Step10HowWeCount />
 
       <footer className="analytics-privacy-note">
         <ShieldCheck size={20} />
