@@ -1,4 +1,6 @@
 export const spanishTranslations: Record<string, string> = {
+  "Account": "Cuenta",
+  "Account and subscription": "Cuenta y suscripción",
   "Improving": "Mejorando",
   "Slipping": "En descenso",
   "Ongoing focus": "Enfoque continuo",
