@@ -19,6 +19,10 @@ type Props = {
   onPrintClosed?: () => void;
 };
 
+function fillPages(one: string, many: string, count: number, number: Intl.NumberFormat) {
+  return (count === 1 ? one : many).replace("{count}", number.format(count));
+}
+
 function download(file: File) {
   const url = URL.createObjectURL(file);
   const link = document.createElement("a");
@@ -37,7 +41,7 @@ export function Step10PatternSummary({ analytics, bounds, demo = false, view = "
   const [busy, setBusy] = React.useState(false);
   const [message, setMessage] = React.useState("");
   const [failed, setFailed] = React.useState(false);
-  const [format, setFormat] = React.useState<"pdf" | "png">("pdf");
+  const [fitOnePage, setFitOnePage] = React.useState(true);
   const [page, setPage] = React.useState(0);
   const [printing, setPrinting] = React.useState(false);
   const current = React.useRef<PreparedSummary | null>(null);
@@ -65,7 +69,7 @@ export function Step10PatternSummary({ analytics, bounds, demo = false, view = "
       current.current?.pages.forEach(({ url }) => URL.revokeObjectURL(url));
       current.current = null;
     };
-  }, [analytics, bounds.from, bounds.through, language, demo, view]);
+  }, [analytics, bounds.from, bounds.through, language, demo, view, fitOnePage]);
 
   async function preview() {
     if (summary) {
@@ -80,7 +84,7 @@ export function Step10PatternSummary({ analytics, bounds, demo = false, view = "
     setMessage("");
     setFailed(false);
     try {
-      const files = await preparePatternSummary(analytics, bounds, language, t, demo, view);
+      const files = await preparePatternSummary(analytics, bounds, language, t, demo, view, fitOnePage);
       if (version !== revision.current) return;
       files.pngs.forEach((file) => pages.push({ file, url: URL.createObjectURL(file) }));
       await Promise.all(pages.map(async ({ url }) => {
@@ -106,7 +110,7 @@ export function Step10PatternSummary({ analytics, bounds, demo = false, view = "
 
   async function share() {
     if (!summary || !activePage) return;
-    const file = format === "pdf" ? summary.pdf : activePage.file;
+    const file = summary.pdf;
     setFailed(false);
     setMessage("");
     try {
@@ -144,6 +148,7 @@ export function Step10PatternSummary({ analytics, bounds, demo = false, view = "
           <p className="pattern-method-note">{t("This summary contains answer counts only. Written reflections and notes are not included. Review the preview before sharing.", "این خلاصه فقط شمارش پاسخ‌ها را دارد و نوشته‌ها و یادداشت‌ها را شامل نمی‌شود. پیش از اشتراک، پیش‌نمایش را بررسی کنید.")}</p>
         </>}
       </div>
+      {map && <label className="pattern-fit-toggle"><input type="checkbox" checked={fitOnePage} onChange={(event) => setFitOnePage(event.target.checked)} /><span><strong>{t("Fit on one page", "در یک صفحه")}</strong><small>{t("Smaller squares so up to two months print on a single page.", "خانه‌های کوچک‌تر تا حداکثر دو ماه در یک صفحه چاپ شود.")}</small></span></label>}
       <button type="button" className="button button-primary" disabled={busy} aria-expanded={open} onClick={() => void preview()}>
         {busy ? t("Preparing summary…", "در حال آماده‌سازی خلاصه…") : previewLabel}
       </button>
@@ -157,12 +162,12 @@ export function Step10PatternSummary({ analytics, bounds, demo = false, view = "
               <small>{t("PDF includes every page. PNG includes the displayed page.", "PDF شامل همه صفحه‌هاست. PNG شامل صفحه نمایش‌داده‌شده است.")}</small>
             </div>
           )}
-          <div className="pattern-summary-export-actions">
-            <button type="button" className="button button-outline button-small" onClick={() => download(summary.pdf)}><Download size={16} />{t("Download PDF", "دانلود PDF")}</button>
-            <button type="button" className="button button-outline button-small" onClick={() => download(activePage.file)}><Download size={16} />{t("Download image (PNG)", "دانلود تصویر (PNG)")}</button>
-            <button type="button" className="button button-outline button-small" disabled={printing} onClick={print}><Printer size={16} />{t("Print / Save PDF", "چاپ / ذخیره PDF")}</button>
-            <label>{t("Share format", "قالب اشتراک")}<select value={format} onChange={(event) => setFormat(event.target.value as "pdf" | "png")}><option value="pdf">PDF</option><option value="png">PNG</option></select></label>
-            <button type="button" className="button button-outline button-small" onClick={() => void share()}><Share2 size={16} />{map ? t("Share pattern map", "اشتراک نقشه الگوها") : t("Share summary", "اشتراک خلاصه")}</button>
+          <p className="export-page-badge">{fillPages(t("{count} page", "{count} صفحه"), t("{count} pages", "{count} صفحه"), summary.pages.length, number)}</p>
+          <div className="pattern-summary-export-actions export-action-bar">
+            <button type="button" className="button button-primary" onClick={() => download(summary.pdf)}><Download size={16} />{t("Download PDF", "دانلود PDF")}</button>
+            <button type="button" className="button button-outline" onClick={() => void share()}><Share2 size={16} />{t("Share", "اشتراک")}</button>
+            <button type="button" className="button button-outline" disabled={printing} onClick={print}><Printer size={16} />{t("Print", "چاپ")}</button>
+            <button type="button" className="button button-outline" onClick={() => download(activePage.file)}><Download size={16} />{t("Download image (PNG)", "دانلود تصویر (PNG)")}</button>
           </div>
           <figure>
             <a href={activePage.url} target="_blank" rel="noopener noreferrer" aria-label={t("Open full-size summary image", "باز کردن تصویر خلاصه در اندازه کامل")}>
