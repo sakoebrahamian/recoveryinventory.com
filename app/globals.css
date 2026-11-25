@@ -11734,7 +11734,7 @@ html[data-ri-theme]:not([data-ri-theme="sage"]) :is(.workspace-tab:not(.is-activ
 .ri-quick-check-in .toast-note { margin: 0; }
 
 /* Phase 3 analytics visuals: hero chart, what changed, KPI context, calendar tint, How we count. */
-#upgrade-options { scroll-margin-top: 6rem; }
+#upgrade-options { scroll-margin-top: 9rem; }
 .analytics-kpis { grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); }
 .analytics-kpis strong small { margin: 0; font-family: inherit; font-size: .9rem; color: #5f756f; }
 .analytics-kpis .kpi-delta { margin-top: .35rem; font-size: .72rem; font-style: normal; font-weight: 750; color: #5f756f; }
