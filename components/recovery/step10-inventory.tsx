@@ -99,6 +99,18 @@ export function createDemoStep10Data(t: (english: string, farsi: string) => stri
   };
 }
 
+/** Unsaved answers live only in this browser tab (sessionStorage) and are removed once saved. */
+function readStep10Draft(key: string, date: string): Step10Data | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(key);
+    const draft = raw ? JSON.parse(raw) as Step10Data : null;
+    return draft && typeof draft === "object" && draft.date === date && draft.states && typeof draft.states === "object" ? draft : null;
+  } catch {
+    return null;
+  }
+}
+
 export function Step10Inventory({ demo = false, initialData, onSave, onExport, onExportChart, onOpenLearning, onChange, onDirtyChange, reportPeriod, onReportPeriodChange, refreshKey = 0, onOpenMorning }: Step10InventoryProps) {
   const { language, t } = useLanguage();
   const [mode, setMode] = React.useState<"quick" | "full">("full");
@@ -107,7 +119,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
     const timer = window.setTimeout(() => setMode("quick"), 0);
     return () => window.clearTimeout(timer);
   }, [demo]);
-  const [data, setData] = React.useState<Step10Data>(() => {
+  const [baseline] = React.useState<Step10Data>(() => {
     const sample = demo ? createDemoStep10Data(t) : null;
     return {
       questionSetVersion: step10QuestionSetVersion,
@@ -124,8 +136,11 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
       gratitude: initialData?.gratitude ?? sample?.gratitude ?? "",
     };
   });
+  const draftKey = `ri-step10-draft:${baseline.date}`;
+  const [data, setData] = React.useState<Step10Data>(() => (!demo && onSave ? readStep10Draft(draftKey, baseline.date) : null) ?? baseline);
+  const [restoredDraft, setRestoredDraft] = React.useState(() => data !== baseline);
   const [message, setMessage] = React.useState("");
-  const [savedSnapshot, setSavedSnapshot] = React.useState(() => JSON.stringify(data));
+  const [savedSnapshot, setSavedSnapshot] = React.useState(() => JSON.stringify(baseline));
   const dirty = JSON.stringify(data) !== savedSnapshot;
   const [saving, setSaving] = React.useState(false);
   const [mobileActionsOpen, setMobileActionsOpen] = React.useState(false);
@@ -151,6 +166,16 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
   React.useEffect(() => { onChange?.(data); }, [data, onChange]);
   React.useEffect(() => { onDirtyChange?.(dirty); }, [dirty, onDirtyChange]);
   React.useEffect(() => () => onDirtyChange?.(false), [onDirtyChange]);
+  React.useEffect(() => {
+    if (demo || !onSave) return;
+    const timer = window.setTimeout(() => {
+      try {
+        if (dirty) window.sessionStorage.setItem(draftKey, JSON.stringify(data));
+        else window.sessionStorage.removeItem(draftKey);
+      } catch { /* storage unavailable: the unsaved-changes warning still protects the entry */ }
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [data, dirty, draftKey, demo, onSave]);
 
   React.useEffect(() => {
     if (!mobileActionsOpen) return;
@@ -256,6 +281,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
     try {
       await onSave(data);
       setSavedSnapshot(JSON.stringify(data));
+      setRestoredDraft(false);
       setMessage(t("Inventory saved privately.", "ترازنامه به‌صورت خصوصی ذخیره شد."));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : t("Could not save. Please try again.", "ذخیره انجام نشد. دوباره تلاش کنید."));
@@ -280,6 +306,12 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
       gratitude: "",
     });
     setMessage("");
+  }
+
+  function discardDraft() {
+    setData(baseline);
+    setRestoredDraft(false);
+    try { window.sessionStorage.removeItem(draftKey); } catch { /* nothing stored */ }
   }
 
   function viewChart() {
@@ -322,6 +354,10 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
         </header>
 
         <div className="inventory-content">
+          {!demo && onSave && (restoredDraft || dirty) && <p className="step10-draft-status" role="status">
+            <span>{restoredDraft ? t("Restored your unsaved draft for this date.", "پیش‌نویس ذخیره‌نشده این تاریخ بازیابی شد.") : t("Unsaved changes are kept in this browser tab until you save.", "تغییرات ذخیره‌نشده تا زمان ذخیره در همین برگه مرورگر نگه داشته می‌شوند.")}</span>
+            {restoredDraft && <button type="button" onClick={discardDraft}>{t("Discard draft", "حذف پیش‌نویس")}</button>}
+          </p>}
           <div className="ri-inventory-mode" role="group" aria-label={t("Choose an inventory", "انتخاب ترازنامه")}>
             <button type="button" className="button button-outline" aria-pressed={mode === "quick"} onClick={() => setMode("quick")}>{reflectionText(language, "quick")}</button>
             <button type="button" className="button button-outline" aria-pressed={mode === "full"} onClick={() => setMode("full")}>{reflectionText(language, "full")}</button>
