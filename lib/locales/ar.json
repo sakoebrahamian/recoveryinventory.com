@@ -2307,5 +2307,15 @@
   "AI use and limits": "استخدام الذكاء الاصطناعي وحدوده",
   "Serenity AI reflection guide": "Serenity، دليل للتأمل بالذكاء الاصطناعي",
   "Explore Step 10, Step 4, sample charts, and the learning tools without an account. Demo entries are temporary. Open Serenity to try a sample conversation.": "استكشف الخطوتين ١٠ و٤ والرسوم البيانية التجريبية وأدوات التعلم دون حساب. التدوينات التجريبية مؤقتة. افتح Serenity لتجربة محادثة نموذجية.",
-  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "لا يزال بإمكانك قراءة تدوينات الخطوة ١٠ المحفوظة وتصديرها. اشترك في أي وقت بالحساب نفسه لمواصلة حفظ التدوينات واستخدام الخطوة ٤ وSerenity."
+  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "لا يزال بإمكانك قراءة تدوينات الخطوة ١٠ المحفوظة وتصديرها. اشترك في أي وقت بالحساب نفسه لمواصلة حفظ التدوينات واستخدام الخطوة ٤ وSerenity.",
+  "Share pattern map": "مشاركة خريطة الأنماط",
+  "Export pattern map": "تصدير خريطة الأنماط",
+  "Preview pattern map": "معاينة خريطة الأنماط",
+  "Hide pattern map preview": "إخفاء معاينة خريطة الأنماط",
+  "Preview, print, or share the pattern map for the selected dates. It shows saved answers with colors and symbols.": "عاين خريطة الأنماط للتواريخ المحددة أو اطبعها أو شاركها. تعرض الألوان والرموز الإجابات المحفوظة.",
+  "Saved answers only. Written reflections and notes stay private.": "تتضمن الخريطة الإجابات المحفوظة فقط. تظل تأملاتك المكتوبة وملاحظاتك خاصة.",
+  "Page {page} of {total}": "الصفحة {page} من {total}",
+  "PDF includes every page. PNG includes the displayed page.": "يتضمن ملف PDF كل الصفحات. يتضمن ملف PNG الصفحة المعروضة.",
+  "Pattern map shared.": "تمت مشاركة خريطة الأنماط.",
+  "File sharing is unavailable here. The file was downloaded so you can attach it yourself.": "مشاركة الملفات غير متاحة هنا. تم تنزيل الملف لتتمكن من إرفاقه بنفسك."
 }

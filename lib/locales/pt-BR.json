@@ -2307,5 +2307,15 @@
   "AI use and limits": "Uso e limites da IA",
   "Serenity AI reflection guide": "Serenity, guia de reflexão com IA",
   "Explore Step 10, Step 4, sample charts, and the learning tools without an account. Demo entries are temporary. Open Serenity to try a sample conversation.": "Explore os Passos 10 e 4, os gráficos de exemplo e as ferramentas de aprendizado sem uma conta. As anotações da demonstração são temporárias. Abra Serenity para experimentar uma conversa de exemplo.",
-  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Você ainda pode ler e exportar suas anotações salvas do Passo 10. Assine com a mesma conta quando quiser para continuar salvando anotações e usar o Passo 4 e a Serenity."
+  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Você ainda pode ler e exportar suas anotações salvas do Passo 10. Assine com a mesma conta quando quiser para continuar salvando anotações e usar o Passo 4 e a Serenity.",
+  "Share pattern map": "Compartilhar mapa de padrões",
+  "Export pattern map": "Exportar mapa de padrões",
+  "Preview pattern map": "Visualizar mapa de padrões",
+  "Hide pattern map preview": "Ocultar prévia do mapa",
+  "Preview, print, or share the pattern map for the selected dates. It shows saved answers with colors and symbols.": "Visualize, imprima ou compartilhe o mapa de padrões das datas selecionadas. Cores e símbolos mostram as respostas salvas.",
+  "Saved answers only. Written reflections and notes stay private.": "Apenas as respostas salvas são incluídas. Suas reflexões escritas e anotações continuam privadas.",
+  "Page {page} of {total}": "Página {page} de {total}",
+  "PDF includes every page. PNG includes the displayed page.": "O PDF inclui todas as páginas. O PNG inclui a página exibida.",
+  "Pattern map shared.": "Mapa de padrões compartilhado.",
+  "File sharing is unavailable here. The file was downloaded so you can attach it yourself.": "O compartilhamento de arquivos não está disponível aqui. O arquivo foi baixado para você poder anexá-lo."
 }

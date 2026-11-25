@@ -2307,5 +2307,15 @@
   "AI use and limits": "Արհեստական բանականության օգտագործումն ու սահմանաչափերը",
   "Serenity AI reflection guide": "Serenity՝ մտորումների ուղեկից՝ արհեստական բանականությամբ",
   "Explore Step 10, Step 4, sample charts, and the learning tools without an account. Demo entries are temporary. Open Serenity to try a sample conversation.": "Առանց հաշվի ուսումնասիրեք 10-րդ և 4-րդ քայլերը, օրինակելի գծապատկերներն ու ուսուցման գործիքները։ Փորձնական գրառումները ժամանակավոր են։ Բացեք Serenity-ն՝ փորձելու օրինակելի զրույց։",
-  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Դուք դեռ կարող եք կարդալ և արտահանել 10-րդ քայլի ձեր պահպանված գրառումները։ Ցանկացած ժամանակ բաժանորդագրվեք նույն հաշվով՝ շարունակելու պահպանել գրառումները և օգտվելու 4-րդ քայլից ու Serenity-ից։"
+  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Դուք դեռ կարող եք կարդալ և արտահանել 10-րդ քայլի ձեր պահպանված գրառումները։ Ցանկացած ժամանակ բաժանորդագրվեք նույն հաշվով՝ շարունակելու պահպանել գրառումները և օգտվելու 4-րդ քայլից ու Serenity-ից։",
+  "Share pattern map": "Կիսվել օրինաչափությունների քարտեզով",
+  "Export pattern map": "Արտահանել օրինաչափությունների քարտեզը",
+  "Preview pattern map": "Նախադիտել օրինաչափությունների քարտեզը",
+  "Hide pattern map preview": "Թաքցնել օրինաչափությունների քարտեզի նախադիտումը",
+  "Preview, print, or share the pattern map for the selected dates. It shows saved answers with colors and symbols.": "Նախադիտեք կամ տպեք ընտրված ամսաթվերի օրինաչափությունների քարտեզը, կամ կիսվեք դրանով։ Գույներն ու նշանները ցույց են տալիս պահպանված պատասխանները։",
+  "Saved answers only. Written reflections and notes stay private.": "Ներառված են միայն պահպանված պատասխանները։ Ձեր գրավոր մտորումներն ու նշումները մնում են գաղտնի։",
+  "Page {page} of {total}": "Էջ {page}՝ {total}-ից",
+  "PDF includes every page. PNG includes the displayed page.": "PDF-ն ընդգրկում է բոլոր էջերը։ PNG-ն ընդգրկում է ցուցադրված էջը։",
+  "Pattern map shared.": "Օրինաչափությունների քարտեզով կիսվել եք։",
+  "File sharing is unavailable here. The file was downloaded so you can attach it yourself.": "Այստեղ հնարավոր չէ կիսվել ֆայլերով։ Ֆայլը ներբեռնվել է, որպեսզի ինքներդ կցեք այն։"
 }

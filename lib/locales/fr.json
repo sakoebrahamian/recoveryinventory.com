@@ -2307,5 +2307,15 @@
   "AI use and limits": "Utilisation et limites de l’IA",
   "Serenity AI reflection guide": "Serenity, guide de réflexion avec IA",
   "Explore Step 10, Step 4, sample charts, and the learning tools without an account. Demo entries are temporary. Open Serenity to try a sample conversation.": "Explorez les étapes 10 et 4, les graphiques d’exemple et les outils d’apprentissage sans compte. Les entrées de démonstration sont temporaires. Ouvrez Serenity pour essayer un exemple de conversation.",
-  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Vous pouvez toujours lire et exporter vos entrées de l’étape 10. Abonnez-vous quand vous le souhaitez avec le même compte pour continuer à enregistrer des entrées et accéder à l’étape 4 et à Serenity."
+  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Vous pouvez toujours lire et exporter vos entrées de l’étape 10. Abonnez-vous quand vous le souhaitez avec le même compte pour continuer à enregistrer des entrées et accéder à l’étape 4 et à Serenity.",
+  "Share pattern map": "Partager la carte des tendances",
+  "Export pattern map": "Exporter la carte des tendances",
+  "Preview pattern map": "Aperçu de la carte des tendances",
+  "Hide pattern map preview": "Masquer l’aperçu de la carte",
+  "Preview, print, or share the pattern map for the selected dates. It shows saved answers with colors and symbols.": "Prévisualisez, imprimez ou partagez la carte des tendances des dates sélectionnées. Les couleurs et les symboles représentent les réponses enregistrées.",
+  "Saved answers only. Written reflections and notes stay private.": "Seules les réponses enregistrées sont incluses. Vos réflexions écrites et vos notes restent privées.",
+  "Page {page} of {total}": "Page {page} sur {total}",
+  "PDF includes every page. PNG includes the displayed page.": "Le PDF contient toutes les pages. Le PNG contient la page affichée.",
+  "Pattern map shared.": "La carte des tendances a été partagée.",
+  "File sharing is unavailable here. The file was downloaded so you can attach it yourself.": "Le partage de fichiers est indisponible ici. Le fichier a été téléchargé pour que vous puissiez le joindre vous-même."
 }
