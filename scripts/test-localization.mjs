@@ -23,15 +23,20 @@ for (const language of newLanguages) {
 }
 const server = await createServer({ configFile: false, appType: "custom", server: { middlewareMode: true, hmr: false, watch: null }, resolve: { alias: { "@": path.resolve(".") } } });
 try {
-  const [localization, inventory, languageModel, guide, learning, about, comparisons, sitemap, reports, analytics, pattern, metadata] = await Promise.all([
-    "/lib/localization.ts", "/lib/inventory.ts", "/lib/languages.ts", "/lib/inventory-guide.ts", "/lib/public-learning.ts", "/lib/about-content.ts", "/lib/product-comparisons.ts", "/app/sitemap.ts", "/lib/step10-report.ts", "/lib/step10-analytics.ts", "/lib/step10-pattern-summary.ts", "/lib/site-metadata.ts",
+  const [localization, inventory, languageModel, guide, learning, about, comparisons, sitemap, reports, analytics, pattern, metadata, reflections] = await Promise.all([
+    "/lib/localization.ts", "/lib/inventory.ts", "/lib/languages.ts", "/lib/inventory-guide.ts", "/lib/public-learning.ts", "/lib/about-content.ts", "/lib/product-comparisons.ts", "/app/sitemap.ts", "/lib/step10-report.ts", "/lib/step10-analytics.ts", "/lib/step10-pattern-summary.ts", "/lib/site-metadata.ts", "/lib/reflection-copy.ts",
   ].map(file => server.ssrLoadModule(file)));
   assert.equal(languageModel.languages.length, 10);
   assert.equal(languageModel.supportedLanguage("pt-br"), "pt-BR");
   assert.equal(languageModel.supportedLanguage("xx"), null);
   const original = { en: "Honesty", es: "Honestidad", fa: "صداقت" };
   for (const language of languageModel.languages) {
-    await localization.loadTranslations(language);
+    const dictionary = await localization.loadTranslations(language);
+    for (const [key, [english, farsi]] of Object.entries(reflections.reflectionMessages)) {
+      const expected = language === "en" ? english : language === "fa" ? farsi : dictionary[english];
+      assert.ok(expected?.trim(), `${language}: missing journal copy for ${key}`);
+      assert.equal(reflections.reflectionText(language, key), expected);
+    }
     const t = (en, fa) => localization.translateForLanguage(language, en, fa);
     assert.equal(languageModel.isRtlLanguage(language), ["fa", "ar"].includes(language));
     assert.ok(inventory.formatDisplayDate("2026-11-19", language));
@@ -79,7 +84,7 @@ try {
     assert.ok(notice.includes(localization.translateForLanguage(language, "Available in 10 languages", "در دسترس به ۱۰ زبان")));
   }
   const pages = sitemap.default();
-  assert.equal(pages.length, 104);
+  assert.equal(pages.length, 144);
   assert.equal(new Set(pages.map(item => item.url)).size, pages.length);
   for (const language of newLanguages) {
     assert.ok(pages.some(item => item.url.endsWith(`/${language.toLowerCase()}/learn/step-10-daily-inventory`)));
@@ -109,5 +114,5 @@ try {
   }
   scan("app"); scan("components"); scan("lib");
   for (const language of newLanguages) assert.deepEqual([...missing[language]], [], `${language}: missing runtime keys`);
-  console.log("10-language checks passed: source coverage, placeholders, prices, 39 questions, learning, report selection, RTL, dates/currency, 104 sitemap URLs and hreflang.");
+  console.log("10-language checks passed: source coverage, private journal labels, placeholders, prices, 39 questions, learning, report selection, RTL, dates/currency, 144 sitemap URLs and hreflang.");
 } finally { await server.close(); }

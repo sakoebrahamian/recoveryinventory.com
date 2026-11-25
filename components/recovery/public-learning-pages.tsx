@@ -9,6 +9,7 @@ import {
   BookOpenText,
   Check,
   Compass,
+  ExternalLink,
   KeyRound,
   MoonStar,
   NotebookPen,
@@ -34,6 +35,7 @@ import { Step10InventoryTemplate } from "./step10-inventory-template";
 import { ComparisonLinks } from "./product-comparison-pages";
 import { comparisonUi } from "@/lib/product-comparisons";
 import { step10AppCopy, step10AppRoutes } from "@/lib/step10-app-content";
+import { reflectionLabels, reflectionText } from "@/lib/reflection-copy";
 
 const articleUi: Record<Language, {
   back: string;
@@ -174,6 +176,7 @@ export function PublicLearningArticlePage({
   language: Language;
   topic: PublicLearningTopic;
 }) {
+  if ("compact" in topic) return <ReflectionLearningPage language={language} topic={topic} />;
   const copy = topic.copy[language];
   const ui = articleUi[language];
   const languageRoutes = learningLanguageRoutes(topic.slug);
@@ -268,6 +271,57 @@ export function PublicLearningArticlePage({
 
       {(topic.id === "step4" || topic.id === "step10") && <InventoryGuideNotice language={language} />}
       <AnalyticsFeatureGuide language={language} compact />
+      <SiteFooter language={language} />
+    </main>
+  );
+}
+
+const fellowshipLinks = [
+  { name: "Alcoholics Anonymous (AA)", meetings: "https://www.aa.org/find-aa", literature: "https://www.aa.org/resources/literature" },
+  { name: "Narcotics Anonymous (NA)", meetings: "https://na.org/meetingsearch/", literature: "https://na.org/literature/" },
+  { name: "Al-Anon Family Groups", meetings: "https://al-anon.org/al-anon-meetings/", literature: "https://al-anon.org/for-members/members-resources/literature/" },
+] as const;
+
+function ReflectionLearningPage({ language, topic }: { language: Language; topic: Extract<PublicLearningTopic, { compact: true }> }) {
+  const copy = topic.copy[language];
+  const labels = topic.id === "resources" ? null : reflectionLabels[topic.id];
+  const routes = learningLanguageRoutes(topic.slug);
+  const t = (english: string, farsi: string) => translateForLanguage(language, english, farsi);
+  return (
+    <main className="inner-page public-learning-page" lang={language} dir={isRtlLanguage(language) ? "rtl" : "ltr"}>
+      <SiteHeader language={language} languageRoutes={routes} />
+      <article className="public-learning-article">
+        <header className="public-learning-article-hero">
+          <a className="public-learning-back" href={learningBasePath(language)}>{articleUi[language].back}</a>
+          <span className="public-learning-eyebrow">{copy.eyebrow}</span>
+          <h1>{copy.title}</h1>
+          <p>{copy.lead}</p>
+          <LanguageLinks language={language} slug={topic.slug} />
+        </header>
+        {labels ? (
+          <div className="ri-learning-journal-body">
+            <section className="public-learning-reflection"><Sparkles size={24} aria-hidden="true" />
+              <div><h2>{t("Reflection prompt", "پرسش برای تأمل")}</h2><p>{reflectionText(language, labels.prompt)}</p></div>
+            </section>
+            <section className="public-learning-context">
+              <h2>{reflectionText(language, "fictionalExample")}</h2>
+              <p>{reflectionText(language, labels.example)}</p>
+              <a className="button button-primary" href={"/app?tool=" + topic.id + "&lang=" + language}>{reflectionText(language, "openJournal")}</a>
+              <p>{reflectionText(language, "paidJournals")}</p>
+            </section>
+          </div>
+        ) : (
+          <div className="public-learning-card-grid ri-fellowship-grid">
+            {fellowshipLinks.map((fellowship) => (
+              <section className="public-learning-card" key={fellowship.name}>
+                <h2 dir="auto">{fellowship.name}</h2>
+                <a href={fellowship.meetings} referrerPolicy="no-referrer">{reflectionText(language, "findMeetings")}<ExternalLink size={16} aria-hidden="true" /></a>
+                <a href={fellowship.literature} referrerPolicy="no-referrer">{reflectionText(language, "officialLiterature")}<ExternalLink size={16} aria-hidden="true" /></a>
+              </section>
+            ))}
+          </div>
+        )}
+      </article>
       <SiteFooter language={language} />
     </main>
   );

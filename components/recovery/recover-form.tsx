@@ -4,6 +4,7 @@ import * as React from "react";
 import { ArrowLeft, Eye, EyeOff, KeyRound, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { useLanguage } from "./language-provider";
 import { translatePasswordError } from "./password-error";
+import { isReflectionKind, type ReflectionKind } from "@/lib/reflection-journals";
 
 type LoginMethod = "password" | "email" | "recovery";
 
@@ -20,6 +21,19 @@ export function RecoverForm() {
   const [emailCode, setEmailCode] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [busy, setBusy] = React.useState(false);
+  const [journal, setJournal] = React.useState<ReflectionKind | null>(null);
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const tool = new URLSearchParams(window.location.search).get("tool");
+      if (isReflectionKind(tool)) setJournal(tool);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+  const journalQuery = journal ? "?tool=" + journal + "&lang=" + language : "";
+
+  function openWorkspace() {
+    window.location.assign("/app" + journalQuery);
+  }
 
   function chooseMethod(next: LoginMethod) {
     setMethod(next);
@@ -41,8 +55,7 @@ export function RecoverForm() {
       const result = await response.json() as { error?: string };
       if (!response.ok) throw new Error(t(result.error || "That code was not recognized.", "این کد شناخته نشد."));
       // Native navigation avoids the production Vinext client-router interception error.
-      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-      window.location.assign("/app");
+      openWorkspace();
     } catch (caught) {
       setMessage(caught instanceof Error ? caught.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
       setBusy(false);
@@ -61,8 +74,7 @@ export function RecoverForm() {
       });
       const result = await response.json() as { error?: string };
       if (!response.ok) throw new Error(translatePasswordError(t, result.error, "Username or password was not recognized.", "نام کاربری یا رمز عبور شناخته نشد."));
-      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-      window.location.assign("/app");
+      openWorkspace();
     } catch (caught) {
       setMessage(caught instanceof Error ? caught.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
       setBusy(false);
@@ -104,8 +116,7 @@ export function RecoverForm() {
       const result = await response.json() as { error?: string };
       if (!response.ok) throw new Error(t(result.error || "That code was not recognized.", "این کد شناخته نشد."));
       // Native navigation avoids the production Vinext client-router interception error.
-      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-      window.location.assign("/app");
+      openWorkspace();
     } catch (caught) {
       setMessage(caught instanceof Error ? caught.message : t("Please try again.", "لطفاً دوباره تلاش کنید."));
       setBusy(false);
@@ -185,7 +196,7 @@ export function RecoverForm() {
         </>
       )}
 
-      <p className="auth-switch">{t("Need an account?", "به حساب نیاز دارید؟")} <a href="/join">{t("See both signup options", "مشاهده هر دو روش عضویت")}</a></p>
+      <p className="auth-switch">{t("Need an account?", "به حساب نیاز دارید؟")} <a href={"/join" + journalQuery}>{t("See both signup options", "مشاهده هر دو روش عضویت")}</a></p>
     </div>
   );
 }

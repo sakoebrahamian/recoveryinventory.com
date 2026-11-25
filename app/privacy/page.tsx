@@ -4,9 +4,10 @@ import { SiteFooter } from "@/components/recovery/site-footer";
 import { SiteHeader } from "@/components/recovery/site-header";
 import { useLanguage } from "@/components/recovery/language-provider";
 import { MarketingAnalyticsChoices } from "@/components/recovery/marketing-analytics-choices";
+import { reflectionText } from "@/lib/reflection-copy";
 
 export default function PrivacyPage() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   return (
     <main className="inner-page">
       <SiteHeader />
@@ -14,6 +15,7 @@ export default function PrivacyPage() {
         <h1>{t("Privacy policy", "سیاست حریم خصوصی")}</h1>
         <p>{t("Last updated November 22, 2026", "آخرین به‌روزرسانی: ۲۲ نوامبر ۲۰۲۶")}</p>
         <div className="legal-card dashboard-card">
+          <p>{reflectionText(language, "privateStorage")}</p>
           <section><h2>{t("Free-account inventories", "ترازنامه‌های حساب رایگان")}</h2><p>{t("Free Step 10 entries use the same encrypted account storage as paid entries. They are not public and are never sent to a sponsor automatically. Your account creation time determines the 30-day free saving period, and we count your saved Step 10 dates to enforce the 30-entry limit. Upgrading keeps the same account and entries. Saved Step 10 remains readable and exportable after the 30-day free period.", "نوشته‌های رایگان گام ۱۰ از همان ذخیره‌سازی رمزگذاری‌شده حساب برای نوشته‌های پولی استفاده می‌کنند. عمومی نیستند و هیچ‌گاه خودکار برای راهنما فرستاده نمی‌شوند. زمان ایجاد حساب، دوره ۳۰ روزه ذخیره رایگان را تعیین می‌کند و تاریخ‌های گام ۱۰ ذخیره‌شده برای اجرای محدودیت ۳۰ ترازنامه شمرده می‌شوند. هنگام ارتقا، همان حساب و نوشته‌ها حفظ می‌شوند. گام ۱۰ ذخیره‌شده پس از دوره رایگان ۳۰ روزه نیز قابل خواندن و خروجی گرفتن است.")}</p></section>
           <section><h2>{t("Privacy is part of the product", "حریم خصوصی بخشی از محصول است")}</h2><p>{t("Recovery Inventory lets you create an anonymous account with a private alias, username, password, and recovery code, or choose verified email access. A real name and email are not required for anonymous website subscription. Inventory content is encrypted before storage.", "Recovery Inventory به شما اجازه می‌دهد یک حساب ناشناس با نام مستعار، نام کاربری، رمز عبور و کد بازیابی خصوصی بسازید، یا ورود با ایمیل تأییدشده را انتخاب کنید. برای اشتراک وب‌سایت ناشناس نام واقعی و ایمیل لازم نیست. محتوای ترازنامه پیش از ذخیره شدن رمزگذاری می‌شود.")}</p></section>
           <section><h2>{t("Information we process", "اطلاعاتی که پردازش می‌کنیم")}</h2><ul><li>{t("Your alias or display name, your chosen username, and your email address only if you choose email access or add it later.", "نام مستعار یا نام نمایشی، نام کاربری انتخابی و فقط در صورت انتخاب ورود ایمیلی یا افزودن آن در آینده، آدرس ایمیل شما.")}</li><li>{t("One-way password and recovery-code hashes, plus short-lived hashed email verification codes when email access is used. Passwords and recovery codes are not stored in readable form.", "هش یک‌طرفه رمز عبور و کد بازیابی، و هنگام استفاده از ورود ایمیلی، کدهای تأیید هش‌شده و کوتاه‌مدت. رمزهای عبور و کدهای بازیابی به شکل خوانا ذخیره نمی‌شوند.")}</li><li>{t("Encrypted Step 4 and Step 10 entries, dates, and basic account settings.", "مطالب رمزگذاری‌شده گام ۴ و گام ۱۰، تاریخ‌ها و تنظیمات پایه حساب.")}</li><li>{t("Subscription status and Stripe customer identifiers—not full card details.", "وضعیت عضویت و شناسه‌های مشتری Stripe — نه اطلاعات کامل کارت.")}</li><li>{t("Limited technical and security logs provided by our hosting service.", "گزارش‌های فنی و امنیتی محدود که توسط سرویس میزبانی ارائه می‌شود.")}</li></ul></section>

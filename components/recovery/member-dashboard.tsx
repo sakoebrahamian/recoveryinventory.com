@@ -2,7 +2,7 @@
 
 import { dateTimeFormat } from "@/lib/languages";
 
-import { languageLocale } from "@/lib/languages";
+import { languageLocale, localizedPath } from "@/lib/languages";
 
 import * as React from "react";
 import { BarChart3, BookOpenText, CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, FileDown, LockKeyhole, LogOut, RefreshCw, Save, ShieldCheck } from "lucide-react";
@@ -26,6 +26,9 @@ import { BillingTimeoutError, requestBilling } from "@/lib/billing-client";
 import { SubscriptionPlanPicker } from "./subscription-plans";
 import { isBillingPlan, type BillingPlan } from "@/lib/subscription-plans";
 import { InventoryGuide } from "./inventory-guide";
+import { ReflectionJournal } from "./reflection-journal";
+import { reflectionLabels, reflectionText } from "@/lib/reflection-copy";
+import { isReflectionKind, reflectionKinds, reflectionSlugs, type ReflectionKind } from "@/lib/reflection-journals";
 
 type AccountView = {
   alias: string;
@@ -46,7 +49,7 @@ type AccountView = {
   analyticsOwner: boolean;
 };
 
-type MemberTool = "step10" | "step4" | "analytics" | "learning";
+type MemberTool = "step10" | "step4" | "analytics" | "learning" | ReflectionKind;
 
 function dateForYear(year: number): string {
   const today = todayIso();
@@ -67,6 +70,8 @@ export function MemberDashboard() {
   const [recordsLoading, setRecordsLoading] = React.useState(true);
   const [activeType, setActiveType] = React.useState<MemberTool>("step10");
   const [step4Dirty, setStep4Dirty] = React.useState(false);
+  const [reflectionDirty, setReflectionDirty] = React.useState(false);
+  const [reflectionDate, setReflectionDate] = React.useState(todayIso);
   const [analyticsVersion, setAnalyticsVersion] = React.useState(0);
   const [reportPeriod, setReportPeriod] = React.useState(() => defaultReportPeriod(todayIso()));
   const [message, setMessage] = React.useState("");
@@ -78,8 +83,11 @@ export function MemberDashboard() {
 
   React.useEffect(() => {
     const timer = window.setTimeout(() => {
-      const plan = new URLSearchParams(window.location.search).get("plan");
+      const search = new URLSearchParams(window.location.search);
+      const plan = search.get("plan");
+      const tool = search.get("tool");
       if (isBillingPlan(plan)) setBillingPlan(plan);
+      if (isReflectionKind(tool)) setActiveType(tool);
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
@@ -262,20 +270,24 @@ export function MemberDashboard() {
     window.location.assign("/recover");
   }
 
-  function switchTool(next: MemberTool) {
+  function switchTool(next: MemberTool, date = selectedDate) {
     if (next === activeType) return;
     if (activeType === "step4" && step4Dirty && !window.confirm(t("You have unsaved Step 4 changes. Continue without saving them?", "تغییرات ذخیره‌نشده گام چهارم دارید. بدون ذخیره ادامه می‌دهید؟"))) return;
+    if (reflectionDirty && !window.confirm(reflectionText(language, "unsaved"))) return;
     setStep4Dirty(false);
+    setReflectionDirty(false);
+    if (isReflectionKind(next)) setReflectionDate(date);
     setActiveType(next);
   }
 
   if (loading) return <div className="loading-panel"><div><div className="spinner" /><p>{t("Opening your private space…", "در حال باز کردن فضای خصوصی شما…")}</p></div></div>;
 
   if (!account) {
+    const query = isReflectionKind(activeType) ? "?tool=" + activeType + "&lang=" + language : "";
     return (
       <main className="inner-page">
         <div className="member-topbar"><BrandMark /><div className="member-header-actions"><LanguageToggle /><ThemePicker /></div></div><LanguageAvailability />
-        <section className="member-locked"><div><div className="member-locked-icon"><ShieldCheck /></div><h1>{t("Your account is private", "حساب شما خصوصی است")}</h1><p>{t("Log in with a username and password, an emailed code, or a private recovery code. Anonymous members can use a private username without providing a real name or email.", "با نام کاربری و رمز عبور، کد ایمیلی یا کد بازیابی خصوصی وارد شوید. اعضای ناشناس می‌توانند بدون ارائه نام واقعی یا ایمیل از نام کاربری خصوصی استفاده کنند.")}</p><div className="hero-actions"><a className="button button-primary" href="/recover">{t("Log in", "ورود")}</a><a className="button button-outline" href="/join">{t("Create account", "ایجاد حساب")}</a></div></div></section>
+        <section className="member-locked"><div><div className="member-locked-icon"><ShieldCheck /></div><h1>{t("Your account is private", "حساب شما خصوصی است")}</h1><p>{t("Log in with a username and password, an emailed code, or a private recovery code. Anonymous members can use a private username without providing a real name or email.", "با نام کاربری و رمز عبور، کد ایمیلی یا کد بازیابی خصوصی وارد شوید. اعضای ناشناس می‌توانند بدون ارائه نام واقعی یا ایمیل از نام کاربری خصوصی استفاده کنند.")}</p><div className="hero-actions"><a className="button button-primary" href={"/recover" + query}>{t("Log in", "ورود")}</a><a className="button button-outline" href={"/join" + query}>{t("Create account", "ایجاد حساب")}</a></div></div></section>
         <SiteFooter />
       </main>
     );
@@ -356,14 +368,15 @@ export function MemberDashboard() {
           <section className="member-inventory-section dashboard-inventory-column">
           <div className="member-inventory-heading">
             <div>
-              <span>{activeType === "analytics" ? t("Step 10 only", "فقط گام ۱۰") : activeType === "step4" ? t("Not tied to the daily calendar", "مستقل از تقویم روزانه") : activeType === "learning" ? t("Step 4 and Step 10", "گام ۴ و گام ۱۰") : t("Selected date", "تاریخ انتخاب‌شده")}</span>
-              <h2>{activeType === "analytics" ? t("Your patterns through today", "الگوهای شما تا امروز") : activeType === "step4" ? t("Your reusable Step 4 workbooks", "دفترهای قابل ویرایش گام چهارم شما") : activeType === "learning" ? t("Recovery learning center", "مرکز آموزش بهبودی") : formatDisplayDate(selectedDate, language)}</h2>
+              <span>{activeType === "analytics" ? t("Step 10 only", "فقط گام ۱۰") : activeType === "step4" ? t("Not tied to the daily calendar", "مستقل از تقویم روزانه") : activeType === "learning" ? t("Learn", "یادگیری") : isReflectionKind(activeType) ? reflectionText(language, reflectionLabels[activeType].label) : t("Selected date", "تاریخ انتخاب‌شده")}</span>
+              <h2>{activeType === "analytics" ? t("Your patterns through today", "الگوهای شما تا امروز") : activeType === "step4" ? t("Your reusable Step 4 workbooks", "دفترهای قابل ویرایش گام چهارم شما") : activeType === "learning" ? t("Recovery learning center", "مرکز آموزش بهبودی") : isReflectionKind(activeType) ? reflectionText(language, "moreJournals") : formatDisplayDate(selectedDate, language)}</h2>
             </div>
             <div className="member-inventory-tools">
               {activeType === "step10" && <button className="button button-outline inventory-export-trigger" type="button" onClick={() => exportRef.current?.open()}><FileDown size={17} />{t("Export Step 10", "خروجی گام ۱۰")}</button>}
               <div className="workspace-tabs member-workspace-tabs" role="tablist" aria-label={t("Choose a member tool", "انتخاب ابزار اعضا")}>
                 <button className={`workspace-tab${activeType === "step10" ? " is-active" : ""}`} type="button" onClick={() => switchTool("step10")} role="tab" aria-selected={activeType === "step10"}><span>{t("Step 10 Daily Inventory", "ترازنامه روزانه گام دهم")}</span></button>
                 <button className={`workspace-tab${activeType === "step4" ? " is-active" : ""}`} type="button" onClick={() => switchTool("step4")} role="tab" aria-selected={activeType === "step4"}><span>{t("Step 4 Personal Inventory", "ترازنامه شخصی گام چهارم")}</span></button>
+                <button className={`workspace-tab${isReflectionKind(activeType) ? " is-active" : ""}`} type="button" onClick={() => { if (!isReflectionKind(activeType)) switchTool("step67"); }} role="tab" aria-selected={isReflectionKind(activeType)}><span>{reflectionText(language, "moreJournals")}</span></button>
                 <button className={`workspace-tab${activeType === "analytics" ? " is-active" : ""}`} type="button" onClick={() => switchTool("analytics")} role="tab" aria-selected={activeType === "analytics"}><BarChart3 size={16} /><span>{t("Analytics", "تحلیل")}</span></button>
                 <button className={`workspace-tab${activeType === "learning" ? " is-active" : ""}`} type="button" onClick={() => switchTool("learning")} role="tab" aria-selected={activeType === "learning"}><BookOpenText size={16} /><span>{t("Learn", "یادگیری")}</span></button>
               </div>
@@ -398,12 +411,31 @@ export function MemberDashboard() {
               onExport={() => exportRef.current?.open({ type: "step10", format: "archive" })}
               onExportChart={() => exportRef.current?.open({ format: "chart", day: selectedDate })}
               onOpenLearning={() => switchTool("learning")}
+              onOpenMorning={account.membershipActive ? (date) => switchTool("step11", date) : undefined}
               reportPeriod={reportPeriod}
               onReportPeriodChange={setReportPeriod}
               refreshKey={analyticsVersion}
             /></fieldset>
           ) : activeType === "step4" ? (
             account.membershipActive ? <Step4Workspace onOpenLearning={() => switchTool("learning")} onDirtyChange={setStep4Dirty} /> : <section className="dashboard-card"><LockKeyhole size={24} /><h3>{t("Step 4 is included with a paid subscription", "گام ۴ همراه با اشتراک پولی است")}</h3><p>{t("Your free account includes 30 free days of Step 10. Choose a paid plan to save Step 4 workbooks and use the AI guide.", "حساب رایگان شامل ۳۰ روز رایگان گام ۱۰ است. برای ذخیره دفترهای گام ۴ و استفاده از راهنمای هوش مصنوعی، طرح پولی انتخاب کنید.")}</p><a href="#upgrade-options" className="button button-outline" onClick={() => setUpgradeOpen(true)}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a><a className="text-link" href="/demo?step=4">{t("Try Step 4", "گام چهارم را امتحان کنید")}</a></section>
+          ) : isReflectionKind(activeType) ? (
+            <>
+              <nav className="ri-inventory-mode ri-reflection-navigation" aria-label={reflectionText(language, "moreJournals")}>
+                {reflectionKinds.map((kind) => <button type="button" className="button button-outline" key={kind} aria-pressed={activeType === kind} onClick={() => switchTool(kind, reflectionDate)}>{reflectionText(language, kind)}</button>)}
+              </nav>
+              {account.membershipActive ? <ReflectionJournal key={activeType} kind={activeType} initialDate={reflectionDate} onDirtyChange={setReflectionDirty} /> : (
+                <section className="dashboard-card">
+                  <LockKeyhole size={24} aria-hidden="true" />
+                  <h3>{reflectionText(language, activeType)}</h3>
+                  <p>{reflectionText(language, reflectionLabels[activeType].intro)}</p>
+                  <p>{reflectionText(language, "paidJournals")}</p>
+                  <div className="ri-reflection-actions">
+                    <a href="#upgrade-options" className="button button-outline" onClick={() => setUpgradeOpen(true)}>{t("See optional paid plans", "مشاهده طرح‌های پولی اختیاری")}</a>
+                    <a href={localizedPath(language, "/learn/" + reflectionSlugs[activeType])} className="text-link">{t("Read guide", "مطالعه راهنما")}</a>
+                  </div>
+                </section>
+              )}
+            </>
           ) : activeType === "analytics" ? (
             <Step10Analytics
               refreshKey={analyticsVersion}
@@ -416,7 +448,12 @@ export function MemberDashboard() {
               onExportChart={(day) => exportRef.current?.open({ format: "chart", day })}
             />
           ) : (
-            <RecoveryLearningCenter />
+            <>
+              <nav className="ri-reflection-actions ri-reflection-navigation" aria-label={reflectionText(language, "moreJournals")}>
+                {reflectionKinds.map((kind) => <a className="button button-outline" key={kind} href={localizedPath(language, "/learn/" + reflectionSlugs[kind])}>{reflectionText(language, reflectionLabels[kind].guide)}</a>)}
+              </nav>
+              <RecoveryLearningCenter />
+            </>
           )}
           </section>
         </div>

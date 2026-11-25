@@ -8,6 +8,7 @@ import { recordSiteAction } from "@/lib/site-analytics";
 import { BillingTimeoutError, requestBilling } from "@/lib/billing-client";
 import { SubscriptionPlanPicker } from "./subscription-plans";
 import { isBillingPlan, type BillingPlan } from "@/lib/subscription-plans";
+import { isReflectionKind, type ReflectionKind } from "@/lib/reflection-journals";
 
 type JoinMethod = "anonymous" | "email";
 
@@ -31,11 +32,16 @@ export function JoinForm() {
   const [billingError, setBillingError] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [billingPlan, setBillingPlan] = React.useState<BillingPlan>("yearly");
+  const [journal, setJournal] = React.useState<ReflectionKind | null>(null);
+  const journalQuery = journal ? "tool=" + journal + "&lang=" + language : "";
 
   React.useEffect(() => {
     const timer = window.setTimeout(() => {
-      const plan = new URLSearchParams(window.location.search).get("plan");
+      const search = new URLSearchParams(window.location.search);
+      const plan = search.get("plan");
+      const tool = search.get("tool");
       if (isBillingPlan(plan)) setBillingPlan(plan);
+      if (isReflectionKind(tool)) setJournal(tool);
     }, 0);
     return () => window.clearTimeout(timer);
   }, []);
@@ -141,8 +147,7 @@ export function JoinForm() {
       if (result.activated) {
         recordSiteAction("membership_activated");
         // Native navigation avoids the production Vinext client-router interception error.
-        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-        window.location.assign("/app");
+        window.location.assign(journalQuery ? "/app?" + journalQuery : "/app");
         return;
       }
       if (!result.url) throw new Error(t("Checkout is not available yet.", "پرداخت هنوز در دسترس نیست."));
@@ -172,7 +177,7 @@ export function JoinForm() {
         {billingError && <p className="form-error" role="alert">{billingError}</p>}
         <button className="button button-outline button-full" type="button" onClick={beginCheckout} disabled={disabled || busy}><ShieldCheck size={18} />{busy ? (promotionCode.trim() ? t("Applying code…", "در حال اعمال کد…") : t("Opening secure checkout…", "در حال باز کردن پرداخت امن…")) : t("Activate website subscription", "فعال‌سازی اشتراک وب‌سایت")}</button>
         </details>
-        {!disabled && <p className="auth-switch"><a href="/app">{t("Open your workspace", "فضای کاری خود را باز کنید")}</a></p>}
+        {!disabled && <p className="auth-switch"><a href={journalQuery ? "/app?" + journalQuery : "/app"}>{t("Open your workspace", "فضای کاری خود را باز کنید")}</a></p>}
       </>
     );
   }
@@ -305,7 +310,7 @@ export function JoinForm() {
         </>
       )}
 
-      {!accountCreated && <p className="auth-switch">{t("Already have an account?", "از قبل حساب دارید؟")} <a href="/recover">{t("Log in", "ورود")}</a></p>}
+      {!accountCreated && <p className="auth-switch">{t("Already have an account?", "از قبل حساب دارید؟")} <a href={journalQuery ? "/recover?" + journalQuery : "/recover"}>{t("Log in", "ورود")}</a></p>}
     </div>
   );
 }

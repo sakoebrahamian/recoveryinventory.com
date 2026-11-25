@@ -9,7 +9,8 @@ import { Step10InventoryTemplate } from "./step10-inventory-template";
 
 export function Step10AppPage({ language }: { language: Language }) {
   const copy = step10AppCopy[language];
-  const template = findLearningTopic("step-10-daily-inventory")?.copy[language].inventoryTemplate;
+  const topic = findLearningTopic("step-10-daily-inventory");
+  const template = topic && !("compact" in topic) ? topic.copy[language].inventoryTemplate : undefined;
   return <main className="inner-page public-learning-page" lang={language} dir={isRtlLanguage(language) ? "rtl" : "ltr"}>
     <SiteHeader language={language} languageRoutes={step10AppRoutes} />
     <section className="public-learning-hero"><div className="public-learning-hero-copy">

@@ -22,3 +22,10 @@ export function step4WorkbookGuidance(t: Translate) {
 export function subscriptionGuidance(t: Translate) {
   return t("The subscription pays for Recovery Inventory’s digital tools. It is separate from membership in any recovery fellowship.", "هزینه اشتراک برای ابزارهای دیجیتال Recovery Inventory است و از عضویت در هر انجمن بهبودی جداست.");
 }
+
+export function independenceDisclosure(t: Translate) {
+  return t(
+    "Recovery Inventory is an independent tool and is not affiliated with or endorsed by Alcoholics Anonymous, Narcotics Anonymous, AAWS, or NAWS. It is not a substitute for professional care.",
+    "Recovery Inventory ابزاری مستقل است و وابسته یا مورد تأیید انجمن الکلی‌های گمنام، معتادان گمنام، AAWS یا NAWS نیست. این ابزار جایگزین مراقبت حرفه‌ای نیست."
+  );
+}

@@ -20,7 +20,9 @@ import { formatStep10SponsorReport } from "@/lib/step10-report";
 import { copyStep10Report, shareStep10Report } from "@/lib/step10-share";
 import { defaultReportPeriod, reportBounds, type ReportPeriod } from "@/lib/step10-report-period";
 import { step10PracticeGuidance } from "@/lib/recovery-guidance";
+import { reflectionText } from "@/lib/reflection-copy";
 import { useLanguage } from "./language-provider";
+import { MorningIntention } from "./reflection-journal";
 import { ReportPeriodPicker } from "./report-period-picker";
 import { Step10ReportChart } from "./step10-report-chart";
 import { createDemoAnalytics } from "./step10-analytics";
@@ -52,6 +54,7 @@ type Step10InventoryProps = {
   reportPeriod?: ReportPeriod;
   onReportPeriodChange?: (period: ReportPeriod) => void;
   refreshKey?: number;
+  onOpenMorning?: (date: string) => void;
 };
 
 const demoStates: Record<string, PrincipleState> = {
@@ -95,8 +98,14 @@ export function createDemoStep10Data(t: (english: string, farsi: string) => stri
   };
 }
 
-export function Step10Inventory({ demo = false, initialData, onSave, onExport, onExportChart, onOpenLearning, onChange, reportPeriod, onReportPeriodChange, refreshKey = 0 }: Step10InventoryProps) {
+export function Step10Inventory({ demo = false, initialData, onSave, onExport, onExportChart, onOpenLearning, onChange, reportPeriod, onReportPeriodChange, refreshKey = 0, onOpenMorning }: Step10InventoryProps) {
   const { language, t } = useLanguage();
+  const [mode, setMode] = React.useState<"quick" | "full">("full");
+  React.useEffect(() => {
+    if (!demo || new URLSearchParams(window.location.search).get("mode") !== "quick") return;
+    const timer = window.setTimeout(() => setMode("quick"), 0);
+    return () => window.clearTimeout(timer);
+  }, [demo]);
   const [data, setData] = React.useState<Step10Data>(() => {
     const sample = demo ? createDemoStep10Data(t) : null;
     return {
@@ -307,6 +316,31 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
         </header>
 
         <div className="inventory-content">
+          <div className="ri-inventory-mode" role="group" aria-label={t("Choose an inventory", "انتخاب ترازنامه")}>
+            <button type="button" className="button button-outline" aria-pressed={mode === "quick"} onClick={() => setMode("quick")}>{reflectionText(language, "quick")}</button>
+            <button type="button" className="button button-outline" aria-pressed={mode === "full"} onClick={() => setMode("full")}>{reflectionText(language, "full")}</button>
+          </div>
+          {onOpenMorning && <MorningIntention date={data.date} onOpen={() => onOpenMorning(data.date)} />}
+          {mode === "quick" ? (
+            <section className="ri-quick-check-in">
+              {([
+                ["highlights", reflectionText(language, "wentWell")],
+                ["attention", reflectionText(language, "needsAttention")],
+                ["tomorrow", t("What is one helpful action I can take tomorrow?", "فردا چه اقدام مفیدی می‌توانم انجام دهم؟")],
+              ] as const).map(([field, label]) => (
+                <label className="form-field" key={field}>
+                  <span>{label}</span>
+                  <textarea className="form-textarea" rows={3} dir="auto" value={data[field]} onChange={(event) => updateField(field, event.target.value)} />
+                </label>
+              ))}
+              <div className="ri-reflection-actions">
+                <button className="button button-primary" type="button" onClick={saveInventory} disabled={saving}>
+                  <Save size={17} aria-hidden="true" />{saving ? t("Saving…", "در حال ذخیره…") : t("Save inventory", "ذخیره ترازنامه")}
+                </button>
+                {message && <p className="toast-note" role="status">{message}</p>}
+              </div>
+            </section>
+          ) : <>
           <div className="inventory-intro-row">
             <div>
               <h3>{t("Reflect on each daily question", "به هر پرسش روزانه فکر کنید")}</h3>
@@ -409,6 +443,7 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
               </div>
             </div>
           </section>
+          </>}
         </div>
       </section>
 
@@ -431,9 +466,9 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
           {rangeReport.loading && <p>{t("Preparing analytics for sharing…", "در حال آماده‌سازی تحلیل برای اشتراک…")}</p>}
           {bounds && reportAnalytics && <details className="step10-report-preview" ref={chartRef} open={chartOpen} onToggle={(event) => setChartOpen(event.currentTarget.open)}><summary>{t("Preview inventory chart", "پیش‌نمایش نمودار ترازنامه")}</summary><Step10ReportChart analytics={reportAnalytics} bounds={bounds} /></details>}
           <div className="sidebar-actions">
-            <button className="button button-primary" type="button" onClick={saveInventory} disabled={saving}>
+            {mode === "full" && <button className="button button-primary" type="button" onClick={saveInventory} disabled={saving}>
               <Save size={17} />{saving ? t("Saving…", "در حال ذخیره…") : t("Save inventory", "ذخیره ترازنامه")}
-            </button>
+            </button>}
             <button className="button button-outline" type="button" onClick={shareInventory}><Share2 size={17} />{t("Share with sponsor", "اشتراک با حامی")}</button>
             {rangeReport.error && <button className="button button-outline" type="button" onClick={rangeReport.retry}><Share2 size={17} />{t("Retry analytics", "تلاش دوباره برای تحلیل")}</button>}
             <button className="button button-outline" type="button" onClick={copyInventory}><Copy size={17} />{t("Copy full inventory", "کپی ترازنامه کامل")}</button>
@@ -441,12 +476,12 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
             {onExportChart && <button className="button button-outline" type="button" onClick={onExportChart}><FileDown size={17} />{t("Export chart only", "خروجی فقط نمودار")}</button>}
             <button className="button button-danger" type="button" onClick={resetInventory}><RotateCcw size={17} />{t("Clear this page", "پاک کردن صفحه")}</button>
           </div>
-          {message && <p className="toast-note step10-desktop-message" role="status">{message}</p>}
+          {mode === "full" && message && <p className="toast-note step10-desktop-message" role="status">{message}</p>}
         </section>
       </aside>
 
       <div className={`step10-mobile-actions${editing ? " is-editing" : ""}`} ref={mobileActionsRef}>
-        {message && <p className="step10-mobile-message" role="status">{message}</p>}
+        {mode === "full" && message && <p className="step10-mobile-message" role="status">{message}</p>}
         <div className="step10-mobile-menu" id="step10-mobile-menu" ref={mobileMenuRef} hidden={!mobileActionsOpen} role="group" aria-label={t("Inventory actions", "گزینه‌های ترازنامه")}>
           <ReportPeriodPicker period={period} onChange={choosePeriod} selectedDay={data.date} id="step10-report-period-mobile" />
           <button className="button button-outline" type="button" onClick={viewChart}><BarChart3 size={17} />{t("View inventory chart", "مشاهده نمودار ترازنامه")}</button>
@@ -458,9 +493,9 @@ export function Step10Inventory({ demo = false, initialData, onSave, onExport, o
           <button className="button button-danger" type="button" onClick={() => { setMobileActionsOpen(false); resetInventory(); }}><RotateCcw size={17} />{t("Clear this page", "پاک کردن صفحه")}</button>
         </div>
         <div className="step10-mobile-bar">
-          <button className="button button-primary" type="button" onClick={() => { setMobileActionsOpen(false); void saveInventory(); }} disabled={saving}>
+          {mode === "full" && <button className="button button-primary" type="button" onClick={() => { setMobileActionsOpen(false); void saveInventory(); }} disabled={saving}>
             <Save size={17} />{saving ? t("Saving…", "در حال ذخیره…") : t("Save inventory", "ذخیره ترازنامه")}
-          </button>
+          </button>}
           <button className="button button-outline" type="button" ref={mobileActionsButtonRef} aria-controls="step10-mobile-menu" aria-expanded={mobileActionsOpen} onClick={() => setMobileActionsOpen((open) => !open)}>
             <MoreHorizontal size={18} />{t("More actions", "گزینه‌های بیشتر")}
           </button>

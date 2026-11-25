@@ -45,6 +45,7 @@ try {
     "cloudflare-d1-password-setup.sql",
     "cloudflare-d1-analytics-setup.sql",
     "cloudflare-d1-inventory-guide-setup.sql",
+    "cloudflare-d1-reflections-setup.sql",
   ]) {
     const schemaResult = spawnSync(
       "pnpm",
