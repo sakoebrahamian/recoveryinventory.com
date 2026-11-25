@@ -23,15 +23,16 @@ export function questionIdsForPrinciples(ids: string[]) {
   return step10Questions.filter((question) => selected.includes(question.principleId)).map(({ id }) => id);
 }
 
-export function step10Trends(days: AnalyticsDay[], bounds: ReportBounds, questionIds: string[], interval: "week" | "month"): TrendPoint[] {
+export function step10Trends(days: AnalyticsDay[], bounds: ReportBounds, questionIds: string[], interval: "day" | "week" | "month"): TrendPoint[] {
   const result: TrendPoint[] = [];
   const cursor = new Date(`${bounds.from}T12:00:00Z`);
   if (interval === "week") cursor.setUTCDate(cursor.getUTCDate() - (cursor.getUTCDay() + 6) % 7);
-  else cursor.setUTCDate(1);
+  else if (interval === "month") cursor.setUTCDate(1);
   while (cursor.toISOString().slice(0, 10) <= bounds.through) {
     const start = cursor.toISOString().slice(0, 10);
     const end = new Date(cursor);
-    if (interval === "week") { end.setUTCDate(end.getUTCDate() + 6); cursor.setUTCDate(cursor.getUTCDate() + 7); }
+    if (interval === "day") cursor.setUTCDate(cursor.getUTCDate() + 1);
+    else if (interval === "week") { end.setUTCDate(end.getUTCDate() + 6); cursor.setUTCDate(cursor.getUTCDate() + 7); }
     else { end.setUTCMonth(end.getUTCMonth() + 1, 0); cursor.setUTCMonth(cursor.getUTCMonth() + 1, 1); }
     const from = start < bounds.from ? bounds.from : start;
     const last = end.toISOString().slice(0, 10);
