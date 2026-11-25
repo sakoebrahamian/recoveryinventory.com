@@ -11304,6 +11304,13 @@ html[dir="rtl"] .pattern-map thead th:not(:first-child) span { transform: rotate
 .free-account-notice { margin-bottom: 1.5rem; }
 .free-account-notice h2 { margin: 0 0 .5rem; font-size: 1.35rem; }
 .free-account-notice a { color: var(--theme-ink, #173f3a); font-weight: 700; text-decoration: underline; }
+.free-account-notice.is-compact { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem 1rem; margin-bottom: 1rem; padding: .55rem .9rem; font-size: .9rem; line-height: 1.5; }
+.free-account-notice .notice-dismiss { display: inline-grid; place-items: center; width: 32px; height: 32px; margin-inline-start: auto; padding: 0; border: 0; border-radius: 999px; background: transparent; color: inherit; cursor: pointer; }
+.free-account-notice .notice-dismiss:hover, .free-account-notice .notice-dismiss:focus-visible { background: rgb(0 0 0 / .07); }
+.member-page .dashboard-workspace.no-sidebar { grid-template-columns: minmax(0, 1fr); }
+.account-panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); align-items: start; gap: 1rem; }
+.account-panels > .free-account-notice { grid-column: 1 / -1; margin-bottom: 0; }
+.member-page .account-panels .membership-card { position: static; padding: 1.15rem; }
 .join-optional-subscription { margin-block: 1rem; }
 .join-optional-subscription summary, #upgrade-options > summary { cursor: pointer; min-height: 44px; padding-block: .6rem; color: var(--theme-ink, #173f3a); font-size: 1rem; font-weight: 700; }
 .inventory-access-fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
