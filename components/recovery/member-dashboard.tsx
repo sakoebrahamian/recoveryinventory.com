@@ -19,7 +19,7 @@ import { Step10Analytics } from "./step10-analytics";
 import { Step4Workspace } from "./step4-workspace";
 import { RecoveryLearningCenter } from "./recovery-learning-center";
 import { formatDisplayDate, todayIso } from "@/lib/inventory";
-import { defaultReportPeriod } from "@/lib/step10-report-period";
+import { defaultReportPeriod, type ReportPeriod } from "@/lib/step10-report-period";
 import { recordSiteAction } from "@/lib/site-analytics";
 import { subscriptionGuidance } from "@/lib/recovery-guidance";
 import { BillingTimeoutError, requestBilling } from "@/lib/billing-client";
@@ -74,6 +74,13 @@ export function MemberDashboard() {
   const [reflectionDate, setReflectionDate] = React.useState(todayIso);
   const [analyticsVersion, setAnalyticsVersion] = React.useState(0);
   const [reportPeriod, setReportPeriod] = React.useState(() => defaultReportPeriod(todayIso()));
+  // Analytics keeps its own period so it opens on the last 30 days, while Step 10 sharing keeps the selected day.
+  const [analyticsPeriod, setAnalyticsPeriod] = React.useState<ReportPeriod>(() => {
+    const through = todayIso();
+    const from = new Date(`${through}T12:00:00Z`);
+    from.setUTCDate(from.getUTCDate() - 29);
+    return { mode: "range", from: from.toISOString().slice(0, 10), through };
+  });
   const [message, setMessage] = React.useState("");
   const [billingBusy, setBillingBusy] = React.useState(false);
   const [billingRecovery, setBillingRecovery] = React.useState(false);
@@ -472,8 +479,8 @@ export function MemberDashboard() {
               onOpenDate={(date) => { const nextYear = Number(date.slice(0, 4)); setYear(nextYear); setYearDraft(String(nextYear)); setSelectedDate(date); switchTool("step10"); }}
               onOpenStep10={() => switchTool("step10")}
               reportInventory={sponsorInventory?.payload as Step10Data | undefined}
-              reportPeriod={reportPeriod}
-              onReportPeriodChange={setReportPeriod}
+              reportPeriod={analyticsPeriod}
+              onReportPeriodChange={setAnalyticsPeriod}
               onExportChart={(day) => exportRef.current?.open({ format: "chart", day })}
             />
           ) : (
