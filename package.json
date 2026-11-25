@@ -21,6 +21,7 @@
     "test:free-accounts": "node scripts/test-free-accounts.mjs",
     "test:localization": "node scripts/test-localization.mjs",
     "test:themes": "node scripts/test-journal-themes.mjs",
+    "test:trends": "node scripts/test-step10-trends.mjs",
     "test:heycatch": "node scripts/test-heycatch-analytics.mjs"
   },
   "dependencies": {
