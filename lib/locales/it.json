@@ -2221,5 +2221,19 @@
   "Members can use AI chat and guided questions in Step 4, Steps 6 and 7, Steps 8 and 9, and Step 10.": "I membri possono usare la chat con l’IA e le domande guidate nel Passo 4, nei Passi 6 e 7, nei Passi 8 e 9 e nel Passo 10.",
   "Each member can send up to {daily} AI requests per day across all supported steps, both guide modes, and all languages. The site has a shared limit of {monthly} requests per month.": "Ogni membro può inviare fino a {daily} richieste all’IA al giorno tra tutti i passi supportati, entrambe le modalità della guida e tutte le lingue. Il sito ha un limite condiviso di {monthly} richieste al mese.",
   "What pattern would you like to understand or change?": "Quale schema vorresti capire meglio o cambiare?",
-  "What part of this situation would you like to reflect on?": "Su quale aspetto di questa situazione vorresti riflettere?"
+  "What part of this situation would you like to reflect on?": "Su quale aspetto di questa situazione vorresti riflettere?",
+  "Chat With Serenity": "Chatta con Serenity",
+  "Minimize Serenity": "Riduci Serenity",
+  "Opening Serenity…": "Apertura di Serenity…",
+  "Choose a journal": "Scegli un diario",
+  "Hi, I’m Serenity.": "Ciao, sono Serenity.",
+  "What would you like to reflect on today?": "Su cosa ti piacerebbe riflettere oggi?",
+  "Hide example": "Nascondi l’esempio",
+  "Try an example": "Prova un esempio",
+  "Serenity is temporarily unavailable.": "Serenity è temporaneamente non disponibile.",
+  "Serenity’s live chat is included with membership.": "La chat dal vivo con Serenity è inclusa nell’abbonamento.",
+  "AI use and limits": "Uso e limiti dell’IA",
+  "Serenity AI reflection guide": "Serenity, guida alla riflessione con IA",
+  "Explore Step 10, Step 4, sample charts, and the learning tools without an account. Demo entries are temporary. Open Serenity to try a sample conversation.": "Esplora i Passi 10 e 4, i grafici di esempio e gli strumenti di apprendimento senza un account. Le annotazioni della demo sono temporanee. Apri Serenity per provare una conversazione di esempio.",
+  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Puoi continuare a leggere ed esportare le annotazioni salvate del Passo 10. Abbonati quando vuoi con lo stesso account per continuare a salvare le annotazioni e usare il Passo 4 e Serenity."
 }

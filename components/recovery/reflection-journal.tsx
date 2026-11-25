@@ -11,17 +11,16 @@ import {
   type ReflectionEntry, type ReflectionField, type ReflectionKind, type ReflectionPayload,
 } from "@/lib/reflection-journals";
 import { useLanguage } from "./language-provider";
-import { InventoryGuide } from "./inventory-guide";
+import { useSerenityJournal } from "./serenity";
 import { ReflectionChoiceAnalytics, ReflectionChoiceInputs } from "./reflection-choices";
 
 type Props = {
   kind: ReflectionKind;
   initialDate: string;
   onDirtyChange: (dirty: boolean) => void;
-  aiAvailable?: boolean;
 };
 
-export function ReflectionJournal({ kind, initialDate, onDirtyChange, aiAvailable = false }: Props) {
+export function ReflectionJournal({ kind, initialDate, onDirtyChange }: Props) {
   const { language, t } = useLanguage();
   const text = (key: ReflectionMessage) => reflectionText(language, key);
   const fieldId = useId();
@@ -35,6 +34,7 @@ export function ReflectionJournal({ kind, initialDate, onDirtyChange, aiAvailabl
   const [focusFilter, setFocusFilter] = useState("");
   const [status, setStatus] = useState<"saved" | "required" | "failed" | "membership" | null>(null);
   const mounted = useRef(false);
+  useSerenityJournal(kind === "step11" ? null : kind, date);
 
   useEffect(() => {
     mounted.current = true;
@@ -141,7 +141,6 @@ export function ReflectionJournal({ kind, initialDate, onDirtyChange, aiAvailabl
           {kind === "step67" && entries && <a className="text-link" href={"#" + analyticsId}>{text("patternAnalytics")}</a>}
         </nav>
       </header>
-      {aiAvailable && kind !== "step11" && <InventoryGuide step={kind} date={date} language={language} />}
       {readFailed ? (
         <div role="alert">
           <p>{text("readError")}</p>

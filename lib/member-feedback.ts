@@ -67,7 +67,7 @@ export const memberFeedback: Record<MemberFeedbackId, MemberFeedback> = {
   },
   lucy: {
     name: "Lucy",
-    feature: expandLocalizedRecord({ en: "AI Inventory Guide", es: "Guía de inventario con IA", fa: "راهنمای ترازنامه با هوش مصنوعی" }),
+    feature: expandLocalizedRecord({ en: "Serenity", es: "Serenity", fa: "Serenity" }),
     context: expandLocalizedRecord({ en: "Uses the AI guide when stuck on what to write", es: "Usa la guía de IA cuando no sabe qué escribir", fa: "وقتی نمی‌داند چه بنویسد از راهنمای هوش مصنوعی کمک می‌گیرد" }),
     quote: expandLocalizedRecord({
       en: "Whenever I get stuck or have trouble deciding what to focus on in certain areas of my journaling, it helps me get past that mental block and figure out what to write.",

@@ -4,6 +4,7 @@ import "./journal-theme-art.css";
 import { LanguageProvider } from "@/components/recovery/language-provider";
 import { SiteAnalytics } from "@/components/recovery/site-analytics";
 import { MarketingAnalyticsNotice } from "@/components/recovery/marketing-analytics-choices";
+import { SerenityProvider } from "@/components/recovery/serenity";
 import { ThemeProvider } from "@/components/recovery/theme-provider";
 import { journalThemeStyles, journalThemeBootstrap } from "@/lib/journal-themes";
 import {
@@ -62,9 +63,10 @@ export default function RootLayout({
         />
         <LanguageProvider>
           <ThemeProvider>
-            {children}
-            <SiteAnalytics />
-            <MarketingAnalyticsNotice />
+            <SerenityProvider notice={<MarketingAnalyticsNotice />}>
+              {children}
+              <SiteAnalytics />
+            </SerenityProvider>
           </ThemeProvider>
         </LanguageProvider>
       </body>

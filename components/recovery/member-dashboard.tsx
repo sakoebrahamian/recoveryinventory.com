@@ -25,7 +25,7 @@ import { subscriptionGuidance } from "@/lib/recovery-guidance";
 import { BillingTimeoutError, requestBilling } from "@/lib/billing-client";
 import { SubscriptionPlanPicker } from "./subscription-plans";
 import { isBillingPlan, type BillingPlan } from "@/lib/subscription-plans";
-import { InventoryGuide } from "./inventory-guide";
+import { useSerenityJournal } from "./serenity";
 import { ReflectionJournal } from "./reflection-journal";
 import { reflectionLabels, reflectionText } from "@/lib/reflection-copy";
 import { isReflectionKind, reflectionKinds, reflectionSlugs, type ReflectionKind } from "@/lib/reflection-journals";
@@ -44,7 +44,6 @@ type AccountView = {
   freeWeekEndsAt: number | null;
   freeEntriesUsed: number;
   freeEntriesLimit: number;
-  inventoryGuideAvailable: boolean;
   hasBillingProfile: boolean;
   analyticsOwner: boolean;
 };
@@ -80,6 +79,7 @@ export function MemberDashboard() {
   const [promotionCode, setPromotionCode] = React.useState("");
   const [billingPlan, setBillingPlan] = React.useState<BillingPlan>("yearly");
   const [upgradeOpen, setUpgradeOpen] = React.useState(false);
+  useSerenityJournal(account && (activeType === "step10" || activeType === "step4") ? activeType : null, selectedDate);
 
   React.useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -405,9 +405,6 @@ export function MemberDashboard() {
               )}
             </p>
           )}
-          {account.inventoryGuideAvailable && (
-            <InventoryGuide step={activeType === "step10" || activeType === "step4" ? activeType : null} date={selectedDate} language={language} />
-          )}
           <InventoryExport
             ref={exportRef}
             records={records}
@@ -437,7 +434,7 @@ export function MemberDashboard() {
               <nav className="ri-inventory-mode ri-reflection-navigation" aria-label={reflectionText(language, "moreJournals")}>
                 {reflectionKinds.map((kind) => <button type="button" className="button button-outline" key={kind} aria-pressed={activeType === kind} onClick={() => switchTool(kind, reflectionDate)}>{reflectionText(language, kind)}</button>)}
               </nav>
-              {account.membershipActive ? <ReflectionJournal key={activeType} kind={activeType} initialDate={reflectionDate} onDirtyChange={setReflectionDirty} aiAvailable={account.inventoryGuideAvailable} /> : (
+              {account.membershipActive ? <ReflectionJournal key={activeType} kind={activeType} initialDate={reflectionDate} onDirtyChange={setReflectionDirty} /> : (
                 <section className="dashboard-card">
                   <LockKeyhole size={24} aria-hidden="true" />
                   <h3>{reflectionText(language, activeType)}</h3>

@@ -2221,5 +2221,19 @@
   "Members can use AI chat and guided questions in Step 4, Steps 6 and 7, Steps 8 and 9, and Step 10.": "Les membres peuvent utiliser le chat IA et les questions guidées pour la 4e étape, les 6e et 7e étapes, les 8e et 9e étapes et la 10e étape.",
   "Each member can send up to {daily} AI requests per day across all supported steps, both guide modes, and all languages. The site has a shared limit of {monthly} requests per month.": "Chaque membre peut envoyer jusqu’à {daily} demandes à l’IA par jour, toutes étapes compatibles, tous modes du guide et toutes langues confondus. Le site dispose d’un plafond partagé de {monthly} demandes par mois.",
   "What pattern would you like to understand or change?": "Quel comportement aimeriez-vous mieux comprendre ou changer ?",
-  "What part of this situation would you like to reflect on?": "Sur quel aspect de cette situation aimeriez-vous réfléchir ?"
+  "What part of this situation would you like to reflect on?": "Sur quel aspect de cette situation aimeriez-vous réfléchir ?",
+  "Chat With Serenity": "Discuter avec Serenity",
+  "Minimize Serenity": "Réduire Serenity",
+  "Opening Serenity…": "Ouverture de Serenity…",
+  "Choose a journal": "Choisir un journal",
+  "Hi, I’m Serenity.": "Bonjour, je suis Serenity.",
+  "What would you like to reflect on today?": "Sur quoi aimeriez-vous réfléchir aujourd’hui ?",
+  "Hide example": "Masquer l’exemple",
+  "Try an example": "Essayer un exemple",
+  "Serenity is temporarily unavailable.": "Serenity est temporairement indisponible.",
+  "Serenity’s live chat is included with membership.": "L’abonnement inclut la conversation en direct avec Serenity.",
+  "AI use and limits": "Utilisation et limites de l’IA",
+  "Serenity AI reflection guide": "Serenity, guide de réflexion avec IA",
+  "Explore Step 10, Step 4, sample charts, and the learning tools without an account. Demo entries are temporary. Open Serenity to try a sample conversation.": "Explorez les étapes 10 et 4, les graphiques d’exemple et les outils d’apprentissage sans compte. Les entrées de démonstration sont temporaires. Ouvrez Serenity pour essayer un exemple de conversation.",
+  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Vous pouvez toujours lire et exporter vos entrées de l’étape 10. Abonnez-vous quand vous le souhaitez avec le même compte pour continuer à enregistrer des entrées et accéder à l’étape 4 et à Serenity."
 }

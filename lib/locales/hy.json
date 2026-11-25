@@ -2221,5 +2221,19 @@
   "Members can use AI chat and guided questions in Step 4, Steps 6 and 7, Steps 8 and 9, and Step 10.": "Անդամները կարող են օգտվել ԱԲ զրույցից և ուղղորդող հարցերից 4-րդ, 6-րդ ու 7-րդ, 8-րդ ու 9-րդ և 10-րդ քայլերում։",
   "Each member can send up to {daily} AI requests per day across all supported steps, both guide modes, and all languages. The site has a shared limit of {monthly} requests per month.": "Յուրաքանչյուր անդամ կարող է օրական ուղարկել ԱԲ-ի մինչև {daily} հարցում՝ հասանելի բոլոր քայլերում, ուղեցույցի երկու եղանակներում և բոլոր լեզուներով։ Կայքի ընդհանուր սահմանաչափը ամսական {monthly} հարցում է։",
   "What pattern would you like to understand or change?": "Ո՞ր օրինաչափությունն եք ուզում ավելի լավ հասկանալ կամ փոխել։",
-  "What part of this situation would you like to reflect on?": "Այս իրավիճակի ո՞ր կողմի մասին կցանկանայիք մտորել։"
+  "What part of this situation would you like to reflect on?": "Այս իրավիճակի ո՞ր կողմի մասին կցանկանայիք մտորել։",
+  "Chat With Serenity": "Զրուցել Serenity-ի հետ",
+  "Minimize Serenity": "Փոքրացնել Serenity-ի պատուհանը",
+  "Opening Serenity…": "Serenity-ն բացվում է…",
+  "Choose a journal": "Ընտրեք օրագիր",
+  "Hi, I’m Serenity.": "Բարև, ես Serenity-ն եմ։",
+  "What would you like to reflect on today?": "Ինչի՞ շուրջ կցանկանայիք այսօր խորհել։",
+  "Hide example": "Թաքցնել օրինակը",
+  "Try an example": "Փորձել օրինակը",
+  "Serenity is temporarily unavailable.": "Serenity-ն ժամանակավորապես անհասանելի է։",
+  "Serenity’s live chat is included with membership.": "Serenity-ի հետ կենդանի զրույցը ներառված է բաժանորդագրության մեջ։",
+  "AI use and limits": "Արհեստական բանականության օգտագործումն ու սահմանաչափերը",
+  "Serenity AI reflection guide": "Serenity՝ մտորումների ուղեկից՝ արհեստական բանականությամբ",
+  "Explore Step 10, Step 4, sample charts, and the learning tools without an account. Demo entries are temporary. Open Serenity to try a sample conversation.": "Առանց հաշվի ուսումնասիրեք 10-րդ և 4-րդ քայլերը, օրինակելի գծապատկերներն ու ուսուցման գործիքները։ Փորձնական գրառումները ժամանակավոր են։ Բացեք Serenity-ն՝ փորձելու օրինակելի զրույց։",
+  "You can still read and export your saved Step 10 entries. Upgrade the same account anytime to keep saving entries and use Step 4 and Serenity.": "Դուք դեռ կարող եք կարդալ և արտահանել 10-րդ քայլի ձեր պահպանված գրառումները։ Ցանկացած ժամանակ բաժանորդագրվեք նույն հաշվով՝ շարունակելու պահպանել գրառումները և օգտվելու 4-րդ քայլից ու Serenity-ից։"
 }
