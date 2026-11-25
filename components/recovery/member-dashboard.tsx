@@ -19,6 +19,7 @@ import { Step10Analytics } from "./step10-analytics";
 import { Step4Workspace } from "./step4-workspace";
 import { RecoveryLearningCenter } from "./recovery-learning-center";
 import { formatDisplayDate, todayIso } from "@/lib/inventory";
+import { fillTemplate, payloadPracticeRate, tintLevel } from "@/lib/step10-visuals";
 import { defaultReportPeriod, type ReportPeriod } from "@/lib/step10-report-period";
 import { recordSiteAction } from "@/lib/site-analytics";
 import { subscriptionGuidance } from "@/lib/recovery-guidance";
@@ -411,7 +412,7 @@ export function MemberDashboard() {
               <CompactCalendar locale={locale} selectedDate={selectedDate} records={records} today={todayIso()} onSelect={(date) => { if (date === selectedDate || confirmDiscardStep10()) setSelectedDate(date); }} />
               <div className="compact-calendar-footer">
                 <button type="button" onClick={() => { const today = todayIso(); if (today !== selectedDate && !confirmDiscardStep10()) return; const todayYear = Number(today.slice(0, 4)); setYear(todayYear); setYearDraft(String(todayYear)); setSelectedDate(today); }}>{t("Today", "امروز")}</button>
-                <div className="calendar-legend"><span><i className="dot-ten" />{t("Saved Step 10", "گام ۱۰ ذخیره‌شده")}</span></div>
+                <div className="calendar-legend"><span><i className="dot-ten" />{t("Saved Step 10", "گام ۱۰ ذخیره‌شده")}</span><span className="calendar-tint-note">{t("Darker green means a higher Practiced share that day.", "سبز تیره‌تر یعنی سهم «تمرین کردم» در آن روز بیشتر بوده است.")}</span></div>
               </div>
             </section>}
 
@@ -549,6 +550,7 @@ function CompactCalendar({
   const [year, monthNumber] = selectedDate.split("-").map(Number);
   const month = monthNumber - 1;
   const weekdays = Array.from({ length: 7 }, (_, day) => dateTimeFormat(locale, { weekday: "narrow", timeZone: "UTC" }).format(new Date(Date.UTC(2024, 0, 7 + day))));
+  const { t } = useLanguage();
   const recordMap = React.useMemo(() => {
     const map = new Map<string, Set<string>>();
     for (const record of records) {
@@ -558,6 +560,7 @@ function CompactCalendar({
     }
     return map;
   }, [records]);
+  const rateMap = React.useMemo(() => new Map(records.filter((record) => record.type === "step10").map((record) => [record.date, payloadPracticeRate(record.payload)])), [records]);
 
   const firstDay = new Date(Date.UTC(year, month, 1)).getUTCDay();
   const days = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
@@ -571,8 +574,11 @@ function CompactCalendar({
           const day = index + 1;
           const date = `${String(year).padStart(4, "0")}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
           const types = recordMap.get(date);
+          const rate = rateMap.get(date) ?? null;
+          const tint = types?.has("step10") ? ` tint-${tintLevel(rate)}` : "";
+          const rateLabel = rate === null ? "" : ` · ${fillTemplate(t("{rate}% Practiced", "{rate}% تمرین کردم"), { rate })}`;
           return (
-            <button className={`calendar-day${selectedDate === date ? " is-selected" : ""}${date === today ? " is-today" : ""}`} type="button" key={date} onClick={() => onSelect(date)} aria-label={date}>
+            <button className={`calendar-day${tint}${selectedDate === date ? " is-selected" : ""}${date === today ? " is-today" : ""}`} type="button" key={date} onClick={() => onSelect(date)} aria-label={`${date}${rateLabel}`} title={rate === null ? undefined : `${rate}%`}>
               <span>{new Intl.NumberFormat(locale, { useGrouping: false }).format(day)}</span>
               <i className="day-markers">{types?.has("step10") && <b className="dot-ten" />}</i>
             </button>
