@@ -2178,7 +2178,7 @@
   "Choose the first day": "اختر اليوم الأول",
   "Choose the last day": "اختر اليوم الأخير",
   "{count} day": "{count} يوم",
-  "{count} days": "{count} أيام",
+  "{count} days": "عدد الأيام: {count}",
   "Saved on this browser.": "يُحفظ في هذا المتصفح.",
   "Original sage": "المريمية الأصلي",
   "Ocean blue": "أزرق المحيط",
