@@ -7398,6 +7398,44 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
 
 .report-period-dates label { display: grid; gap: 0.35rem; }
 .report-period-picker small { color: var(--slate); line-height: 1.5; }
+/* One-calendar date range picker: the first click sets the start, the second the end. */
+.date-range-picker { min-width: 0; }
+.date-range-trigger { display: flex; width: 100%; min-height: 44px; align-items: center; gap: .55rem; border: 1px solid var(--theme-border, #9bab9f); border-radius: 11px; background: var(--theme-surface, #fffdf9); color: var(--theme-ink, #173f3a); padding: .55rem .8rem; font: inherit; font-weight: 700; text-align: start; cursor: pointer; }
+.date-range-trigger:hover { background: var(--theme-soft, #f2f6ee); }
+.date-range-trigger:focus-visible { outline: 3px solid var(--theme-accent, #a84d33); outline-offset: 2px; }
+.date-range-trigger > span { flex: 1; min-width: 0; }
+.date-range-trigger small { flex: none; border-radius: 999px; background: var(--theme-tint, #dce9df); padding: .15rem .55rem; color: var(--theme-ink, #173f3a); font-size: .74rem; font-weight: 800; }
+.date-range-dialog { width: min(38rem, calc(100% - 2rem)); max-height: min(90dvh, 40rem); margin: auto; overflow: auto; border: 1px solid var(--theme-border, #9bab9f); border-radius: 20px; background: var(--theme-surface, #fffdf9); color: var(--theme-ink, #173f3a); padding: 0; box-shadow: 0 24px 90px #14271f48; }
+.date-range-dialog::backdrop { background: #14272196; }
+.date-range-content { display: grid; gap: .6rem; padding: clamp(1rem, 3vw, 1.4rem); }
+.date-range-heading { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+.date-range-heading h2 { margin: 0; font-size: 1.2rem; font-weight: 750; }
+.date-range-close { display: grid; width: 40px; height: 40px; place-items: center; border: 0; border-radius: 50%; background: var(--theme-soft, #f2f6ee); color: inherit; cursor: pointer; }
+.date-range-step { margin: 0; color: var(--theme-muted, #53685f); font-size: .86rem; font-weight: 650; }
+.date-range-nav { display: flex; justify-content: space-between; margin-bottom: -2.6rem; }
+.date-range-nav button { position: relative; z-index: 1; display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid var(--theme-border, #9bab9f); border-radius: 50%; background: var(--theme-surface, #fffdf9); color: inherit; cursor: pointer; }
+.date-range-nav button:disabled { opacity: .35; cursor: default; }
+[dir="rtl"] .date-range-nav svg { transform: scaleX(-1); }
+.date-range-months { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem; }
+.date-range-month h3 { margin: .45rem 0 .6rem; font-size: .95rem; font-weight: 800; text-align: center; }
+.date-range-weekdays, .date-range-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.date-range-weekdays span { padding-bottom: .3rem; color: var(--theme-muted, #53685f); font-size: .72rem; font-weight: 800; text-align: center; }
+.date-range-day { aspect-ratio: 1; min-height: 36px; border: 0; border-radius: 0; background: transparent; color: inherit; font: inherit; font-size: .86rem; font-weight: 650; cursor: pointer; }
+.date-range-day:hover:not(:disabled) { border-radius: 10px; background: var(--theme-soft, #f2f6ee); }
+.date-range-day:focus-visible { position: relative; z-index: 1; border-radius: 10px; outline: 3px solid var(--theme-accent, #a84d33); outline-offset: -2px; }
+.date-range-day:disabled { opacity: .3; cursor: default; }
+.date-range-day.is-today { text-decoration: underline 2px; text-underline-offset: 3px; }
+.date-range-day.is-inside { background: var(--theme-tint, #dce9df); }
+.date-range-day.is-edge { border-radius: 10px; background: var(--theme-ink, #173f3a); color: var(--theme-surface, #fffdf9); font-weight: 800; }
+.date-range-day.is-start:not(.is-end) { border-start-end-radius: 0; border-end-end-radius: 0; }
+.date-range-day.is-end:not(.is-start) { border-start-start-radius: 0; border-end-start-radius: 0; }
+.inventory-export-range { display: grid; flex: 1 1 100%; gap: .32rem; }
+.inventory-export-range > span { color: var(--theme-muted, #6b7d78); font-size: .7rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+@media (max-width: 600px) {
+  .date-range-dialog { width: 100%; max-width: none; max-height: 92dvh; margin: auto 0 0; border-radius: 20px 20px 0 0; }
+  .date-range-months { grid-template-columns: minmax(0, 1fr); }
+  .date-range-month + .date-range-month { display: none; }
+}
 
 .step10-report-chart {
   margin: 1.2rem 0;

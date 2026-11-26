@@ -2,6 +2,7 @@
 
 import { formatDisplayDate, todayIso } from "@/lib/inventory";
 import { reportBounds, type ReportPeriod, type ReportPeriodMode } from "@/lib/step10-report-period";
+import { DateRangePicker } from "./date-range-picker";
 import { useLanguage } from "./language-provider";
 
 export function ReportPeriodPicker({ period, onChange, selectedDay, id }: {
@@ -28,10 +29,7 @@ export function ReportPeriodPicker({ period, onChange, selectedDay, id }: {
         {modes.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
       </select>
       {period.mode === "range" && (
-        <div className="report-period-dates">
-          <label>{t("From", "از")}<input type="date" value={period.from} max={todayIso()} onChange={(event) => onChange({ ...period, from: event.target.value })} /></label>
-          <label>{t("Through", "تا")}<input type="date" value={period.through} max={todayIso()} onChange={(event) => onChange({ ...period, through: event.target.value })} /></label>
-        </div>
+        <DateRangePicker id={`${id}-range`} from={period.from} through={period.through} max={todayIso()} onChange={(range) => onChange({ ...period, ...range })} />
       )}
       <small role="status">{bounds
         ? bounds.from === bounds.through
