@@ -25,6 +25,7 @@ import { useLanguage } from "./language-provider";
 import type { Step10Data } from "./step10-inventory";
 import type { Step4Data, Step4Entry } from "./step4-inventory";
 import { ReportPeriodPicker } from "./report-period-picker";
+import { DateRangePicker } from "./date-range-picker";
 import { Step10ReportChart } from "./step10-report-chart";
 import { Step10PatternSummary } from "./step10-pattern-summary";
 import { useReportAnalytics } from "./use-report-analytics";
@@ -656,7 +657,7 @@ export const InventoryExport = React.forwardRef<InventoryExportHandle, Inventory
             </div>
             <div className="inventory-export-date-fields">
               {(scope === "day" || scope === "week") && <label><span>{t("Day", "روز")}</span><input type="date" min={firstDayOfYear(year)} max={lastDayOfYear(year)} value={day} onChange={(event) => setDay(event.target.value)} /></label>}
-              {scope === "range" && <><label><span>{t("From", "از")}</span><input type="date" min={firstDayOfYear(year)} max={lastDayOfYear(year)} value={rangeStart} onChange={(event) => setRangeStart(event.target.value)} /></label><label><span>{t("Through", "تا")}</span><input type="date" min={firstDayOfYear(year)} max={lastDayOfYear(year)} value={rangeEnd} onChange={(event) => setRangeEnd(event.target.value)} /></label></>}
+              {scope === "range" && <div className="inventory-export-range"><span>{t("Date range", "بازه تاریخ")}</span><DateRangePicker id="export-archive-range" from={rangeStart} through={rangeEnd} min={firstDayOfYear(year)} max={lastDayOfYear(year)} onChange={(range) => { setRangeStart(range.from); setRangeEnd(range.through); }} /></div>}
               {scope === "month" && <label><span>{t("Month", "ماه")}</span><input type="month" min={`${year}-01`} max={`${year}-12`} value={month} onChange={(event) => setMonth(event.target.value)} /></label>}
               {scope === "year" && <div className="inventory-export-year"><span>{t("Calendar year", "سال تقویم")}</span><strong>{new Intl.NumberFormat(languageLocale(language), { useGrouping: false }).format(year)}</strong></div>}
             </div>
