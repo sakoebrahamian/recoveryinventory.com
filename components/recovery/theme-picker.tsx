@@ -31,24 +31,32 @@ export function ThemePicker({ language: override }: { language?: Language }) {
               <X size={20} aria-hidden="true" />
             </button>
           </div>
-          <div className="theme-picker-grid">
-            {journalThemes.map(item => (
-              <button type="button" key={item.id} className="theme-choice" aria-pressed={theme === item.id} onClick={() => {
-                chooseTheme(item.id);
-                dialog.current?.close();
-              }}>
-                <span className="theme-choice-art" data-theme-art={item.id} aria-hidden="true" style={{
-                  "--preview-ink": item.ink,
-                  "--preview-accent": item.accent,
-                  "--preview-tint": item.tint,
-                  "--preview-surface": item.surface,
-                  "--preview-highlight": item.highlight,
-                } as React.CSSProperties}>
-                  <span className="theme-choice-paper"><i /><i /><i /></span>
-                </span>
-                <span className="theme-choice-label">{t(item.label, item.fa)}</span>
-                {theme === item.id && <Check size={16} aria-hidden="true" />}
-              </button>
+          <div className="theme-picker-groups">
+            {([["light", t("Light", "روشن")], ["dark", t("Dark", "تیره")]] as const).map(([mode, heading]) => (
+              <section key={mode} className="theme-picker-group" aria-label={heading}>
+                <h3>{heading}</h3>
+                <div className="theme-picker-grid">
+                  {journalThemes.filter(item => item.mode === mode).map(item => (
+                    <button type="button" key={item.id} className="theme-choice" aria-pressed={theme === item.id} onClick={() => {
+                      chooseTheme(item.id);
+                      dialog.current?.close();
+                    }}>
+                      <span className="theme-choice-art" data-theme-art={item.id} data-mode={item.mode} aria-hidden="true" style={{
+                        "--preview-ink": item.ink,
+                        "--preview-accent": item.accent,
+                        "--preview-tint": item.tint,
+                        "--preview-paper": item.paper,
+                        "--preview-surface": item.surface,
+                        "--preview-highlight": item.highlight,
+                      } as React.CSSProperties}>
+                        <span className="theme-choice-paper"><i /><i /><i /></span>
+                      </span>
+                      <span className="theme-choice-label">{t(item.label, item.fa)}</span>
+                      {theme === item.id && <Check size={16} aria-hidden="true" />}
+                    </button>
+                  ))}
+                </div>
+              </section>
             ))}
           </div>
           <p className="theme-picker-storage">{t("Saved on this browser.", "در این مرورگر ذخیره می‌شود.")}</p>
