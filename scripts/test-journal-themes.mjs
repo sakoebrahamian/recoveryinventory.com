@@ -16,6 +16,8 @@ const server = await createServer({ configFile: false, appType: "custom", server
 try {
   const { journalThemes, supportedTheme, journalThemeBootstrap, journalThemeStyles, themePreferenceKey } = await server.ssrLoadModule("/lib/journal-themes.ts");
   assert.equal(journalThemes.length, 15);
+  assert.equal(journalThemes.filter(theme => theme.mode === "light").length, 8, "8 light themes");
+  assert.equal(journalThemes.filter(theme => theme.mode === "dark").length, 7, "7 dark themes");
   assert.equal(new Set(journalThemes.map(theme => theme.id)).size, 15);
   const artworkCss = fs.readFileSync("app/journal-theme-art.css", "utf8");
   const artwork = new Set();
@@ -29,7 +31,8 @@ try {
     }
     assert.ok(contrast(theme.muted, theme.paper) >= 4.5, `${theme.id}: secondary text contrast`);
     assert.ok(contrast(theme.muted, theme.surface) >= 4.5, `${theme.id}: card secondary text contrast`);
-    assert.ok(contrast(theme.ink, "#ffffff") >= 4.5, `${theme.id}: primary button contrast`);
+    // Primary buttons use the ink colour behind white (light themes) or behind the card colour (dark themes).
+    assert.ok(contrast(theme.ink, theme.mode === "dark" ? theme.surface : "#ffffff") >= 4.5, `${theme.id}: primary button contrast`);
     assert.ok(contrast(theme.accent, theme.paper) >= 4.5, `${theme.id}: accent text contrast`);
     const themeRule = journalThemeStyles.split(`:root[data-ri-theme="${theme.id}"]`)[1].split("}")[0];
     assert.ok(themeRule.includes(`--theme-pattern: var(--journal-pattern-${theme.pattern})`), `${theme.id}: missing hero pattern`);
@@ -40,12 +43,15 @@ try {
     const document = { documentElement: { dataset: {} } };
     vm.runInNewContext(journalThemeBootstrap, { document, localStorage: { getItem: key => key === themePreferenceKey ? theme.id : null } });
     assert.equal(document.documentElement.dataset.riTheme, theme.id, `${theme.id}: restored before paint`);
+    assert.equal("riDark" in document.documentElement.dataset, theme.mode === "dark", `${theme.id}: dark flag restored before paint`);
+    assert.match(artworkCss.split(artworkSelector)[2]?.split("}")[0] ?? "", /--journal-motif:\s*url\("data:image\/svg\+xml,/, `${theme.id}: missing themed motif`);
+    if (theme.mode === "dark") assert.ok(themeRule.includes("--theme-panel:") && themeRule.includes("color-scheme: dark"), `${theme.id}: dark panel colours`);
   }
   assert.equal(artwork.size, journalThemes.length, "Each theme has a distinct background");
   for (const language of ["es", "fr", "pt-BR", "ar", "de", "hy", "it", "el"]) {
     const dictionary = language === "es" ? (await server.ssrLoadModule("/lib/translations-es.ts")).spanishTranslations : JSON.parse(fs.readFileSync(`lib/locales/${language}.json`, "utf8"));
     const keys = [
-      "Color theme", "Choose your colors", "Saved on this browser.", "Close",
+      "Color theme", "Choose your colors", "Saved on this browser.", "Close", "Light", "Dark",
       ...journalThemes.map(theme => theme.label),
     ];
     for (const key of keys) assert.ok(dictionary[key], `${language}: missing theme chooser copy for ${key}`);
@@ -58,5 +64,7 @@ try {
   const document = { documentElement: { dataset: {} } };
   vm.runInNewContext(journalThemeBootstrap, { document, localStorage: { getItem: () => { throw new Error("Storage blocked"); } } });
   assert.equal(document.documentElement.dataset.riTheme, "sage");
-  console.log("15 themes passed: unique background artwork, text/button contrast, saved preference restoration, fallback, and localized labels.");
+  const darkCss = fs.readFileSync("app/journal-theme-dark.css", "utf8");
+  assert.ok(darkCss.startsWith("/* Generated") && darkCss.includes("@media screen {"), "dark layer is screen-only, so printouts stay light");
+  console.log("15 themes passed (8 light, 7 dark): themed motifs, text/button contrast, saved preference and dark flag restoration, fallback, and localized labels.");
 } finally { await server.close(); }
