@@ -7409,7 +7409,7 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
 .date-range-dialog::backdrop { background: #14272196; }
 .date-range-content { display: grid; gap: .6rem; padding: clamp(1rem, 3vw, 1.4rem); }
 .date-range-heading { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
-.date-range-heading h2 { margin: 0; font-size: 1.2rem; font-weight: 750; }
+.date-range-dialog .date-range-heading h2 { margin: 0; color: inherit; font-family: inherit; font-size: 1.2rem; font-weight: 750; letter-spacing: normal; }
 .date-range-close { display: grid; width: 40px; height: 40px; place-items: center; border: 0; border-radius: 50%; background: var(--theme-soft, #f2f6ee); color: inherit; cursor: pointer; }
 .date-range-step { margin: 0; color: var(--theme-muted, #53685f); font-size: .86rem; font-weight: 650; }
 .date-range-nav { display: flex; justify-content: space-between; margin-bottom: -2.6rem; }
@@ -7427,6 +7427,7 @@ html[dir="rtl"] .member-page .compact-calendar-header strong {
 .date-range-day.is-today { text-decoration: underline 2px; text-underline-offset: 3px; }
 .date-range-day.is-inside { background: var(--theme-tint, #dce9df); }
 .date-range-day.is-edge { border-radius: 10px; background: var(--theme-ink, #173f3a); color: var(--theme-surface, #fffdf9); font-weight: 800; }
+.date-range-day.is-edge:hover:not(:disabled) { background: var(--theme-ink, #173f3a); }
 .date-range-day.is-start:not(.is-end) { border-start-end-radius: 0; border-end-end-radius: 0; }
 .date-range-day.is-end:not(.is-start) { border-start-start-radius: 0; border-end-start-radius: 0; }
 .inventory-export-range { display: grid; flex: 1 1 100%; gap: .32rem; }
