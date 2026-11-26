@@ -378,7 +378,6 @@
 :where([data-ri-dark]) .public-learning-tool-card,:where([data-ri-dark]) .public-learning-related{border:1px solid #add3ee1a}
 :where([data-ri-dark]) .site-report-ranges button[aria-pressed="true"]{color:var(--theme-surface)}
 :where([data-ri-dark]) .site-report-error{border:1px solid #c6736233;background:#47281f;color:#c67a6d}
-:where([data-ri-dark]) .site-report-detail::backdrop{background:color-mix(in srgb,var(--theme-ink) 52%,transparent)}
 :where([data-ri-dark]) .site-report-privacy{border:1px solid #7eaf9729;background:var(--theme-soft);color:#85b69e}
 :where([data-ri-dark]) .site-report-privacy p{color:var(--theme-ink)}
 :where([data-ri-dark]) .inventory-answer-help{color:var(--theme-ink)}
@@ -477,7 +476,6 @@
 }
 :where([data-ri-dark]) .language-toggle small[role="alert"]{background:var(--theme-surface);color:#c68173}
 :where([data-ri-dark]) .ri-price-card .ri-demo-explanation .button{color:var(--theme-surface)}
-:where([data-ri-dark]) .theme-picker-panel::backdrop{background:color-mix(in srgb,var(--theme-ink) 59%,transparent)}
 :where([data-ri-dark]) .ri-inventory-mode .button[aria-pressed="true"]{color:var(--theme-surface)}
 :where([data-ri-dark]) .analytics-kpis strong small{color:var(--theme-ink)}
 :where([data-ri-dark]) .analytics-kpis .kpi-delta{color:var(--theme-ink)}
