@@ -173,8 +173,10 @@ html[data-ri-theme] {
     background-color: var(--theme-paper);
     background-image:
       radial-gradient(ellipse at 50% 58%, color-mix(in srgb, var(--theme-paper) 32%, transparent), transparent 76%),
+      var(--journal-motif, none),
       var(--journal-art, none),
       linear-gradient(145deg, var(--theme-paper), var(--theme-surface));
+    background-size: auto, var(--journal-motif-size, 400px), auto, auto;
     content: "";
     pointer-events: none;
   }
@@ -182,6 +184,48 @@ html[data-ri-theme] {
   html[data-ri-theme] :is(.landing-v2, .inner-page, .member-page, .about-page) {
     background: transparent;
   }
+}
+
+/* Picker swatches show a small copy of the page: paper, motif and a card. */
+.theme-choice-art {
+  background:
+    var(--journal-motif, none) center / 150px,
+    radial-gradient(ellipse at 92% 0%, color-mix(in srgb, var(--preview-highlight) 45%, transparent), transparent 70%),
+    linear-gradient(130deg, var(--preview-paper, var(--preview-tint)), var(--preview-tint));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--preview-ink) 14%, transparent);
+}
+
+.theme-choice-paper {
+  box-shadow: 0 6px 15px #0002;
+}
+
+.theme-choice-art[data-mode="dark"] .theme-choice-paper {
+  box-shadow: 0 6px 15px #0008;
+}
+
+.theme-picker-groups {
+  display: grid;
+  min-height: 0;
+  gap: 1rem;
+  margin-inline: -.25rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: .25rem;
+}
+
+.theme-picker-group h3 {
+  margin: 0 0 .5rem;
+  color: var(--theme-muted);
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.theme-picker-groups .theme-picker-grid {
+  margin: 0;
+  overflow: visible;
+  padding: 0;
 }
 
 @media (forced-colors: active) {
@@ -192,4 +236,66 @@ html[data-ri-theme] {
   .theme-choice-art {
     background-image: none;
   }
+}
+
+/* Faded, themed motifs drawn over the page background and in the theme picker. */
+:is(html[data-ri-theme="sage"], .theme-choice-art[data-theme-art="sage"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(23,63,58)' stroke='rgb(23,63,58)' stroke-width='0' opacity='0.09' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(60 110) rotate(-20)'><path d='M0 8V-58' fill='none' stroke-width='2'/><g transform='rotate(215) scale(0.8)'><path d='M0 0C9-13 29-15 44 0C29 15 9 13 0 0Z'/></g><g transform='translate(0 -16) rotate(-35) scale(0.8)'><path d='M0 0C9-13 29-15 44 0C29 15 9 13 0 0Z'/></g><g transform='translate(0 -32) rotate(215) scale(0.8)'><path d='M0 0C9-13 29-15 44 0C29 15 9 13 0 0Z'/></g><g transform='translate(0 -48) rotate(-35) scale(0.8)'><path d='M0 0C9-13 29-15 44 0C29 15 9 13 0 0Z'/></g></g><g transform='translate(220 250) rotate(25) scale(0.8)'><path d='M0 8V-58' fill='none' stroke-width='2'/><g transform='rotate(215) scale(0.8)'><path d='M0 0C9-13 29-15 44 0C29 15 9 13 0 0Z'/></g><g transform='translate(0 -16) rotate(-35) scale(0.8)'><path d='M0 0C9-13 29-15 44 0C29 15 9 13 0 0Z'/></g><g transform='translate(0 -32) rotate(215) scale(0.8)'><path d='M0 0C9-13 29-15 44 0C29 15 9 13 0 0Z'/></g><g transform='translate(0 -48) rotate(-35) scale(0.8)'><path d='M0 0C9-13 29-15 44 0C29 15 9 13 0 0Z'/></g></g><g transform='translate(250 60) rotate(30) scale(1.1)'><path d='M0 0C9-13 29-15 44 0C29 15 9 13 0 0Z'/></g><g transform='translate(80 250) rotate(-140)'><path d='M0 0C9-13 29-15 44 0C29 15 9 13 0 0Z'/></g></g></svg>");
+  --journal-motif-size: 380px;
+}
+:is(html[data-ri-theme="sky"], .theme-choice-art[data-theme-art="sky"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(23,71,90)' stroke='rgb(23,71,90)' stroke-width='0' opacity='0.08' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(80 80)'><path d='M-30 8H34C44 8 44-8 32-8C32-20 16-24 8-14C2-26-20-24-20-8C-34-8-36 8-30 8Z'/></g><g transform='translate(230 200) scale(0.7)'><path d='M-30 8H34C44 8 44-8 32-8C32-20 16-24 8-14C2-26-20-24-20-8C-34-8-36 8-30 8Z'/></g><g transform='translate(210 60)'><path d='M-12 0Q-6-7 0 0Q6-7 12 0' fill='none' stroke-width='2'/></g><g transform='translate(236 74) scale(0.7)'><path d='M-12 0Q-6-7 0 0Q6-7 12 0' fill='none' stroke-width='2'/></g><g transform='translate(70 230) scale(0.8)'><path d='M-12 0Q-6-7 0 0Q6-7 12 0' fill='none' stroke-width='2'/></g></g></svg>");
+  --journal-motif-size: 420px;
+}
+:is(html[data-ri-theme="jade"], .theme-choice-art[data-theme-art="jade"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(24,70,64)' stroke='rgb(24,70,64)' stroke-width='0' opacity='0.08' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(80 90) rotate(20)'><path d='M0 0L22 -8A24 24 0 1 1 22 8Z'/><circle cx='34' cy='-26' r='9' fill='none' stroke-width='1.5'/></g><g transform='translate(230 230) rotate(-110) scale(0.8)'><path d='M0 0L22 -8A24 24 0 1 1 22 8Z'/><circle cx='34' cy='-26' r='9' fill='none' stroke-width='1.5'/></g><g transform='translate(230 70)'><circle r='14' fill='none' stroke-width='1.4'/><circle r='24' fill='none' stroke-width='1'/></g></g></svg>");
+  --journal-motif-size: 400px;
+}
+:is(html[data-ri-theme="lavender"], .theme-choice-art[data-theme-art="lavender"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(72,53,98)' stroke='rgb(72,53,98)' stroke-width='0' opacity='0.09' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(70 150) rotate(-12)'><path d='M0 20V-58' fill='none' stroke-width='2'/><ellipse cx='3' cy='-30' rx='3' ry='5'/><ellipse cx='-3' cy='-36' rx='3' ry='5'/><ellipse cx='3' cy='-42' rx='3' ry='5'/><ellipse cx='-3' cy='-48' rx='3' ry='5'/><ellipse cx='3' cy='-54' rx='3' ry='5'/><ellipse cx='-3' cy='-60' rx='3' ry='5'/></g><g transform='translate(100 160) rotate(8) scale(0.85)'><path d='M0 20V-58' fill='none' stroke-width='2'/><ellipse cx='3' cy='-30' rx='3' ry='5'/><ellipse cx='-3' cy='-36' rx='3' ry='5'/><ellipse cx='3' cy='-42' rx='3' ry='5'/><ellipse cx='-3' cy='-48' rx='3' ry='5'/><ellipse cx='3' cy='-54' rx='3' ry='5'/><ellipse cx='-3' cy='-60' rx='3' ry='5'/></g><g transform='translate(230 260) rotate(18) scale(0.9)'><path d='M0 20V-58' fill='none' stroke-width='2'/><ellipse cx='3' cy='-30' rx='3' ry='5'/><ellipse cx='-3' cy='-36' rx='3' ry='5'/><ellipse cx='3' cy='-42' rx='3' ry='5'/><ellipse cx='-3' cy='-48' rx='3' ry='5'/><ellipse cx='3' cy='-54' rx='3' ry='5'/><ellipse cx='-3' cy='-60' rx='3' ry='5'/></g><g transform='translate(250 90) rotate(-60) scale(0.7)'><path d='M0 0C9-13 29-15 44 0C29 15 9 13 0 0Z'/></g></g></svg>");
+  --journal-motif-size: 380px;
+}
+:is(html[data-ri-theme="peach"], .theme-choice-art[data-theme-art="peach"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(102,58,54)' stroke='rgb(102,58,54)' stroke-width='0' opacity='0.08' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(80 90)'><circle r='16'/><path d='M0-16C8-30 24-28 26-22C16-16 6-16 0-16Z'/></g><g transform='translate(230 220) rotate(25) scale(0.8)'><circle r='16'/><path d='M0-16C8-30 24-28 26-22C16-16 6-16 0-16Z'/></g><g transform='translate(230 70) scale(1.2)'><circle cx='0' cy='-8' r='6'/><circle cx='7.6' cy='-2.5' r='6'/><circle cx='4.7' cy='6.5' r='6'/><circle cx='-4.7' cy='6.5' r='6'/><circle cx='-7.6' cy='-2.5' r='6'/></g><g transform='translate(70 240) rotate(20)'><circle cx='0' cy='-8' r='6'/><circle cx='7.6' cy='-2.5' r='6'/><circle cx='4.7' cy='6.5' r='6'/><circle cx='-4.7' cy='6.5' r='6'/><circle cx='-7.6' cy='-2.5' r='6'/></g></g></svg>");
+  --journal-motif-size: 400px;
+}
+:is(html[data-ri-theme="rose"], .theme-choice-art[data-theme-art="rose"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(106,48,72)' stroke='rgb(106,48,72)' stroke-width='0' opacity='0.08' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(90 90)'><path d='M0 0m-4 0a4 4 0 1 1 8 0a8 8 0 1 1 -16 0a12 12 0 1 1 24 0a16 16 0 1 1 -32 0' fill='none' stroke-width='2.2'/><path d='M-6 18C-18 30-30 26-34 22C-22 16-12 14-6 18Z'/></g><g transform='translate(230 230) rotate(40) scale(0.8)'><path d='M0 0m-4 0a4 4 0 1 1 8 0a8 8 0 1 1 -16 0a12 12 0 1 1 24 0a16 16 0 1 1 -32 0' fill='none' stroke-width='2.2'/><path d='M-6 18C-18 30-30 26-34 22C-22 16-12 14-6 18Z'/></g><g transform='translate(240 70) rotate(10)'><circle cx='0' cy='-8' r='6'/><circle cx='7.6' cy='-2.5' r='6'/><circle cx='4.7' cy='6.5' r='6'/><circle cx='-4.7' cy='6.5' r='6'/><circle cx='-7.6' cy='-2.5' r='6'/></g><g transform='translate(70 240) rotate(-30)'><path d='M0 0C9-13 29-15 44 0C29 15 9 13 0 0Z'/></g></g></svg>");
+  --journal-motif-size: 400px;
+}
+:is(html[data-ri-theme="terracotta"], .theme-choice-art[data-theme-art="terracotta"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(101,59,43)' stroke='rgb(101,59,43)' stroke-width='0' opacity='0.08' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(80 100)'><path d='M-20 30V-4A20 20 0 0 1 20-4V30' fill='none' stroke-width='2.2'/><path d='M-30 30V-8A30 30 0 0 1 30-8V30' fill='none' stroke-width='1.2'/></g><g transform='translate(230 230) scale(1.2)'><path d='M-12-16H12L9-10C18-4 18 14 8 18H-8C-18 14-18-4-9-10Z'/></g><g transform='translate(250 70) scale(0.8)'><path d='M-12-16H12L9-10C18-4 18 14 8 18H-8C-18 14-18-4-9-10Z'/></g><g transform='translate(70 250) scale(0.7)'><path d='M-20 30V-4A20 20 0 0 1 20-4V30' fill='none' stroke-width='2.2'/><path d='M-30 30V-8A30 30 0 0 1 30-8V30' fill='none' stroke-width='1.2'/></g></g></svg>");
+  --journal-motif-size: 420px;
+}
+:is(html[data-ri-theme="amber"], .theme-choice-art[data-theme-art="amber"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(99,67,24)' stroke='rgb(99,67,24)' stroke-width='0' opacity='0.09' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(60 70)'><path d='M0-14L12-7V7L0 14L-12 7V-7Z' fill='none' stroke-width='1.8'/><g transform='translate(24 0)'><path d='M0-14L12-7V7L0 14L-12 7V-7Z' fill='none' stroke-width='1.8'/></g><g transform='translate(12 21)'><path d='M0-14L12-7V7L0 14L-12 7V-7Z' fill='none' stroke-width='1.8'/></g><g transform='translate(-12 21)'><path d='M0-14L12-7V7L0 14L-12 7V-7Z' fill='none' stroke-width='1.8'/></g><g transform='translate(36 21)'><path d='M0-14L12-7V7L0 14L-12 7V-7Z' fill='none' stroke-width='1.8'/></g></g><g transform='translate(210 210) scale(0.8)'><path d='M0-14L12-7V7L0 14L-12 7V-7Z' fill='none' stroke-width='1.8'/><g transform='translate(24 0)'><path d='M0-14L12-7V7L0 14L-12 7V-7Z' fill='none' stroke-width='1.8'/></g><g transform='translate(12 21)'><path d='M0-14L12-7V7L0 14L-12 7V-7Z' fill='none' stroke-width='1.8'/></g><g transform='translate(-12 21)'><path d='M0-14L12-7V7L0 14L-12 7V-7Z' fill='none' stroke-width='1.8'/></g><g transform='translate(36 21)'><path d='M0-14L12-7V7L0 14L-12 7V-7Z' fill='none' stroke-width='1.8'/></g></g><g transform='translate(240 70)'><circle r='12'/><rect x='18' y='-1.5' width='10' height='3'/><g transform='rotate(45)'><rect x='18' y='-1.5' width='10' height='3'/></g><g transform='rotate(90)'><rect x='18' y='-1.5' width='10' height='3'/></g><g transform='rotate(135)'><rect x='18' y='-1.5' width='10' height='3'/></g><g transform='rotate(180)'><rect x='18' y='-1.5' width='10' height='3'/></g><g transform='rotate(225)'><rect x='18' y='-1.5' width='10' height='3'/></g><g transform='rotate(270)'><rect x='18' y='-1.5' width='10' height='3'/></g><g transform='rotate(315)'><rect x='18' y='-1.5' width='10' height='3'/></g></g></g></svg>");
+  --journal-motif-size: 400px;
+}
+:is(html[data-ri-theme="indigo"], .theme-choice-art[data-theme-art="indigo"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(196,192,255)' stroke='rgb(196,192,255)' stroke-width='0' opacity='0.13' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(80 80)'><path d='M10-22A24 24 0 1 0 10 22A18 18 0 1 1 10-22Z'/></g><g transform='translate(220 90)'><g transform='translate(-40 -30) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g><g transform='translate(35 -42) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g><g transform='translate(52 20) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g></g><g transform='translate(90 240)'><g transform='translate(-40 -30) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g><g transform='translate(35 -42) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g><g transform='translate(52 20) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g><g transform='translate(-55 30) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g></g><g transform='translate(240 240) scale(1.2)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g></g></svg>");
+  --journal-motif-size: 360px;
+}
+:is(html[data-ri-theme="plum"], .theme-choice-art[data-theme-art="plum"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(234,190,224)' stroke='rgb(234,190,224)' stroke-width='0' opacity='0.11' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(60 60)'><path d='M-20 20C10 0 30 10 70 -10' fill='none' stroke-width='3'/></g><g transform='translate(80 70)'><circle cx='0' cy='-8' r='6'/><circle cx='7.6' cy='-2.5' r='6'/><circle cx='4.7' cy='6.5' r='6'/><circle cx='-4.7' cy='6.5' r='6'/><circle cx='-7.6' cy='-2.5' r='6'/></g><g transform='translate(120 52) rotate(30) scale(0.8)'><circle cx='0' cy='-8' r='6'/><circle cx='7.6' cy='-2.5' r='6'/><circle cx='4.7' cy='6.5' r='6'/><circle cx='-4.7' cy='6.5' r='6'/><circle cx='-7.6' cy='-2.5' r='6'/></g><g transform='translate(230 220) rotate(15) scale(1.1)'><circle cx='0' cy='-8' r='6'/><circle cx='7.6' cy='-2.5' r='6'/><circle cx='4.7' cy='6.5' r='6'/><circle cx='-4.7' cy='6.5' r='6'/><circle cx='-7.6' cy='-2.5' r='6'/></g><g transform='translate(80 240) rotate(40) scale(0.7)'><circle cx='0' cy='-8' r='6'/><circle cx='7.6' cy='-2.5' r='6'/><circle cx='4.7' cy='6.5' r='6'/><circle cx='-4.7' cy='6.5' r='6'/><circle cx='-7.6' cy='-2.5' r='6'/></g></g></svg>");
+  --journal-motif-size: 400px;
+}
+:is(html[data-ri-theme="forest"], .theme-choice-art[data-theme-art="forest"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(178,214,166)' stroke='rgb(178,214,166)' stroke-width='0' opacity='0.11' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(70 100)'><path d='M0-34L14-12H7L19 6H9L22 24H-22L-9 6H-19L-7-12H-14Z'/><rect x='-2.5' y='24' width='5' height='8'/></g><g transform='translate(110 112) scale(0.75)'><path d='M0-34L14-12H7L19 6H9L22 24H-22L-9 6H-19L-7-12H-14Z'/><rect x='-2.5' y='24' width='5' height='8'/></g><g transform='translate(230 240) scale(0.9)'><path d='M0-34L14-12H7L19 6H9L22 24H-22L-9 6H-19L-7-12H-14Z'/><rect x='-2.5' y='24' width='5' height='8'/></g><g transform='translate(240 70)'><g transform='translate(-40 -30) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g><g transform='translate(35 -42) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g></g></g></svg>");
+  --journal-motif-size: 380px;
+}
+:is(html[data-ri-theme="ocean"], .theme-choice-art[data-theme-art="ocean"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(150,206,236)' stroke='rgb(150,206,236)' stroke-width='0' opacity='0.12' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(120 80)'><path d='M-60 0Q-45-12-30 0T0 0T30 0T60 0' fill='none' stroke-width='2.4'/><path d='M-50 12Q-35 0-20 12T10 12T40 12' fill='none' stroke-width='1.4'/></g><g transform='translate(240 220) scale(0.9)'><path d='M-60 0Q-45-12-30 0T0 0T30 0T60 0' fill='none' stroke-width='2.4'/><path d='M-50 12Q-35 0-20 12T10 12T40 12' fill='none' stroke-width='1.4'/></g><g transform='translate(70 220)'><circle r='5' fill='none' stroke-width='1.5'/><circle cx='12' cy='-14' r='3' fill='none' stroke-width='1.2'/></g></g></svg>");
+  --journal-motif-size: 420px;
+}
+:is(html[data-ri-theme="slate"], .theme-choice-art[data-theme-art="slate"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(200,214,228)' stroke='rgb(200,214,228)' stroke-width='0' opacity='0.1' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(80 100)'><ellipse cx='0' cy='22' rx='26' ry='9'/><ellipse cx='-2' cy='5' rx='19' ry='7.5'/><ellipse cx='1' cy='-9' rx='13' ry='6'/><ellipse cx='0' cy='-20' rx='8' ry='4.5'/></g><g transform='translate(230 240) scale(0.75)'><ellipse cx='0' cy='22' rx='26' ry='9'/><ellipse cx='-2' cy='5' rx='19' ry='7.5'/><ellipse cx='1' cy='-9' rx='13' ry='6'/><ellipse cx='0' cy='-20' rx='8' ry='4.5'/></g><g transform='translate(240 80)'><ellipse rx='14' ry='6'/></g><g transform='translate(70 250)'><ellipse rx='10' ry='4.5'/></g></g></svg>");
+  --journal-motif-size: 380px;
+}
+:is(html[data-ri-theme="copper"], .theme-choice-art[data-theme-art="copper"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(240,190,150)' stroke='rgb(240,190,150)' stroke-width='0' opacity='0.1' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(130 110)'><path d='M-70 20H70L52 4H34L28-10H-6L-12 4H-40L-48 20Z'/><path d='M-60 28H60' fill='none' stroke-width='1.5'/><circle cx='40' cy='-30' r='9'/></g><g transform='translate(260 260) scale(0.7)'><path d='M-70 20H70L52 4H34L28-10H-6L-12 4H-40L-48 20Z'/><path d='M-60 28H60' fill='none' stroke-width='1.5'/><circle cx='40' cy='-30' r='9'/></g><g transform='translate(60 250)'><path d='M-30 0H30M-20 8H20' fill='none' stroke-width='1.5'/></g></g></svg>");
+  --journal-motif-size: 440px;
+}
+:is(html[data-ri-theme="aurora"], .theme-choice-art[data-theme-art="aurora"]) {
+  --journal-motif: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='rgb(190,236,226)' stroke='rgb(190,236,226)' stroke-width='0' opacity='0.12' stroke-linecap='round' stroke-linejoin='round'><g transform='translate(140 90)'><path d='M-70 10C-40-20-10 30 20 0S60-10 70-20' fill='none' stroke-width='5' stroke-linecap='round' opacity='.7'/><path d='M-70 24C-40-6-10 44 20 14S60 4 70-6' fill='none' stroke-width='2' stroke-linecap='round'/></g><g transform='translate(200 240) rotate(-8) scale(0.8)'><path d='M-70 10C-40-20-10 30 20 0S60-10 70-20' fill='none' stroke-width='5' stroke-linecap='round' opacity='.7'/><path d='M-70 24C-40-6-10 44 20 14S60 4 70-6' fill='none' stroke-width='2' stroke-linecap='round'/></g><g transform='translate(80 220)'><g transform='translate(-40 -30) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g><g transform='translate(35 -42) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g><g transform='translate(52 20) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g></g><g transform='translate(260 40)'><g transform='translate(-40 -30) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g><g transform='translate(35 -42) scale(0.55)'><path d='M0-9C1-2 2-1 9 0C2 1 1 2 0 9C-1 2-2 1-9 0C-2-1-1-2 0-9Z'/></g></g></g></svg>");
+  --journal-motif-size: 420px;
 }

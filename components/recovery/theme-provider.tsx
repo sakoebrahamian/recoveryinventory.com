@@ -1,14 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { supportedTheme, themePreferenceKey, type JournalTheme } from "@/lib/journal-themes";
+import { isDarkTheme, supportedTheme, themePreferenceKey, type JournalTheme } from "@/lib/journal-themes";
 
 const ThemeContext = React.createContext<{ theme: JournalTheme; chooseTheme: (theme: JournalTheme) => void } | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = React.useState<JournalTheme>("sage");
   const apply = React.useCallback((next: JournalTheme) => {
-    document.documentElement.dataset.riTheme = next;
+    const root = document.documentElement;
+    root.dataset.riTheme = next;
+    if (isDarkTheme(next)) root.dataset.riDark = "";
+    else delete root.dataset.riDark;
     setTheme(next);
   }, []);
   React.useEffect(() => {
