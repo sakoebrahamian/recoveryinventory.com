@@ -1388,6 +1388,8 @@ export const spanishTranslations: Record<string, string> = {
   "Renews monthly or yearly, according to your choice. Cancel anytime.": "Se renueva cada mes o cada año, según tu elección. Cancela cuando quieras.",
   "Color theme": "Tema de color",
   "Choose your colors": "Elige tus colores",
+  "Light": "Claro",
+  "Dark": "Oscuro",
   "Saved on this browser.": "Se guarda en este navegador.",
   "Original sage": "Salvia original",
   "Ocean blue": "Azul océano",
