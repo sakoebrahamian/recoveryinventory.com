@@ -10912,6 +10912,19 @@ html[dir="rtl"] .ri-learning-preview {
   font-variant-numeric: tabular-nums;
 }
 
+.site-report-username-list {
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-report-username-list li {
+  border-top: 1px solid rgb(var(--theme-ink-rgb, 23 63 58) / 0.11);
+  padding: 0.6rem 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
 .site-report-privacy {
   display: flex;
   align-items: flex-start;
