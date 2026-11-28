@@ -18,6 +18,7 @@ const bundle = await build({
     contents: `
       import { POST } from "./app/api/site-analytics/route";
       import { GET } from "./app/api/site-analytics/report/route";
+      import { GET as getUsernames } from "./app/api/site-analytics/usernames/route";
       const RealDate = Date;
       let now = ${now} * 1_000;
       globalThis.Date = class extends RealDate {
@@ -28,7 +29,9 @@ const bundle = await build({
       export default {
         fetch(request: Request) {
           now = (${now} + Number(request.headers.get("x-test-elapsed") ?? 0)) * 1_000;
-          return request.method === "POST" ? POST(request) : GET(request);
+          if (request.method === "POST") return POST(request);
+          if (new URL(request.url).pathname === "/api/site-analytics/usernames") return getUsernames(request);
+          return GET(request);
         },
       };
     `,
@@ -68,6 +71,9 @@ try {
   const get = (params, account = "owner", elapsed = 0) => runtime.dispatchFetch(`https://analytics.test/api/site-analytics/report?${params}`, {
     headers: { ...(account ? { cookie: `ri_session=test-session-${account}` } : {}), "x-test-elapsed": String(elapsed) },
   });
+  const usernames = (account = "owner") => runtime.dispatchFetch("https://analytics.test/api/site-analytics/usernames", {
+    headers: account ? { cookie: `ri_session=test-session-${account}` } : {},
+  });
   const post = (events, headers = {}) => runtime.dispatchFetch("https://analytics.test/api/site-analytics", {
     method: "POST",
     headers: { "content-type": "application/json", "user-agent": "Mozilla/5.0", ...headers },
@@ -77,10 +83,33 @@ try {
   assert.equal((await get("hours=24", null)).status, 401);
   assert.equal((await get("hours=24", "member")).status, 403);
 
+  assert.deepEqual(await (await usernames()).json(), { usernames: [] });
+  await database.batch([
+    database.prepare("INSERT INTO users (id, alias, recovery_hash, created_at, updated_at) VALUES (?, ?, ?, ?, ?)")
+      .bind("anonymous", "Private alias", "recovery-anonymous", now, now),
+    ...[
+      ["member", "zebraring", "ZebraRing"],
+      ["anonymous", "bluebird", "BlueBird"],
+    ].map(([id, username, display]) => database.prepare(
+      "INSERT INTO password_accounts (user_id, username, username_display, password_hash, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+    ).bind(id, username, display, "test-password-hash", now, now)),
+  ]);
+  assert.equal((await usernames(null)).status, 401);
+  assert.equal((await usernames("member")).status, 403);
+  await database.prepare("UPDATE email_accounts SET verified_at = 0 WHERE user_id = 'owner'").run();
+  assert.equal((await usernames()).status, 403);
+  await database.prepare("UPDATE email_accounts SET verified_at = ? WHERE user_id = 'owner'").bind(now).run();
+
+  const usernameResponse = await usernames();
+  assert.equal(usernameResponse.status, 200);
+  assert.equal(usernameResponse.headers.get("cache-control"), "private, no-store");
+  assert.deepEqual(await usernameResponse.json(), { usernames: ["BlueBird", "ZebraRing"] });
+
   const dailyResponse = await get(`days=7&through=${day}`);
   assert.equal(dailyResponse.status, 200);
   assert.equal(dailyResponse.headers.get("cache-control"), "private, no-store");
   const daily = await dailyResponse.json();
+  assert.equal(Object.hasOwn(daily, "usernames"), false);
   assert.equal(daily.daily.length, 7);
   assert.equal(daily.totals.pageViews, 7);
 
@@ -137,7 +166,7 @@ try {
   assert.equal(updatedDaily.totals.pageViews, 8);
   assert.equal(updatedDaily.pageLanguages.demo.fr, 1);
 
-  console.log("Owner analytics checks passed: authorization, rolling boundaries, partial hours, daily history, breakdowns, retention and GPC.");
+  console.log("Owner analytics checks passed: authorization, registered usernames, rolling boundaries, partial hours, daily history, breakdowns, retention and GPC.");
 } finally {
   await runtime.dispose();
 }

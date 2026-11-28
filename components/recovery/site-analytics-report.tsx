@@ -4,7 +4,7 @@ import { dateTimeFormat, isRtlLanguage, languageLocale, languageNames, supported
 import { expandLocalizedRecord, translateForLanguage } from "@/lib/localization";
 import { SITE_ANALYTICS_RECENT_HOURS, type SiteAnalyticsReportData, type SiteAnalyticsTotals } from "@/lib/site-analytics-report";
 import * as React from "react";
-import { ArrowLeft, BarChart3, Eye, Info, MousePointerClick, RefreshCw, ShieldCheck, UserPlus, WalletCards, X } from "lucide-react";
+import { ArrowLeft, BarChart3, Eye, Info, MousePointerClick, RefreshCw, ShieldCheck, UserPlus, Users, WalletCards, X } from "lucide-react";
 import { LanguageAvailability } from "./language-availability";
 import { BrandMark } from "./brand-mark";
 import { SiteFooter } from "./site-footer";
@@ -15,7 +15,12 @@ const COPY = expandLocalizedRecord({
   en: {
     eyebrow: "Owner-only report",
     title: "Website audience",
-    intro: "Anonymous totals from public pages only. Member activity, account details, inventories, and notes are never included.",
+    intro: "Anonymous totals for public page visits, signups, and subscriptions.",
+    viewUsernames: "View usernames",
+    usernamesTitle: "Registered usernames",
+    usernamesLoading: "Loading usernames…",
+    usernamesFailed: "Could not load usernames. Please try again.",
+    usernamesEmpty: "No registered usernames yet.",
     back: "Back to private workspace",
     refresh: "Refresh",
     loading: "Opening the private report…",
@@ -61,7 +66,12 @@ const COPY = expandLocalizedRecord({
   es: {
     eyebrow: "Informe solo para la propietaria",
     title: "Audiencia del sitio web",
-    intro: "Totales anónimos solo de las páginas públicas. Nunca se incluyen la actividad de miembros, los datos de cuentas, los inventarios ni las notas.",
+    intro: "Totales anónimos de visitas a páginas públicas, registros y suscripciones.",
+    viewUsernames: "Ver nombres de usuario",
+    usernamesTitle: "Nombres de usuario registrados",
+    usernamesLoading: "Cargando nombres de usuario…",
+    usernamesFailed: "No se pudieron cargar los nombres de usuario. Inténtalo de nuevo.",
+    usernamesEmpty: "Todavía no hay nombres de usuario registrados.",
     back: "Volver al espacio privado",
     refresh: "Actualizar",
     loading: "Abriendo el informe privado…",
@@ -107,7 +117,12 @@ const COPY = expandLocalizedRecord({
   fa: {
     eyebrow: "گزارش ویژه مالک",
     title: "مخاطبان وب‌سایت",
-    intro: "فقط مجموع‌های ناشناس از صفحه‌های عمومی. فعالیت اعضا، اطلاعات حساب، ترازنامه‌ها و یادداشت‌ها هرگز در این گزارش نیستند.",
+    intro: "آمار ناشناس بازدید از صفحه‌های عمومی، ثبت‌نام‌ها و اشتراک‌ها.",
+    viewUsernames: "مشاهده نام‌های کاربری",
+    usernamesTitle: "نام‌های کاربری ثبت‌شده",
+    usernamesLoading: "در حال بارگذاری نام‌های کاربری…",
+    usernamesFailed: "نام‌های کاربری بارگذاری نشدند. لطفاً دوباره تلاش کنید.",
+    usernamesEmpty: "هنوز نام کاربری ثبت نشده است.",
     back: "بازگشت به فضای خصوصی",
     refresh: "تازه‌سازی",
     loading: "در حال باز کردن گزارش خصوصی…",
@@ -272,6 +287,71 @@ function SiteAnalyticsTrend({
   );
 }
 
+type UsernamesResult = { usernames: string[] } | { error: "denied" | "usernamesFailed" };
+
+function SiteAnalyticsUsernames({ copy }: { copy: (typeof COPY)["en"] }) {
+  const dialog = React.useRef<HTMLDialogElement>(null);
+  const title = React.useId();
+  const [open, setOpen] = React.useState(false);
+  const [result, setResult] = React.useState<UsernamesResult | null>(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const controller = new AbortController();
+
+    async function loadUsernames() {
+      try {
+        const response = await fetch("/api/site-analytics/usernames", { cache: "no-store", signal: controller.signal });
+        if (response.status === 401 || response.status === 403) {
+          if (!controller.signal.aborted) setResult({ error: "denied" });
+          return;
+        }
+        if (!response.ok) throw new Error("Username list request failed.");
+        const data = await response.json() as { usernames: string[] };
+        if (!controller.signal.aborted) setResult(data);
+      } catch {
+        if (!controller.signal.aborted) setResult({ error: "usernamesFailed" });
+      }
+    }
+
+    void loadUsernames();
+    return () => controller.abort();
+  }, [open]);
+
+  const usernames = result && "usernames" in result ? result.usernames : null;
+
+  return (
+    <>
+      <button className="button button-outline" type="button" aria-haspopup="dialog" onClick={() => {
+        dialog.current?.showModal();
+        setOpen(true);
+      }}><Users size={16} aria-hidden="true" />{copy.viewUsernames}</button>
+      <dialog ref={dialog} className="site-report-detail" aria-labelledby={title} onClose={() => {
+        setOpen(false);
+        setResult(null);
+      }} onClick={(event) => {
+        if (event.target === event.currentTarget) dialog.current?.close();
+      }}>
+        <div className="site-report-detail-content">
+          <div className="site-report-detail-heading">
+            <h2 id={title}>{copy.usernamesTitle}</h2>
+            <button type="button" aria-label={copy.close} onClick={() => dialog.current?.close()}><X size={21} aria-hidden="true" /></button>
+          </div>
+          {open && !result && <p className="site-report-empty" role="status">{copy.usernamesLoading}</p>}
+          {open && result && "error" in result && <p className="site-report-error" role="alert">{copy[result.error]}</p>}
+          {open && usernames && (usernames.length === 0 ? (
+            <p className="site-report-empty" role="status">{copy.usernamesEmpty}</p>
+          ) : (
+            <ul className="site-report-username-list" role="list">
+              {usernames.map((username) => <li key={username}><bdi>{username}</bdi></li>)}
+            </ul>
+          ))}
+        </div>
+      </dialog>
+    </>
+  );
+}
+
 export function SiteAnalyticsReport() {
   const { language } = useLanguage();
   const copy = COPY[language];
@@ -430,7 +510,10 @@ export function SiteAnalyticsReport() {
         <a className="site-report-back" href="/app"><ArrowLeft size={16} />{copy.back}</a>
         <div className="site-report-heading">
           <div><span>{copy.eyebrow}</span><h1>{copy.title}</h1><p>{copy.intro}</p></div>
-          <button className="button button-outline" type="button" onClick={refreshReport} disabled={loading}><RefreshCw size={16} />{copy.refresh}</button>
+          <div className="dashboard-heading-actions">
+            {report && !error && <SiteAnalyticsUsernames copy={copy} />}
+            <button className="button button-outline" type="button" onClick={refreshReport} disabled={loading}><RefreshCw size={16} />{copy.refresh}</button>
+          </div>
         </div>
         <div className="site-report-ranges" role="group" aria-label={copy.title}>
           {([[SITE_ANALYTICS_RECENT_HOURS, copy.last24], [7, copy.days7], [30, copy.days30], [90, copy.days90], [395, copy.months13]] as const).map(([value, label]) => (
